@@ -1,0 +1,67 @@
+{
+  "name": "@agile-exec/api-client",
+  "version": "0.1.0",
+  "description": "Auto-generated Vue-compatible API client for AE SaaS Basic",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./composables": {
+      "types": "./dist/composables.d.ts",
+      "import": "./dist/composables.js",
+      "require": "./dist/composables.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "generate": "node scripts/generate-client.js",
+    "build": "tsup",
+    "build-watch": "tsup --watch",
+    "dev": "tsup --watch",
+    "prepublishOnly": "npm run generate && npm run build",
+    "test": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "api-client",
+    "typescript",
+    "vue",
+    "composables",
+    "swagger",
+    "openapi"
+  ],
+  "author": "Alex",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "openapi-typescript": "^6.7.0",
+    "swagger2openapi": "^7.0.8",
+    "tsup": "^8.0.0",
+    "typescript": "^5.0.0",
+    "vitest": "^1.0.0",
+    "vue": "^3.0.0"
+  },
+  "peerDependencies": {
+    "vue": "^3.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/unburdy/ae-saas-api-client.git"
+  },
+  "bugs": {
+    "url": "https://github.com/unburdy/ae-saas-api-client/issues"
+  },
+  "homepage": "https://github.com/unburdy/ae-saas-api-client#readme"
+}
