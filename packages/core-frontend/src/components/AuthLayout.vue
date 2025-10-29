@@ -1,5 +1,5 @@
 <template>
-  <div class="relative h-full w-full bg-base-100/40 sm:bg-transparent">
+  <div class="relative h-screen w-full bg-base-100/40 sm:bg-transparent">
     <!-- Main content area -->
     <div class="h-full w-full overflow-auto sm:flex sm:items-center sm:justify-center sm:px-4 py-16 sm:0">
       <slot />
