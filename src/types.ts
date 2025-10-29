@@ -1830,6 +1830,10 @@ export interface paths {
 
 export type webhooks = Record<string, never>;
 
+// Export commonly used types
+export type Client = components['schemas']['models.ClientResponse'];
+export type CreateClientRequest = components['schemas']['models.CreateClientRequest'];
+
 export interface components {
   schemas: {
     /** @description Contact form submission request */

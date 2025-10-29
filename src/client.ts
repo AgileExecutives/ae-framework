@@ -1,4 +1,5 @@
-import axios, { AxiosInstance, AxiosResponse, AxiosRequestConfig } from 'axios';
+import axios from 'axios';
+import type { AxiosInstance, AxiosResponse, AxiosRequestConfig } from 'axios';
 import type { paths, components } from './types';
 
 // API Response types
@@ -99,6 +100,11 @@ export class AESaasApiClient {
       data,
       params,
     };
+
+    // Debug logging for authentication
+    if (this.token) {
+      console.log(`🔐 Making authenticated request: ${method} ${path} with Bearer token`);
+    }
 
     const response: AxiosResponse<T> = await this.client.request(config);
     return response.data;
@@ -217,6 +223,128 @@ export class AESaasApiClient {
   async updateUserSettings(data: any) {
     const response = await this.request<ApiResponse<any>>('PUT', '/user-settings', data);
     return response.data!;
+  }
+
+  // Client methods
+  async getClients(params?: { page?: number; limit?: number }) {
+    try {
+      const response = await this.request<any>('GET', '/clients', undefined, params);
+      
+      // Handle the actual API response format: {"clients": [...], "total": 46, "page": 1, "limit": 10}
+      if (response && response.clients) {
+        return {
+          success: true,
+          data: response.clients,
+          pagination: {
+            total: response.total,
+            page: response.page,
+            limit: response.limit
+          }
+        };
+      }
+      
+      // Fallback for other formats
+      return {
+        success: true,
+        data: Array.isArray(response) ? response : []
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to fetch clients',
+        data: []
+      };
+    }
+  }
+
+  async getClient(id: number) {
+    try {
+      const response = await this.request<any>('GET', `/clients/${id}`);
+      return {
+        success: true,
+        data: response
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to fetch client'
+      };
+    }
+  }
+
+  async createClient(data: any) {
+    try {
+      const response = await this.request<any>('POST', '/clients', data);
+      return {
+        success: true,
+        data: response
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to create client'
+      };
+    }
+  }
+
+  async updateClient(id: number, data: any) {
+    try {
+      const response = await this.request<any>('PUT', `/clients/${id}`, data);
+      return {
+        success: true,
+        data: response
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to update client'
+      };
+    }
+  }
+
+  async deleteClient(id: number) {
+    try {
+      await this.request<any>('DELETE', `/clients/${id}`);
+      return {
+        success: true
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to delete client'
+      };
+    }
+  }
+
+  async searchClients(params: { q: string; page?: number; limit?: number }) {
+    try {
+      const response = await this.request<any>('GET', '/clients/search', undefined, params);
+      
+      // Handle the actual API response format
+      if (response && response.clients) {
+        return {
+          success: true,
+          data: response.clients,
+          pagination: {
+            total: response.total,
+            page: response.page,
+            limit: response.limit
+          }
+        };
+      }
+      
+      // Fallback for other formats
+      return {
+        success: true,
+        data: Array.isArray(response) ? response : []
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to search clients',
+        data: []
+      };
+    }
   }
 }
 
