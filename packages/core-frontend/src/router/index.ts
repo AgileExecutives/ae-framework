@@ -1,11 +1,11 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { addCatchAllRoute, createBaseRoutes } from './shared-routes.js'
+import { createBaseRoutes } from './shared-routes.js'
 import  AuthRestrictedView from '../views/AuthRestrictedView.vue'
 
 // Create default routes using base components
 const routes = [
   {
-    path: '/',
+    path: '/restricted',
     name: 'AuthRestrictedView',
     component: AuthRestrictedView,
     meta: { requiresAuth: true },

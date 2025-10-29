@@ -4,6 +4,7 @@ import { createPinia } from 'pinia'
 import App from './App.vue'
 import router from './router'
 import { addMiddleware } from './router/middleware'
+import AuthRestrictedView from './views/AuthRestrictedView.vue'
 
 import { createI18n } from 'vue-i18n'
 import './style.css'
