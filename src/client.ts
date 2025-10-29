@@ -1,5 +1,4 @@
-import axios from 'axios';
-import type { AxiosInstance, AxiosResponse, AxiosRequestConfig } from 'axios';
+import axios, { AxiosInstance, AxiosResponse, AxiosRequestConfig } from 'axios';
 import type { paths, components } from './types';
 
 // API Response types
@@ -101,14 +100,6 @@ export class AESaasApiClient {
       params,
     };
 
-    console.log('🔍 Client API: Making request', {
-      method,
-      path,
-      hasData: !!data,
-      data: data ? JSON.stringify(data) : 'none',
-      hasToken: !!this.token
-    });
-
     const response: AxiosResponse<T> = await this.client.request(config);
     return response.data;
   }
@@ -122,22 +113,6 @@ export class AESaasApiClient {
     return response.data!;
   }
 
-  async register(credentials: { 
-    username: string; 
-    email: string; 
-    password: string; 
-    first_name: string; 
-    last_name: string; 
-    tenant_id?: number;
-    role?: string;
-    accept_terms?: boolean;
-    newsletter_opt_in?: boolean;
-    company_name?: string;
-  }) {
-    const response = await this.request<ApiResponse<{ user: any; token?: string }>>('POST', '/auth/register', credentials);
-    return response.data!;
-  }
-
   async logout() {
     await this.request<ApiResponse>('POST', '/auth/logout');
     this.clearToken();
@@ -146,35 +121,6 @@ export class AESaasApiClient {
   async getCurrentUser() {
     const response = await this.request<ApiResponse<any>>('GET', '/auth/me');
     return response.data!;
-  }
-
-  async changePassword(credentials: { current_password: string; new_password: string }) {
-    console.log('🔍 Client API: changePassword called with credentials:', { 
-      has_current: !!credentials.current_password, 
-      has_new: !!credentials.new_password,
-      token: this.token ? 'present' : 'missing'
-    });
-    const response = await this.request<ApiResponse<any>>('POST', '/auth/change-password', credentials);
-    return response.data!;
-  }
-
-  async forgotPassword(email: string) {
-    const response = await this.request<ApiResponse<any>>('POST', '/auth/forgot-password', { email });
-    return response;
-  }
-
-  async resetPassword(token: string, newPassword: string) {
-    const response = await this.request<ApiResponse<any>>('POST', `/auth/new-password/${token}`, { new_password: newPassword });
-    return response;
-  }
-
-  async getPasswordSecurity() {
-    return this.request<{
-      minLength: number;
-      capital: boolean;
-      numbers: boolean;
-      special: boolean;
-    }>('GET', '/auth/password-security');
   }
 
   // Health check methods

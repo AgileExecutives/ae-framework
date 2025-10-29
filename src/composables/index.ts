@@ -114,10 +114,7 @@ export function useResource<T = any>(resourceName: string) {
       
       items.value = response.data || [];
       if (response.pagination) {
-        pagination.page = response.pagination.page || pagination.page;
-        pagination.limit = response.pagination.limit || pagination.limit;
-        pagination.total = response.pagination.total || pagination.total;
-        pagination.totalPages = response.pagination.total_pages || pagination.totalPages;
+        Object.assign(pagination, response.pagination);
       }
       
       return response;
@@ -209,7 +206,7 @@ export function useResource<T = any>(resourceName: string) {
     items: readonly(items),
     loading: readonly(loading),
     error: readonly(error),
-    pagination: pagination,
+    pagination: readonly(pagination),
     fetchItems,
     createItem,
     updateItem,
