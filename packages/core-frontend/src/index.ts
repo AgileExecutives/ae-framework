@@ -75,6 +75,7 @@ export { cn } from './lib/utils'
 
 // App Configuration
 export * from './config/app-config'
+export * from './config/api-config'
 export { useAppConfig } from './composables/useAppConfig'
 export { useDarkMode } from './composables/useDarkMode'
 
