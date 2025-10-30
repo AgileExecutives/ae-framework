@@ -17,8 +17,8 @@
 </template>
 
 <script lang="ts" setup>
-import LogoutButton from '@/components/LogoutButton.vue';
-import ThemeToggle from "@/components/ThemeToggle.vue"
-import LocaleSwitcher from "@/components/LocaleSwitcher.vue"
+import LogoutButton from '@@/components/LogoutButton.vue';
+import ThemeToggle from "@@/components/ThemeToggle.vue"
+import LocaleSwitcher from "@@/components/LocaleSwitcher.vue"
 defineProps<{ showLogoutButton?: boolean }>();
 </script>

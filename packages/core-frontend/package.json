@@ -9,22 +9,43 @@
   "style": "./dist/unburdy-base-app.css",
   "exports": {
     ".": {
-      "import": "./dist/unburdy-base-app.es.js",
-      "require": "./dist/unburdy-base-app.cjs.js"
+      "import": {
+        "types": "./dist/types/index.d.ts",
+        "default": "./dist/unburdy-base-app.es.js"
+      },
+      "require": {
+        "types": "./dist/types/index.d.ts",
+        "default": "./dist/unburdy-base-app.cjs.js"
+      }
     },
     "./style.css": "./src/style.css",
-    "./lib/utils": "./src/lib/utils.ts",
-    "./components": "./src/components/index.ts",
+    "./lib/utils": {
+      "types": "./dist/types/lib/utils.d.ts",
+      "default": "./src/lib/utils.ts"
+    },
+    "./components": {
+      "types": "./dist/types/components/index.d.ts",
+      "default": "./src/components/index.ts"
+    },
     "./components/*": "./src/components/*",
     "./components/ui/*": "./src/components/ui/*",
     "./components/base-app/*": "./src/components/base-app/*",
-    "./config": "./src/config/app-config.ts",
+    "./config/app-config": {
+      "types": "./dist/types/config/app-config.d.ts",
+      "default": "./src/config/app-config.ts"
+    },
     "./config/*": "./src/config/*",
-    "./composables": "./src/composables/index.ts",
+    "./composables": {
+      "types": "./dist/types/composables/index.d.ts",
+      "default": "./src/composables/index.ts"
+    },
     "./composables/*": "./src/composables/*",
     "./views/*": "./src/views/*",
     "./stores/*": "./src/stores/*",
-    "./router": "./src/router/index.ts",
+    "./router": {
+      "types": "./dist/types/router/index.d.ts",
+      "default": "./src/router/index.ts"
+    },
     "./router/*": "./src/router/*"
   },
   "files": [

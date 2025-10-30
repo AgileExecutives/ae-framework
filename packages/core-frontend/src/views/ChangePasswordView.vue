@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import ChangePasswordForm from "@/components/ChangePasswordForm.vue"
-import AuthLayout from "@/components/AuthLayout.vue"
+import ChangePasswordForm from "@@/components/ChangePasswordForm.vue"
+import AuthLayout from "@@/components/AuthLayout.vue"
 </script>
 
 <template>
