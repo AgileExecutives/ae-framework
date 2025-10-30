@@ -316,6 +316,61 @@ export class AESaasApiClient {
     }
   }
 
+  // Cost Provider methods
+  async getCostProviders(params?: { page?: number; limit?: number }) {
+    try {
+      const response = await this.request<any>('GET', '/cost-providers', undefined, params);
+      
+      // Handle the actual API response format
+      if (response && response.cost_providers) {
+        return {
+          success: true,
+          data: response.cost_providers,
+          pagination: {
+            total: response.total,
+            page: response.page,
+            limit: response.limit
+          }
+        };
+      }
+      
+      // Handle array response
+      if (Array.isArray(response)) {
+        return {
+          success: true,
+          data: response
+        };
+      }
+      
+      // Fallback
+      return {
+        success: true,
+        data: []
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to fetch cost providers',
+        data: []
+      };
+    }
+  }
+
+  async getCostProvider(id: number) {
+    try {
+      const response = await this.request<any>('GET', `/cost-providers/${id}`);
+      return {
+        success: true,
+        data: response
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to fetch cost provider'
+      };
+    }
+  }
+
   async searchClients(params: { q: string; page?: number; limit?: number }) {
     try {
       const response = await this.request<any>('GET', '/clients/search', undefined, params);
