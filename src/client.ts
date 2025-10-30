@@ -129,6 +129,34 @@ export class AESaasApiClient {
     return response.data!;
   }
 
+  async register(credentials: { username: string; email: string; password: string }) {
+    const response = await this.request<ApiResponse<{ token: string; user: any }>>('POST', '/auth/register', credentials);
+    if (response.data?.token) {
+      this.setToken(response.data.token);
+    }
+    return response.data!;
+  }
+
+  async changePassword(credentials: { current_password: string; new_password: string }) {
+    const response = await this.request<ApiResponse>('POST', '/auth/change-password', credentials);
+    return response.data!;
+  }
+
+  async forgotPassword(email: string) {
+    const response = await this.request<ApiResponse>('POST', '/auth/forgot-password', { email });
+    return response.data!;
+  }
+
+  async resetPassword(token: string, newPassword: string) {
+    const response = await this.request<ApiResponse>('POST', '/auth/reset-password', { token, password: newPassword });
+    return response.data!;
+  }
+
+  async getPasswordSecurity() {
+    const response = await this.request<ApiResponse<any>>('GET', '/auth/password-security');
+    return response.data!;
+  }
+
   // Health check methods
   async health() {
     return this.request<{ status: string }>('GET', '/health');
