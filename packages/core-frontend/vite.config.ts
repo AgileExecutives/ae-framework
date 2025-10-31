@@ -16,7 +16,14 @@ export default defineConfig({
   server: {
     port: 3003,
     host: '0.0.0.0',
-    allowedHosts:  [process.env.ALLOWED_HOST || 'localhost']
+    allowedHosts:  [process.env.ALLOWED_HOST || 'localhost'],
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, '/api')
+      }
+    }
   },
   build: {
     lib: {
