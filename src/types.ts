@@ -5,282 +5,6 @@
 
 
 export interface paths {
-  "/admin/modules": {
-    /**
-     * Get registered modules
-     * @description Get information about all registered modules in the system
-     */
-    get: {
-      responses: {
-        /** @description OK */
-        200: {
-          content: {
-            "application/json": components["schemas"]["models.APIResponse"] & {
-              data?: components["schemas"]["github_com_ae-saas-basic_ae-saas-basic_internal_modules.ModuleInfo"][];
-            };
-          };
-        };
-        /** @description Unauthorized */
-        401: {
-          content: {
-            "application/json": components["schemas"]["models.ErrorResponse"];
-          };
-        };
-      };
-    };
-  };
-  "/admin/modules/{name}": {
-    /**
-     * Get module details
-     * @description Get detailed information about a specific module by name
-     */
-    get: {
-      parameters: {
-        path: {
-          /** @description Module name */
-          name: string;
-        };
-      };
-      responses: {
-        /** @description OK */
-        200: {
-          content: {
-            "application/json": components["schemas"]["models.APIResponse"] & {
-              data?: components["schemas"]["github_com_ae-saas-basic_ae-saas-basic_internal_modules.ModuleInfo"];
-            };
-          };
-        };
-        /** @description Unauthorized */
-        401: {
-          content: {
-            "application/json": components["schemas"]["models.ErrorResponse"];
-          };
-        };
-        /** @description Not Found */
-        404: {
-          content: {
-            "application/json": components["schemas"]["models.ErrorResponse"];
-          };
-        };
-      };
-    };
-  };
-  "/api/v1/modules/demo/demo": {
-    /**
-     * Get demo information
-     * @description Get information about the demo module
-     */
-    get: {
-      responses: {
-        /** @description Demo information */
-        200: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-      };
-    };
-  };
-  "/api/v1/modules/demo/items": {
-    /**
-     * Get all demo items
-     * @description Retrieve all demo items from the demo module
-     */
-    get: {
-      responses: {
-        /** @description List of demo items */
-        200: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-        /** @description Unauthorized */
-        401: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-      };
-    };
-    /**
-     * Create a new demo item
-     * @description Create a new demo item in the demo module
-     */
-    post: {
-      /** @description Demo item data */
-      requestBody: {
-        content: {
-          "application/json": {
-            [key: string]: unknown;
-          };
-        };
-      };
-      responses: {
-        /** @description Created demo item */
-        201: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-        /** @description Bad request */
-        400: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-        /** @description Unauthorized */
-        401: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-      };
-    };
-  };
-  "/api/v1/modules/demo/items/{id}": {
-    /**
-     * Get demo item by ID
-     * @description Retrieve a specific demo item by its ID
-     */
-    get: {
-      parameters: {
-        path: {
-          /** @description Demo Item ID */
-          id: number;
-        };
-      };
-      responses: {
-        /** @description Demo item details */
-        200: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-        /** @description Unauthorized */
-        401: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-        /** @description Demo item not found */
-        404: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-      };
-    };
-    /**
-     * Update a demo item
-     * @description Update an existing demo item by ID
-     */
-    put: {
-      parameters: {
-        path: {
-          /** @description Demo Item ID */
-          id: number;
-        };
-      };
-      /** @description Updated demo item data */
-      requestBody: {
-        content: {
-          "application/json": {
-            [key: string]: unknown;
-          };
-        };
-      };
-      responses: {
-        /** @description Updated demo item */
-        200: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-        /** @description Bad request */
-        400: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-        /** @description Unauthorized */
-        401: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-        /** @description Demo item not found */
-        404: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-      };
-    };
-    /**
-     * Delete a demo item
-     * @description Delete a demo item by ID
-     */
-    delete: {
-      parameters: {
-        path: {
-          /** @description Demo Item ID */
-          id: number;
-        };
-      };
-      responses: {
-        /** @description Deletion confirmation */
-        200: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-        /** @description Unauthorized */
-        401: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-        /** @description Demo item not found */
-        404: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-      };
-    };
-  };
   "/api/v1/pdf/create": {
     /**
      * Generate PDF from template
@@ -290,79 +14,26 @@ export interface paths {
       /** @description PDF generation request */
       requestBody: {
         content: {
-          "application/json": components["schemas"]["handlers.PDFGenerateRequest"];
+          "application/json": components["schemas"]["github_com_ae-base-server_modules_pdf_handlers.PDFGenerateRequest"];
         };
       };
       responses: {
         /** @description PDF generated successfully */
         200: {
           content: {
-            "application/json": components["schemas"]["handlers.PDFGenerateResponse"];
+            "application/json": components["schemas"]["github_com_ae-base-server_modules_pdf_handlers.PDFGenerateResponse"];
           };
         };
         /** @description Invalid request */
         400: {
           content: {
-            "application/json": components["schemas"]["handlers.ErrorResponse"];
+            "application/json": components["schemas"]["github_com_ae-base-server_modules_pdf_handlers.ErrorResponse"];
           };
         };
         /** @description Failed to generate PDF */
         500: {
           content: {
-            "application/json": components["schemas"]["handlers.ErrorResponse"];
-          };
-        };
-      };
-    };
-  };
-  "/api/v1/ping": {
-    /**
-     * Ping check
-     * @description Simple ping endpoint
-     */
-    get: {
-      responses: {
-        /** @description pong */
-        200: {
-          content: {
-            "application/json": string;
-          };
-        };
-      };
-    };
-  };
-  "/auth/change-password": {
-    /**
-     * Change password
-     * @description Change user password
-     */
-    post: {
-      /** @description Password change data */
-      requestBody: {
-        content: {
-          "application/json": {
-            current_password?: string;
-            new_password?: string;
-          };
-        };
-      };
-      responses: {
-        /** @description OK */
-        200: {
-          content: {
-            "application/json": components["schemas"]["models.APIResponse"];
-          };
-        };
-        /** @description Bad Request */
-        400: {
-          content: {
-            "application/json": components["schemas"]["models.ErrorResponse"];
-          };
-        };
-        /** @description Unauthorized */
-        401: {
-          content: {
-            "application/json": components["schemas"]["models.ErrorResponse"];
+            "application/json": components["schemas"]["github_com_ae-base-server_modules_pdf_handlers.ErrorResponse"];
           };
         };
       };
@@ -371,67 +42,26 @@ export interface paths {
   "/auth/forgot-password": {
     /**
      * Request password reset
-     * @description Send password reset link to user email
+     * @description Send password reset email to user
      */
     post: {
-      /** @description User email */
+      /** @description Password reset request */
       requestBody: {
         content: {
-          "application/json": {
-            email?: string;
-          };
+          "application/json": components["schemas"]["models.ForgotPasswordRequest"];
         };
       };
       responses: {
         /** @description OK */
         200: {
           content: {
-            "application/json": components["schemas"]["models.APIResponse"];
+            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.APIResponse"];
           };
         };
         /** @description Bad Request */
         400: {
           content: {
-            "application/json": components["schemas"]["models.ErrorResponse"];
-          };
-        };
-      };
-    };
-  };
-  "/auth/generate-signup-token": {
-    /**
-     * Generate user signup token
-     * @description Generate a token for inviting users to join a specific tenant
-     */
-    post: {
-      responses: {
-        /** @description OK */
-        200: {
-          content: {
-            "application/json": components["schemas"]["models.APIResponse"] & {
-              data?: {
-                expires_in?: string;
-                token?: string;
-              };
-            };
-          };
-        };
-        /** @description Bad Request */
-        400: {
-          content: {
-            "application/json": components["schemas"]["models.ErrorResponse"];
-          };
-        };
-        /** @description Unauthorized */
-        401: {
-          content: {
-            "application/json": components["schemas"]["models.ErrorResponse"];
-          };
-        };
-        /** @description Forbidden */
-        403: {
-          content: {
-            "application/json": components["schemas"]["models.ErrorResponse"];
+            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.ErrorResponse"];
           };
         };
       };
@@ -439,35 +69,35 @@ export interface paths {
   };
   "/auth/login": {
     /**
-     * Login user
+     * User login
      * @description Authenticate user with username/email and password
      */
     post: {
       /** @description Login credentials */
       requestBody: {
         content: {
-          "application/json": components["schemas"]["models.LoginRequest"];
+          "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.LoginRequest"];
         };
       };
       responses: {
         /** @description OK */
         200: {
           content: {
-            "application/json": components["schemas"]["models.APIResponse"] & {
-              data?: components["schemas"]["models.LoginResponse"];
+            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.APIResponse"] & {
+              data?: components["schemas"]["github_com_ae-base-server_modules_base_models.LoginResponse"];
             };
           };
         };
         /** @description Bad Request */
         400: {
           content: {
-            "application/json": components["schemas"]["models.ErrorResponse"];
+            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.ErrorResponse"];
           };
         };
         /** @description Unauthorized */
         401: {
           content: {
-            "application/json": components["schemas"]["models.ErrorResponse"];
+            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.ErrorResponse"];
           };
         };
       };
@@ -475,103 +105,57 @@ export interface paths {
   };
   "/auth/logout": {
     /**
-     * Logout user
-     * @description Blacklist the current JWT token
+     * User logout
+     * @description Logout user and invalidate token
      */
     post: {
       responses: {
         /** @description OK */
         200: {
           content: {
-            "application/json": components["schemas"]["models.APIResponse"];
+            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.APIResponse"];
           };
         };
         /** @description Bad Request */
         400: {
           content: {
-            "application/json": components["schemas"]["models.ErrorResponse"];
+            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.ErrorResponse"];
           };
         };
         /** @description Unauthorized */
         401: {
           content: {
-            "application/json": components["schemas"]["models.ErrorResponse"];
+            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.ErrorResponse"];
           };
         };
       };
     };
   };
-  "/auth/me": {
+  "/auth/refresh": {
     /**
-     * Get current user
-     * @description Get current authenticated user information
+     * Refresh access token
+     * @description Refresh user access token
      */
-    get: {
+    post: {
       responses: {
         /** @description OK */
         200: {
           content: {
-            "application/json": components["schemas"]["models.APIResponse"] & {
-              data?: components["schemas"]["models.UserResponse"];
+            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.APIResponse"] & {
+              data?: components["schemas"]["github_com_ae-base-server_modules_base_models.LoginResponse"];
             };
           };
         };
-        /** @description Unauthorized */
-        401: {
-          content: {
-            "application/json": components["schemas"]["models.ErrorResponse"];
-          };
-        };
-      };
-    };
-  };
-  "/auth/new-password/{token}": {
-    /**
-     * Reset password
-     * @description Reset user password with reset token
-     */
-    post: {
-      parameters: {
-        path: {
-          /** @description Reset token */
-          token: string;
-        };
-      };
-      /** @description New password */
-      requestBody: {
-        content: {
-          "application/json": {
-            new_password?: string;
-          };
-        };
-      };
-      responses: {
-        /** @description OK */
-        200: {
-          content: {
-            "application/json": components["schemas"]["models.APIResponse"];
-          };
-        };
         /** @description Bad Request */
         400: {
           content: {
-            "application/json": components["schemas"]["models.ErrorResponse"];
+            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.ErrorResponse"];
           };
         };
-      };
-    };
-  };
-  "/auth/password-security": {
-    /**
-     * Get password security requirements
-     * @description Returns the current password security requirements including minimum length and character requirements
-     */
-    get: {
-      responses: {
-        /** @description OK */
-        200: {
+        /** @description Unauthorized */
+        401: {
           content: {
-            "application/json": components["schemas"]["utils.PasswordRequirements"];
+            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.ErrorResponse"];
           };
         };
       };
@@ -579,54 +163,76 @@ export interface paths {
   };
   "/auth/register": {
     /**
-     * Register new user
-     * @description Create a new user account. If a user-signup token is provided in Authorization header, user will join that tenant. Otherwise, company_name is required to create new tenant.
+     * User registration
+     * @description Register a new user account
      */
     post: {
-      parameters: {
-        header?: {
-          /** @description Bearer token for user signup invitation */
-          Authorization?: string;
-        };
-      };
       /** @description User registration data */
       requestBody: {
         content: {
-          "application/json": components["schemas"]["models.UserCreateRequest"];
+          "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.UserCreateRequest"];
         };
       };
       responses: {
         /** @description Created */
         201: {
           content: {
-            "application/json": components["schemas"]["models.APIResponse"] & {
-              data?: components["schemas"]["models.UserResponse"];
+            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.APIResponse"] & {
+              data?: components["schemas"]["github_com_ae-base-server_modules_base_models.LoginResponse"];
             };
           };
         };
         /** @description Bad Request */
         400: {
           content: {
-            "application/json": components["schemas"]["models.ErrorResponse"];
+            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.ErrorResponse"];
           };
         };
         /** @description Conflict */
         409: {
           content: {
-            "application/json": components["schemas"]["models.ErrorResponse"];
+            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.ErrorResponse"];
           };
         };
       };
     };
   };
-  "/auth/verify-email/{token}": {
+  "/auth/reset-password": {
+    /**
+     * Reset password
+     * @description Reset user password with reset token
+     */
+    post: {
+      /** @description Password reset data */
+      requestBody: {
+        content: {
+          "application/json": components["schemas"]["models.ResetPasswordRequest"];
+        };
+      };
+      responses: {
+        /** @description OK */
+        200: {
+          content: {
+            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.APIResponse"];
+          };
+        };
+        /** @description Bad Request */
+        400: {
+          content: {
+            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.ErrorResponse"];
+          };
+        };
+      };
+    };
+  };
+  "/auth/verify-email": {
     /**
      * Verify email address
-     * @description Verify user email address with token from verification email
+     * @description Verify user email address with verification token
      */
     get: {
       parameters: {
-        path: {
+        query: {
           /** @description Verification token */
           token: string;
         };
@@ -635,13 +241,13 @@ export interface paths {
         /** @description OK */
         200: {
           content: {
-            "application/json": components["schemas"]["models.APIResponse"];
+            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.APIResponse"];
           };
         };
         /** @description Bad Request */
         400: {
           content: {
-            "application/json": components["schemas"]["models.ErrorResponse"];
+            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.ErrorResponse"];
           };
         };
       };
@@ -650,19 +256,19 @@ export interface paths {
   "/clients": {
     /**
      * Get all clients
-     * @description Get a paginated list of all clients
+     * @description Retrieve all clients with optional pagination
      */
     get: {
       parameters: {
         query?: {
           /** @description Page number */
           page?: number;
-          /** @description Items per page */
+          /** @description Number of clients per page */
           limit?: number;
         };
       };
       responses: {
-        /** @description data: array of ClientResponse, total: int, page: int, limit: int */
+        /** @description Clients retrieved successfully */
         200: {
           content: {
             "application/json": {
@@ -670,11 +276,19 @@ export interface paths {
             };
           };
         };
-        /** @description error: string */
+        /** @description Unauthorized */
+        401: {
+          content: {
+            "application/json": {
+              [key: string]: string;
+            };
+          };
+        };
+        /** @description Internal server error */
         500: {
           content: {
             "application/json": {
-              [key: string]: unknown;
+              [key: string]: string;
             };
           };
         };
@@ -682,35 +296,43 @@ export interface paths {
     };
     /**
      * Create a new client
-     * @description Create a new client with first name, last name, and date of birth
+     * @description Create a new client with the provided information
      */
     post: {
-      /** @description Client data */
+      /** @description Client information */
       requestBody: {
         content: {
-          "application/json": components["schemas"]["models.CreateClientRequest"];
+          "application/json": components["schemas"]["entities.CreateClientRequest"];
         };
       };
       responses: {
-        /** @description Created */
+        /** @description Created client */
         201: {
           content: {
-            "application/json": components["schemas"]["models.ClientResponse"];
+            "application/json": components["schemas"]["entities.ClientResponse"];
           };
         };
-        /** @description Bad Request */
+        /** @description Bad request */
         400: {
           content: {
             "application/json": {
-              [key: string]: unknown;
+              [key: string]: string;
             };
           };
         };
-        /** @description Internal Server Error */
+        /** @description Unauthorized */
+        401: {
+          content: {
+            "application/json": {
+              [key: string]: string;
+            };
+          };
+        };
+        /** @description Internal server error */
         500: {
           content: {
             "application/json": {
-              [key: string]: unknown;
+              [key: string]: string;
             };
           };
         };
@@ -729,12 +351,12 @@ export interface paths {
           q: string;
           /** @description Page number */
           page?: number;
-          /** @description Items per page */
+          /** @description Number of clients per page */
           limit?: number;
         };
       };
       responses: {
-        /** @description OK */
+        /** @description Search results */
         200: {
           content: {
             "application/json": {
@@ -742,19 +364,27 @@ export interface paths {
             };
           };
         };
-        /** @description Bad Request */
+        /** @description Bad request */
         400: {
           content: {
             "application/json": {
-              [key: string]: unknown;
+              [key: string]: string;
             };
           };
         };
-        /** @description Internal Server Error */
+        /** @description Unauthorized */
+        401: {
+          content: {
+            "application/json": {
+              [key: string]: string;
+            };
+          };
+        };
+        /** @description Internal server error */
         500: {
           content: {
             "application/json": {
-              [key: string]: unknown;
+              [key: string]: string;
             };
           };
         };
@@ -774,33 +404,41 @@ export interface paths {
         };
       };
       responses: {
-        /** @description OK */
+        /** @description Client found */
         200: {
           content: {
-            "application/json": components["schemas"]["models.ClientResponse"];
+            "application/json": components["schemas"]["entities.ClientResponse"];
           };
         };
-        /** @description Bad Request */
+        /** @description Bad request */
         400: {
           content: {
             "application/json": {
-              [key: string]: unknown;
+              [key: string]: string;
             };
           };
         };
-        /** @description Not Found */
+        /** @description Unauthorized */
+        401: {
+          content: {
+            "application/json": {
+              [key: string]: string;
+            };
+          };
+        };
+        /** @description Client not found */
         404: {
           content: {
             "application/json": {
-              [key: string]: unknown;
+              [key: string]: string;
             };
           };
         };
-        /** @description Internal Server Error */
+        /** @description Internal server error */
         500: {
           content: {
             "application/json": {
-              [key: string]: unknown;
+              [key: string]: string;
             };
           };
         };
@@ -808,7 +446,7 @@ export interface paths {
     };
     /**
      * Update a client
-     * @description Update an existing client's information
+     * @description Update a client's information
      */
     put: {
       parameters: {
@@ -817,40 +455,48 @@ export interface paths {
           id: number;
         };
       };
-      /** @description Client update data */
+      /** @description Updated client information */
       requestBody: {
         content: {
-          "application/json": components["schemas"]["models.UpdateClientRequest"];
+          "application/json": components["schemas"]["entities.UpdateClientRequest"];
         };
       };
       responses: {
-        /** @description OK */
+        /** @description Updated client */
         200: {
           content: {
-            "application/json": components["schemas"]["models.ClientResponse"];
+            "application/json": components["schemas"]["entities.ClientResponse"];
           };
         };
-        /** @description Bad Request */
+        /** @description Bad request */
         400: {
           content: {
             "application/json": {
-              [key: string]: unknown;
+              [key: string]: string;
             };
           };
         };
-        /** @description Not Found */
+        /** @description Unauthorized */
+        401: {
+          content: {
+            "application/json": {
+              [key: string]: string;
+            };
+          };
+        };
+        /** @description Client not found */
         404: {
           content: {
             "application/json": {
-              [key: string]: unknown;
+              [key: string]: string;
             };
           };
         };
-        /** @description Internal Server Error */
+        /** @description Internal server error */
         500: {
           content: {
             "application/json": {
-              [key: string]: unknown;
+              [key: string]: string;
             };
           };
         };
@@ -868,31 +514,43 @@ export interface paths {
         };
       };
       responses: {
-        /** @description No Content */
-        204: {
-          content: never;
+        /** @description Client deleted successfully */
+        200: {
+          content: {
+            "application/json": {
+              [key: string]: string;
+            };
+          };
         };
-        /** @description Bad Request */
+        /** @description Bad request */
         400: {
           content: {
             "application/json": {
-              [key: string]: unknown;
+              [key: string]: string;
             };
           };
         };
-        /** @description Not Found */
+        /** @description Unauthorized */
+        401: {
+          content: {
+            "application/json": {
+              [key: string]: string;
+            };
+          };
+        };
+        /** @description Client not found */
         404: {
           content: {
             "application/json": {
-              [key: string]: unknown;
+              [key: string]: string;
             };
           };
         };
-        /** @description Internal Server Error */
+        /** @description Internal server error */
         500: {
           content: {
             "application/json": {
-              [key: string]: unknown;
+              [key: string]: string;
             };
           };
         };
@@ -908,26 +566,26 @@ export interface paths {
       /** @description Contact form data */
       requestBody: {
         content: {
-          "application/json": components["schemas"]["github_com_ae-saas-basic_ae-saas-basic_internal_models.ContactFormRequest"];
+          "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.ContactFormRequest"];
         };
       };
       responses: {
         /** @description OK */
         200: {
           content: {
-            "application/json": components["schemas"]["github_com_ae-saas-basic_ae-saas-basic_internal_models.ContactFormResponse"];
+            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.ContactFormResponse"];
           };
         };
         /** @description Bad Request */
         400: {
           content: {
-            "application/json": components["schemas"]["models.ErrorResponse"];
+            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.ErrorResponse"];
           };
         };
         /** @description Internal Server Error */
         500: {
           content: {
-            "application/json": components["schemas"]["models.ErrorResponse"];
+            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.ErrorResponse"];
           };
         };
       };
@@ -943,13 +601,13 @@ export interface paths {
         /** @description OK */
         200: {
           content: {
-            "application/json": components["schemas"]["github_com_ae-saas-basic_ae-saas-basic_internal_models.Newsletter"][];
+            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.Newsletter"][];
           };
         };
         /** @description Internal Server Error */
         500: {
           content: {
-            "application/json": components["schemas"]["models.ErrorResponse"];
+            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.ErrorResponse"];
           };
         };
       };
@@ -979,191 +637,317 @@ export interface paths {
         /** @description Bad Request */
         400: {
           content: {
-            "application/json": components["schemas"]["models.ErrorResponse"];
+            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.ErrorResponse"];
           };
         };
         /** @description Not Found */
         404: {
           content: {
-            "application/json": components["schemas"]["models.ErrorResponse"];
-          };
-        };
-        /** @description Internal Server Error */
-        500: {
-          content: {
-            "application/json": components["schemas"]["models.ErrorResponse"];
+            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.ErrorResponse"];
           };
         };
       };
     };
   };
-  "/contacts": {
+  "/cost-providers": {
     /**
-     * Get all contacts
-     * @description Get a paginated list of all contacts
+     * Get all cost providers
+     * @description Retrieve all cost providers with optional pagination
      */
     get: {
       parameters: {
         query?: {
           /** @description Page number */
           page?: number;
-          /** @description Items per page */
+          /** @description Number of cost providers per page */
           limit?: number;
-          /** @description Filter by active status */
-          active?: boolean;
-          /** @description Filter by contact type */
-          type?: string;
         };
       };
       responses: {
-        /** @description OK */
+        /** @description Cost providers retrieved successfully */
         200: {
           content: {
-            "application/json": components["schemas"]["models.APIResponse"] & {
-              data?: components["schemas"]["models.ListResponse"];
+            "application/json": {
+              [key: string]: unknown;
             };
           };
         };
-        /** @description Internal Server Error */
+        /** @description Unauthorized */
+        401: {
+          content: {
+            "application/json": {
+              [key: string]: string;
+            };
+          };
+        };
+        /** @description Internal server error */
         500: {
           content: {
-            "application/json": components["schemas"]["models.ErrorResponse"];
+            "application/json": {
+              [key: string]: string;
+            };
           };
         };
       };
     };
     /**
-     * Create a new contact
-     * @description Create a new contact
+     * Create a new cost provider
+     * @description Create a new cost provider with the provided information
      */
     post: {
-      /** @description Contact creation data */
+      /** @description Cost provider information */
       requestBody: {
         content: {
-          "application/json": components["schemas"]["models.ContactCreateRequest"];
+          "application/json": components["schemas"]["entities.CreateCostProviderRequest"];
         };
       };
       responses: {
-        /** @description Created */
+        /** @description Created cost provider */
         201: {
           content: {
-            "application/json": components["schemas"]["models.APIResponse"] & {
-              data?: components["schemas"]["models.ContactResponse"];
+            "application/json": components["schemas"]["entities.CostProviderResponse"];
+          };
+        };
+        /** @description Bad request */
+        400: {
+          content: {
+            "application/json": {
+              [key: string]: string;
             };
           };
         };
-        /** @description Bad Request */
-        400: {
+        /** @description Unauthorized */
+        401: {
           content: {
-            "application/json": components["schemas"]["models.ErrorResponse"];
+            "application/json": {
+              [key: string]: string;
+            };
+          };
+        };
+        /** @description Internal server error */
+        500: {
+          content: {
+            "application/json": {
+              [key: string]: string;
+            };
           };
         };
       };
     };
   };
-  "/contacts/{id}": {
+  "/cost-providers/search": {
     /**
-     * Get contact by ID
-     * @description Get a specific contact by its ID
+     * Search cost providers
+     * @description Search cost providers by organization name or contact name
+     */
+    get: {
+      parameters: {
+        query: {
+          /** @description Search query */
+          q: string;
+          /** @description Page number */
+          page?: number;
+          /** @description Number of cost providers per page */
+          limit?: number;
+        };
+      };
+      responses: {
+        /** @description Search results */
+        200: {
+          content: {
+            "application/json": {
+              [key: string]: unknown;
+            };
+          };
+        };
+        /** @description Bad request */
+        400: {
+          content: {
+            "application/json": {
+              [key: string]: string;
+            };
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          content: {
+            "application/json": {
+              [key: string]: string;
+            };
+          };
+        };
+        /** @description Internal server error */
+        500: {
+          content: {
+            "application/json": {
+              [key: string]: string;
+            };
+          };
+        };
+      };
+    };
+  };
+  "/cost-providers/{id}": {
+    /**
+     * Get a cost provider by ID
+     * @description Retrieve a specific cost provider by their ID
      */
     get: {
       parameters: {
         path: {
-          /** @description Contact ID */
+          /** @description Cost Provider ID */
           id: number;
         };
       };
       responses: {
-        /** @description OK */
+        /** @description Cost provider found */
         200: {
           content: {
-            "application/json": components["schemas"]["models.APIResponse"] & {
-              data?: components["schemas"]["models.ContactResponse"];
+            "application/json": components["schemas"]["entities.CostProviderResponse"];
+          };
+        };
+        /** @description Bad request */
+        400: {
+          content: {
+            "application/json": {
+              [key: string]: string;
             };
           };
         };
-        /** @description Bad Request */
-        400: {
+        /** @description Unauthorized */
+        401: {
           content: {
-            "application/json": components["schemas"]["models.ErrorResponse"];
+            "application/json": {
+              [key: string]: string;
+            };
           };
         };
-        /** @description Not Found */
+        /** @description Cost provider not found */
         404: {
           content: {
-            "application/json": components["schemas"]["models.ErrorResponse"];
+            "application/json": {
+              [key: string]: string;
+            };
+          };
+        };
+        /** @description Internal server error */
+        500: {
+          content: {
+            "application/json": {
+              [key: string]: string;
+            };
           };
         };
       };
     };
     /**
-     * Update a contact
-     * @description Update an existing contact by ID
+     * Update a cost provider
+     * @description Update a cost provider's information
      */
     put: {
       parameters: {
         path: {
-          /** @description Contact ID */
+          /** @description Cost Provider ID */
           id: number;
         };
       };
-      /** @description Contact update data */
+      /** @description Updated cost provider information */
       requestBody: {
         content: {
-          "application/json": components["schemas"]["models.ContactUpdateRequest"];
+          "application/json": components["schemas"]["entities.UpdateCostProviderRequest"];
         };
       };
       responses: {
-        /** @description OK */
+        /** @description Updated cost provider */
         200: {
           content: {
-            "application/json": components["schemas"]["models.APIResponse"] & {
-              data?: components["schemas"]["models.ContactResponse"];
+            "application/json": components["schemas"]["entities.CostProviderResponse"];
+          };
+        };
+        /** @description Bad request */
+        400: {
+          content: {
+            "application/json": {
+              [key: string]: string;
             };
           };
         };
-        /** @description Bad Request */
-        400: {
+        /** @description Unauthorized */
+        401: {
           content: {
-            "application/json": components["schemas"]["models.ErrorResponse"];
+            "application/json": {
+              [key: string]: string;
+            };
           };
         };
-        /** @description Not Found */
+        /** @description Cost provider not found */
         404: {
           content: {
-            "application/json": components["schemas"]["models.ErrorResponse"];
+            "application/json": {
+              [key: string]: string;
+            };
+          };
+        };
+        /** @description Internal server error */
+        500: {
+          content: {
+            "application/json": {
+              [key: string]: string;
+            };
           };
         };
       };
     };
     /**
-     * Delete a contact
-     * @description Soft delete a contact by ID
+     * Delete a cost provider
+     * @description Soft delete a cost provider by ID
      */
     delete: {
       parameters: {
         path: {
-          /** @description Contact ID */
+          /** @description Cost Provider ID */
           id: number;
         };
       };
       responses: {
-        /** @description OK */
+        /** @description Cost provider deleted successfully */
         200: {
           content: {
-            "application/json": components["schemas"]["models.APIResponse"];
+            "application/json": {
+              [key: string]: string;
+            };
           };
         };
-        /** @description Bad Request */
+        /** @description Bad request */
         400: {
           content: {
-            "application/json": components["schemas"]["models.ErrorResponse"];
+            "application/json": {
+              [key: string]: string;
+            };
           };
         };
-        /** @description Not Found */
+        /** @description Unauthorized */
+        401: {
+          content: {
+            "application/json": {
+              [key: string]: string;
+            };
+          };
+        };
+        /** @description Cost provider not found */
         404: {
           content: {
-            "application/json": components["schemas"]["models.ErrorResponse"];
+            "application/json": {
+              [key: string]: string;
+            };
+          };
+        };
+        /** @description Internal server error */
+        500: {
+          content: {
+            "application/json": {
+              [key: string]: string;
+            };
           };
         };
       };
@@ -1172,7 +956,7 @@ export interface paths {
   "/customers": {
     /**
      * Get all customers
-     * @description Get a paginated list of customers for the authenticated tenant
+     * @description Get a paginated list of all customers
      */
     get: {
       parameters: {
@@ -1181,51 +965,49 @@ export interface paths {
           page?: number;
           /** @description Items per page */
           limit?: number;
-          /** @description Filter by active status */
-          active?: boolean;
         };
       };
       responses: {
         /** @description OK */
         200: {
           content: {
-            "application/json": components["schemas"]["models.APIResponse"] & {
-              data?: components["schemas"]["models.ListResponse"];
-            };
-          };
-        };
-        /** @description Internal Server Error */
-        500: {
-          content: {
-            "application/json": components["schemas"]["models.ErrorResponse"];
-          };
-        };
-      };
-    };
-    /**
-     * Create a new customer
-     * @description Create a new customer within the authenticated tenant
-     */
-    post: {
-      /** @description Customer creation data */
-      requestBody: {
-        content: {
-          "application/json": components["schemas"]["models.CustomerCreateRequest"];
-        };
-      };
-      responses: {
-        /** @description Created */
-        201: {
-          content: {
-            "application/json": components["schemas"]["models.APIResponse"] & {
-              data?: components["schemas"]["models.CustomerResponse"];
+            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.APIResponse"] & {
+              data?: components["schemas"]["github_com_ae-base-server_modules_base_models.ListResponse"];
             };
           };
         };
         /** @description Bad Request */
         400: {
           content: {
-            "application/json": components["schemas"]["models.ErrorResponse"];
+            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.ErrorResponse"];
+          };
+        };
+      };
+    };
+    /**
+     * Create a new customer
+     * @description Create a new customer
+     */
+    post: {
+      /** @description Customer data */
+      requestBody: {
+        content: {
+          "application/json": components["schemas"]["models.CustomerRequest"];
+        };
+      };
+      responses: {
+        /** @description Created */
+        201: {
+          content: {
+            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.APIResponse"] & {
+              data?: components["schemas"]["github_com_ae-base-server_modules_base_models.CustomerResponse"];
+            };
+          };
+        };
+        /** @description Bad Request */
+        400: {
+          content: {
+            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.ErrorResponse"];
           };
         };
       };
@@ -1234,7 +1016,7 @@ export interface paths {
   "/customers/{id}": {
     /**
      * Get customer by ID
-     * @description Get a specific customer by its ID within the authenticated tenant
+     * @description Get a specific customer by its ID
      */
     get: {
       parameters: {
@@ -1247,28 +1029,28 @@ export interface paths {
         /** @description OK */
         200: {
           content: {
-            "application/json": components["schemas"]["models.APIResponse"] & {
-              data?: components["schemas"]["models.CustomerResponse"];
+            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.APIResponse"] & {
+              data?: components["schemas"]["github_com_ae-base-server_modules_base_models.CustomerResponse"];
             };
           };
         };
         /** @description Bad Request */
         400: {
           content: {
-            "application/json": components["schemas"]["models.ErrorResponse"];
+            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.ErrorResponse"];
           };
         };
         /** @description Not Found */
         404: {
           content: {
-            "application/json": components["schemas"]["models.ErrorResponse"];
+            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.ErrorResponse"];
           };
         };
       };
     };
     /**
      * Update a customer
-     * @description Update an existing customer by ID within the authenticated tenant
+     * @description Update an existing customer by ID
      */
     put: {
       parameters: {
@@ -1277,38 +1059,38 @@ export interface paths {
           id: number;
         };
       };
-      /** @description Customer update data */
+      /** @description Updated customer data */
       requestBody: {
         content: {
-          "application/json": components["schemas"]["models.CustomerUpdateRequest"];
+          "application/json": components["schemas"]["models.CustomerRequest"];
         };
       };
       responses: {
         /** @description OK */
         200: {
           content: {
-            "application/json": components["schemas"]["models.APIResponse"] & {
-              data?: components["schemas"]["models.CustomerResponse"];
+            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.APIResponse"] & {
+              data?: components["schemas"]["github_com_ae-base-server_modules_base_models.CustomerResponse"];
             };
           };
         };
         /** @description Bad Request */
         400: {
           content: {
-            "application/json": components["schemas"]["models.ErrorResponse"];
+            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.ErrorResponse"];
           };
         };
         /** @description Not Found */
         404: {
           content: {
-            "application/json": components["schemas"]["models.ErrorResponse"];
+            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.ErrorResponse"];
           };
         };
       };
     };
     /**
      * Delete a customer
-     * @description Soft delete a customer by ID within the authenticated tenant
+     * @description Soft delete a customer by ID
      */
     delete: {
       parameters: {
@@ -1321,19 +1103,19 @@ export interface paths {
         /** @description OK */
         200: {
           content: {
-            "application/json": components["schemas"]["models.APIResponse"];
+            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.APIResponse"];
           };
         };
         /** @description Bad Request */
         400: {
           content: {
-            "application/json": components["schemas"]["models.ErrorResponse"];
+            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.ErrorResponse"];
           };
         };
         /** @description Not Found */
         404: {
           content: {
-            "application/json": components["schemas"]["models.ErrorResponse"];
+            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.ErrorResponse"];
           };
         };
       };
@@ -1359,15 +1141,15 @@ export interface paths {
         /** @description OK */
         200: {
           content: {
-            "application/json": components["schemas"]["models.APIResponse"] & {
-              data?: components["schemas"]["models.ListResponse"];
+            "application/json": components["schemas"]["github_com_ae-base-server_internal_models.APIResponse"] & {
+              data?: components["schemas"]["github_com_ae-base-server_internal_models.ListResponse"];
             };
           };
         };
         /** @description Internal Server Error */
         500: {
           content: {
-            "application/json": components["schemas"]["models.ErrorResponse"];
+            "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
           };
         };
       };
@@ -1382,22 +1164,22 @@ export interface paths {
       /** @description Email send data */
       requestBody: {
         content: {
-          "application/json": components["schemas"]["models.EmailSendRequest"];
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.EmailSendRequest"];
         };
       };
       responses: {
         /** @description Created */
         201: {
           content: {
-            "application/json": components["schemas"]["models.APIResponse"] & {
-              data?: components["schemas"]["models.EmailResponse"];
+            "application/json": components["schemas"]["github_com_ae-base-server_internal_models.APIResponse"] & {
+              data?: components["schemas"]["github_com_ae-base-server_internal_models.EmailResponse"];
             };
           };
         };
         /** @description Bad Request */
         400: {
           content: {
-            "application/json": components["schemas"]["models.ErrorResponse"];
+            "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
           };
         };
       };
@@ -1413,7 +1195,7 @@ export interface paths {
         /** @description OK */
         200: {
           content: {
-            "application/json": components["schemas"]["models.APIResponse"] & {
+            "application/json": components["schemas"]["github_com_ae-base-server_internal_models.APIResponse"] & {
               data?: Record<string, never>;
             };
           };
@@ -1421,7 +1203,7 @@ export interface paths {
         /** @description Internal Server Error */
         500: {
           content: {
-            "application/json": components["schemas"]["models.ErrorResponse"];
+            "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
           };
         };
       };
@@ -1443,21 +1225,21 @@ export interface paths {
         /** @description OK */
         200: {
           content: {
-            "application/json": components["schemas"]["models.APIResponse"] & {
-              data?: components["schemas"]["models.EmailResponse"];
+            "application/json": components["schemas"]["github_com_ae-base-server_internal_models.APIResponse"] & {
+              data?: components["schemas"]["github_com_ae-base-server_internal_models.EmailResponse"];
             };
           };
         };
         /** @description Bad Request */
         400: {
           content: {
-            "application/json": components["schemas"]["models.ErrorResponse"];
+            "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
           };
         };
         /** @description Not Found */
         404: {
           content: {
-            "application/json": components["schemas"]["models.ErrorResponse"];
+            "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
           };
         };
       };
@@ -1473,13 +1255,29 @@ export interface paths {
         /** @description OK */
         200: {
           content: {
-            "application/json": components["schemas"]["models.HealthResponse"];
+            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.HealthResponse"];
           };
         };
         /** @description Service Unavailable */
         503: {
           content: {
-            "application/json": components["schemas"]["models.ErrorResponse"];
+            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.ErrorResponse"];
+          };
+        };
+      };
+    };
+  };
+  "/ping": {
+    /**
+     * Ping check
+     * @description Simple ping endpoint
+     */
+    get: {
+      responses: {
+        /** @description pong */
+        200: {
+          content: {
+            "application/json": string;
           };
         };
       };
@@ -1488,66 +1286,48 @@ export interface paths {
   "/plans": {
     /**
      * Get all plans
-     * @description Get a paginated list of all plans
+     * @description Get a list of all available subscription plans
      */
     get: {
-      parameters: {
-        query?: {
-          /** @description Page number */
-          page?: number;
-          /** @description Items per page */
-          limit?: number;
-          /** @description Filter by active status */
-          active?: boolean;
-        };
-      };
       responses: {
         /** @description OK */
         200: {
           content: {
-            "application/json": components["schemas"]["models.APIResponse"] & {
-              data?: components["schemas"]["models.ListResponse"];
-            };
+            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.Plan"][];
           };
         };
         /** @description Internal Server Error */
         500: {
           content: {
-            "application/json": components["schemas"]["models.ErrorResponse"];
+            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.ErrorResponse"];
           };
         };
       };
     };
     /**
      * Create a new plan
-     * @description Create a new subscription plan
+     * @description Create a new subscription plan (admin only)
      */
     post: {
-      /** @description Plan creation data */
+      /** @description Plan data */
       requestBody: {
         content: {
-          "application/json": components["schemas"]["models.PlanCreateRequest"];
+          "application/json": components["schemas"]["models.PlanRequest"];
         };
       };
       responses: {
         /** @description Created */
         201: {
           content: {
-            "application/json": components["schemas"]["models.APIResponse"] & {
-              data?: components["schemas"]["models.PlanResponse"];
+            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.APIResponse"] & {
+              data?: components["schemas"]["github_com_ae-base-server_modules_base_models.Plan"];
             };
           };
         };
         /** @description Bad Request */
         400: {
           content: {
-            "application/json": components["schemas"]["models.ErrorResponse"];
-          };
-        };
-        /** @description Conflict */
-        409: {
-          content: {
-            "application/json": components["schemas"]["models.ErrorResponse"];
+            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.ErrorResponse"];
           };
         };
       };
@@ -1556,7 +1336,7 @@ export interface paths {
   "/plans/{id}": {
     /**
      * Get plan by ID
-     * @description Get a specific plan by its ID
+     * @description Get a specific subscription plan by its ID
      */
     get: {
       parameters: {
@@ -1569,28 +1349,28 @@ export interface paths {
         /** @description OK */
         200: {
           content: {
-            "application/json": components["schemas"]["models.APIResponse"] & {
-              data?: components["schemas"]["models.PlanResponse"];
+            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.APIResponse"] & {
+              data?: components["schemas"]["github_com_ae-base-server_modules_base_models.Plan"];
             };
           };
         };
         /** @description Bad Request */
         400: {
           content: {
-            "application/json": components["schemas"]["models.ErrorResponse"];
+            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.ErrorResponse"];
           };
         };
         /** @description Not Found */
         404: {
           content: {
-            "application/json": components["schemas"]["models.ErrorResponse"];
+            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.ErrorResponse"];
           };
         };
       };
     };
     /**
      * Update a plan
-     * @description Update an existing plan by ID
+     * @description Update an existing subscription plan (admin only)
      */
     put: {
       parameters: {
@@ -1599,38 +1379,38 @@ export interface paths {
           id: number;
         };
       };
-      /** @description Plan update data */
+      /** @description Updated plan data */
       requestBody: {
         content: {
-          "application/json": components["schemas"]["models.PlanUpdateRequest"];
+          "application/json": components["schemas"]["models.PlanRequest"];
         };
       };
       responses: {
         /** @description OK */
         200: {
           content: {
-            "application/json": components["schemas"]["models.APIResponse"] & {
-              data?: components["schemas"]["models.PlanResponse"];
+            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.APIResponse"] & {
+              data?: components["schemas"]["github_com_ae-base-server_modules_base_models.Plan"];
             };
           };
         };
         /** @description Bad Request */
         400: {
           content: {
-            "application/json": components["schemas"]["models.ErrorResponse"];
+            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.ErrorResponse"];
           };
         };
         /** @description Not Found */
         404: {
           content: {
-            "application/json": components["schemas"]["models.ErrorResponse"];
+            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.ErrorResponse"];
           };
         };
       };
     };
     /**
      * Delete a plan
-     * @description Soft delete a plan by ID
+     * @description Delete a subscription plan (admin only)
      */
     delete: {
       parameters: {
@@ -1643,184 +1423,19 @@ export interface paths {
         /** @description OK */
         200: {
           content: {
-            "application/json": components["schemas"]["models.APIResponse"];
+            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.APIResponse"];
           };
         };
         /** @description Bad Request */
         400: {
           content: {
-            "application/json": components["schemas"]["models.ErrorResponse"];
+            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.ErrorResponse"];
           };
         };
         /** @description Not Found */
         404: {
           content: {
-            "application/json": components["schemas"]["models.ErrorResponse"];
-          };
-        };
-      };
-    };
-  };
-  "/static": {
-    /**
-     * List available static JSON files
-     * @description Get a list of all JSON files available in the statics/json directory
-     */
-    get: {
-      responses: {
-        /** @description List of available JSON files */
-        200: {
-          content: {
-            "*/*": {
-              [key: string]: unknown;
-            };
-          };
-        };
-        /** @description Failed to read directory */
-        500: {
-          content: {
-            "*/*": {
-              [key: string]: string;
-            };
-          };
-        };
-      };
-    };
-  };
-  "/static/{filename}": {
-    /**
-     * Serve static JSON files
-     * @description Dynamically serve any JSON data file from the statics/json directory. Just drop a .json file in the directory and it becomes available at /static/{filename}
-     */
-    get: {
-      parameters: {
-        path: {
-          /**
-           * @description JSON filename (without .json extension)
-           * @example "bundeslaender"
-           */
-          filename: string;
-        };
-      };
-      responses: {
-        /** @description JSON file content */
-        200: {
-          content: {
-            "*/*": {
-              [key: string]: unknown;
-            };
-          };
-        };
-        /** @description Invalid file name */
-        400: {
-          content: {
-            "*/*": {
-              [key: string]: string;
-            };
-          };
-        };
-        /** @description File not found */
-        404: {
-          content: {
-            "*/*": {
-              [key: string]: string;
-            };
-          };
-        };
-        /** @description Failed to read file */
-        500: {
-          content: {
-            "*/*": {
-              [key: string]: string;
-            };
-          };
-        };
-      };
-    };
-  };
-  "/user-settings": {
-    /**
-     * Get user settings
-     * @description Get the authenticated user's settings
-     */
-    get: {
-      responses: {
-        /** @description OK */
-        200: {
-          content: {
-            "application/json": components["schemas"]["models.APIResponse"] & {
-              data?: components["schemas"]["models.UserSettingsResponse"];
-            };
-          };
-        };
-        /** @description Unauthorized */
-        401: {
-          content: {
-            "application/json": components["schemas"]["models.ErrorResponse"];
-          };
-        };
-        /** @description Not Found */
-        404: {
-          content: {
-            "application/json": components["schemas"]["models.ErrorResponse"];
-          };
-        };
-      };
-    };
-    /**
-     * Update user settings
-     * @description Update the authenticated user's settings
-     */
-    put: {
-      /** @description User settings update data */
-      requestBody: {
-        content: {
-          "application/json": components["schemas"]["models.UserSettingsUpdateRequest"];
-        };
-      };
-      responses: {
-        /** @description OK */
-        200: {
-          content: {
-            "application/json": components["schemas"]["models.APIResponse"] & {
-              data?: components["schemas"]["models.UserSettingsResponse"];
-            };
-          };
-        };
-        /** @description Bad Request */
-        400: {
-          content: {
-            "application/json": components["schemas"]["models.ErrorResponse"];
-          };
-        };
-        /** @description Unauthorized */
-        401: {
-          content: {
-            "application/json": components["schemas"]["models.ErrorResponse"];
-          };
-        };
-      };
-    };
-  };
-  "/user-settings/reset": {
-    /**
-     * Reset user settings
-     * @description Reset the authenticated user's settings to default values
-     */
-    post: {
-      responses: {
-        /** @description OK */
-        200: {
-          content: {
-            "application/json": components["schemas"]["models.APIResponse"] & {
-              data?: components["schemas"]["models.UserSettingsResponse"];
-            };
-          };
-        };
-        /** @description Unauthorized */
-        401: {
-          content: {
-            "application/json": components["schemas"]["models.ErrorResponse"];
+            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.ErrorResponse"];
           };
         };
       };
@@ -1830,90 +1445,405 @@ export interface paths {
 
 export type webhooks = Record<string, never>;
 
-// Export commonly used types
-export type Client = components['schemas']['models.ClientResponse'];
-export type CreateClientRequest = components['schemas']['models.CreateClientRequest'];
-
 export interface components {
   schemas: {
-    /** @description Contact form submission request */
-    "github_com_ae-saas-basic_ae-saas-basic_internal_models.ContactFormRequest": {
+    "entities.ClientResponse": {
+      admission_date?: string;
+      alternative_email?: string;
+      alternative_first_name?: string;
+      alternative_last_name?: string;
+      alternative_phone?: string;
+      city?: string;
+      contact_email?: string;
+      contact_first_name?: string;
+      contact_last_name?: string;
+      contact_phone?: string;
+      cost_provider?: components["schemas"]["entities.CostProviderResponse"];
+      cost_provider_id?: number;
+      created_at?: string;
+      date_of_birth?: string;
+      email?: string;
+      first_name?: string;
+      gender?: string;
+      id?: number;
+      invoiced_individually?: boolean;
+      last_name?: string;
+      notes?: string;
+      phone?: string;
+      primary_language?: string;
+      provider_approval_code?: string;
+      provider_approval_date?: string;
+      referral_source?: string;
+      status?: string;
+      street_address?: string;
+      tenant_id?: number;
+      therapy_title?: string;
+      unit_price?: number;
+      updated_at?: string;
+      zip?: string;
+    };
+    "entities.CostProviderResponse": {
+      city?: string;
+      contact_name?: string;
+      created_at?: string;
+      department?: string;
+      id?: number;
+      organization?: string;
+      street_address?: string;
+      tenant_id?: number;
+      updated_at?: string;
+      zip?: string;
+    };
+    "entities.CreateClientRequest": {
+      /** @example 2025-01-01 */
+      admission_date?: string;
+      /** @example johnny.d@example.com */
+      alternative_email?: string;
+      /** @example Johnny */
+      alternative_first_name?: string;
+      /** @example D */
+      alternative_last_name?: string;
+      /** @example +0987654321 */
+      alternative_phone?: string;
+      /** @example New York */
+      city?: string;
+      /** @example jane.smith@example.com */
+      contact_email?: string;
+      /** @example Jane */
+      contact_first_name?: string;
+      /** @example Smith */
+      contact_last_name?: string;
+      /** @example +1234567890 */
+      contact_phone?: string;
+      /** @example 1 */
+      cost_provider_id?: number;
+      /** @example 1990-01-15 */
+      date_of_birth?: string;
       /** @example john.doe@example.com */
+      email?: string;
+      /** @example John */
+      first_name: string;
+      /** @example male */
+      gender?: string;
+      /** @example false */
+      invoiced_individually?: boolean;
+      /** @example Doe */
+      last_name: string;
+      /** @example Additional notes about the client */
+      notes?: string;
+      /** @example +1234567890 */
+      phone?: string;
+      /** @example English */
+      primary_language?: string;
+      /** @example PROV123456 */
+      provider_approval_code?: string;
+      /** @example 2025-01-15 */
+      provider_approval_date?: string;
+      /** @example Doctor Smith */
+      referral_source?: string;
+      /** @example waiting */
+      status?: string;
+      /** @example 123 Main Street */
+      street_address?: string;
+      /** @example Cognitive Behavioral Therapy */
+      therapy_title?: string;
+      /** @example 150 */
+      unit_price?: number;
+      /** @example 12345 */
+      zip?: string;
+    };
+    "entities.CreateCostProviderRequest": {
+      /** @example New York */
+      city?: string;
+      /** @example Jane Smith */
+      contact_name?: string;
+      /** @example Mental Health Division */
+      department?: string;
+      /** @example Health Insurance Corp */
+      organization: string;
+      /** @example 456 Insurance Blvd */
+      street_address?: string;
+      /** @example 12345 */
+      zip?: string;
+    };
+    "entities.UpdateClientRequest": {
+      /** @example 2025-01-01 */
+      admission_date?: string;
+      /** @example johnny.d@example.com */
+      alternative_email?: string;
+      /** @example Johnny */
+      alternative_first_name?: string;
+      /** @example D */
+      alternative_last_name?: string;
+      /** @example +0987654321 */
+      alternative_phone?: string;
+      /** @example New York */
+      city?: string;
+      /** @example jane.smith@example.com */
+      contact_email?: string;
+      /** @example Jane */
+      contact_first_name?: string;
+      /** @example Smith */
+      contact_last_name?: string;
+      /** @example +1234567890 */
+      contact_phone?: string;
+      /** @example 1 */
+      cost_provider_id?: number;
+      /** @example 1990-01-15 */
+      date_of_birth?: string;
+      /** @example john.doe@example.com */
+      email?: string;
+      /** @example John */
+      first_name?: string;
+      /** @example male */
+      gender?: string;
+      /** @example false */
+      invoiced_individually?: boolean;
+      /** @example Doe */
+      last_name?: string;
+      /** @example Additional notes about the client */
+      notes?: string;
+      /** @example +1234567890 */
+      phone?: string;
+      /** @example English */
+      primary_language?: string;
+      /** @example PROV123456 */
+      provider_approval_code?: string;
+      /** @example 2025-01-15 */
+      provider_approval_date?: string;
+      /** @example Doctor Smith */
+      referral_source?: string;
+      /** @example active */
+      status?: string;
+      /** @example 123 Main Street */
+      street_address?: string;
+      /** @example Cognitive Behavioral Therapy */
+      therapy_title?: string;
+      /** @example 150 */
+      unit_price?: number;
+      /** @example 12345 */
+      zip?: string;
+    };
+    "entities.UpdateCostProviderRequest": {
+      /** @example New York */
+      city?: string;
+      /** @example Jane Smith */
+      contact_name?: string;
+      /** @example Mental Health Division */
+      department?: string;
+      /** @example Health Insurance Corp */
+      organization?: string;
+      /** @example 456 Insurance Blvd */
+      street_address?: string;
+      /** @example 12345 */
+      zip?: string;
+    };
+    "github_com_ae-base-server_internal_models.APIResponse": {
+      data?: unknown;
+      error?: string;
+      message?: string;
+      success?: boolean;
+    };
+    "github_com_ae-base-server_internal_models.EmailResponse": {
+      created_at?: string;
+      delivered_at?: string;
+      error_message?: string;
+      from?: string;
+      id?: number;
+      sent_at?: string;
+      status?: string;
+      subject?: string;
+      to?: string;
+    };
+    "github_com_ae-base-server_internal_models.EmailSendRequest": {
+      body: string;
+      from: string;
+      html_body?: string;
+      subject: string;
+      to: string;
+    };
+    "github_com_ae-base-server_internal_models.ErrorResponse": {
+      code?: number;
+      details?: string;
+      error?: string;
+    };
+    "github_com_ae-base-server_internal_models.ListResponse": {
+      data?: unknown;
+      pagination?: components["schemas"]["github_com_ae-base-server_internal_models.PaginationResponse"];
+    };
+    "github_com_ae-base-server_internal_models.PaginationResponse": {
+      limit?: number;
+      page?: number;
+      total?: number;
+      total_pages?: number;
+    };
+    "github_com_ae-base-server_modules_base_models.APIResponse": {
+      data?: unknown;
+      error?: string;
+      message?: string;
+      success?: boolean;
+    };
+    "github_com_ae-base-server_modules_base_models.ContactFormRequest": {
+      /** @example john@example.com */
       email: string;
-      /** @example I am interested in learning more about your therapy services. */
+      /** @example I would like to know more about your services. */
       message: string;
       /** @example John Doe */
       name: string;
-      /** @example true */
-      newsletter?: boolean;
-      /** @example website */
-      source: string;
-      /** @example Inquiry about therapy services */
+      /** @example Inquiry about services */
       subject: string;
-      /** @example 2025-08-03T10:00:00Z */
-      timestamp?: string;
     };
-    /** @description Contact form submission response */
-    "github_com_ae-saas-basic_ae-saas-basic_internal_models.ContactFormResponse": {
-      /** @example Contact form submitted successfully */
+    "github_com_ae-base-server_modules_base_models.ContactFormResponse": {
+      /** @example 1 */
+      id?: number;
+      /** @example Thank you for your message! We will get back to you soon. */
       message?: string;
-      /** @example true */
-      newsletterAdded?: boolean;
-      /** @example Successfully subscribed to newsletter */
-      newsletterMessage?: string;
     };
-    "github_com_ae-saas-basic_ae-saas-basic_internal_models.Newsletter": {
-      /** @example 2025-08-03T10:00:00Z */
-      createdAt?: string;
-      /** @example john.doe@example.com */
+    "github_com_ae-base-server_modules_base_models.CustomerResponse": {
+      /** @example Acme Corp */
+      company_name?: string;
+      /** @example 2023-01-01T00:00:00Z */
+      created_at?: string;
+      /** @example john@example.com */
       email?: string;
       /** @example 1 */
       id?: number;
-      /** @example mental_health */
-      interest?: string;
-      /** @example 2025-08-03T10:00:00Z */
-      lastContact?: string;
       /** @example John Doe */
       name?: string;
-      /** @example website */
-      source?: string;
-      /** @example 2025-08-03T10:00:00Z */
-      updatedAt?: string;
+      /** @example +1-555-123-4567 */
+      phone?: string;
+      /** @example 2023-01-01T00:00:00Z */
+      updated_at?: string;
     };
-    "github_com_ae-saas-basic_ae-saas-basic_internal_modules.ModuleInfo": {
-      author?: string;
-      description?: string;
-      enabled?: boolean;
-      name?: string;
+    "github_com_ae-base-server_modules_base_models.ErrorResponse": {
+      code?: number;
+      details?: string;
+      error?: string;
+    };
+    "github_com_ae-base-server_modules_base_models.HealthResponse": {
+      database?: string;
+      environment?: {
+        [key: string]: unknown;
+      };
+      status?: string;
+      timestamp?: string;
       version?: string;
     };
-    "handlers.ErrorResponse": {
+    "github_com_ae-base-server_modules_base_models.ListResponse": {
+      data?: unknown;
+      pagination?: components["schemas"]["github_com_ae-base-server_modules_base_models.PaginationResponse"];
+    };
+    "github_com_ae-base-server_modules_base_models.LoginRequest": {
+      /** @example user@example.com */
+      email: string;
+      /** @example password123 */
+      password: string;
+    };
+    "github_com_ae-base-server_modules_base_models.LoginResponse": {
+      /** @example refresh-token-123 */
+      refresh_token?: string;
+      /** @example eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... */
+      token?: string;
+      user?: components["schemas"]["github_com_ae-base-server_modules_base_models.UserResponse"];
+    };
+    "github_com_ae-base-server_modules_base_models.Newsletter": {
+      /** @example 2023-01-01T00:00:00Z */
+      created_at?: string;
+      /** @example user@example.com */
+      email?: string;
+      /** @example 1 */
+      id?: number;
+      /** @example true */
+      is_active?: boolean;
+    };
+    "github_com_ae-base-server_modules_base_models.PaginationResponse": {
+      /** @example 10 */
+      limit?: number;
+      /** @example 1 */
+      page?: number;
+      /** @example 100 */
+      total?: number;
+      /** @example 10 */
+      total_pages?: number;
+    };
+    "github_com_ae-base-server_modules_base_models.Plan": {
+      /** @example 2023-01-01T00:00:00Z */
+      created_at?: string;
+      /** @example USD */
+      currency?: string;
+      /** @example Basic subscription plan */
+      description?: string;
+      /** @example 1 */
+      id?: number;
+      /** @example true */
+      is_active?: boolean;
+      /** @example Basic Plan */
+      name?: string;
+      /** @example 29.99 */
+      price?: number;
+      /** @example 2023-01-01T00:00:00Z */
+      updated_at?: string;
+    };
+    "github_com_ae-base-server_modules_base_models.TenantResponse": {
+      /** @example Acme Corp */
+      display_name?: string;
+      /** @example 1 */
+      id?: number;
+      /** @example true */
+      is_active?: boolean;
+      /** @example acme */
+      name?: string;
+    };
+    "github_com_ae-base-server_modules_base_models.UserCreateRequest": {
+      /** @example Acme Corp */
+      company_name?: string;
+      /** @example user@example.com */
+      email: string;
+      /** @example John */
+      first_name: string;
+      /** @example Doe */
+      last_name: string;
+      /** @example password123 */
+      password: string;
+      /** @example acme */
+      tenant_name: string;
+    };
+    "github_com_ae-base-server_modules_base_models.UserResponse": {
+      /** @example Acme Corp */
+      company_name?: string;
+      /** @example user@example.com */
+      email?: string;
+      /** @example John */
+      first_name?: string;
+      /** @example 1 */
+      id?: number;
+      /** @example true */
+      is_active?: boolean;
+      /** @example Doe */
+      last_name?: string;
+      tenant?: components["schemas"]["github_com_ae-base-server_modules_base_models.TenantResponse"];
+    };
+    "github_com_ae-base-server_modules_pdf_handlers.ErrorResponse": {
       /** @example Additional error details */
       details?: string;
       /** @example Template name is required */
       error?: string;
     };
-    "handlers.PDFGenerateRequest": {
-      data: {
+    "github_com_ae-base-server_modules_pdf_handlers.PDFGenerateRequest": {
+      data?: {
         [key: string]: unknown;
       };
       /** @example generated-report */
-      fileName: string;
+      fileName?: string;
       /** @example report.html */
-      templateName: string;
+      templateName?: string;
     };
-    "handlers.PDFGenerateResponse": {
+    "github_com_ae-base-server_modules_pdf_handlers.PDFGenerateResponse": {
       /** @example generated-report.pdf */
       filename?: string;
       /** @example PDF generated successfully */
       message?: string;
       /** @example true */
-      success?: boolean;
-    };
-    "models.APIResponse": {
-      data?: unknown;
-      error?: string;
-      message?: string;
       success?: boolean;
     };
     "models.ClientResponse": {
@@ -1927,6 +1857,8 @@ export interface components {
       contact_first_name?: string;
       contact_last_name?: string;
       contact_phone?: string;
+      cost_provider?: components["schemas"]["models.CostProviderResponse"];
+      cost_provider_id?: number;
       created_at?: string;
       date_of_birth?: string;
       email?: string;
@@ -1939,55 +1871,26 @@ export interface components {
       phone?: string;
       primary_language?: string;
       provider_approval_code?: string;
+      provider_approval_date?: string;
       referral_source?: string;
       status?: string;
       street_address?: string;
+      tenant_id?: number;
       therapy_title?: string;
       unit_price?: number;
       updated_at?: string;
       zip?: string;
     };
-    "models.ContactCreateRequest": {
+    "models.CostProviderResponse": {
       city?: string;
-      country?: string;
-      email?: string;
-      first_name: string;
-      last_name: string;
-      mobile?: string;
-      notes?: string;
-      phone?: string;
-      street?: string;
-      type?: string;
-      zip?: string;
-    };
-    "models.ContactResponse": {
-      active?: boolean;
-      city?: string;
-      country?: string;
+      contact_name?: string;
       created_at?: string;
-      email?: string;
-      first_name?: string;
+      department?: string;
       id?: number;
-      last_name?: string;
-      mobile?: string;
-      notes?: string;
-      phone?: string;
-      street?: string;
-      type?: string;
-      zip?: string;
-    };
-    "models.ContactUpdateRequest": {
-      active?: boolean;
-      city?: string;
-      country?: string;
-      email?: string;
-      first_name?: string;
-      last_name?: string;
-      mobile?: string;
-      notes?: string;
-      phone?: string;
-      street?: string;
-      type?: string;
+      organization?: string;
+      street_address?: string;
+      tenant_id?: number;
+      updated_at?: string;
       zip?: string;
     };
     "models.CreateClientRequest": {
@@ -2011,6 +1914,8 @@ export interface components {
       contact_last_name?: string;
       /** @example +1234567890 */
       contact_phone?: string;
+      /** @example 1 */
+      cost_provider_id?: number;
       /** @example 1990-01-15 */
       date_of_birth?: string;
       /** @example john.doe@example.com */
@@ -2031,6 +1936,8 @@ export interface components {
       primary_language?: string;
       /** @example PROV123456 */
       provider_approval_code?: string;
+      /** @example 2025-01-15 */
+      provider_approval_date?: string;
       /** @example Doctor Smith */
       referral_source?: string;
       /** @example waiting */
@@ -2044,149 +1951,49 @@ export interface components {
       /** @example 12345 */
       zip?: string;
     };
-    "models.CustomerCreateRequest": {
+    "models.CreateCostProviderRequest": {
+      /** @example New York */
       city?: string;
-      country?: string;
+      /** @example Jane Smith */
+      contact_name?: string;
+      /** @example Mental Health Division */
+      department?: string;
+      /** @example Health Insurance Corp */
+      organization: string;
+      /** @example 456 Insurance Blvd */
+      street_address?: string;
+      /** @example 12345 */
+      zip?: string;
+    };
+    "models.CustomerRequest": {
+      /** @example Acme Corp */
+      company_name?: string;
+      /** @example john@example.com */
       email: string;
+      /** @example John Doe */
       name: string;
-      payment_method?: string;
+      /** @example +1-555-123-4567 */
       phone?: string;
-      plan_id: number;
-      street?: string;
-      tax_id?: string;
-      tenant_id: number;
-      vat?: string;
-      zip?: string;
     };
-    "models.CustomerResponse": {
-      active?: boolean;
-      city?: string;
-      country?: string;
-      created_at?: string;
-      email?: string;
-      id?: number;
-      name?: string;
-      payment_method?: string;
-      phone?: string;
-      plan?: components["schemas"]["models.PlanResponse"];
-      plan_id?: number;
-      status?: string;
-      street?: string;
-      tax_id?: string;
-      tenant?: components["schemas"]["models.TenantResponse"];
-      tenant_id?: number;
-      vat?: string;
-      zip?: string;
+    "models.ForgotPasswordRequest": {
+      /** @example user@example.com */
+      email: string;
     };
-    "models.CustomerUpdateRequest": {
-      active?: boolean;
-      city?: string;
-      country?: string;
-      email?: string;
-      name?: string;
-      payment_method?: string;
-      phone?: string;
-      plan_id?: number;
-      status?: string;
-      street?: string;
-      tax_id?: string;
-      vat?: string;
-      zip?: string;
-    };
-    "models.EmailResponse": {
-      created_at?: string;
-      delivered_at?: string;
-      error_message?: string;
-      from?: string;
-      id?: number;
-      sent_at?: string;
-      status?: string;
-      subject?: string;
-      to?: string;
-    };
-    "models.EmailSendRequest": {
-      body: string;
-      from: string;
-      html_body?: string;
-      subject: string;
-      to: string;
-    };
-    "models.ErrorResponse": {
-      code?: number;
-      details?: string;
-      error?: string;
-    };
-    "models.HealthResponse": {
-      database?: string;
-      settings?: components["schemas"]["models.HealthSettingsResponse"];
-      status?: string;
-      timestamp?: string;
-      version?: string;
-    };
-    "models.HealthSettingsResponse": {
-      mock_email?: boolean;
-      rate_limit_enabled?: boolean;
-    };
-    "models.ListResponse": {
-      data?: unknown;
-      pagination?: components["schemas"]["models.PaginationResponse"];
-    };
-    "models.LoginRequest": {
-      password: string;
-      username: string;
-    };
-    "models.LoginResponse": {
-      token?: string;
-      user?: components["schemas"]["models.UserResponse"];
-    };
-    "models.PaginationResponse": {
-      limit?: number;
-      page?: number;
-      total?: number;
-      total_pages?: number;
-    };
-    "models.PlanCreateRequest": {
-      active?: boolean;
-      currency?: string;
+    "models.PlanRequest": {
+      /** @example USD */
+      currency: string;
+      /** @example Basic subscription plan */
       description?: string;
-      features?: string;
-      invoice_period?: string;
-      max_clients?: number;
-      max_users?: number;
+      /** @example Basic Plan */
       name: string;
+      /** @example 29.99 */
       price: number;
-      slug: string;
     };
-    "models.PlanResponse": {
-      active?: boolean;
-      created_at?: string;
-      currency?: string;
-      description?: string;
-      features?: string;
-      id?: number;
-      invoice_period?: string;
-      max_clients?: number;
-      max_users?: number;
-      name?: string;
-      price?: number;
-      slug?: string;
-    };
-    "models.PlanUpdateRequest": {
-      active?: boolean;
-      currency?: string;
-      description?: string;
-      features?: string;
-      invoice_period?: string;
-      max_clients?: number;
-      max_users?: number;
-      name?: string;
-      price?: number;
-    };
-    "models.TenantResponse": {
-      created_at?: string;
-      id?: number;
-      name?: string;
-      slug?: string;
+    "models.ResetPasswordRequest": {
+      /** @example newpassword123 */
+      password: string;
+      /** @example reset-token-123 */
+      token: string;
     };
     "models.UpdateClientRequest": {
       /** @example 2025-01-01 */
@@ -2209,6 +2016,8 @@ export interface components {
       contact_last_name?: string;
       /** @example +1234567890 */
       contact_phone?: string;
+      /** @example 1 */
+      cost_provider_id?: number;
       /** @example 1990-01-15 */
       date_of_birth?: string;
       /** @example john.doe@example.com */
@@ -2229,6 +2038,8 @@ export interface components {
       primary_language?: string;
       /** @example PROV123456 */
       provider_approval_code?: string;
+      /** @example 2025-01-15 */
+      provider_approval_date?: string;
       /** @example Doctor Smith */
       referral_source?: string;
       /** @example active */
@@ -2242,54 +2053,19 @@ export interface components {
       /** @example 12345 */
       zip?: string;
     };
-    "models.UserCreateRequest": {
-      /** @description Terms and conditions acceptance */
-      accept_terms?: boolean;
-      /** @description Required unless user-signup token is present */
-      company_name?: string;
-      email: string;
-      first_name: string;
-      last_name: string;
-      /** @description Newsletter subscription */
-      newsletter_opt_in?: boolean;
-      password: string;
-      role?: string;
-      username: string;
-    };
-    "models.UserResponse": {
-      active?: boolean;
-      created_at?: string;
-      email?: string;
-      email_verified?: boolean;
-      email_verified_at?: string;
-      first_name?: string;
-      id?: number;
-      last_name?: string;
-      role?: string;
-      tenant?: components["schemas"]["models.TenantResponse"];
-      tenant_id?: number;
-      username?: string;
-    };
-    "models.UserSettingsResponse": {
-      id?: number;
-      language?: string;
-      settings?: string;
-      theme?: string;
-      timezone?: string;
-      updated_at?: string;
-      user_id?: number;
-    };
-    "models.UserSettingsUpdateRequest": {
-      language?: string;
-      settings?: string;
-      theme?: string;
-      timezone?: string;
-    };
-    "utils.PasswordRequirements": {
-      capital?: boolean;
-      minLength?: number;
-      numbers?: boolean;
-      special?: boolean;
+    "models.UpdateCostProviderRequest": {
+      /** @example New York */
+      city?: string;
+      /** @example Jane Smith */
+      contact_name?: string;
+      /** @example Mental Health Division */
+      department?: string;
+      /** @example Health Insurance Corp */
+      organization?: string;
+      /** @example 456 Insurance Blvd */
+      street_address?: string;
+      /** @example 12345 */
+      zip?: string;
     };
   };
   responses: never;

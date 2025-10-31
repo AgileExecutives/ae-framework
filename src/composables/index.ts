@@ -1,4 +1,4 @@
-import { ref, reactive, computed, readonly as vueReadonly, type Ref } from 'vue';
+import { ref, reactive, computed, type Ref } from 'vue';
 import { AESaasApiClient, type ApiClientConfig, type ApiResponse, type ListResponse } from '../client';
 
 // Global client instance

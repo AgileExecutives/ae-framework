@@ -101,11 +101,6 @@ export class AESaasApiClient {
       params,
     };
 
-    // Debug logging for authentication
-    if (this.token) {
-      console.log(`🔐 Making authenticated request: ${method} ${path} with Bearer token`);
-    }
-
     const response: AxiosResponse<T> = await this.client.request(config);
     return response.data;
   }
@@ -126,34 +121,6 @@ export class AESaasApiClient {
 
   async getCurrentUser() {
     const response = await this.request<ApiResponse<any>>('GET', '/auth/me');
-    return response.data!;
-  }
-
-  async register(credentials: { username: string; email: string; password: string }) {
-    const response = await this.request<ApiResponse<{ token: string; user: any }>>('POST', '/auth/register', credentials);
-    if (response.data?.token) {
-      this.setToken(response.data.token);
-    }
-    return response.data!;
-  }
-
-  async changePassword(credentials: { current_password: string; new_password: string }) {
-    const response = await this.request<ApiResponse>('POST', '/auth/change-password', credentials);
-    return response.data!;
-  }
-
-  async forgotPassword(email: string) {
-    const response = await this.request<ApiResponse>('POST', '/auth/forgot-password', { email });
-    return response.data!;
-  }
-
-  async resetPassword(token: string, newPassword: string) {
-    const response = await this.request<ApiResponse>('POST', '/auth/reset-password', { token, password: newPassword });
-    return response.data!;
-  }
-
-  async getPasswordSecurity() {
-    const response = await this.request<ApiResponse<any>>('GET', '/auth/password-security');
     return response.data!;
   }
 
@@ -256,32 +223,20 @@ export class AESaasApiClient {
   // Client methods
   async getClients(params?: { page?: number; limit?: number }) {
     try {
-      console.log('🔍 getClients called with params:', params);
       const response = await this.request<any>('GET', '/clients', undefined, params);
-      
-      // Handle the actual API response format: {"clients": [...], "total": 46, "page": 1, "limit": 10}
-      if (response && response.clients) {
-        return {
-          success: true,
-          data: response.clients,
-          pagination: {
-            total: response.total,
-            page: response.page,
-            limit: response.limit
-          }
-        };
-      }
-      
-      // Fallback for other formats
       return {
         success: true,
-        data: Array.isArray(response) ? response : []
+        data: response.clients || response,
+        pagination: {
+          total: response.total || 0,
+          page: response.page || 1,
+          limit: response.limit || 10
+        }
       };
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Failed to fetch clients',
-        data: []
+        error: error instanceof Error ? error.message : 'Failed to fetch clients'
       };
     }
   }
@@ -349,38 +304,19 @@ export class AESaasApiClient {
   async getCostProviders(params?: { page?: number; limit?: number }) {
     try {
       const response = await this.request<any>('GET', '/cost-providers', undefined, params);
-      
-      // Handle the actual API response format
-      if (response && response.cost_providers) {
-        return {
-          success: true,
-          data: response.cost_providers,
-          pagination: {
-            total: response.total,
-            page: response.page,
-            limit: response.limit
-          }
-        };
-      }
-      
-      // Handle array response
-      if (Array.isArray(response)) {
-        return {
-          success: true,
-          data: response
-        };
-      }
-      
-      // Fallback
       return {
         success: true,
-        data: []
+        data: response.cost_providers || response,
+        pagination: {
+          total: response.total || 0,
+          page: response.page || 1,
+          limit: response.limit || 10
+        }
       };
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Failed to fetch cost providers',
-        data: []
+        error: error instanceof Error ? error.message : 'Failed to fetch cost providers'
       };
     }
   }
@@ -400,56 +336,62 @@ export class AESaasApiClient {
     }
   }
 
-  async searchClients(params: { q: string; page?: number; limit?: number }) {
+  async createCostProvider(data: any) {
     try {
-      const response = await this.request<any>('GET', '/clients/search', undefined, params);
-      
-      // Handle the actual API response format
-      if (response && response.clients) {
-        return {
-          success: true,
-          data: response.clients,
-          pagination: {
-            total: response.total,
-            page: response.page,
-            limit: response.limit
-          }
-        };
-      }
-      
-      // Fallback for other formats
+      const response = await this.request<any>('POST', '/cost-providers', data);
       return {
         success: true,
-        data: Array.isArray(response) ? response : []
+        data: response
       };
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Failed to search clients',
-        data: []
+        error: error instanceof Error ? error.message : 'Failed to create cost provider'
       };
     }
   }
 
-  // Diagnostic Standards methods
-  async getDiagnosticStandards(params?: { page?: number; limit?: number }) {
+  async updateCostProvider(id: number, data: any) {
     try {
-      const response = await this.request<any>('GET', '/static/diagnostic_std', undefined, params);
-      
+      const response = await this.request<any>('PUT', `/cost-providers/${id}`, data);
       return {
         success: true,
-        data: response.diagnostic_standards || response || [],
-        pagination: {
-          total: response.total || response.diagnostic_standards?.length || 0,
-          page: response.page || 1,
-          limit: response.limit || 100
-        }
+        data: response
       };
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Failed to fetch diagnostic standards',
-        data: []
+        error: error instanceof Error ? error.message : 'Failed to update cost provider'
+      };
+    }
+  }
+
+  async deleteCostProvider(id: number) {
+    try {
+      await this.request<any>('DELETE', `/cost-providers/${id}`);
+      return {
+        success: true
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to delete cost provider'
+      };
+    }
+  }
+
+  // Generic method to fetch static JSON data
+  async getStatic(filename: string) {
+    try {
+      const response = await this.request<any>('GET', `/static/${filename}`);
+      return {
+        success: true,
+        data: response
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : `Failed to fetch static data: ${filename}`
       };
     }
   }
