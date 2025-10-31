@@ -256,6 +256,7 @@ export class AESaasApiClient {
   // Client methods
   async getClients(params?: { page?: number; limit?: number }) {
     try {
+      console.log('🔍 getClients called with params:', params);
       const response = await this.request<any>('GET', '/clients', undefined, params);
       
       // Handle the actual API response format: {"clients": [...], "total": 46, "page": 1, "limit": 10}
@@ -425,6 +426,29 @@ export class AESaasApiClient {
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Failed to search clients',
+        data: []
+      };
+    }
+  }
+
+  // Diagnostic Standards methods
+  async getDiagnosticStandards(params?: { page?: number; limit?: number }) {
+    try {
+      const response = await this.request<any>('GET', '/static/diagnostic_std', undefined, params);
+      
+      return {
+        success: true,
+        data: response.diagnostic_standards || response || [],
+        pagination: {
+          total: response.total || response.diagnostic_standards?.length || 0,
+          page: response.page || 1,
+          limit: response.limit || 100
+        }
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to fetch diagnostic standards',
         data: []
       };
     }
