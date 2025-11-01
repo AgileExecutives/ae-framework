@@ -336,6 +336,163 @@ export class AESaasApiClient {
       };
     }
   }
+
+  // Client management methods
+  async getClients(params?: { page?: number; limit?: number }) {
+    try {
+      const response = await this.request<any>('GET', '/clients', undefined, params);
+      console.log('🔍 API Client getClients - Raw response:', response);
+      console.log('🔍 API Client getClients - Response type:', typeof response);
+      console.log('🔍 API Client getClients - Response.data:', response.data);
+      console.log('🔍 API Client getClients - Response.data type:', typeof response.data);
+      
+      const rawData = response.data || response;
+      
+      // Extract clients array from the response structure
+      const clientsArray = rawData.clients || rawData;
+      console.log('🔍 API Client getClients - Extracted clients array:', clientsArray);
+      console.log('🔍 API Client getClients - Clients array is array:', Array.isArray(clientsArray));
+      console.log('🔍 API Client getClients - Clients array length:', clientsArray?.length);
+      
+      return {
+        success: true,
+        data: clientsArray,
+        pagination: rawData.pagination // Include pagination info if available
+      };
+    } catch (error) {
+      console.error('Error fetching clients:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to fetch clients',
+        data: []
+      };
+    }
+  }
+
+  async getClient(id: number | string) {
+    try {
+      const response = await this.request<any>('GET', `/clients/${id}`);
+      return {
+        success: true,
+        data: response.data || response
+      };
+    } catch (error) {
+      console.error('Error fetching client:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to fetch client'
+      };
+    }
+  }
+
+  async searchClients(params: { q: string }) {
+    try {
+      const response = await this.request<any>('GET', '/clients/search', undefined, params);
+      return {
+        success: true,
+        data: response.data || response
+      };
+    } catch (error) {
+      console.error('Error searching clients:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to search clients',
+        data: []
+      };
+    }
+  }
+
+  async createClient(data: any) {
+    try {
+      const response = await this.request<any>('POST', '/clients', data);
+      return {
+        success: true,
+        data: response.data || response
+      };
+    } catch (error) {
+      console.error('Error creating client:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to create client'
+      };
+    }
+  }
+
+  async updateClient(id: number | string, data: any) {
+    try {
+      const response = await this.request<any>('PUT', `/clients/${id}`, data);
+      return {
+        success: true,
+        data: response.data || response
+      };
+    } catch (error) {
+      console.error('Error updating client:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to update client'
+      };
+    }
+  }
+
+  async deleteClient(id: number | string) {
+    try {
+      const response = await this.request<any>('DELETE', `/clients/${id}`);
+      return {
+        success: true,
+        data: response.data || response
+      };
+    } catch (error) {
+      console.error('Error deleting client:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to delete client'
+      };
+    }
+  }
+
+  async getCostProviders() {
+    try {
+      const response = await this.request<any>('GET', '/cost-providers');
+      console.log('🔍 API Client getCostProviders - Raw response:', response);
+      
+      const rawData = response.data || response;
+      
+      // Extract cost_providers array from the response structure
+      const costProvidersArray = rawData.cost_providers || rawData;
+      console.log('🔍 API Client getCostProviders - Extracted array:', costProvidersArray);
+      console.log('🔍 API Client getCostProviders - Array length:', costProvidersArray?.length);
+      
+      return {
+        success: true,
+        data: costProvidersArray,
+        pagination: rawData.pagination // Include pagination info if available
+      };
+    } catch (error) {
+      console.error('Error fetching cost providers:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to fetch cost providers',
+        data: []
+      };
+    }
+  }
+
+  async getStatic(type: string) {
+    try {
+      const response = await this.request<any>('GET', `/static/${type}`);
+      return {
+        success: true,
+        data: response.data || response
+      };
+    } catch (error) {
+      console.error('Error fetching static data:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to fetch static data',
+        data: []
+      };
+    }
+  }
 }
 
 export default AESaasApiClient;
