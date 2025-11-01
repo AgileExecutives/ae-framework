@@ -253,6 +253,798 @@ export interface paths {
       };
     };
   };
+  "/calendar": {
+    /**
+     * Get calendars with complete metadata
+     * @description Retrieve all calendars for the authenticated user with 2-level deep preloading including entries with their series and series with their entries
+     */
+    get: {
+      responses: {
+        /** @description Array of calendars with preloaded entries, series, and external calendars */
+        200: {
+          content: {
+            "application/json": components["schemas"]["entities.CalendarResponse"][];
+          };
+        };
+        /** @description Unauthorized - invalid or missing JWT token */
+        401: {
+          content: {
+            "application/json": {
+              [key: string]: unknown;
+            };
+          };
+        };
+        /** @description Internal server error during calendar retrieval */
+        500: {
+          content: {
+            "application/json": {
+              [key: string]: unknown;
+            };
+          };
+        };
+      };
+    };
+    /**
+     * Create a new calendar
+     * @description Create a new calendar for the authenticated user
+     */
+    post: {
+      /** @description Calendar data */
+      requestBody: {
+        content: {
+          "application/json": components["schemas"]["entities.CreateCalendarRequest"];
+        };
+      };
+      responses: {
+        /** @description Created */
+        201: {
+          content: {
+            "application/json": components["schemas"]["entities.CalendarResponse"];
+          };
+        };
+        /** @description Bad Request */
+        400: {
+          content: {
+            "application/json": {
+              [key: string]: unknown;
+            };
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          content: {
+            "application/json": {
+              [key: string]: unknown;
+            };
+          };
+        };
+      };
+    };
+  };
+  "/calendar-entries": {
+    /**
+     * Get all calendar entries
+     * @description Retrieve all calendar entries for the authenticated user
+     */
+    get: {
+      parameters: {
+        query?: {
+          /** @description Page number */
+          page?: number;
+          /** @description Items per page */
+          limit?: number;
+        };
+      };
+      responses: {
+        /** @description OK */
+        200: {
+          content: {
+            "application/json": {
+              [key: string]: unknown;
+            };
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          content: {
+            "application/json": {
+              [key: string]: unknown;
+            };
+          };
+        };
+      };
+    };
+    /**
+     * Create a new calendar entry
+     * @description Create a new calendar entry
+     */
+    post: {
+      /** @description Calendar entry data */
+      requestBody: {
+        content: {
+          "application/json": components["schemas"]["entities.CreateCalendarEntryRequest"];
+        };
+      };
+      responses: {
+        /** @description Created */
+        201: {
+          content: {
+            "application/json": components["schemas"]["entities.CalendarEntryResponse"];
+          };
+        };
+        /** @description Bad Request */
+        400: {
+          content: {
+            "application/json": {
+              [key: string]: unknown;
+            };
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          content: {
+            "application/json": {
+              [key: string]: unknown;
+            };
+          };
+        };
+      };
+    };
+  };
+  "/calendar-entries/{id}": {
+    /**
+     * Get calendar entry by ID
+     * @description Retrieve a calendar entry by its ID
+     */
+    get: {
+      parameters: {
+        path: {
+          /** @description Calendar Entry ID */
+          id: number;
+        };
+      };
+      responses: {
+        /** @description OK */
+        200: {
+          content: {
+            "application/json": components["schemas"]["entities.CalendarEntryResponse"];
+          };
+        };
+        /** @description Bad Request */
+        400: {
+          content: {
+            "application/json": {
+              [key: string]: unknown;
+            };
+          };
+        };
+        /** @description Not Found */
+        404: {
+          content: {
+            "application/json": {
+              [key: string]: unknown;
+            };
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          content: {
+            "application/json": {
+              [key: string]: unknown;
+            };
+          };
+        };
+      };
+    };
+    /**
+     * Update calendar entry
+     * @description Update an existing calendar entry
+     */
+    put: {
+      parameters: {
+        path: {
+          /** @description Calendar Entry ID */
+          id: number;
+        };
+      };
+      /** @description Updated calendar entry data */
+      requestBody: {
+        content: {
+          "application/json": components["schemas"]["entities.UpdateCalendarEntryRequest"];
+        };
+      };
+      responses: {
+        /** @description OK */
+        200: {
+          content: {
+            "application/json": components["schemas"]["entities.CalendarEntryResponse"];
+          };
+        };
+        /** @description Bad Request */
+        400: {
+          content: {
+            "application/json": {
+              [key: string]: unknown;
+            };
+          };
+        };
+        /** @description Not Found */
+        404: {
+          content: {
+            "application/json": {
+              [key: string]: unknown;
+            };
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          content: {
+            "application/json": {
+              [key: string]: unknown;
+            };
+          };
+        };
+      };
+    };
+    /**
+     * Delete calendar entry
+     * @description Delete a calendar entry by ID
+     */
+    delete: {
+      parameters: {
+        path: {
+          /** @description Calendar Entry ID */
+          id: number;
+        };
+      };
+      responses: {
+        /** @description OK */
+        200: {
+          content: {
+            "application/json": {
+              [key: string]: unknown;
+            };
+          };
+        };
+        /** @description Bad Request */
+        400: {
+          content: {
+            "application/json": {
+              [key: string]: unknown;
+            };
+          };
+        };
+        /** @description Not Found */
+        404: {
+          content: {
+            "application/json": {
+              [key: string]: unknown;
+            };
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          content: {
+            "application/json": {
+              [key: string]: unknown;
+            };
+          };
+        };
+      };
+    };
+  };
+  "/calendar-series": {
+    /**
+     * Get all calendar series
+     * @description Retrieve all calendar series for the authenticated user
+     */
+    get: {
+      parameters: {
+        query?: {
+          /** @description Page number */
+          page?: number;
+          /** @description Items per page */
+          limit?: number;
+        };
+      };
+      responses: {
+        /** @description OK */
+        200: {
+          content: {
+            "application/json": {
+              [key: string]: unknown;
+            };
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          content: {
+            "application/json": {
+              [key: string]: unknown;
+            };
+          };
+        };
+      };
+    };
+    /**
+     * Create a new calendar series
+     * @description Create a new calendar series for recurring events
+     */
+    post: {
+      /** @description Calendar series data */
+      requestBody: {
+        content: {
+          "application/json": components["schemas"]["entities.CreateCalendarSeriesRequest"];
+        };
+      };
+      responses: {
+        /** @description Created */
+        201: {
+          content: {
+            "application/json": components["schemas"]["entities.CalendarSeriesResponse"];
+          };
+        };
+        /** @description Bad Request */
+        400: {
+          content: {
+            "application/json": {
+              [key: string]: unknown;
+            };
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          content: {
+            "application/json": {
+              [key: string]: unknown;
+            };
+          };
+        };
+      };
+    };
+  };
+  "/calendar-series/{id}": {
+    /**
+     * Get calendar series by ID
+     * @description Retrieve a calendar series by its ID
+     */
+    get: {
+      parameters: {
+        path: {
+          /** @description Calendar Series ID */
+          id: number;
+        };
+      };
+      responses: {
+        /** @description OK */
+        200: {
+          content: {
+            "application/json": components["schemas"]["entities.CalendarSeriesResponse"];
+          };
+        };
+        /** @description Bad Request */
+        400: {
+          content: {
+            "application/json": {
+              [key: string]: unknown;
+            };
+          };
+        };
+        /** @description Not Found */
+        404: {
+          content: {
+            "application/json": {
+              [key: string]: unknown;
+            };
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          content: {
+            "application/json": {
+              [key: string]: unknown;
+            };
+          };
+        };
+      };
+    };
+    /**
+     * Update calendar series
+     * @description Update an existing calendar series
+     */
+    put: {
+      parameters: {
+        path: {
+          /** @description Calendar Series ID */
+          id: number;
+        };
+      };
+      /** @description Updated calendar series data */
+      requestBody: {
+        content: {
+          "application/json": components["schemas"]["entities.UpdateCalendarSeriesRequest"];
+        };
+      };
+      responses: {
+        /** @description OK */
+        200: {
+          content: {
+            "application/json": components["schemas"]["entities.CalendarSeriesResponse"];
+          };
+        };
+        /** @description Bad Request */
+        400: {
+          content: {
+            "application/json": {
+              [key: string]: unknown;
+            };
+          };
+        };
+        /** @description Not Found */
+        404: {
+          content: {
+            "application/json": {
+              [key: string]: unknown;
+            };
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          content: {
+            "application/json": {
+              [key: string]: unknown;
+            };
+          };
+        };
+      };
+    };
+    /**
+     * Delete calendar series
+     * @description Delete a calendar series by ID
+     */
+    delete: {
+      parameters: {
+        path: {
+          /** @description Calendar Series ID */
+          id: number;
+        };
+      };
+      responses: {
+        /** @description OK */
+        200: {
+          content: {
+            "application/json": {
+              [key: string]: unknown;
+            };
+          };
+        };
+        /** @description Bad Request */
+        400: {
+          content: {
+            "application/json": {
+              [key: string]: unknown;
+            };
+          };
+        };
+        /** @description Not Found */
+        404: {
+          content: {
+            "application/json": {
+              [key: string]: unknown;
+            };
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          content: {
+            "application/json": {
+              [key: string]: unknown;
+            };
+          };
+        };
+      };
+    };
+  };
+  "/calendar/free-slots": {
+    /**
+     * Get free time slots
+     * @description Find available time slots based on duration, interval, and maximum number
+     */
+    get: {
+      parameters: {
+        query: {
+          /** @description Duration in minutes */
+          duration: number;
+          /** @description Interval between slots in minutes */
+          interval: number;
+          /** @description Maximum number of slots to return */
+          number_max: number;
+        };
+      };
+      responses: {
+        /** @description OK */
+        200: {
+          content: {
+            "application/json": components["schemas"]["entities.FreeSlot"][];
+          };
+        };
+        /** @description Bad Request */
+        400: {
+          content: {
+            "application/json": {
+              [key: string]: unknown;
+            };
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          content: {
+            "application/json": {
+              [key: string]: unknown;
+            };
+          };
+        };
+      };
+    };
+  };
+  "/calendar/import-holidays": {
+    /**
+     * Import holidays
+     * @description Import holidays for a specific country and year
+     */
+    post: {
+      /** @description Import holidays request */
+      requestBody: {
+        content: {
+          "application/json": components["schemas"]["entities.ImportHolidaysRequest"];
+        };
+      };
+      responses: {
+        /** @description OK */
+        200: {
+          content: {
+            "application/json": {
+              [key: string]: unknown;
+            };
+          };
+        };
+        /** @description Bad Request */
+        400: {
+          content: {
+            "application/json": {
+              [key: string]: unknown;
+            };
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          content: {
+            "application/json": {
+              [key: string]: unknown;
+            };
+          };
+        };
+      };
+    };
+  };
+  "/calendar/week": {
+    /**
+     * Get calendar week view
+     * @description Retrieve calendar entries for a specific week
+     */
+    get: {
+      parameters: {
+        query: {
+          /** @description Date in YYYY-MM-DD format */
+          date: string;
+        };
+      };
+      responses: {
+        /** @description OK */
+        200: {
+          content: {
+            "application/json": components["schemas"]["entities.CalendarEntryResponse"][];
+          };
+        };
+        /** @description Bad Request */
+        400: {
+          content: {
+            "application/json": {
+              [key: string]: unknown;
+            };
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          content: {
+            "application/json": {
+              [key: string]: unknown;
+            };
+          };
+        };
+      };
+    };
+  };
+  "/calendar/year": {
+    /**
+     * Get calendar year view
+     * @description Retrieve calendar entries for a specific year
+     */
+    get: {
+      parameters: {
+        query: {
+          /** @description Year */
+          year: number;
+        };
+      };
+      responses: {
+        /** @description OK */
+        200: {
+          content: {
+            "application/json": components["schemas"]["entities.CalendarEntryResponse"][];
+          };
+        };
+        /** @description Bad Request */
+        400: {
+          content: {
+            "application/json": {
+              [key: string]: unknown;
+            };
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          content: {
+            "application/json": {
+              [key: string]: unknown;
+            };
+          };
+        };
+      };
+    };
+  };
+  "/calendar/{id}": {
+    /**
+     * Get calendar by ID
+     * @description Retrieve a calendar by its ID
+     */
+    get: {
+      parameters: {
+        path: {
+          /** @description Calendar ID */
+          id: number;
+        };
+      };
+      responses: {
+        /** @description OK */
+        200: {
+          content: {
+            "application/json": components["schemas"]["entities.CalendarResponse"];
+          };
+        };
+        /** @description Bad Request */
+        400: {
+          content: {
+            "application/json": {
+              [key: string]: unknown;
+            };
+          };
+        };
+        /** @description Not Found */
+        404: {
+          content: {
+            "application/json": {
+              [key: string]: unknown;
+            };
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          content: {
+            "application/json": {
+              [key: string]: unknown;
+            };
+          };
+        };
+      };
+    };
+    /**
+     * Update calendar
+     * @description Update an existing calendar
+     */
+    put: {
+      parameters: {
+        path: {
+          /** @description Calendar ID */
+          id: number;
+        };
+      };
+      /** @description Updated calendar data */
+      requestBody: {
+        content: {
+          "application/json": components["schemas"]["entities.UpdateCalendarRequest"];
+        };
+      };
+      responses: {
+        /** @description OK */
+        200: {
+          content: {
+            "application/json": components["schemas"]["entities.CalendarResponse"];
+          };
+        };
+        /** @description Bad Request */
+        400: {
+          content: {
+            "application/json": {
+              [key: string]: unknown;
+            };
+          };
+        };
+        /** @description Not Found */
+        404: {
+          content: {
+            "application/json": {
+              [key: string]: unknown;
+            };
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          content: {
+            "application/json": {
+              [key: string]: unknown;
+            };
+          };
+        };
+      };
+    };
+    /**
+     * Delete calendar
+     * @description Delete a calendar by ID
+     */
+    delete: {
+      parameters: {
+        path: {
+          /** @description Calendar ID */
+          id: number;
+        };
+      };
+      responses: {
+        /** @description OK */
+        200: {
+          content: {
+            "application/json": {
+              [key: string]: unknown;
+            };
+          };
+        };
+        /** @description Bad Request */
+        400: {
+          content: {
+            "application/json": {
+              [key: string]: unknown;
+            };
+          };
+        };
+        /** @description Not Found */
+        404: {
+          content: {
+            "application/json": {
+              [key: string]: unknown;
+            };
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          content: {
+            "application/json": {
+              [key: string]: unknown;
+            };
+          };
+        };
+      };
+    };
+  };
   "/clients": {
     /**
      * Get all clients
@@ -263,7 +1055,7 @@ export interface paths {
         query?: {
           /** @description Page number */
           page?: number;
-          /** @description Number of clients per page */
+          /** @description Number of clients per page (respects DEFAULT_PAGE_LIMIT and MAX_PAGE_LIMIT env vars) */
           limit?: number;
         };
       };
@@ -351,7 +1143,7 @@ export interface paths {
           q: string;
           /** @description Page number */
           page?: number;
-          /** @description Number of clients per page */
+          /** @description Number of clients per page (respects DEFAULT_PAGE_LIMIT and MAX_PAGE_LIMIT env vars) */
           limit?: number;
         };
       };
@@ -659,7 +1451,7 @@ export interface paths {
         query?: {
           /** @description Page number */
           page?: number;
-          /** @description Number of cost providers per page */
+          /** @description Number of cost providers per page (respects DEFAULT_PAGE_LIMIT and MAX_PAGE_LIMIT env vars) */
           limit?: number;
         };
       };
@@ -747,7 +1539,7 @@ export interface paths {
           q: string;
           /** @description Page number */
           page?: number;
-          /** @description Number of cost providers per page */
+          /** @description Number of cost providers per page (respects DEFAULT_PAGE_LIMIT and MAX_PAGE_LIMIT env vars) */
           limit?: number;
         };
       };
@@ -1245,6 +2037,218 @@ export interface paths {
       };
     };
   };
+  "/external-calendars": {
+    /**
+     * Get all external calendars
+     * @description Retrieve all external calendars for the authenticated user
+     */
+    get: {
+      parameters: {
+        query?: {
+          /** @description Page number */
+          page?: number;
+          /** @description Items per page */
+          limit?: number;
+        };
+      };
+      responses: {
+        /** @description OK */
+        200: {
+          content: {
+            "application/json": {
+              [key: string]: unknown;
+            };
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          content: {
+            "application/json": {
+              [key: string]: unknown;
+            };
+          };
+        };
+      };
+    };
+    /**
+     * Create a new external calendar
+     * @description Create a new external calendar
+     */
+    post: {
+      /** @description External calendar data */
+      requestBody: {
+        content: {
+          "application/json": components["schemas"]["entities.CreateExternalCalendarRequest"];
+        };
+      };
+      responses: {
+        /** @description Created */
+        201: {
+          content: {
+            "application/json": components["schemas"]["entities.ExternalCalendarResponse"];
+          };
+        };
+        /** @description Bad Request */
+        400: {
+          content: {
+            "application/json": {
+              [key: string]: unknown;
+            };
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          content: {
+            "application/json": {
+              [key: string]: unknown;
+            };
+          };
+        };
+      };
+    };
+  };
+  "/external-calendars/{id}": {
+    /**
+     * Get external calendar by ID
+     * @description Retrieve an external calendar by its ID
+     */
+    get: {
+      parameters: {
+        path: {
+          /** @description External Calendar ID */
+          id: number;
+        };
+      };
+      responses: {
+        /** @description OK */
+        200: {
+          content: {
+            "application/json": components["schemas"]["entities.ExternalCalendarResponse"];
+          };
+        };
+        /** @description Bad Request */
+        400: {
+          content: {
+            "application/json": {
+              [key: string]: unknown;
+            };
+          };
+        };
+        /** @description Not Found */
+        404: {
+          content: {
+            "application/json": {
+              [key: string]: unknown;
+            };
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          content: {
+            "application/json": {
+              [key: string]: unknown;
+            };
+          };
+        };
+      };
+    };
+    /**
+     * Update external calendar
+     * @description Update an existing external calendar
+     */
+    put: {
+      parameters: {
+        path: {
+          /** @description External Calendar ID */
+          id: number;
+        };
+      };
+      /** @description Updated external calendar data */
+      requestBody: {
+        content: {
+          "application/json": components["schemas"]["entities.UpdateExternalCalendarRequest"];
+        };
+      };
+      responses: {
+        /** @description OK */
+        200: {
+          content: {
+            "application/json": components["schemas"]["entities.ExternalCalendarResponse"];
+          };
+        };
+        /** @description Bad Request */
+        400: {
+          content: {
+            "application/json": {
+              [key: string]: unknown;
+            };
+          };
+        };
+        /** @description Not Found */
+        404: {
+          content: {
+            "application/json": {
+              [key: string]: unknown;
+            };
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          content: {
+            "application/json": {
+              [key: string]: unknown;
+            };
+          };
+        };
+      };
+    };
+    /**
+     * Delete external calendar
+     * @description Delete an external calendar by ID
+     */
+    delete: {
+      parameters: {
+        path: {
+          /** @description External Calendar ID */
+          id: number;
+        };
+      };
+      responses: {
+        /** @description OK */
+        200: {
+          content: {
+            "application/json": {
+              [key: string]: unknown;
+            };
+          };
+        };
+        /** @description Bad Request */
+        400: {
+          content: {
+            "application/json": {
+              [key: string]: unknown;
+            };
+          };
+        };
+        /** @description Not Found */
+        404: {
+          content: {
+            "application/json": {
+              [key: string]: unknown;
+            };
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          content: {
+            "application/json": {
+              [key: string]: unknown;
+            };
+          };
+        };
+      };
+    };
+  };
   "/health": {
     /**
      * Health check
@@ -1441,12 +2445,145 @@ export interface paths {
       };
     };
   };
+  "/static": {
+    /**
+     * List available static JSON files
+     * @description Get a list of all JSON files available in the statics/json directory
+     */
+    get: {
+      responses: {
+        /** @description List of available JSON files */
+        200: {
+          content: {
+            "*/*": {
+              [key: string]: unknown;
+            };
+          };
+        };
+        /** @description Failed to read directory */
+        500: {
+          content: {
+            "*/*": {
+              [key: string]: string;
+            };
+          };
+        };
+      };
+    };
+  };
+  "/static/{filename}": {
+    /**
+     * Serve static JSON files (JSON only, security restricted)
+     * @description Securely serve JSON data files from statics/json directory only. Prevents access to other directories or file types.
+     */
+    get: {
+      parameters: {
+        path: {
+          /**
+           * @description JSON filename (without .json extension)
+           * @example "bundeslaender"
+           */
+          filename: string;
+        };
+      };
+      responses: {
+        /** @description JSON file content */
+        200: {
+          content: {
+            "*/*": {
+              [key: string]: unknown;
+            };
+          };
+        };
+        /** @description Invalid file name */
+        400: {
+          content: {
+            "*/*": {
+              [key: string]: string;
+            };
+          };
+        };
+        /** @description File not found */
+        404: {
+          content: {
+            "*/*": {
+              [key: string]: string;
+            };
+          };
+        };
+        /** @description Failed to read file */
+        500: {
+          content: {
+            "*/*": {
+              [key: string]: string;
+            };
+          };
+        };
+      };
+    };
+  };
 }
 
 export type webhooks = Record<string, never>;
 
 export interface components {
   schemas: {
+    "entities.CalendarEntryResponse": {
+      calendar_id?: number;
+      created_at?: string;
+      date_from?: string;
+      date_to?: string;
+      description?: string;
+      id?: number;
+      is_all_day?: boolean;
+      is_exception?: boolean;
+      location?: string;
+      participants?: number[];
+      series_id?: number;
+      tenant_id?: number;
+      time_from?: string;
+      time_to?: string;
+      timezone?: string;
+      title?: string;
+      type?: string;
+      updated_at?: string;
+      user_id?: number;
+    };
+    "entities.CalendarResponse": {
+      calendar_entries?: components["schemas"]["entities.CalendarEntryResponse"][];
+      calendar_series?: components["schemas"]["entities.CalendarSeriesResponse"][];
+      calendar_uuid?: string;
+      color?: string;
+      created_at?: string;
+      external_calendars?: components["schemas"]["entities.ExternalCalendarResponse"][];
+      id?: number;
+      tenant_id?: number;
+      timezone?: string;
+      title?: string;
+      updated_at?: string;
+      user_id?: number;
+      weekly_availability?: number[];
+    };
+    "entities.CalendarSeriesResponse": {
+      calendar_id?: number;
+      created_at?: string;
+      description?: string;
+      entry_uuid?: string;
+      external_calendar_uuid?: string;
+      external_uid?: string;
+      id?: number;
+      interval?: number;
+      location?: string;
+      participants?: number[];
+      sequence?: number;
+      tenant_id?: number;
+      time_end?: string;
+      time_start?: string;
+      title?: string;
+      updated_at?: string;
+      user_id?: number;
+      weekday?: number;
+    };
     "entities.ClientResponse": {
       admission_date?: string;
       alternative_email?: string;
@@ -1494,64 +2631,10 @@ export interface components {
       updated_at?: string;
       zip?: string;
     };
-    "entities.CreateClientRequest": {
-      /** @example 2025-01-01 */
-      admission_date?: string;
-      /** @example johnny.d@example.com */
-      alternative_email?: string;
-      /** @example Johnny */
-      alternative_first_name?: string;
-      /** @example D */
-      alternative_last_name?: string;
-      /** @example +0987654321 */
-      alternative_phone?: string;
-      /** @example New York */
-      city?: string;
-      /** @example jane.smith@example.com */
-      contact_email?: string;
-      /** @example Jane */
-      contact_first_name?: string;
-      /** @example Smith */
-      contact_last_name?: string;
-      /** @example +1234567890 */
-      contact_phone?: string;
-      /** @example 1 */
-      cost_provider_id?: number;
-      /** @example 1990-01-15 */
-      date_of_birth?: string;
-      /** @example john.doe@example.com */
-      email?: string;
-      /** @example John */
-      first_name: string;
-      /** @example male */
-      gender?: string;
-      /** @example false */
-      invoiced_individually?: boolean;
-      /** @example Doe */
-      last_name: string;
-      /** @example Additional notes about the client */
-      notes?: string;
-      /** @example +1234567890 */
-      phone?: string;
-      /** @example English */
-      primary_language?: string;
-      /** @example PROV123456 */
-      provider_approval_code?: string;
-      /** @example 2025-01-15 */
-      provider_approval_date?: string;
-      /** @example Doctor Smith */
-      referral_source?: string;
-      /** @example waiting */
-      status?: string;
-      /** @example 123 Main Street */
-      street_address?: string;
-      /** @example Cognitive Behavioral Therapy */
-      therapy_title?: string;
-      /** @example 150 */
-      unit_price?: number;
-      /** @example 12345 */
-      zip?: string;
-    };
+    "entities.CreateCalendarEntryRequest": Record<string, never>;
+    "entities.CreateCalendarRequest": Record<string, never>;
+    "entities.CreateCalendarSeriesRequest": Record<string, never>;
+    "entities.CreateClientRequest": Record<string, never>;
     "entities.CreateCostProviderRequest": {
       /** @example New York */
       city?: string;
@@ -1566,64 +2649,42 @@ export interface components {
       /** @example 12345 */
       zip?: string;
     };
-    "entities.UpdateClientRequest": {
-      /** @example 2025-01-01 */
-      admission_date?: string;
-      /** @example johnny.d@example.com */
-      alternative_email?: string;
-      /** @example Johnny */
-      alternative_first_name?: string;
-      /** @example D */
-      alternative_last_name?: string;
-      /** @example +0987654321 */
-      alternative_phone?: string;
-      /** @example New York */
-      city?: string;
-      /** @example jane.smith@example.com */
-      contact_email?: string;
-      /** @example Jane */
-      contact_first_name?: string;
-      /** @example Smith */
-      contact_last_name?: string;
-      /** @example +1234567890 */
-      contact_phone?: string;
-      /** @example 1 */
-      cost_provider_id?: number;
-      /** @example 1990-01-15 */
-      date_of_birth?: string;
-      /** @example john.doe@example.com */
-      email?: string;
-      /** @example John */
-      first_name?: string;
-      /** @example male */
-      gender?: string;
-      /** @example false */
-      invoiced_individually?: boolean;
-      /** @example Doe */
-      last_name?: string;
-      /** @example Additional notes about the client */
-      notes?: string;
-      /** @example +1234567890 */
-      phone?: string;
-      /** @example English */
-      primary_language?: string;
-      /** @example PROV123456 */
-      provider_approval_code?: string;
-      /** @example 2025-01-15 */
-      provider_approval_date?: string;
-      /** @example Doctor Smith */
-      referral_source?: string;
-      /** @example active */
-      status?: string;
-      /** @example 123 Main Street */
-      street_address?: string;
-      /** @example Cognitive Behavioral Therapy */
-      therapy_title?: string;
-      /** @example 150 */
-      unit_price?: number;
-      /** @example 12345 */
-      zip?: string;
+    "entities.CreateExternalCalendarRequest": Record<string, never>;
+    "entities.ExternalCalendarResponse": {
+      calendar_id?: number;
+      calendar_uuid?: string;
+      color?: string;
+      created_at?: string;
+      id?: number;
+      settings?: number[];
+      sync_last_run?: string;
+      tenant_id?: number;
+      title?: string;
+      updated_at?: string;
+      url?: string;
+      user_id?: number;
     };
+    "entities.FreeSlot": {
+      /** @example 60 */
+      duration?: number;
+      /** @example 2025-01-15T10:00:00Z */
+      end_time?: string;
+      /** @example 2025-01-15T09:00:00Z */
+      start_time?: string;
+    };
+    "entities.ImportHolidaysRequest": {
+      /** @example US */
+      country: string;
+      /** @example 2025 */
+      year: number;
+    };
+    "entities.NullableDate": {
+      "time.Time"?: string;
+    };
+    "entities.UpdateCalendarEntryRequest": Record<string, never>;
+    "entities.UpdateCalendarRequest": Record<string, never>;
+    "entities.UpdateCalendarSeriesRequest": Record<string, never>;
+    "entities.UpdateClientRequest": Record<string, never>;
     "entities.UpdateCostProviderRequest": {
       /** @example New York */
       city?: string;
@@ -1638,6 +2699,7 @@ export interface components {
       /** @example 12345 */
       zip?: string;
     };
+    "entities.UpdateExternalCalendarRequest": Record<string, never>;
     "github_com_ae-base-server_internal_models.APIResponse": {
       data?: unknown;
       error?: string;

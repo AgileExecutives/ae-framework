@@ -220,178 +220,119 @@ export class AESaasApiClient {
     return response.data!;
   }
 
-  // Client methods
-  async getClients(params?: { page?: number; limit?: number }) {
+  // Calendar methods
+  async getCalendar() {
     try {
-      const response = await this.request<any>('GET', '/clients', undefined, params);
+      console.log('📅 Fetching calendar list from /calendar endpoint')
+      const response = await this.request<any>('GET', '/calendar');
+      
       return {
         success: true,
-        data: response.clients || response,
-        pagination: {
-          total: response.total || 0,
-          page: response.page || 1,
-          limit: response.limit || 10
+        data: response.data || response || []
+      };
+    } catch (error) {
+      console.error('📅 Error fetching calendars:', error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to fetch calendars',
+        data: []
+      };
+    }
+  }
+
+  async getCalendarEvents(params?: { limit?: number; startDate?: string; date?: string }) {
+    try {
+      console.log('📅 Fetching calendars from /calendar endpoint')
+      
+      // First, get the list of calendars
+      const calendarsResponse = await this.request<any>('GET', '/calendar');
+      
+      if (!calendarsResponse || !calendarsResponse.data || !Array.isArray(calendarsResponse.data) || calendarsResponse.data.length === 0) {
+        console.warn('📅 No calendars found or invalid response');
+        return {
+          success: false,
+          error: 'No calendars available',
+          data: []
+        };
+      }
+      
+      // Use the first calendar in the list
+      const firstCalendar = calendarsResponse.data[0];
+      console.log('📅 Using first calendar:', firstCalendar);
+      
+      // If the calendar has events directly, return them
+      if (firstCalendar.events && Array.isArray(firstCalendar.events)) {
+        console.log('📅 Found events in calendar:', firstCalendar.events.length);
+        return {
+          success: true,
+          data: firstCalendar.events
+        };
+      }
+      
+      // If calendar has an ID, try to fetch events for that calendar
+      if (firstCalendar.id) {
+        console.log('📅 Fetching events for calendar ID:', firstCalendar.id);
+        try {
+          const eventsResponse = await this.request<any>('GET', `/calendar/${firstCalendar.id}/events`, undefined, params);
+          return {
+            success: true,
+            data: eventsResponse.data || eventsResponse || []
+          };
+        } catch (eventsError) {
+          console.warn('📅 Failed to fetch events for calendar, using calendar data as events');
+          // Fallback: treat the calendar list as events if events endpoint fails
+          return {
+            success: true,
+            data: calendarsResponse.data
+          };
         }
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to fetch clients'
-      };
-    }
-  }
-
-  async getClient(id: number) {
-    try {
-      const response = await this.request<any>('GET', `/clients/${id}`);
+      }
+      
+      // Fallback: return the calendars data as events
       return {
         success: true,
-        data: response
+        data: calendarsResponse.data
       };
+      
     } catch (error) {
+      console.error('📅 Error fetching calendar events:', error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Failed to fetch client'
+        error: error instanceof Error ? error.message : 'Failed to fetch calendar events',
+        data: []
       };
     }
   }
 
-  async createClient(data: any) {
+  async getCalendarSeries(params?: { limit?: number }) {
     try {
-      const response = await this.request<any>('POST', '/clients', data);
+      const response = await this.request<any>('GET', '/calendar-series', undefined, params);
       return {
         success: true,
-        data: response
+        data: response.data || response || []
       };
     } catch (error) {
+      console.error('Error fetching calendar series:', error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Failed to create client'
+        error: error instanceof Error ? error.message : 'Failed to fetch calendar series',
+        data: []
       };
     }
   }
 
-  async updateClient(id: number, data: any) {
+  async createCalendarEvent(data: any) {
     try {
-      const response = await this.request<any>('PUT', `/clients/${id}`, data);
+      const response = await this.request<any>('POST', '/calendar-entries', data);
       return {
         success: true,
-        data: response
+        data: response.data || response
       };
     } catch (error) {
+      console.error('Error creating calendar event:', error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Failed to update client'
-      };
-    }
-  }
-
-  async deleteClient(id: number) {
-    try {
-      await this.request<any>('DELETE', `/clients/${id}`);
-      return {
-        success: true
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to delete client'
-      };
-    }
-  }
-
-  // Cost Provider methods
-  async getCostProviders(params?: { page?: number; limit?: number }) {
-    try {
-      const response = await this.request<any>('GET', '/cost-providers', undefined, params);
-      return {
-        success: true,
-        data: response.cost_providers || response,
-        pagination: {
-          total: response.total || 0,
-          page: response.page || 1,
-          limit: response.limit || 10
-        }
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to fetch cost providers'
-      };
-    }
-  }
-
-  async getCostProvider(id: number) {
-    try {
-      const response = await this.request<any>('GET', `/cost-providers/${id}`);
-      return {
-        success: true,
-        data: response
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to fetch cost provider'
-      };
-    }
-  }
-
-  async createCostProvider(data: any) {
-    try {
-      const response = await this.request<any>('POST', '/cost-providers', data);
-      return {
-        success: true,
-        data: response
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to create cost provider'
-      };
-    }
-  }
-
-  async updateCostProvider(id: number, data: any) {
-    try {
-      const response = await this.request<any>('PUT', `/cost-providers/${id}`, data);
-      return {
-        success: true,
-        data: response
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to update cost provider'
-      };
-    }
-  }
-
-  async deleteCostProvider(id: number) {
-    try {
-      await this.request<any>('DELETE', `/cost-providers/${id}`);
-      return {
-        success: true
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to delete cost provider'
-      };
-    }
-  }
-
-  // Generic method to fetch static JSON data
-  async getStatic(filename: string) {
-    try {
-      const response = await this.request<any>('GET', `/static/${filename}`);
-      return {
-        success: true,
-        data: response
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : `Failed to fetch static data: ${filename}`
+        error: error instanceof Error ? error.message : 'Failed to create calendar event'
       };
     }
   }

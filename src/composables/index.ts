@@ -1,4 +1,4 @@
-import { ref, reactive, computed, type Ref } from 'vue';
+import { ref, reactive, computed, readonly, type Ref } from 'vue';
 import { AESaasApiClient, type ApiClientConfig, type ApiResponse, type ListResponse } from '../client';
 
 // Global client instance
@@ -206,7 +206,7 @@ export function useResource<T = any>(resourceName: string) {
     items: readonly(items),
     loading: readonly(loading),
     error: readonly(error),
-    pagination,
+    pagination: readonly(pagination),
     fetchItems,
     createItem,
     updateItem,
@@ -334,7 +334,4 @@ export function useHealth() {
   };
 }
 
-// Utility composables
-function readonly<T>(ref: Ref<T>) {
-  return computed(() => ref.value);
-}
+
