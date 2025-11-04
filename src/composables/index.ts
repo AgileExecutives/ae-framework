@@ -1,4 +1,4 @@
-import { ref, reactive, computed, readonly, type Ref } from 'vue';
+import { ref, reactive, computed, type Ref } from 'vue';
 import { AESaasApiClient, type ApiClientConfig, type ApiResponse, type ListResponse } from '../client';
 
 // Global client instance
@@ -31,7 +31,7 @@ export function useAuth() {
       error.value = null;
       
       const response = await client.login(credentials);
-      user.value = response.user;
+      user.value = response.data?.user;
       isAuthenticated.value = true;
       
       return response;
@@ -224,114 +224,25 @@ export const useContacts = () => useResource('contacts');
 export const useEmails = () => useResource('emails');
 
 // Search composable
+// Note: Commented out until search/quickSearch/health/ping endpoints have operationIds
+/*
 export function useSearch() {
-  const client = useApiClient();
-  const results = ref([]);
-  const loading = ref(false);
-  const error = ref<string | null>(null);
-  const query = ref('');
-
-  const search = async (searchQuery: string, options?: any) => {
-    try {
-      loading.value = true;
-      error.value = null;
-      query.value = searchQuery;
-      
-      const searchResults = await client.search({ q: searchQuery, ...options });
-      results.value = searchResults.data || [];
-      
-      return searchResults;
-    } catch (err: any) {
-      error.value = err.message || 'Search failed';
-      throw err;
-    } finally {
-      loading.value = false;
-    }
-  };
-
-  const quickSearch = async (searchQuery: string, limit = 5) => {
-    try {
-      loading.value = true;
-      error.value = null;
-      query.value = searchQuery;
-      
-      const searchResults = await client.quickSearch({ q: searchQuery, limit });
-      results.value = searchResults.data || searchResults || [];
-      
-      return searchResults;
-    } catch (err: any) {
-      error.value = err.message || 'Quick search failed';
-      throw err;
-    } finally {
-      loading.value = false;
-    }
-  };
-
-  const clearResults = () => {
-    results.value = [];
-    query.value = '';
-    error.value = null;
-  };
-
-  return {
-    results: readonly(results),
-    loading: readonly(loading),
-    error: readonly(error),
-    query: readonly(query),
-    search,
-    quickSearch,
-    clearResults
-  };
+  // Implementation disabled - requires search/quickSearch methods
 }
 
-// Health check composable
 export function useHealth() {
-  const client = useApiClient();
-  const status = ref<string | null>(null);
-  const loading = ref(false);
-  const error = ref<string | null>(null);
-  const lastChecked = ref<Date | null>(null);
-
-  const checkHealth = async () => {
-    try {
-      loading.value = true;
-      error.value = null;
-      
-      const health = await client.health();
-      status.value = health.status;
-      lastChecked.value = new Date();
-      
-      return health;
-    } catch (err: any) {
-      error.value = err.message || 'Health check failed';
-      status.value = 'unhealthy';
-      throw err;
-    } finally {
-      loading.value = false;
-    }
-  };
-
-  const ping = async () => {
-    try {
-      const response = await client.ping();
-      return response;
-    } catch (err: any) {
-      error.value = err.message || 'Ping failed';
-      throw err;
-    }
-  };
-
-  const isHealthy = computed(() => status.value === 'healthy');
-
-  return {
-    status: readonly(status),
-    loading: readonly(loading),
-    error: readonly(error),
-    lastChecked: readonly(lastChecked),
-    isHealthy,
-    checkHealth,
-    ping
-  };
+  // Implementation disabled - requires health/ping methods  
 }
+*/
 
-
+// Utility composables
+function readonly<T>(source: Ref<T> | T) {
+  // Check if it's a Ref by looking for the 'value' property
+  if (source && typeof source === 'object' && 'value' in source) {
+    // It's a Ref, return computed with .value
+    return computed(() => (source as Ref<T>).value);
+  } else {
+    // It's a reactive object, return computed without .value
+    return computed(() => source as T);
+  }
+}

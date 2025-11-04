@@ -103,7 +103,94 @@ function generateApiClient(openApiSpec) {
       responses: spec.responses
     }));
   }).flat();
+  
+  // Generate methods dynamically from endpoints
+  const generateMethods = () => {
+    const methods = [];
+    
+    endpoints.forEach((endpoint, index) => {
+      if (!endpoint.operationId) {
+        console.log(`❌ Skipping endpoint ${index + 1}: ${endpoint.method} ${endpoint.path} - missing operationId`);
+        return;
+      }
+      
+      console.log(`✅ Processing endpoint ${index + 1}: ${endpoint.method} ${endpoint.path} - operationId: ${endpoint.operationId}`);
+      
+      const methodName = endpoint.operationId;
+      // Strip /api/v1 prefix from path since it's already in baseURL
+      const cleanPath = endpoint.path.replace(/^\/api\/v1/, '') || '/';
+      const pathTemplate = cleanPath.replace(/\{([^}]+)\}/g, '${$1}');
+      const hasPathParams = endpoint.path.includes('{');
+      const hasQueryParams = endpoint.parameters.some(p => p.in === 'query');
+      const hasBody = endpoint.requestBody;
+      
+      let methodCode = `  async ${methodName}(`;
+      
+      // Add parameters
+      const params = [];
+      if (hasPathParams) {
+        const pathParams = endpoint.parameters.filter(p => p.in === 'path');
+        pathParams.forEach(param => {
+          params.push(`${param.name}: ${param.schema?.type === 'integer' ? 'number' : 'string'}`);
+        });
+      }
+      
+      if (hasBody) {
+        params.push('data: any');
+      }
+      
+      if (hasQueryParams) {
+        params.push('params?: Record<string, any>');
+      }
+      
+      methodCode += params.join(', ');
+      methodCode += ') {\n';
+      
+      // Determine response type
+      const isListEndpoint = methodName.includes('get') && (methodName.includes('s') || methodName.includes('search'));
+      const responseType = isListEndpoint ? 'any' : 'ApiResponse<any>';
+      
+      // Generate method body
+      if (hasPathParams) {
+        const pathParams = endpoint.parameters.filter(p => p.in === 'path');
+        pathParams.forEach(param => {
+          methodCode += `    if (!${param.name}) throw new Error('${param.name} is required');\n`;
+        });
+      }
+      
+      const requestArgs = [`'${endpoint.method}'`, `\`${pathTemplate}\``];
+      
+      if (hasBody) {
+        requestArgs.push('data');
+      } else {
+        requestArgs.push('undefined');
+      }
+      
+      if (hasQueryParams) {
+        requestArgs.push('params');
+      }
+      
+      if (endpoint.method === 'DELETE') {
+        methodCode += `    await this.request<ApiResponse<any>>(${requestArgs.join(', ')});\n`;
+        methodCode += `    return { success: true };\n`;
+      } else {
+        methodCode += `    const response = await this.request<${responseType}>(${requestArgs.join(', ')});\n`;
+        if (isListEndpoint) {
+          methodCode += `    return response;\n`;
+        } else {
+          methodCode += `    return response;\n`;
+        }
+      }
+      
+      methodCode += '  }\n';
+      methods.push(methodCode);
+    });
+    
+    return methods.join('\n');
+  };
 
+  const dynamicMethods = generateMethods();
+  
   return `import axios, { AxiosInstance, AxiosResponse, AxiosRequestConfig } from 'axios';
 import type { paths, components } from './types';
 
@@ -210,120 +297,8 @@ export class AESaasApiClient {
     return response.data;
   }
 
-  // Authentication methods
-  async login(credentials: { username: string; password: string }) {
-    const response = await this.request<ApiResponse<{ token: string; user: any }>>('POST', '/auth/login', credentials);
-    if (response.data?.token) {
-      this.setToken(response.data.token);
-    }
-    return response.data!;
-  }
-
-  async logout() {
-    await this.request<ApiResponse>('POST', '/auth/logout');
-    this.clearToken();
-  }
-
-  async getCurrentUser() {
-    const response = await this.request<ApiResponse<any>>('GET', '/auth/me');
-    return response.data!;
-  }
-
-  // Health check methods
-  async health() {
-    return this.request<{ status: string }>('GET', '/health');
-  }
-
-  async ping() {
-    return this.request<any>('GET', '/ping');
-  }
-
-  // Resource methods
-  async getPlans(params?: { page?: number; limit?: number }) {
-    const response = await this.request<ListResponse<any>>('GET', '/plans', undefined, params);
-    return response;
-  }
-
-  async getPlan(id: number) {
-    const response = await this.request<ApiResponse<any>>('GET', \`/plans/\${id}\`);
-    return response.data!;
-  }
-
-  async getCustomers(params?: { page?: number; limit?: number }) {
-    const response = await this.request<ListResponse<any>>('GET', '/customers', undefined, params);
-    return response;
-  }
-
-  async getCustomer(id: number) {
-    const response = await this.request<ApiResponse<any>>('GET', \`/customers/\${id}\`);
-    return response.data!;
-  }
-
-  async createCustomer(data: any) {
-    const response = await this.request<ApiResponse<any>>('POST', '/customers', data);
-    return response.data!;
-  }
-
-  async updateCustomer(id: number, data: any) {
-    const response = await this.request<ApiResponse<any>>('PUT', \`/customers/\${id}\`, data);
-    return response.data!;
-  }
-
-  async deleteCustomer(id: number) {
-    await this.request<ApiResponse>('DELETE', \`/customers/\${id}\`);
-  }
-
-  async getContacts(params?: { page?: number; limit?: number }) {
-    const response = await this.request<ListResponse<any>>('GET', '/contacts', undefined, params);
-    return response;
-  }
-
-  async getContact(id: number) {
-    const response = await this.request<ApiResponse<any>>('GET', \`/contacts/\${id}\`);
-    return response.data!;
-  }
-
-  async createContact(data: any) {
-    const response = await this.request<ApiResponse<any>>('POST', '/contacts', data);
-    return response.data!;
-  }
-
-  async updateContact(id: number, data: any) {
-    const response = await this.request<ApiResponse<any>>('PUT', \`/contacts/\${id}\`, data);
-    return response.data!;
-  }
-
-  async deleteContact(id: number) {
-    await this.request<ApiResponse>('DELETE', \`/contacts/\${id}\`);
-  }
-
-  async getEmails(params?: { page?: number; limit?: number; status?: string }) {
-    const response = await this.request<ListResponse<any>>('GET', '/emails', undefined, params);
-    return response;
-  }
-
-  async sendEmail(data: any) {
-    const response = await this.request<ApiResponse<any>>('POST', '/emails/send', data);
-    return response.data!;
-  }
-
-  async quickSearch(params: { q: string; limit?: number }) {
-    return this.request<any>('GET', '/search/quick', undefined, params);
-  }
-
-  async search(data: any) {
-    return this.request<any>('POST', '/search', data);
-  }
-
-  async getUserSettings() {
-    const response = await this.request<ApiResponse<any>>('GET', '/user-settings');
-    return response.data!;
-  }
-
-  async updateUserSettings(data: any) {
-    const response = await this.request<ApiResponse<any>>('PUT', '/user-settings', data);
-    return response.data!;
-  }
+  // Dynamically generated methods from OpenAPI spec
+${dynamicMethods}
 }
 
 export default AESaasApiClient;
@@ -366,7 +341,7 @@ export function useAuth() {
       error.value = null;
       
       const response = await client.login(credentials);
-      user.value = response.user;
+      user.value = response.data?.user;
       isAuthenticated.value = true;
       
       return response;
@@ -559,115 +534,16 @@ export const useContacts = () => useResource('contacts');
 export const useEmails = () => useResource('emails');
 
 // Search composable
+// Note: Commented out until search/quickSearch/health/ping endpoints have operationIds
+/*
 export function useSearch() {
-  const client = useApiClient();
-  const results = ref([]);
-  const loading = ref(false);
-  const error = ref<string | null>(null);
-  const query = ref('');
-
-  const search = async (searchQuery: string, options?: any) => {
-    try {
-      loading.value = true;
-      error.value = null;
-      query.value = searchQuery;
-      
-      const searchResults = await client.search({ q: searchQuery, ...options });
-      results.value = searchResults.data || [];
-      
-      return searchResults;
-    } catch (err: any) {
-      error.value = err.message || 'Search failed';
-      throw err;
-    } finally {
-      loading.value = false;
-    }
-  };
-
-  const quickSearch = async (searchQuery: string, limit = 5) => {
-    try {
-      loading.value = true;
-      error.value = null;
-      query.value = searchQuery;
-      
-      const searchResults = await client.quickSearch({ q: searchQuery, limit });
-      results.value = searchResults.data || searchResults || [];
-      
-      return searchResults;
-    } catch (err: any) {
-      error.value = err.message || 'Quick search failed';
-      throw err;
-    } finally {
-      loading.value = false;
-    }
-  };
-
-  const clearResults = () => {
-    results.value = [];
-    query.value = '';
-    error.value = null;
-  };
-
-  return {
-    results: readonly(results),
-    loading: readonly(loading),
-    error: readonly(error),
-    query: readonly(query),
-    search,
-    quickSearch,
-    clearResults
-  };
+  // Implementation disabled - requires search/quickSearch methods
 }
 
-// Health check composable
 export function useHealth() {
-  const client = useApiClient();
-  const status = ref<string | null>(null);
-  const loading = ref(false);
-  const error = ref<string | null>(null);
-  const lastChecked = ref<Date | null>(null);
-
-  const checkHealth = async () => {
-    try {
-      loading.value = true;
-      error.value = null;
-      
-      const health = await client.health();
-      status.value = health.status;
-      lastChecked.value = new Date();
-      
-      return health;
-    } catch (err: any) {
-      error.value = err.message || 'Health check failed';
-      status.value = 'unhealthy';
-      throw err;
-    } finally {
-      loading.value = false;
-    }
-  };
-
-  const ping = async () => {
-    try {
-      const response = await client.ping();
-      return response;
-    } catch (err: any) {
-      error.value = err.message || 'Ping failed';
-      throw err;
-    }
-  };
-
-  const isHealthy = computed(() => status.value === 'healthy');
-
-  return {
-    status: readonly(status),
-    loading: readonly(loading),
-    error: readonly(error),
-    lastChecked: readonly(lastChecked),
-    isHealthy,
-    checkHealth,
-    ping
-  };
+  // Implementation disabled - requires health/ping methods  
 }
+*/
 
 // Utility composables
 function readonly<T>(ref: Ref<T>) {

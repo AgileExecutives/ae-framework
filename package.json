@@ -23,11 +23,14 @@
     "README.md"
   ],
   "scripts": {
-    "generate": "node scripts/generate-client.js",
-    "build": "tsup",
+    "generateOnly": "node scripts/generate-client.js",
+    "post-generate": "node scripts/fix-generated-types.js",
+    "generate": "npm run generateOnly && npm run post-generate",
+    "build": "npm run generate && tsup",
+    "buildOnly": "tsup",
     "build-watch": "tsup --watch",
     "dev": "tsup --watch",
-    "prepublishOnly": "npm run generate && npm run build",
+    "prepublishOnly": "npm run generate-and-fix && npm run build",
     "test": "vitest",
     "typecheck": "tsc --noEmit"
   },

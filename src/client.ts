@@ -105,394 +105,415 @@ export class AESaasApiClient {
     return response.data;
   }
 
-  // Authentication methods
-  async login(credentials: { username: string; password: string }) {
-    const response = await this.request<ApiResponse<{ token: string; user: any }>>('POST', '/auth/login', credentials);
-    if (response.data?.token) {
-      this.setToken(response.data.token);
-    }
-    return response.data!;
+  // Dynamically generated methods from OpenAPI spec
+  async changePassword(data: any) {
+    const response = await this.request<ApiResponse<any>>('POST', `/auth/change-password`, data);
+    return response;
+  }
+
+  async forgotPassword(data: any) {
+    const response = await this.request<ApiResponse<any>>('POST', `/auth/forgot-password`, data);
+    return response;
+  }
+
+  async login(data: any) {
+    const response = await this.request<ApiResponse<any>>('POST', `/auth/login`, data);
+    return response;
   }
 
   async logout() {
-    await this.request<ApiResponse>('POST', '/auth/logout');
-    this.clearToken();
+    const response = await this.request<ApiResponse<any>>('POST', `/auth/logout`, undefined);
+    return response;
   }
 
   async getCurrentUser() {
-    const response = await this.request<ApiResponse<any>>('GET', '/auth/me');
-    return response.data!;
-  }
-
-  // Health check methods
-  async health() {
-    return this.request<{ status: string }>('GET', '/health');
-  }
-
-  async ping() {
-    return this.request<any>('GET', '/ping');
-  }
-
-  // Resource methods
-  async getPlans(params?: { page?: number; limit?: number }) {
-    const response = await this.request<ListResponse<any>>('GET', '/plans', undefined, params);
+    const response = await this.request<any>('GET', `/auth/me`, undefined);
     return response;
   }
 
-  async getPlan(id: number) {
-    const response = await this.request<ApiResponse<any>>('GET', `/plans/${id}`);
-    return response.data!;
-  }
-
-  async getCustomers(params?: { page?: number; limit?: number }) {
-    const response = await this.request<ListResponse<any>>('GET', '/customers', undefined, params);
+  async resetPassword(token: string, data: any) {
+    if (!token) throw new Error('token is required');
+    const response = await this.request<ApiResponse<any>>('POST', `/auth/new-password/${token}`, data);
     return response;
   }
 
-  async getCustomer(id: number) {
-    const response = await this.request<ApiResponse<any>>('GET', `/customers/${id}`);
-    return response.data!;
-  }
-
-  async createCustomer(data: any) {
-    const response = await this.request<ApiResponse<any>>('POST', '/customers', data);
-    return response.data!;
-  }
-
-  async updateCustomer(id: number, data: any) {
-    const response = await this.request<ApiResponse<any>>('PUT', `/customers/${id}`, data);
-    return response.data!;
-  }
-
-  async deleteCustomer(id: number) {
-    await this.request<ApiResponse>('DELETE', `/customers/${id}`);
-  }
-
-  async getContacts(params?: { page?: number; limit?: number }) {
-    const response = await this.request<ListResponse<any>>('GET', '/contacts', undefined, params);
+  async refreshToken() {
+    const response = await this.request<ApiResponse<any>>('POST', `/auth/refresh`, undefined);
     return response;
   }
 
-  async getContact(id: number) {
-    const response = await this.request<ApiResponse<any>>('GET', `/contacts/${id}`);
-    return response.data!;
+  async register(data: any) {
+    const response = await this.request<ApiResponse<any>>('POST', `/auth/register`, data);
+    return response;
+  }
+
+  async verifyEmail(token: string) {
+    if (!token) throw new Error('token is required');
+    const response = await this.request<ApiResponse<any>>('GET', `/auth/verify-email/${token}`, undefined);
+    return response;
+  }
+
+  async getContacts(params?: Record<string, any>) {
+    const response = await this.request<any>('GET', `/contacts`, undefined, params);
+    return response;
   }
 
   async createContact(data: any) {
-    const response = await this.request<ApiResponse<any>>('POST', '/contacts', data);
-    return response.data!;
+    const response = await this.request<ApiResponse<any>>('POST', `/contacts`, data);
+    return response;
   }
 
-  async updateContact(id: number, data: any) {
+  async submitContactForm(data: any) {
+    const response = await this.request<ApiResponse<any>>('POST', `/contacts/form`, data);
+    return response;
+  }
+
+  async getNewsletterSubscriptions() {
+    const response = await this.request<any>('GET', `/contacts/newsletter`, undefined);
+    return response;
+  }
+
+  async unsubscribeFromNewsletter(email: string) {
+    if (!email) throw new Error('email is required');
+    await this.request<ApiResponse<any>>('DELETE', `/contacts/newsletter/${email}`, undefined);
+    return { success: true };
+  }
+
+  async getContactById(id: string) {
+    if (!id) throw new Error('id is required');
+    const response = await this.request<ApiResponse<any>>('GET', `/contacts/${id}`, undefined);
+    return response;
+  }
+
+  async updateContact(id: string, data: any) {
+    if (!id) throw new Error('id is required');
     const response = await this.request<ApiResponse<any>>('PUT', `/contacts/${id}`, data);
-    return response.data!;
+    return response;
   }
 
-  async deleteContact(id: number) {
-    await this.request<ApiResponse>('DELETE', `/contacts/${id}`);
+  async deleteContact(id: string) {
+    if (!id) throw new Error('id is required');
+    await this.request<ApiResponse<any>>('DELETE', `/contacts/${id}`, undefined);
+    return { success: true };
   }
 
-  async getEmails(params?: { page?: number; limit?: number; status?: string }) {
-    const response = await this.request<ListResponse<any>>('GET', '/emails', undefined, params);
+  async getCustomers(params?: Record<string, any>) {
+    const response = await this.request<any>('GET', `/customers`, undefined, params);
+    return response;
+  }
+
+  async createCustomer(data: any) {
+    const response = await this.request<ApiResponse<any>>('POST', `/customers`, data);
+    return response;
+  }
+
+  async getCustomerById(id: number) {
+    if (!id) throw new Error('id is required');
+    const response = await this.request<any>('GET', `/customers/${id}`, undefined);
+    return response;
+  }
+
+  async updateCustomer(id: number, data: any) {
+    if (!id) throw new Error('id is required');
+    const response = await this.request<ApiResponse<any>>('PUT', `/customers/${id}`, data);
+    return response;
+  }
+
+  async deleteCustomer(id: number) {
+    if (!id) throw new Error('id is required');
+    await this.request<ApiResponse<any>>('DELETE', `/customers/${id}`, undefined);
+    return { success: true };
+  }
+
+  async getEmails(params?: Record<string, any>) {
+    const response = await this.request<any>('GET', `/emails`, undefined, params);
     return response;
   }
 
   async sendEmail(data: any) {
-    const response = await this.request<ApiResponse<any>>('POST', '/emails/send', data);
-    return response.data!;
+    const response = await this.request<ApiResponse<any>>('POST', `/emails/send`, data);
+    return response;
   }
 
-  async quickSearch(params: { q: string; limit?: number }) {
-    return this.request<any>('GET', '/search/quick', undefined, params);
+  async getEmailStats() {
+    const response = await this.request<any>('GET', `/emails/stats`, undefined);
+    return response;
   }
 
-  async search(data: any) {
-    return this.request<any>('POST', '/search', data);
+  async getEmailById(id: number) {
+    if (!id) throw new Error('id is required');
+    const response = await this.request<ApiResponse<any>>('GET', `/emails/${id}`, undefined);
+    return response;
+  }
+
+  async healthCheck() {
+    const response = await this.request<ApiResponse<any>>('GET', `/health`, undefined);
+    return response;
+  }
+
+  async createPdf(data: any) {
+    const response = await this.request<ApiResponse<any>>('POST', `/pdf/create`, data);
+    return response;
+  }
+
+  async ping() {
+    const response = await this.request<ApiResponse<any>>('GET', `/ping`, undefined);
+    return response;
+  }
+
+  async getPlans() {
+    const response = await this.request<any>('GET', `/plans`, undefined);
+    return response;
+  }
+
+  async createPlan(data: any) {
+    const response = await this.request<ApiResponse<any>>('POST', `/plans`, data);
+    return response;
+  }
+
+  async getPlanById(id: number) {
+    if (!id) throw new Error('id is required');
+    const response = await this.request<ApiResponse<any>>('GET', `/plans/${id}`, undefined);
+    return response;
+  }
+
+  async updatePlan(id: number, data: any) {
+    if (!id) throw new Error('id is required');
+    const response = await this.request<ApiResponse<any>>('PUT', `/plans/${id}`, data);
+    return response;
+  }
+
+  async deletePlan(id: number) {
+    if (!id) throw new Error('id is required');
+    await this.request<ApiResponse<any>>('DELETE', `/plans/${id}`, undefined);
+    return { success: true };
+  }
+
+  async listStaticFiles() {
+    const response = await this.request<ApiResponse<any>>('GET', `/static`, undefined);
+    return response;
+  }
+
+  async getStaticFile(filename: string) {
+    if (!filename) throw new Error('filename is required');
+    const response = await this.request<ApiResponse<any>>('GET', `/static/${filename}`, undefined);
+    return response;
   }
 
   async getUserSettings() {
-    const response = await this.request<ApiResponse<any>>('GET', '/user-settings');
-    return response.data!;
+    const response = await this.request<any>('GET', `/user-settings`, undefined);
+    return response;
   }
 
   async updateUserSettings(data: any) {
-    const response = await this.request<ApiResponse<any>>('PUT', '/user-settings', data);
-    return response.data!;
+    const response = await this.request<ApiResponse<any>>('PUT', `/user-settings`, data);
+    return response;
   }
 
-  // Calendar methods
-  async getCalendar() {
-    try {
-      console.log('📅 Fetching calendar list from /calendar endpoint')
-      const response = await this.request<any>('GET', '/calendar');
-      
-      return {
-        success: true,
-        data: response.data || response || []
-      };
-    } catch (error) {
-      console.error('📅 Error fetching calendars:', error);
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to fetch calendars',
-        data: []
-      };
-    }
+  async resetUserSettings() {
+    const response = await this.request<ApiResponse<any>>('POST', `/user-settings/reset`, undefined);
+    return response;
   }
 
-  async getCalendarEvents(params?: { limit?: number; startDate?: string; date?: string }) {
-    try {
-      console.log('📅 Fetching calendars from /calendar endpoint')
-      
-      // First, get the list of calendars
-      const calendarsResponse = await this.request<any>('GET', '/calendar');
-      
-      if (!calendarsResponse || !calendarsResponse.data || !Array.isArray(calendarsResponse.data) || calendarsResponse.data.length === 0) {
-        console.warn('📅 No calendars found or invalid response');
-        return {
-          success: false,
-          error: 'No calendars available',
-          data: []
-        };
-      }
-      
-      // Use the first calendar in the list
-      const firstCalendar = calendarsResponse.data[0];
-      console.log('📅 Using first calendar:', firstCalendar);
-      
-      // If the calendar has events directly, return them
-      if (firstCalendar.events && Array.isArray(firstCalendar.events)) {
-        console.log('📅 Found events in calendar:', firstCalendar.events.length);
-        return {
-          success: true,
-          data: firstCalendar.events
-        };
-      }
-      
-      // If calendar has an ID, try to fetch events for that calendar
-      if (firstCalendar.id) {
-        console.log('📅 Fetching events for calendar ID:', firstCalendar.id);
-        try {
-          const eventsResponse = await this.request<any>('GET', `/calendar/${firstCalendar.id}/events`, undefined, params);
-          return {
-            success: true,
-            data: eventsResponse.data || eventsResponse || []
-          };
-        } catch (eventsError) {
-          console.warn('📅 Failed to fetch events for calendar, using calendar data as events');
-          // Fallback: treat the calendar list as events if events endpoint fails
-          return {
-            success: true,
-            data: calendarsResponse.data
-          };
-        }
-      }
-      
-      // Fallback: return the calendars data as events
-      return {
-        success: true,
-        data: calendarsResponse.data
-      };
-      
-    } catch (error) {
-      console.error('📅 Error fetching calendar events:', error);
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to fetch calendar events',
-        data: []
-      };
-    }
+  async getCalendars() {
+    const response = await this.request<any>('GET', `/calendar`, undefined);
+    return response;
   }
 
-  async getCalendarSeries(params?: { limit?: number }) {
-    try {
-      const response = await this.request<any>('GET', '/calendar-series', undefined, params);
-      return {
-        success: true,
-        data: response.data || response || []
-      };
-    } catch (error) {
-      console.error('Error fetching calendar series:', error);
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to fetch calendar series',
-        data: []
-      };
-    }
+  async createCalendar(data: any) {
+    const response = await this.request<ApiResponse<any>>('POST', `/calendar`, data);
+    return response;
   }
 
-  async createCalendarEvent(data: any) {
-    try {
-      const response = await this.request<any>('POST', '/calendar-entries', data);
-      return {
-        success: true,
-        data: response.data || response
-      };
-    } catch (error) {
-      console.error('Error creating calendar event:', error);
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to create calendar event'
-      };
-    }
+  async getCalendarEntries(params?: Record<string, any>) {
+    const response = await this.request<any>('GET', `/calendar-entries`, undefined, params);
+    return response;
   }
 
-  // Client management methods
-  async getClients(params?: { page?: number; limit?: number }) {
-    try {
-      const response = await this.request<any>('GET', '/clients', undefined, params);
-      console.log('🔍 API Client getClients - Raw response:', response);
-      console.log('🔍 API Client getClients - Response type:', typeof response);
-      console.log('🔍 API Client getClients - Response.data:', response.data);
-      console.log('🔍 API Client getClients - Response.data type:', typeof response.data);
-      
-      const rawData = response.data || response;
-      
-      // Extract clients array from the response structure
-      const clientsArray = rawData.clients || rawData;
-      console.log('🔍 API Client getClients - Extracted clients array:', clientsArray);
-      console.log('🔍 API Client getClients - Clients array is array:', Array.isArray(clientsArray));
-      console.log('🔍 API Client getClients - Clients array length:', clientsArray?.length);
-      
-      return {
-        success: true,
-        data: clientsArray,
-        pagination: rawData.pagination // Include pagination info if available
-      };
-    } catch (error) {
-      console.error('Error fetching clients:', error);
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to fetch clients',
-        data: []
-      };
-    }
+  async createCalendarEntry(data: any) {
+    const response = await this.request<ApiResponse<any>>('POST', `/calendar-entries`, data);
+    return response;
   }
 
-  async getClient(id: number | string) {
-    try {
-      const response = await this.request<any>('GET', `/clients/${id}`);
-      return {
-        success: true,
-        data: response.data || response
-      };
-    } catch (error) {
-      console.error('Error fetching client:', error);
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to fetch client'
-      };
-    }
+  async getCalendarEntryById(id: number) {
+    if (!id) throw new Error('id is required');
+    const response = await this.request<ApiResponse<any>>('GET', `/calendar-entries/${id}`, undefined);
+    return response;
   }
 
-  async searchClients(params: { q: string }) {
-    try {
-      const response = await this.request<any>('GET', '/clients/search', undefined, params);
-      return {
-        success: true,
-        data: response.data || response
-      };
-    } catch (error) {
-      console.error('Error searching clients:', error);
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to search clients',
-        data: []
-      };
-    }
+  async updateCalendarEntry(id: number, data: any) {
+    if (!id) throw new Error('id is required');
+    const response = await this.request<ApiResponse<any>>('PUT', `/calendar-entries/${id}`, data);
+    return response;
+  }
+
+  async deleteCalendarEntry(id: number) {
+    if (!id) throw new Error('id is required');
+    await this.request<ApiResponse<any>>('DELETE', `/calendar-entries/${id}`, undefined);
+    return { success: true };
+  }
+
+  async getCalendarSeries(params?: Record<string, any>) {
+    const response = await this.request<any>('GET', `/calendar-series`, undefined, params);
+    return response;
+  }
+
+  async createCalendarSeries(data: any) {
+    const response = await this.request<ApiResponse<any>>('POST', `/calendar-series`, data);
+    return response;
+  }
+
+  async getCalendarSeriesById(id: number) {
+    if (!id) throw new Error('id is required');
+    const response = await this.request<any>('GET', `/calendar-series/${id}`, undefined);
+    return response;
+  }
+
+  async updateCalendarSeries(id: number, data: any) {
+    if (!id) throw new Error('id is required');
+    const response = await this.request<ApiResponse<any>>('PUT', `/calendar-series/${id}`, data);
+    return response;
+  }
+
+  async deleteCalendarSeries(id: number) {
+    if (!id) throw new Error('id is required');
+    await this.request<ApiResponse<any>>('DELETE', `/calendar-series/${id}`, undefined);
+    return { success: true };
+  }
+
+  async getFreeSlots(params?: Record<string, any>) {
+    const response = await this.request<any>('GET', `/calendar/free-slots`, undefined, params);
+    return response;
+  }
+
+  async getCalendarWeek(params?: Record<string, any>) {
+    const response = await this.request<ApiResponse<any>>('GET', `/calendar/week`, undefined, params);
+    return response;
+  }
+
+  async getCalendarYear(params?: Record<string, any>) {
+    const response = await this.request<ApiResponse<any>>('GET', `/calendar/year`, undefined, params);
+    return response;
+  }
+
+  async getCalendarById(id: number) {
+    if (!id) throw new Error('id is required');
+    const response = await this.request<ApiResponse<any>>('GET', `/calendar/${id}`, undefined);
+    return response;
+  }
+
+  async updateCalendar(id: number, data: any) {
+    if (!id) throw new Error('id is required');
+    const response = await this.request<ApiResponse<any>>('PUT', `/calendar/${id}`, data);
+    return response;
+  }
+
+  async deleteCalendar(id: number) {
+    if (!id) throw new Error('id is required');
+    await this.request<ApiResponse<any>>('DELETE', `/calendar/${id}`, undefined);
+    return { success: true };
+  }
+
+  async importHolidays(id: number, data: any) {
+    if (!id) throw new Error('id is required');
+    const response = await this.request<ApiResponse<any>>('POST', `/calendar/${id}/import_holidays`, data);
+    return response;
+  }
+
+  async getClients(params?: Record<string, any>) {
+    const response = await this.request<any>('GET', `/clients`, undefined, params);
+    return response;
   }
 
   async createClient(data: any) {
-    try {
-      const response = await this.request<any>('POST', '/clients', data);
-      return {
-        success: true,
-        data: response.data || response
-      };
-    } catch (error) {
-      console.error('Error creating client:', error);
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to create client'
-      };
-    }
+    const response = await this.request<ApiResponse<any>>('POST', `/clients`, data);
+    return response;
   }
 
-  async updateClient(id: number | string, data: any) {
-    try {
-      const response = await this.request<any>('PUT', `/clients/${id}`, data);
-      return {
-        success: true,
-        data: response.data || response
-      };
-    } catch (error) {
-      console.error('Error updating client:', error);
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to update client'
-      };
-    }
+  async searchClients(params?: Record<string, any>) {
+    const response = await this.request<ApiResponse<any>>('GET', `/clients/search`, undefined, params);
+    return response;
   }
 
-  async deleteClient(id: number | string) {
-    try {
-      const response = await this.request<any>('DELETE', `/clients/${id}`);
-      return {
-        success: true,
-        data: response.data || response
-      };
-    } catch (error) {
-      console.error('Error deleting client:', error);
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to delete client'
-      };
-    }
+  async getClientById(id: number) {
+    if (!id) throw new Error('id is required');
+    const response = await this.request<ApiResponse<any>>('GET', `/clients/${id}`, undefined);
+    return response;
   }
 
-  async getCostProviders() {
-    try {
-      const response = await this.request<any>('GET', '/cost-providers');
-      console.log('🔍 API Client getCostProviders - Raw response:', response);
-      
-      const rawData = response.data || response;
-      
-      // Extract cost_providers array from the response structure
-      const costProvidersArray = rawData.cost_providers || rawData;
-      console.log('🔍 API Client getCostProviders - Extracted array:', costProvidersArray);
-      console.log('🔍 API Client getCostProviders - Array length:', costProvidersArray?.length);
-      
-      return {
-        success: true,
-        data: costProvidersArray,
-        pagination: rawData.pagination // Include pagination info if available
-      };
-    } catch (error) {
-      console.error('Error fetching cost providers:', error);
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to fetch cost providers',
-        data: []
-      };
-    }
+  async updateClient(id: number, data: any) {
+    if (!id) throw new Error('id is required');
+    const response = await this.request<ApiResponse<any>>('PUT', `/clients/${id}`, data);
+    return response;
   }
 
-  async getStatic(type: string) {
-    try {
-      const response = await this.request<any>('GET', `/static/${type}`);
-      return {
-        success: true,
-        data: response.data || response
-      };
-    } catch (error) {
-      console.error('Error fetching static data:', error);
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to fetch static data',
-        data: []
-      };
-    }
+  async deleteClient(id: number) {
+    if (!id) throw new Error('id is required');
+    await this.request<ApiResponse<any>>('DELETE', `/clients/${id}`, undefined);
+    return { success: true };
   }
+
+  async getCostProviders(params?: Record<string, any>) {
+    const response = await this.request<any>('GET', `/cost-providers`, undefined, params);
+    return response;
+  }
+
+  async createCostProvider(data: any) {
+    const response = await this.request<ApiResponse<any>>('POST', `/cost-providers`, data);
+    return response;
+  }
+
+  async searchCostProviders(params?: Record<string, any>) {
+    const response = await this.request<ApiResponse<any>>('GET', `/cost-providers/search`, undefined, params);
+    return response;
+  }
+
+  async getCostProviderById(id: number) {
+    if (!id) throw new Error('id is required');
+    const response = await this.request<any>('GET', `/cost-providers/${id}`, undefined);
+    return response;
+  }
+
+  async updateCostProvider(id: number, data: any) {
+    if (!id) throw new Error('id is required');
+    const response = await this.request<ApiResponse<any>>('PUT', `/cost-providers/${id}`, data);
+    return response;
+  }
+
+  async deleteCostProvider(id: number) {
+    if (!id) throw new Error('id is required');
+    await this.request<ApiResponse<any>>('DELETE', `/cost-providers/${id}`, undefined);
+    return { success: true };
+  }
+
+  async getExternalCalendars(params?: Record<string, any>) {
+    const response = await this.request<any>('GET', `/external-calendars`, undefined, params);
+    return response;
+  }
+
+  async createExternalCalendar(data: any) {
+    const response = await this.request<ApiResponse<any>>('POST', `/external-calendars`, data);
+    return response;
+  }
+
+  async getExternalCalendarById(id: number) {
+    if (!id) throw new Error('id is required');
+    const response = await this.request<ApiResponse<any>>('GET', `/external-calendars/${id}`, undefined);
+    return response;
+  }
+
+  async updateExternalCalendar(id: number, data: any) {
+    if (!id) throw new Error('id is required');
+    const response = await this.request<ApiResponse<any>>('PUT', `/external-calendars/${id}`, data);
+    return response;
+  }
+
+  async deleteExternalCalendar(id: number) {
+    if (!id) throw new Error('id is required');
+    await this.request<ApiResponse<any>>('DELETE', `/external-calendars/${id}`, undefined);
+    return { success: true };
+  }
+
 }
 
 export default AESaasApiClient;

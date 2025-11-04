@@ -22,6 +22,15 @@ export interface CostProvider {
 // Export Client type from generated types
 export type Client = components['schemas']['models.ClientResponse'];
 
+// Additional request types that may not be in generated types yet
+export interface CreateClientRequest {
+  name: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+  // Add other client creation fields as needed
+}
+
 // Vue plugin
 import type { App } from 'vue';
 import { createApiClient } from './composables/index';

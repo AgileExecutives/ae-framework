@@ -5,2522 +5,474 @@
 
 
 export interface paths {
+  "/api/v1/auth/change-password": {
+    /**
+     * Change password
+     * @description Change password for authenticated user
+     */
+    post: operations["changePassword"];
+  };
+  "/api/v1/auth/forgot-password": {
+    /**
+     * Request password reset
+     * @description Send password reset email to user
+     */
+    post: operations["forgotPassword"];
+  };
+  "/api/v1/auth/login": {
+    /**
+     * User login
+     * @description Authenticate user with username/email and password
+     */
+    post: operations["login"];
+  };
+  "/api/v1/auth/logout": {
+    /**
+     * User logout
+     * @description Logout user and invalidate token
+     */
+    post: operations["logout"];
+  };
+  "/api/v1/auth/me": {
+    /**
+     * Get current user
+     * @description Get current authenticated user information
+     */
+    get: operations["getCurrentUser"];
+  };
+  "/api/v1/auth/new-password/{token}": {
+    /**
+     * Reset password
+     * @description Reset user password with reset token
+     */
+    post: operations["resetPassword"];
+  };
+  "/api/v1/auth/refresh": {
+    /**
+     * Refresh access token
+     * @description Refresh user access token
+     */
+    post: operations["refreshToken"];
+  };
+  "/api/v1/auth/register": {
+    /**
+     * User registration
+     * @description Register a new user account
+     */
+    post: operations["register"];
+  };
+  "/api/v1/auth/verify-email/{token}": {
+    /**
+     * Verify email address
+     * @description Verify user email address with verification token
+     */
+    get: operations["verifyEmail"];
+  };
+  "/api/v1/contacts": {
+    /**
+     * Get all contacts
+     * @description Get paginated list of contacts with optional filters
+     */
+    get: operations["getContacts"];
+    /**
+     * Create new contact
+     * @description Create a new contact for the authenticated user
+     */
+    post: operations["createContact"];
+  };
+  "/api/v1/contacts/form": {
+    /**
+     * Submit contact form
+     * @description Public endpoint to submit a contact form (no authentication required)
+     */
+    post: operations["submitContactForm"];
+  };
+  "/api/v1/contacts/newsletter": {
+    /**
+     * Get newsletter subscriptions
+     * @description Get all newsletter subscriptions
+     */
+    get: operations["getNewsletterSubscriptions"];
+  };
+  "/api/v1/contacts/newsletter/{email}": {
+    /**
+     * Unsubscribe from newsletter
+     * @description Unsubscribe an email address from the newsletter
+     */
+    delete: operations["unsubscribeFromNewsletter"];
+  };
+  "/api/v1/contacts/{id}": {
+    /**
+     * Get contact by ID
+     * @description Get a specific contact by ID
+     */
+    get: operations["getContactById"];
+    /**
+     * Update contact
+     * @description Update an existing contact by ID
+     */
+    put: operations["updateContact"];
+    /**
+     * Delete contact
+     * @description Soft delete a contact by ID
+     */
+    delete: operations["deleteContact"];
+  };
+  "/api/v1/customers": {
+    /**
+     * Get all customers
+     * @description Get a paginated list of all customers
+     */
+    get: operations["getCustomers"];
+    /**
+     * Create a new customer
+     * @description Create a new customer
+     */
+    post: operations["createCustomer"];
+  };
+  "/api/v1/customers/{id}": {
+    /**
+     * Get customer by ID
+     * @description Get a specific customer by its ID
+     */
+    get: operations["getCustomerById"];
+    /**
+     * Update a customer
+     * @description Update an existing customer by ID
+     */
+    put: operations["updateCustomer"];
+    /**
+     * Delete a customer
+     * @description Soft delete a customer by ID
+     */
+    delete: operations["deleteCustomer"];
+  };
+  "/api/v1/emails": {
+    /**
+     * Get all emails
+     * @description Get a paginated list of all emails
+     */
+    get: operations["getEmails"];
+  };
+  "/api/v1/emails/send": {
+    /**
+     * Send an email
+     * @description Create and queue an email for sending
+     */
+    post: operations["sendEmail"];
+  };
+  "/api/v1/emails/stats": {
+    /**
+     * Get email statistics
+     * @description Get email statistics including counts by status
+     */
+    get: operations["getEmailStats"];
+  };
+  "/api/v1/emails/{id}": {
+    /**
+     * Get email by ID
+     * @description Get a specific email by its ID
+     */
+    get: operations["getEmailById"];
+  };
+  "/api/v1/health": {
+    /**
+     * Health check
+     * @description Check the health status of the API and database
+     */
+    get: operations["healthCheck"];
+  };
   "/api/v1/pdf/create": {
     /**
      * Generate PDF from template
      * @description Generate a PDF document based on a specified template and data
      */
-    post: {
-      /** @description PDF generation request */
-      requestBody: {
-        content: {
-          "application/json": components["schemas"]["github_com_ae-base-server_modules_pdf_handlers.PDFGenerateRequest"];
-        };
-      };
-      responses: {
-        /** @description PDF generated successfully */
-        200: {
-          content: {
-            "application/json": components["schemas"]["github_com_ae-base-server_modules_pdf_handlers.PDFGenerateResponse"];
-          };
-        };
-        /** @description Invalid request */
-        400: {
-          content: {
-            "application/json": components["schemas"]["github_com_ae-base-server_modules_pdf_handlers.ErrorResponse"];
-          };
-        };
-        /** @description Failed to generate PDF */
-        500: {
-          content: {
-            "application/json": components["schemas"]["github_com_ae-base-server_modules_pdf_handlers.ErrorResponse"];
-          };
-        };
-      };
-    };
+    post: operations["createPdf"];
   };
-  "/auth/forgot-password": {
+  "/api/v1/ping": {
     /**
-     * Request password reset
-     * @description Send password reset email to user
+     * Ping check
+     * @description Simple ping endpoint
      */
-    post: {
-      /** @description Password reset request */
-      requestBody: {
-        content: {
-          "application/json": components["schemas"]["models.ForgotPasswordRequest"];
-        };
-      };
-      responses: {
-        /** @description OK */
-        200: {
-          content: {
-            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.APIResponse"];
-          };
-        };
-        /** @description Bad Request */
-        400: {
-          content: {
-            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.ErrorResponse"];
-          };
-        };
-      };
-    };
+    get: operations["ping"];
   };
-  "/auth/login": {
+  "/api/v1/plans": {
     /**
-     * User login
-     * @description Authenticate user with username/email and password
+     * Get all plans
+     * @description Get a list of all available subscription plans
      */
-    post: {
-      /** @description Login credentials */
-      requestBody: {
-        content: {
-          "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.LoginRequest"];
-        };
-      };
-      responses: {
-        /** @description OK */
-        200: {
-          content: {
-            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.APIResponse"] & {
-              data?: components["schemas"]["github_com_ae-base-server_modules_base_models.LoginResponse"];
-            };
-          };
-        };
-        /** @description Bad Request */
-        400: {
-          content: {
-            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.ErrorResponse"];
-          };
-        };
-        /** @description Unauthorized */
-        401: {
-          content: {
-            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.ErrorResponse"];
-          };
-        };
-      };
-    };
+    get: operations["getPlans"];
+    /**
+     * Create a new plan
+     * @description Create a new subscription plan (admin only)
+     */
+    post: operations["createPlan"];
   };
-  "/auth/logout": {
+  "/api/v1/plans/{id}": {
     /**
-     * User logout
-     * @description Logout user and invalidate token
+     * Get plan by ID
+     * @description Get a specific subscription plan by its ID
      */
-    post: {
-      responses: {
-        /** @description OK */
-        200: {
-          content: {
-            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.APIResponse"];
-          };
-        };
-        /** @description Bad Request */
-        400: {
-          content: {
-            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.ErrorResponse"];
-          };
-        };
-        /** @description Unauthorized */
-        401: {
-          content: {
-            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.ErrorResponse"];
-          };
-        };
-      };
-    };
+    get: operations["getPlanById"];
+    /**
+     * Update a plan
+     * @description Update an existing subscription plan (admin only)
+     */
+    put: operations["updatePlan"];
+    /**
+     * Delete a plan
+     * @description Delete a subscription plan (admin only)
+     */
+    delete: operations["deletePlan"];
   };
-  "/auth/refresh": {
+  "/api/v1/static": {
     /**
-     * Refresh access token
-     * @description Refresh user access token
+     * List available static JSON files
+     * @description Get a list of all JSON files available in the statics/json directory
      */
-    post: {
-      responses: {
-        /** @description OK */
-        200: {
-          content: {
-            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.APIResponse"] & {
-              data?: components["schemas"]["github_com_ae-base-server_modules_base_models.LoginResponse"];
-            };
-          };
-        };
-        /** @description Bad Request */
-        400: {
-          content: {
-            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.ErrorResponse"];
-          };
-        };
-        /** @description Unauthorized */
-        401: {
-          content: {
-            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.ErrorResponse"];
-          };
-        };
-      };
-    };
+    get: operations["listStaticFiles"];
   };
-  "/auth/register": {
+  "/api/v1/static/{filename}": {
     /**
-     * User registration
-     * @description Register a new user account
+     * Serve static JSON files (JSON only, security restricted)
+     * @description Securely serve JSON data files from statics/json directory only. Prevents access to other directories or file types.
      */
-    post: {
-      /** @description User registration data */
-      requestBody: {
-        content: {
-          "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.UserCreateRequest"];
-        };
-      };
-      responses: {
-        /** @description Created */
-        201: {
-          content: {
-            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.APIResponse"] & {
-              data?: components["schemas"]["github_com_ae-base-server_modules_base_models.LoginResponse"];
-            };
-          };
-        };
-        /** @description Bad Request */
-        400: {
-          content: {
-            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.ErrorResponse"];
-          };
-        };
-        /** @description Conflict */
-        409: {
-          content: {
-            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.ErrorResponse"];
-          };
-        };
-      };
-    };
+    get: operations["getStaticFile"];
   };
-  "/auth/reset-password": {
+  "/api/v1/user-settings": {
     /**
-     * Reset password
-     * @description Reset user password with reset token
+     * Get user settings
+     * @description Get settings for the authenticated user (creates default if not found)
      */
-    post: {
-      /** @description Password reset data */
-      requestBody: {
-        content: {
-          "application/json": components["schemas"]["models.ResetPasswordRequest"];
-        };
-      };
-      responses: {
-        /** @description OK */
-        200: {
-          content: {
-            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.APIResponse"];
-          };
-        };
-        /** @description Bad Request */
-        400: {
-          content: {
-            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.ErrorResponse"];
-          };
-        };
-      };
-    };
+    get: operations["getUserSettings"];
+    /**
+     * Update user settings
+     * @description Update settings for the authenticated user
+     */
+    put: operations["updateUserSettings"];
   };
-  "/auth/verify-email": {
+  "/api/v1/user-settings/reset": {
     /**
-     * Verify email address
-     * @description Verify user email address with verification token
+     * Reset user settings
+     * @description Reset user settings to default values
      */
-    get: {
-      parameters: {
-        query: {
-          /** @description Verification token */
-          token: string;
-        };
-      };
-      responses: {
-        /** @description OK */
-        200: {
-          content: {
-            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.APIResponse"];
-          };
-        };
-        /** @description Bad Request */
-        400: {
-          content: {
-            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.ErrorResponse"];
-          };
-        };
-      };
-    };
+    post: operations["resetUserSettings"];
   };
   "/calendar": {
     /**
      * Get calendars with complete metadata
      * @description Retrieve all calendars for the authenticated user with 2-level deep preloading including entries with their series and series with their entries
      */
-    get: {
-      responses: {
-        /** @description Array of calendars with preloaded entries, series, and external calendars */
-        200: {
-          content: {
-            "application/json": components["schemas"]["entities.CalendarResponse"][];
-          };
-        };
-        /** @description Unauthorized - invalid or missing JWT token */
-        401: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-        /** @description Internal server error during calendar retrieval */
-        500: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-      };
-    };
+    get: operations["getCalendars"];
     /**
      * Create a new calendar
      * @description Create a new calendar for the authenticated user
      */
-    post: {
-      /** @description Calendar data */
-      requestBody: {
-        content: {
-          "application/json": components["schemas"]["entities.CreateCalendarRequest"];
-        };
-      };
-      responses: {
-        /** @description Created */
-        201: {
-          content: {
-            "application/json": components["schemas"]["entities.CalendarResponse"];
-          };
-        };
-        /** @description Bad Request */
-        400: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-        /** @description Internal Server Error */
-        500: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-      };
-    };
+    post: operations["createCalendar"];
   };
   "/calendar-entries": {
     /**
      * Get all calendar entries
-     * @description Retrieve all calendar entries for the authenticated user
+     * @description Retrieve all calendar entries for the authenticated user. All datetime fields are returned in UTC ISO 8601 format (e.g., 2025-11-04T09:00:00Z).
      */
-    get: {
-      parameters: {
-        query?: {
-          /** @description Page number */
-          page?: number;
-          /** @description Items per page */
-          limit?: number;
-        };
-      };
-      responses: {
-        /** @description OK */
-        200: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-        /** @description Internal Server Error */
-        500: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-      };
-    };
+    get: operations["getCalendarEntries"];
     /**
      * Create a new calendar entry
-     * @description Create a new calendar entry
+     * @description Create a new calendar entry with UTC timestamps. All datetime fields use ISO 8601 format in UTC (e.g., 2025-11-04T09:00:00Z). Stored as timestamptz in PostgreSQL, ensuring timezone-aware storage and retrieval.
      */
-    post: {
-      /** @description Calendar entry data */
-      requestBody: {
-        content: {
-          "application/json": components["schemas"]["entities.CreateCalendarEntryRequest"];
-        };
-      };
-      responses: {
-        /** @description Created */
-        201: {
-          content: {
-            "application/json": components["schemas"]["entities.CalendarEntryResponse"];
-          };
-        };
-        /** @description Bad Request */
-        400: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-        /** @description Internal Server Error */
-        500: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-      };
-    };
+    post: operations["createCalendarEntry"];
   };
   "/calendar-entries/{id}": {
     /**
      * Get calendar entry by ID
-     * @description Retrieve a calendar entry by its ID
+     * @description Retrieve a calendar entry by its ID. Returns datetime fields in UTC ISO 8601 format (e.g., 2025-11-04T09:00:00Z).
      */
-    get: {
-      parameters: {
-        path: {
-          /** @description Calendar Entry ID */
-          id: number;
-        };
-      };
-      responses: {
-        /** @description OK */
-        200: {
-          content: {
-            "application/json": components["schemas"]["entities.CalendarEntryResponse"];
-          };
-        };
-        /** @description Bad Request */
-        400: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-        /** @description Not Found */
-        404: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-        /** @description Internal Server Error */
-        500: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-      };
-    };
+    get: operations["getCalendarEntryById"];
     /**
      * Update calendar entry
-     * @description Update an existing calendar entry
+     * @description Update an existing calendar entry. Datetime fields use UTC ISO 8601 format (e.g., 2025-11-04T09:00:00Z).
      */
-    put: {
-      parameters: {
-        path: {
-          /** @description Calendar Entry ID */
-          id: number;
-        };
-      };
-      /** @description Updated calendar entry data */
-      requestBody: {
-        content: {
-          "application/json": components["schemas"]["entities.UpdateCalendarEntryRequest"];
-        };
-      };
-      responses: {
-        /** @description OK */
-        200: {
-          content: {
-            "application/json": components["schemas"]["entities.CalendarEntryResponse"];
-          };
-        };
-        /** @description Bad Request */
-        400: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-        /** @description Not Found */
-        404: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-        /** @description Internal Server Error */
-        500: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-      };
-    };
+    put: operations["updateCalendarEntry"];
     /**
      * Delete calendar entry
      * @description Delete a calendar entry by ID
      */
-    delete: {
-      parameters: {
-        path: {
-          /** @description Calendar Entry ID */
-          id: number;
-        };
-      };
-      responses: {
-        /** @description OK */
-        200: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-        /** @description Bad Request */
-        400: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-        /** @description Not Found */
-        404: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-        /** @description Internal Server Error */
-        500: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-      };
-    };
+    delete: operations["deleteCalendarEntry"];
   };
   "/calendar-series": {
     /**
      * Get all calendar series
-     * @description Retrieve all calendar series for the authenticated user
+     * @description Retrieve all calendar series for the authenticated user. All datetime fields are returned in UTC ISO 8601 format (e.g., 2025-11-04T09:00:00Z).
      */
-    get: {
-      parameters: {
-        query?: {
-          /** @description Page number */
-          page?: number;
-          /** @description Items per page */
-          limit?: number;
-        };
-      };
-      responses: {
-        /** @description OK */
-        200: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-        /** @description Internal Server Error */
-        500: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-      };
-    };
+    get: operations["getCalendarSeries"];
     /**
      * Create a new calendar series
-     * @description Create a new calendar series for recurring events
+     * @description Create a new calendar series for recurring events. Start/end time fields use UTC ISO 8601 format (e.g., 2025-11-04T09:00:00Z). For recurring events, these represent the time portion that will be combined with calculated recurrence dates.
      */
-    post: {
-      /** @description Calendar series data */
-      requestBody: {
-        content: {
-          "application/json": components["schemas"]["entities.CreateCalendarSeriesRequest"];
-        };
-      };
-      responses: {
-        /** @description Created */
-        201: {
-          content: {
-            "application/json": components["schemas"]["entities.CalendarSeriesResponse"];
-          };
-        };
-        /** @description Bad Request */
-        400: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-        /** @description Internal Server Error */
-        500: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-      };
-    };
+    post: operations["createCalendarSeries"];
   };
   "/calendar-series/{id}": {
     /**
      * Get calendar series by ID
-     * @description Retrieve a calendar series by its ID
+     * @description Retrieve a calendar series by its ID. Returns datetime fields in UTC ISO 8601 format (e.g., 2025-11-04T09:00:00Z).
      */
-    get: {
-      parameters: {
-        path: {
-          /** @description Calendar Series ID */
-          id: number;
-        };
-      };
-      responses: {
-        /** @description OK */
-        200: {
-          content: {
-            "application/json": components["schemas"]["entities.CalendarSeriesResponse"];
-          };
-        };
-        /** @description Bad Request */
-        400: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-        /** @description Not Found */
-        404: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-        /** @description Internal Server Error */
-        500: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-      };
-    };
+    get: operations["getCalendarSeriesById"];
     /**
      * Update calendar series
-     * @description Update an existing calendar series
+     * @description Update an existing calendar series. Datetime fields use UTC ISO 8601 format (e.g., 2025-11-04T09:00:00Z).
      */
-    put: {
-      parameters: {
-        path: {
-          /** @description Calendar Series ID */
-          id: number;
-        };
-      };
-      /** @description Updated calendar series data */
-      requestBody: {
-        content: {
-          "application/json": components["schemas"]["entities.UpdateCalendarSeriesRequest"];
-        };
-      };
-      responses: {
-        /** @description OK */
-        200: {
-          content: {
-            "application/json": components["schemas"]["entities.CalendarSeriesResponse"];
-          };
-        };
-        /** @description Bad Request */
-        400: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-        /** @description Not Found */
-        404: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-        /** @description Internal Server Error */
-        500: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-      };
-    };
+    put: operations["updateCalendarSeries"];
     /**
      * Delete calendar series
      * @description Delete a calendar series by ID
      */
-    delete: {
-      parameters: {
-        path: {
-          /** @description Calendar Series ID */
-          id: number;
-        };
-      };
-      responses: {
-        /** @description OK */
-        200: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-        /** @description Bad Request */
-        400: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-        /** @description Not Found */
-        404: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-        /** @description Internal Server Error */
-        500: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-      };
-    };
+    delete: operations["deleteCalendarSeries"];
   };
   "/calendar/free-slots": {
     /**
      * Get free time slots
      * @description Find available time slots based on duration, interval, and maximum number
      */
-    get: {
-      parameters: {
-        query: {
-          /** @description Duration in minutes */
-          duration: number;
-          /** @description Interval between slots in minutes */
-          interval: number;
-          /** @description Maximum number of slots to return */
-          number_max: number;
-        };
-      };
-      responses: {
-        /** @description OK */
-        200: {
-          content: {
-            "application/json": components["schemas"]["entities.FreeSlot"][];
-          };
-        };
-        /** @description Bad Request */
-        400: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-        /** @description Internal Server Error */
-        500: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-      };
-    };
-  };
-  "/calendar/import-holidays": {
-    /**
-     * Import holidays
-     * @description Import holidays for a specific country and year
-     */
-    post: {
-      /** @description Import holidays request */
-      requestBody: {
-        content: {
-          "application/json": components["schemas"]["entities.ImportHolidaysRequest"];
-        };
-      };
-      responses: {
-        /** @description OK */
-        200: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-        /** @description Bad Request */
-        400: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-        /** @description Internal Server Error */
-        500: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-      };
-    };
+    get: operations["getFreeSlots"];
   };
   "/calendar/week": {
     /**
      * Get calendar week view
      * @description Retrieve calendar entries for a specific week
      */
-    get: {
-      parameters: {
-        query: {
-          /** @description Date in YYYY-MM-DD format */
-          date: string;
-        };
-      };
-      responses: {
-        /** @description OK */
-        200: {
-          content: {
-            "application/json": components["schemas"]["entities.CalendarEntryResponse"][];
-          };
-        };
-        /** @description Bad Request */
-        400: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-        /** @description Internal Server Error */
-        500: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-      };
-    };
+    get: operations["getCalendarWeek"];
   };
   "/calendar/year": {
     /**
      * Get calendar year view
      * @description Retrieve calendar entries for a specific year
      */
-    get: {
-      parameters: {
-        query: {
-          /** @description Year */
-          year: number;
-        };
-      };
-      responses: {
-        /** @description OK */
-        200: {
-          content: {
-            "application/json": components["schemas"]["entities.CalendarEntryResponse"][];
-          };
-        };
-        /** @description Bad Request */
-        400: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-        /** @description Internal Server Error */
-        500: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-      };
-    };
+    get: operations["getCalendarYear"];
   };
   "/calendar/{id}": {
     /**
      * Get calendar by ID
      * @description Retrieve a calendar by its ID
      */
-    get: {
-      parameters: {
-        path: {
-          /** @description Calendar ID */
-          id: number;
-        };
-      };
-      responses: {
-        /** @description OK */
-        200: {
-          content: {
-            "application/json": components["schemas"]["entities.CalendarResponse"];
-          };
-        };
-        /** @description Bad Request */
-        400: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-        /** @description Not Found */
-        404: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-        /** @description Internal Server Error */
-        500: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-      };
-    };
+    get: operations["getCalendarById"];
     /**
      * Update calendar
      * @description Update an existing calendar
      */
-    put: {
-      parameters: {
-        path: {
-          /** @description Calendar ID */
-          id: number;
-        };
-      };
-      /** @description Updated calendar data */
-      requestBody: {
-        content: {
-          "application/json": components["schemas"]["entities.UpdateCalendarRequest"];
-        };
-      };
-      responses: {
-        /** @description OK */
-        200: {
-          content: {
-            "application/json": components["schemas"]["entities.CalendarResponse"];
-          };
-        };
-        /** @description Bad Request */
-        400: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-        /** @description Not Found */
-        404: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-        /** @description Internal Server Error */
-        500: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-      };
-    };
+    put: operations["updateCalendar"];
     /**
      * Delete calendar
      * @description Delete a calendar by ID
      */
-    delete: {
-      parameters: {
-        path: {
-          /** @description Calendar ID */
-          id: number;
-        };
-      };
-      responses: {
-        /** @description OK */
-        200: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-        /** @description Bad Request */
-        400: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-        /** @description Not Found */
-        404: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-        /** @description Internal Server Error */
-        500: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-      };
-    };
+    delete: operations["deleteCalendar"];
+  };
+  "/calendar/{id}/import_holidays": {
+    /**
+     * Import holidays into calendar
+     * @description Import school holidays and public holidays into a specific calendar from unburdy format data
+     */
+    post: operations["importHolidays"];
   };
   "/clients": {
     /**
      * Get all clients
      * @description Retrieve all clients with optional pagination
      */
-    get: {
-      parameters: {
-        query?: {
-          /** @description Page number */
-          page?: number;
-          /** @description Number of clients per page (respects DEFAULT_PAGE_LIMIT and MAX_PAGE_LIMIT env vars) */
-          limit?: number;
-        };
-      };
-      responses: {
-        /** @description Clients retrieved successfully */
-        200: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-        /** @description Unauthorized */
-        401: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-        /** @description Internal server error */
-        500: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-      };
-    };
+    get: operations["getClients"];
     /**
      * Create a new client
      * @description Create a new client with the provided information
      */
-    post: {
-      /** @description Client information */
-      requestBody: {
-        content: {
-          "application/json": components["schemas"]["entities.CreateClientRequest"];
-        };
-      };
-      responses: {
-        /** @description Created client */
-        201: {
-          content: {
-            "application/json": components["schemas"]["entities.ClientResponse"];
-          };
-        };
-        /** @description Bad request */
-        400: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-        /** @description Unauthorized */
-        401: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-        /** @description Internal server error */
-        500: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-      };
-    };
+    post: operations["createClient"];
   };
   "/clients/search": {
     /**
      * Search clients
      * @description Search clients by first name or last name
      */
-    get: {
-      parameters: {
-        query: {
-          /** @description Search query */
-          q: string;
-          /** @description Page number */
-          page?: number;
-          /** @description Number of clients per page (respects DEFAULT_PAGE_LIMIT and MAX_PAGE_LIMIT env vars) */
-          limit?: number;
-        };
-      };
-      responses: {
-        /** @description Search results */
-        200: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-        /** @description Bad request */
-        400: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-        /** @description Unauthorized */
-        401: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-        /** @description Internal server error */
-        500: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-      };
-    };
+    get: operations["searchClients"];
   };
   "/clients/{id}": {
     /**
      * Get a client by ID
      * @description Retrieve a specific client by their ID
      */
-    get: {
-      parameters: {
-        path: {
-          /** @description Client ID */
-          id: number;
-        };
-      };
-      responses: {
-        /** @description Client found */
-        200: {
-          content: {
-            "application/json": components["schemas"]["entities.ClientResponse"];
-          };
-        };
-        /** @description Bad request */
-        400: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-        /** @description Unauthorized */
-        401: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-        /** @description Client not found */
-        404: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-        /** @description Internal server error */
-        500: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-      };
-    };
+    get: operations["getClientById"];
     /**
      * Update a client
      * @description Update a client's information
      */
-    put: {
-      parameters: {
-        path: {
-          /** @description Client ID */
-          id: number;
-        };
-      };
-      /** @description Updated client information */
-      requestBody: {
-        content: {
-          "application/json": components["schemas"]["entities.UpdateClientRequest"];
-        };
-      };
-      responses: {
-        /** @description Updated client */
-        200: {
-          content: {
-            "application/json": components["schemas"]["entities.ClientResponse"];
-          };
-        };
-        /** @description Bad request */
-        400: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-        /** @description Unauthorized */
-        401: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-        /** @description Client not found */
-        404: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-        /** @description Internal server error */
-        500: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-      };
-    };
+    put: operations["updateClient"];
     /**
      * Delete a client
      * @description Soft delete a client by ID
      */
-    delete: {
-      parameters: {
-        path: {
-          /** @description Client ID */
-          id: number;
-        };
-      };
-      responses: {
-        /** @description Client deleted successfully */
-        200: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-        /** @description Bad request */
-        400: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-        /** @description Unauthorized */
-        401: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-        /** @description Client not found */
-        404: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-        /** @description Internal server error */
-        500: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-      };
-    };
-  };
-  "/contact/form": {
-    /**
-     * Submit contact form
-     * @description Submit a contact form and optionally subscribe to newsletter
-     */
-    post: {
-      /** @description Contact form data */
-      requestBody: {
-        content: {
-          "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.ContactFormRequest"];
-        };
-      };
-      responses: {
-        /** @description OK */
-        200: {
-          content: {
-            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.ContactFormResponse"];
-          };
-        };
-        /** @description Bad Request */
-        400: {
-          content: {
-            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.ErrorResponse"];
-          };
-        };
-        /** @description Internal Server Error */
-        500: {
-          content: {
-            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.ErrorResponse"];
-          };
-        };
-      };
-    };
-  };
-  "/contact/newsletter": {
-    /**
-     * Get newsletter subscriptions
-     * @description Get all newsletter subscriptions for admin users
-     */
-    get: {
-      responses: {
-        /** @description OK */
-        200: {
-          content: {
-            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.Newsletter"][];
-          };
-        };
-        /** @description Internal Server Error */
-        500: {
-          content: {
-            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.ErrorResponse"];
-          };
-        };
-      };
-    };
-  };
-  "/contact/newsletter/unsubscribe": {
-    /**
-     * Unsubscribe from newsletter
-     * @description Unsubscribe an email from the newsletter
-     */
-    delete: {
-      parameters: {
-        query: {
-          /** @description Email to unsubscribe */
-          email: string;
-        };
-      };
-      responses: {
-        /** @description OK */
-        200: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-        /** @description Bad Request */
-        400: {
-          content: {
-            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.ErrorResponse"];
-          };
-        };
-        /** @description Not Found */
-        404: {
-          content: {
-            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.ErrorResponse"];
-          };
-        };
-      };
-    };
+    delete: operations["deleteClient"];
   };
   "/cost-providers": {
     /**
      * Get all cost providers
      * @description Retrieve all cost providers with optional pagination
      */
-    get: {
-      parameters: {
-        query?: {
-          /** @description Page number */
-          page?: number;
-          /** @description Number of cost providers per page (respects DEFAULT_PAGE_LIMIT and MAX_PAGE_LIMIT env vars) */
-          limit?: number;
-        };
-      };
-      responses: {
-        /** @description Cost providers retrieved successfully */
-        200: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-        /** @description Unauthorized */
-        401: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-        /** @description Internal server error */
-        500: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-      };
-    };
+    get: operations["getCostProviders"];
     /**
      * Create a new cost provider
      * @description Create a new cost provider with the provided information
      */
-    post: {
-      /** @description Cost provider information */
-      requestBody: {
-        content: {
-          "application/json": components["schemas"]["entities.CreateCostProviderRequest"];
-        };
-      };
-      responses: {
-        /** @description Created cost provider */
-        201: {
-          content: {
-            "application/json": components["schemas"]["entities.CostProviderResponse"];
-          };
-        };
-        /** @description Bad request */
-        400: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-        /** @description Unauthorized */
-        401: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-        /** @description Internal server error */
-        500: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-      };
-    };
+    post: operations["createCostProvider"];
   };
   "/cost-providers/search": {
     /**
      * Search cost providers
      * @description Search cost providers by organization name or contact name
      */
-    get: {
-      parameters: {
-        query: {
-          /** @description Search query */
-          q: string;
-          /** @description Page number */
-          page?: number;
-          /** @description Number of cost providers per page (respects DEFAULT_PAGE_LIMIT and MAX_PAGE_LIMIT env vars) */
-          limit?: number;
-        };
-      };
-      responses: {
-        /** @description Search results */
-        200: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-        /** @description Bad request */
-        400: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-        /** @description Unauthorized */
-        401: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-        /** @description Internal server error */
-        500: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-      };
-    };
+    get: operations["searchCostProviders"];
   };
   "/cost-providers/{id}": {
     /**
      * Get a cost provider by ID
      * @description Retrieve a specific cost provider by their ID
      */
-    get: {
-      parameters: {
-        path: {
-          /** @description Cost Provider ID */
-          id: number;
-        };
-      };
-      responses: {
-        /** @description Cost provider found */
-        200: {
-          content: {
-            "application/json": components["schemas"]["entities.CostProviderResponse"];
-          };
-        };
-        /** @description Bad request */
-        400: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-        /** @description Unauthorized */
-        401: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-        /** @description Cost provider not found */
-        404: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-        /** @description Internal server error */
-        500: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-      };
-    };
+    get: operations["getCostProviderById"];
     /**
      * Update a cost provider
      * @description Update a cost provider's information
      */
-    put: {
-      parameters: {
-        path: {
-          /** @description Cost Provider ID */
-          id: number;
-        };
-      };
-      /** @description Updated cost provider information */
-      requestBody: {
-        content: {
-          "application/json": components["schemas"]["entities.UpdateCostProviderRequest"];
-        };
-      };
-      responses: {
-        /** @description Updated cost provider */
-        200: {
-          content: {
-            "application/json": components["schemas"]["entities.CostProviderResponse"];
-          };
-        };
-        /** @description Bad request */
-        400: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-        /** @description Unauthorized */
-        401: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-        /** @description Cost provider not found */
-        404: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-        /** @description Internal server error */
-        500: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-      };
-    };
+    put: operations["updateCostProvider"];
     /**
      * Delete a cost provider
      * @description Soft delete a cost provider by ID
      */
-    delete: {
-      parameters: {
-        path: {
-          /** @description Cost Provider ID */
-          id: number;
-        };
-      };
-      responses: {
-        /** @description Cost provider deleted successfully */
-        200: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-        /** @description Bad request */
-        400: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-        /** @description Unauthorized */
-        401: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-        /** @description Cost provider not found */
-        404: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-        /** @description Internal server error */
-        500: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-      };
-    };
-  };
-  "/customers": {
-    /**
-     * Get all customers
-     * @description Get a paginated list of all customers
-     */
-    get: {
-      parameters: {
-        query?: {
-          /** @description Page number */
-          page?: number;
-          /** @description Items per page */
-          limit?: number;
-        };
-      };
-      responses: {
-        /** @description OK */
-        200: {
-          content: {
-            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.APIResponse"] & {
-              data?: components["schemas"]["github_com_ae-base-server_modules_base_models.ListResponse"];
-            };
-          };
-        };
-        /** @description Bad Request */
-        400: {
-          content: {
-            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.ErrorResponse"];
-          };
-        };
-      };
-    };
-    /**
-     * Create a new customer
-     * @description Create a new customer
-     */
-    post: {
-      /** @description Customer data */
-      requestBody: {
-        content: {
-          "application/json": components["schemas"]["models.CustomerRequest"];
-        };
-      };
-      responses: {
-        /** @description Created */
-        201: {
-          content: {
-            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.APIResponse"] & {
-              data?: components["schemas"]["github_com_ae-base-server_modules_base_models.CustomerResponse"];
-            };
-          };
-        };
-        /** @description Bad Request */
-        400: {
-          content: {
-            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.ErrorResponse"];
-          };
-        };
-      };
-    };
-  };
-  "/customers/{id}": {
-    /**
-     * Get customer by ID
-     * @description Get a specific customer by its ID
-     */
-    get: {
-      parameters: {
-        path: {
-          /** @description Customer ID */
-          id: number;
-        };
-      };
-      responses: {
-        /** @description OK */
-        200: {
-          content: {
-            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.APIResponse"] & {
-              data?: components["schemas"]["github_com_ae-base-server_modules_base_models.CustomerResponse"];
-            };
-          };
-        };
-        /** @description Bad Request */
-        400: {
-          content: {
-            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.ErrorResponse"];
-          };
-        };
-        /** @description Not Found */
-        404: {
-          content: {
-            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.ErrorResponse"];
-          };
-        };
-      };
-    };
-    /**
-     * Update a customer
-     * @description Update an existing customer by ID
-     */
-    put: {
-      parameters: {
-        path: {
-          /** @description Customer ID */
-          id: number;
-        };
-      };
-      /** @description Updated customer data */
-      requestBody: {
-        content: {
-          "application/json": components["schemas"]["models.CustomerRequest"];
-        };
-      };
-      responses: {
-        /** @description OK */
-        200: {
-          content: {
-            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.APIResponse"] & {
-              data?: components["schemas"]["github_com_ae-base-server_modules_base_models.CustomerResponse"];
-            };
-          };
-        };
-        /** @description Bad Request */
-        400: {
-          content: {
-            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.ErrorResponse"];
-          };
-        };
-        /** @description Not Found */
-        404: {
-          content: {
-            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.ErrorResponse"];
-          };
-        };
-      };
-    };
-    /**
-     * Delete a customer
-     * @description Soft delete a customer by ID
-     */
-    delete: {
-      parameters: {
-        path: {
-          /** @description Customer ID */
-          id: number;
-        };
-      };
-      responses: {
-        /** @description OK */
-        200: {
-          content: {
-            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.APIResponse"];
-          };
-        };
-        /** @description Bad Request */
-        400: {
-          content: {
-            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.ErrorResponse"];
-          };
-        };
-        /** @description Not Found */
-        404: {
-          content: {
-            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.ErrorResponse"];
-          };
-        };
-      };
-    };
-  };
-  "/emails": {
-    /**
-     * Get all emails
-     * @description Get a paginated list of all emails
-     */
-    get: {
-      parameters: {
-        query?: {
-          /** @description Page number */
-          page?: number;
-          /** @description Items per page */
-          limit?: number;
-          /** @description Filter by email status */
-          status?: string;
-        };
-      };
-      responses: {
-        /** @description OK */
-        200: {
-          content: {
-            "application/json": components["schemas"]["github_com_ae-base-server_internal_models.APIResponse"] & {
-              data?: components["schemas"]["github_com_ae-base-server_internal_models.ListResponse"];
-            };
-          };
-        };
-        /** @description Internal Server Error */
-        500: {
-          content: {
-            "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
-          };
-        };
-      };
-    };
-  };
-  "/emails/send": {
-    /**
-     * Send an email
-     * @description Create and queue an email for sending
-     */
-    post: {
-      /** @description Email send data */
-      requestBody: {
-        content: {
-          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.EmailSendRequest"];
-        };
-      };
-      responses: {
-        /** @description Created */
-        201: {
-          content: {
-            "application/json": components["schemas"]["github_com_ae-base-server_internal_models.APIResponse"] & {
-              data?: components["schemas"]["github_com_ae-base-server_internal_models.EmailResponse"];
-            };
-          };
-        };
-        /** @description Bad Request */
-        400: {
-          content: {
-            "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
-          };
-        };
-      };
-    };
-  };
-  "/emails/stats": {
-    /**
-     * Get email statistics
-     * @description Get email statistics including counts by status
-     */
-    get: {
-      responses: {
-        /** @description OK */
-        200: {
-          content: {
-            "application/json": components["schemas"]["github_com_ae-base-server_internal_models.APIResponse"] & {
-              data?: Record<string, never>;
-            };
-          };
-        };
-        /** @description Internal Server Error */
-        500: {
-          content: {
-            "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
-          };
-        };
-      };
-    };
-  };
-  "/emails/{id}": {
-    /**
-     * Get email by ID
-     * @description Get a specific email by its ID
-     */
-    get: {
-      parameters: {
-        path: {
-          /** @description Email ID */
-          id: number;
-        };
-      };
-      responses: {
-        /** @description OK */
-        200: {
-          content: {
-            "application/json": components["schemas"]["github_com_ae-base-server_internal_models.APIResponse"] & {
-              data?: components["schemas"]["github_com_ae-base-server_internal_models.EmailResponse"];
-            };
-          };
-        };
-        /** @description Bad Request */
-        400: {
-          content: {
-            "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
-          };
-        };
-        /** @description Not Found */
-        404: {
-          content: {
-            "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
-          };
-        };
-      };
-    };
+    delete: operations["deleteCostProvider"];
   };
   "/external-calendars": {
     /**
      * Get all external calendars
      * @description Retrieve all external calendars for the authenticated user
      */
-    get: {
-      parameters: {
-        query?: {
-          /** @description Page number */
-          page?: number;
-          /** @description Items per page */
-          limit?: number;
-        };
-      };
-      responses: {
-        /** @description OK */
-        200: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-        /** @description Internal Server Error */
-        500: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-      };
-    };
+    get: operations["getExternalCalendars"];
     /**
      * Create a new external calendar
      * @description Create a new external calendar
      */
-    post: {
-      /** @description External calendar data */
-      requestBody: {
-        content: {
-          "application/json": components["schemas"]["entities.CreateExternalCalendarRequest"];
-        };
-      };
-      responses: {
-        /** @description Created */
-        201: {
-          content: {
-            "application/json": components["schemas"]["entities.ExternalCalendarResponse"];
-          };
-        };
-        /** @description Bad Request */
-        400: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-        /** @description Internal Server Error */
-        500: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-      };
-    };
+    post: operations["createExternalCalendar"];
   };
   "/external-calendars/{id}": {
     /**
      * Get external calendar by ID
      * @description Retrieve an external calendar by its ID
      */
-    get: {
-      parameters: {
-        path: {
-          /** @description External Calendar ID */
-          id: number;
-        };
-      };
-      responses: {
-        /** @description OK */
-        200: {
-          content: {
-            "application/json": components["schemas"]["entities.ExternalCalendarResponse"];
-          };
-        };
-        /** @description Bad Request */
-        400: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-        /** @description Not Found */
-        404: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-        /** @description Internal Server Error */
-        500: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-      };
-    };
+    get: operations["getExternalCalendarById"];
     /**
      * Update external calendar
      * @description Update an existing external calendar
      */
-    put: {
-      parameters: {
-        path: {
-          /** @description External Calendar ID */
-          id: number;
-        };
-      };
-      /** @description Updated external calendar data */
-      requestBody: {
-        content: {
-          "application/json": components["schemas"]["entities.UpdateExternalCalendarRequest"];
-        };
-      };
-      responses: {
-        /** @description OK */
-        200: {
-          content: {
-            "application/json": components["schemas"]["entities.ExternalCalendarResponse"];
-          };
-        };
-        /** @description Bad Request */
-        400: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-        /** @description Not Found */
-        404: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-        /** @description Internal Server Error */
-        500: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-      };
-    };
+    put: operations["updateExternalCalendar"];
     /**
      * Delete external calendar
      * @description Delete an external calendar by ID
      */
-    delete: {
-      parameters: {
-        path: {
-          /** @description External Calendar ID */
-          id: number;
-        };
-      };
-      responses: {
-        /** @description OK */
-        200: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-        /** @description Bad Request */
-        400: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-        /** @description Not Found */
-        404: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-        /** @description Internal Server Error */
-        500: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-      };
-    };
-  };
-  "/health": {
-    /**
-     * Health check
-     * @description Check the health status of the API and database
-     */
-    get: {
-      responses: {
-        /** @description OK */
-        200: {
-          content: {
-            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.HealthResponse"];
-          };
-        };
-        /** @description Service Unavailable */
-        503: {
-          content: {
-            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.ErrorResponse"];
-          };
-        };
-      };
-    };
-  };
-  "/ping": {
-    /**
-     * Ping check
-     * @description Simple ping endpoint
-     */
-    get: {
-      responses: {
-        /** @description pong */
-        200: {
-          content: {
-            "application/json": string;
-          };
-        };
-      };
-    };
-  };
-  "/plans": {
-    /**
-     * Get all plans
-     * @description Get a list of all available subscription plans
-     */
-    get: {
-      responses: {
-        /** @description OK */
-        200: {
-          content: {
-            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.Plan"][];
-          };
-        };
-        /** @description Internal Server Error */
-        500: {
-          content: {
-            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.ErrorResponse"];
-          };
-        };
-      };
-    };
-    /**
-     * Create a new plan
-     * @description Create a new subscription plan (admin only)
-     */
-    post: {
-      /** @description Plan data */
-      requestBody: {
-        content: {
-          "application/json": components["schemas"]["models.PlanRequest"];
-        };
-      };
-      responses: {
-        /** @description Created */
-        201: {
-          content: {
-            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.APIResponse"] & {
-              data?: components["schemas"]["github_com_ae-base-server_modules_base_models.Plan"];
-            };
-          };
-        };
-        /** @description Bad Request */
-        400: {
-          content: {
-            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.ErrorResponse"];
-          };
-        };
-      };
-    };
-  };
-  "/plans/{id}": {
-    /**
-     * Get plan by ID
-     * @description Get a specific subscription plan by its ID
-     */
-    get: {
-      parameters: {
-        path: {
-          /** @description Plan ID */
-          id: number;
-        };
-      };
-      responses: {
-        /** @description OK */
-        200: {
-          content: {
-            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.APIResponse"] & {
-              data?: components["schemas"]["github_com_ae-base-server_modules_base_models.Plan"];
-            };
-          };
-        };
-        /** @description Bad Request */
-        400: {
-          content: {
-            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.ErrorResponse"];
-          };
-        };
-        /** @description Not Found */
-        404: {
-          content: {
-            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.ErrorResponse"];
-          };
-        };
-      };
-    };
-    /**
-     * Update a plan
-     * @description Update an existing subscription plan (admin only)
-     */
-    put: {
-      parameters: {
-        path: {
-          /** @description Plan ID */
-          id: number;
-        };
-      };
-      /** @description Updated plan data */
-      requestBody: {
-        content: {
-          "application/json": components["schemas"]["models.PlanRequest"];
-        };
-      };
-      responses: {
-        /** @description OK */
-        200: {
-          content: {
-            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.APIResponse"] & {
-              data?: components["schemas"]["github_com_ae-base-server_modules_base_models.Plan"];
-            };
-          };
-        };
-        /** @description Bad Request */
-        400: {
-          content: {
-            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.ErrorResponse"];
-          };
-        };
-        /** @description Not Found */
-        404: {
-          content: {
-            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.ErrorResponse"];
-          };
-        };
-      };
-    };
-    /**
-     * Delete a plan
-     * @description Delete a subscription plan (admin only)
-     */
-    delete: {
-      parameters: {
-        path: {
-          /** @description Plan ID */
-          id: number;
-        };
-      };
-      responses: {
-        /** @description OK */
-        200: {
-          content: {
-            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.APIResponse"];
-          };
-        };
-        /** @description Bad Request */
-        400: {
-          content: {
-            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.ErrorResponse"];
-          };
-        };
-        /** @description Not Found */
-        404: {
-          content: {
-            "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.ErrorResponse"];
-          };
-        };
-      };
-    };
-  };
-  "/static": {
-    /**
-     * List available static JSON files
-     * @description Get a list of all JSON files available in the statics/json directory
-     */
-    get: {
-      responses: {
-        /** @description List of available JSON files */
-        200: {
-          content: {
-            "*/*": {
-              [key: string]: unknown;
-            };
-          };
-        };
-        /** @description Failed to read directory */
-        500: {
-          content: {
-            "*/*": {
-              [key: string]: string;
-            };
-          };
-        };
-      };
-    };
-  };
-  "/static/{filename}": {
-    /**
-     * Serve static JSON files (JSON only, security restricted)
-     * @description Securely serve JSON data files from statics/json directory only. Prevents access to other directories or file types.
-     */
-    get: {
-      parameters: {
-        path: {
-          /**
-           * @description JSON filename (without .json extension)
-           * @example "bundeslaender"
-           */
-          filename: string;
-        };
-      };
-      responses: {
-        /** @description JSON file content */
-        200: {
-          content: {
-            "*/*": {
-              [key: string]: unknown;
-            };
-          };
-        };
-        /** @description Invalid file name */
-        400: {
-          content: {
-            "*/*": {
-              [key: string]: string;
-            };
-          };
-        };
-        /** @description File not found */
-        404: {
-          content: {
-            "*/*": {
-              [key: string]: string;
-            };
-          };
-        };
-        /** @description Failed to read file */
-        500: {
-          content: {
-            "*/*": {
-              [key: string]: string;
-            };
-          };
-        };
-      };
-    };
+    delete: operations["deleteExternalCalendar"];
   };
 }
 
@@ -2528,22 +480,29 @@ export type webhooks = Record<string, never>;
 
 export interface components {
   schemas: {
+    "api.APIResponse": {
+      data?: unknown;
+      error?: string;
+      message?: string;
+      success?: boolean;
+    };
+    "api.ListResponse": {
+      data?: unknown;
+      pagination?: components["schemas"]["github_com_ae-base-server_internal_models.PaginationResponse"];
+    };
     "entities.CalendarEntryResponse": {
       calendar_id?: number;
       created_at?: string;
-      date_from?: string;
-      date_to?: string;
       description?: string;
+      end_time?: string;
       id?: number;
       is_all_day?: boolean;
       is_exception?: boolean;
       location?: string;
       participants?: number[];
       series_id?: number;
+      start_time?: string;
       tenant_id?: number;
-      time_from?: string;
-      time_to?: string;
-      timezone?: string;
       title?: string;
       type?: string;
       updated_at?: string;
@@ -2568,6 +527,7 @@ export interface components {
       calendar_id?: number;
       created_at?: string;
       description?: string;
+      end_time?: string;
       entry_uuid?: string;
       external_calendar_uuid?: string;
       external_uid?: string;
@@ -2576,9 +536,8 @@ export interface components {
       location?: string;
       participants?: number[];
       sequence?: number;
+      start_time?: string;
       tenant_id?: number;
-      time_end?: string;
-      time_start?: string;
       title?: string;
       updated_at?: string;
       user_id?: number;
@@ -2672,14 +631,36 @@ export interface components {
       /** @example 2025-01-15T09:00:00Z */
       start_time?: string;
     };
+    "entities.HolidayImportResult": {
+      errors?: string[];
+      imported_years?: string[];
+      public_holidays?: number;
+      school_holidays?: number;
+      total_imported?: number;
+    };
     "entities.ImportHolidaysRequest": {
-      /** @example US */
-      country: string;
+      holidays: components["schemas"]["entities.UnburdyHolidaysData"];
+      /** @example BW */
+      state: string;
       /** @example 2025 */
-      year: number;
+      year_from: number;
+      /** @example 2027 */
+      year_to: number;
     };
     "entities.NullableDate": {
       "time.Time"?: string;
+    };
+    "entities.UnburdyHolidaysData": {
+      public_holidays?: {
+        [key: string]: {
+          [key: string]: string;
+        };
+      };
+      school_holidays?: {
+        [key: string]: {
+          [key: string]: string[];
+        };
+      };
     };
     "entities.UpdateCalendarEntryRequest": Record<string, never>;
     "entities.UpdateCalendarRequest": Record<string, never>;
@@ -2705,6 +686,43 @@ export interface components {
       error?: string;
       message?: string;
       success?: boolean;
+    };
+    /** @description Contact form submission request */
+    "github_com_ae-base-server_internal_models.ContactFormRequest": {
+      /** @example john.doe@example.com */
+      email: string;
+      /** @example I am interested in learning more about your therapy services. */
+      message: string;
+      /** @example John Doe */
+      name: string;
+      /** @example true */
+      newsletter?: boolean;
+      /** @example website */
+      source: string;
+      /** @example Inquiry about therapy services */
+      subject: string;
+      /** @example 2025-08-03T10:00:00Z */
+      timestamp?: string;
+    };
+    "github_com_ae-base-server_internal_models.CustomerResponse": {
+      active?: boolean;
+      city?: string;
+      country?: string;
+      created_at?: string;
+      email?: string;
+      id?: number;
+      name?: string;
+      payment_method?: string;
+      phone?: string;
+      plan?: components["schemas"]["models.PlanResponse"];
+      plan_id?: number;
+      status?: string;
+      street?: string;
+      tax_id?: string;
+      tenant?: components["schemas"]["github_com_ae-base-server_internal_models.TenantResponse"];
+      tenant_id?: number;
+      vat?: string;
+      zip?: string;
     };
     "github_com_ae-base-server_internal_models.EmailResponse": {
       created_at?: string;
@@ -2733,49 +751,87 @@ export interface components {
       data?: unknown;
       pagination?: components["schemas"]["github_com_ae-base-server_internal_models.PaginationResponse"];
     };
+    "github_com_ae-base-server_internal_models.LoginRequest": {
+      password: string;
+      username: string;
+    };
+    "github_com_ae-base-server_internal_models.LoginResponse": {
+      token?: string;
+      user?: components["schemas"]["github_com_ae-base-server_internal_models.UserResponse"];
+    };
+    "github_com_ae-base-server_internal_models.Newsletter": {
+      /** @example 2025-08-03T10:00:00Z */
+      createdAt?: string;
+      /** @example john.doe@example.com */
+      email?: string;
+      /** @example 1 */
+      id?: number;
+      /** @example mental_health */
+      interest?: string;
+      /** @example 2025-08-03T10:00:00Z */
+      lastContact?: string;
+      /** @example John Doe */
+      name?: string;
+      /** @example website */
+      source?: string;
+      /** @example 2025-08-03T10:00:00Z */
+      updatedAt?: string;
+    };
     "github_com_ae-base-server_internal_models.PaginationResponse": {
       limit?: number;
       page?: number;
       total?: number;
       total_pages?: number;
     };
-    "github_com_ae-base-server_modules_base_models.APIResponse": {
-      data?: unknown;
-      error?: string;
-      message?: string;
-      success?: boolean;
-    };
-    "github_com_ae-base-server_modules_base_models.ContactFormRequest": {
-      /** @example john@example.com */
-      email: string;
-      /** @example I would like to know more about your services. */
-      message: string;
-      /** @example John Doe */
-      name: string;
-      /** @example Inquiry about services */
-      subject: string;
-    };
-    "github_com_ae-base-server_modules_base_models.ContactFormResponse": {
-      /** @example 1 */
-      id?: number;
-      /** @example Thank you for your message! We will get back to you soon. */
-      message?: string;
-    };
-    "github_com_ae-base-server_modules_base_models.CustomerResponse": {
-      /** @example Acme Corp */
-      company_name?: string;
-      /** @example 2023-01-01T00:00:00Z */
+    "github_com_ae-base-server_internal_models.Plan": {
+      active?: boolean;
       created_at?: string;
-      /** @example john@example.com */
-      email?: string;
-      /** @example 1 */
+      currency?: string;
+      deleted_at?: components["schemas"]["gorm.DeletedAt"];
+      description?: string;
+      features?: string;
       id?: number;
-      /** @example John Doe */
-      name?: string;
-      /** @example +1-555-123-4567 */
-      phone?: string;
-      /** @example 2023-01-01T00:00:00Z */
+      invoice_period?: string;
+      max_clients?: number;
+      max_users?: number;
+      name: string;
+      price: number;
+      slug: string;
       updated_at?: string;
+    };
+    "github_com_ae-base-server_internal_models.TenantResponse": {
+      created_at?: string;
+      id?: number;
+      name?: string;
+      slug?: string;
+    };
+    "github_com_ae-base-server_internal_models.UserCreateRequest": {
+      /** @description Terms and conditions acceptance */
+      accept_terms?: boolean;
+      /** @description Required unless user-signup token is present */
+      company_name?: string;
+      email: string;
+      first_name: string;
+      last_name: string;
+      /** @description Newsletter subscription */
+      newsletter_opt_in?: boolean;
+      password: string;
+      role?: string;
+      username: string;
+    };
+    "github_com_ae-base-server_internal_models.UserResponse": {
+      active?: boolean;
+      created_at?: string;
+      email?: string;
+      email_verified?: boolean;
+      email_verified_at?: string;
+      first_name?: string;
+      id?: number;
+      last_name?: string;
+      role?: string;
+      tenant?: components["schemas"]["github_com_ae-base-server_internal_models.TenantResponse"];
+      tenant_id?: number;
+      username?: string;
     };
     "github_com_ae-base-server_modules_base_models.ErrorResponse": {
       code?: number;
@@ -2790,100 +846,6 @@ export interface components {
       status?: string;
       timestamp?: string;
       version?: string;
-    };
-    "github_com_ae-base-server_modules_base_models.ListResponse": {
-      data?: unknown;
-      pagination?: components["schemas"]["github_com_ae-base-server_modules_base_models.PaginationResponse"];
-    };
-    "github_com_ae-base-server_modules_base_models.LoginRequest": {
-      /** @example user@example.com */
-      email: string;
-      /** @example password123 */
-      password: string;
-    };
-    "github_com_ae-base-server_modules_base_models.LoginResponse": {
-      /** @example refresh-token-123 */
-      refresh_token?: string;
-      /** @example eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... */
-      token?: string;
-      user?: components["schemas"]["github_com_ae-base-server_modules_base_models.UserResponse"];
-    };
-    "github_com_ae-base-server_modules_base_models.Newsletter": {
-      /** @example 2023-01-01T00:00:00Z */
-      created_at?: string;
-      /** @example user@example.com */
-      email?: string;
-      /** @example 1 */
-      id?: number;
-      /** @example true */
-      is_active?: boolean;
-    };
-    "github_com_ae-base-server_modules_base_models.PaginationResponse": {
-      /** @example 10 */
-      limit?: number;
-      /** @example 1 */
-      page?: number;
-      /** @example 100 */
-      total?: number;
-      /** @example 10 */
-      total_pages?: number;
-    };
-    "github_com_ae-base-server_modules_base_models.Plan": {
-      /** @example 2023-01-01T00:00:00Z */
-      created_at?: string;
-      /** @example USD */
-      currency?: string;
-      /** @example Basic subscription plan */
-      description?: string;
-      /** @example 1 */
-      id?: number;
-      /** @example true */
-      is_active?: boolean;
-      /** @example Basic Plan */
-      name?: string;
-      /** @example 29.99 */
-      price?: number;
-      /** @example 2023-01-01T00:00:00Z */
-      updated_at?: string;
-    };
-    "github_com_ae-base-server_modules_base_models.TenantResponse": {
-      /** @example Acme Corp */
-      display_name?: string;
-      /** @example 1 */
-      id?: number;
-      /** @example true */
-      is_active?: boolean;
-      /** @example acme */
-      name?: string;
-    };
-    "github_com_ae-base-server_modules_base_models.UserCreateRequest": {
-      /** @example Acme Corp */
-      company_name?: string;
-      /** @example user@example.com */
-      email: string;
-      /** @example John */
-      first_name: string;
-      /** @example Doe */
-      last_name: string;
-      /** @example password123 */
-      password: string;
-      /** @example acme */
-      tenant_name: string;
-    };
-    "github_com_ae-base-server_modules_base_models.UserResponse": {
-      /** @example Acme Corp */
-      company_name?: string;
-      /** @example user@example.com */
-      email?: string;
-      /** @example John */
-      first_name?: string;
-      /** @example 1 */
-      id?: number;
-      /** @example true */
-      is_active?: boolean;
-      /** @example Doe */
-      last_name?: string;
-      tenant?: components["schemas"]["github_com_ae-base-server_modules_base_models.TenantResponse"];
     };
     "github_com_ae-base-server_modules_pdf_handlers.ErrorResponse": {
       /** @example Additional error details */
@@ -2907,6 +869,27 @@ export interface components {
       message?: string;
       /** @example true */
       success?: boolean;
+    };
+    "github_com_unburdy_unburdy-server-api_internal_models.APIResponse": {
+      data?: unknown;
+      error?: string;
+      message?: string;
+      success?: boolean;
+    };
+    "github_com_unburdy_unburdy-server-api_internal_models.ListResponse": {
+      data?: unknown;
+      pagination?: components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.PaginationResponse"];
+    };
+    "github_com_unburdy_unburdy-server-api_internal_models.PaginationResponse": {
+      limit?: number;
+      page?: number;
+      total?: number;
+      total_pages?: number;
+    };
+    "gorm.DeletedAt": {
+      time?: string;
+      /** @description Valid is true if Time is not NULL */
+      valid?: boolean;
     };
     "models.ClientResponse": {
       admission_date?: string;
@@ -2941,6 +924,67 @@ export interface components {
       therapy_title?: string;
       unit_price?: number;
       updated_at?: string;
+      zip?: string;
+    };
+    "models.Contact": {
+      active?: boolean;
+      city?: string;
+      country?: string;
+      created_at?: string;
+      deleted_at?: components["schemas"]["gorm.DeletedAt"];
+      email?: string;
+      first_name: string;
+      id?: number;
+      last_name: string;
+      mobile?: string;
+      notes?: string;
+      phone?: string;
+      street?: string;
+      type?: string;
+      updated_at?: string;
+      zip?: string;
+    };
+    "models.ContactCreateRequest": {
+      city?: string;
+      country?: string;
+      email?: string;
+      first_name: string;
+      last_name: string;
+      mobile?: string;
+      notes?: string;
+      phone?: string;
+      street?: string;
+      type?: string;
+      zip?: string;
+    };
+    "models.ContactResponse": {
+      active?: boolean;
+      city?: string;
+      country?: string;
+      created_at?: string;
+      email?: string;
+      first_name?: string;
+      id?: number;
+      last_name?: string;
+      mobile?: string;
+      notes?: string;
+      phone?: string;
+      street?: string;
+      type?: string;
+      zip?: string;
+    };
+    "models.ContactUpdateRequest": {
+      active?: boolean;
+      city?: string;
+      country?: string;
+      email?: string;
+      first_name?: string;
+      last_name?: string;
+      mobile?: string;
+      notes?: string;
+      phone?: string;
+      street?: string;
+      type?: string;
       zip?: string;
     };
     "models.CostProviderResponse": {
@@ -3037,10 +1081,6 @@ export interface components {
       /** @example +1-555-123-4567 */
       phone?: string;
     };
-    "models.ForgotPasswordRequest": {
-      /** @example user@example.com */
-      email: string;
-    };
     "models.PlanRequest": {
       /** @example USD */
       currency: string;
@@ -3051,11 +1091,19 @@ export interface components {
       /** @example 29.99 */
       price: number;
     };
-    "models.ResetPasswordRequest": {
-      /** @example newpassword123 */
-      password: string;
-      /** @example reset-token-123 */
-      token: string;
+    "models.PlanResponse": {
+      active?: boolean;
+      created_at?: string;
+      currency?: string;
+      description?: string;
+      features?: string;
+      id?: number;
+      invoice_period?: string;
+      max_clients?: number;
+      max_users?: number;
+      name?: string;
+      price?: number;
+      slug?: string;
     };
     "models.UpdateClientRequest": {
       /** @example 2025-01-01 */
@@ -3129,6 +1177,24 @@ export interface components {
       /** @example 12345 */
       zip?: string;
     };
+    "models.UserSettings": {
+      created_at?: string;
+      deleted_at?: components["schemas"]["gorm.DeletedAt"];
+      id?: number;
+      /** @description User      User           `gorm:"foreignKey:UserID" json:"user,omitempty"` // Disabled for migration */
+      language?: string;
+      settings?: string;
+      theme?: string;
+      timezone?: string;
+      updated_at?: string;
+      user_id: number;
+    };
+    "models.UserSettingsUpdateRequest": {
+      language?: string;
+      settings?: string;
+      theme?: string;
+      timezone?: string;
+    };
   };
   responses: never;
   parameters: never;
@@ -3141,4 +1207,2822 @@ export type $defs = Record<string, never>;
 
 export type external = Record<string, never>;
 
-export type operations = Record<string, never>;
+export interface operations {
+
+  /**
+   * Change password
+   * @description Change password for authenticated user
+   */
+  changePassword: {
+    /** @description Password change request */
+    requestBody: {
+      content: {
+        "application/json": {
+          current_password?: string;
+          new_password?: string;
+        };
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.APIResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Request password reset
+   * @description Send password reset email to user
+   */
+  forgotPassword: {
+    /** @description User email */
+    requestBody: {
+      content: {
+        "application/json": {
+          email?: string;
+        };
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.APIResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * User login
+   * @description Authenticate user with username/email and password
+   */
+  login: {
+    /** @description Login credentials */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["github_com_ae-base-server_internal_models.LoginRequest"];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.APIResponse"] & {
+            data?: components["schemas"]["github_com_ae-base-server_internal_models.LoginResponse"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * User logout
+   * @description Logout user and invalidate token
+   */
+  logout: {
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.APIResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Get current user
+   * @description Get current authenticated user information
+   */
+  getCurrentUser: {
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.APIResponse"] & {
+            data?: components["schemas"]["github_com_ae-base-server_internal_models.UserResponse"];
+          };
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Reset password
+   * @description Reset user password with reset token
+   */
+  resetPassword: {
+    parameters: {
+      path: {
+        /** @description Reset token */
+        token: string;
+      };
+    };
+    /** @description New password */
+    requestBody: {
+      content: {
+        "application/json": {
+          new_password?: string;
+        };
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.APIResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Refresh access token
+   * @description Refresh user access token
+   */
+  refreshToken: {
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.APIResponse"] & {
+            data?: components["schemas"]["github_com_ae-base-server_internal_models.LoginResponse"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * User registration
+   * @description Register a new user account
+   */
+  register: {
+    /** @description User registration data */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["github_com_ae-base-server_internal_models.UserCreateRequest"];
+      };
+    };
+    responses: {
+      /** @description Created */
+      201: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.APIResponse"] & {
+            data?: components["schemas"]["github_com_ae-base-server_internal_models.LoginResponse"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Conflict */
+      409: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Verify email address
+   * @description Verify user email address with verification token
+   */
+  verifyEmail: {
+    parameters: {
+      path: {
+        /** @description Verification token */
+        token: string;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.APIResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Get all contacts
+   * @description Get paginated list of contacts with optional filters
+   */
+  getContacts: {
+    parameters: {
+      query?: {
+        /** @description Page number */
+        page?: number;
+        /** @description Items per page */
+        limit?: number;
+        /** @description Filter by active status */
+        active?: boolean;
+        /** @description Filter by contact type (business, personal, etc) */
+        type?: string;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.APIResponse"] & {
+            data?: components["schemas"]["github_com_ae-base-server_internal_models.ListResponse"];
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Create new contact
+   * @description Create a new contact for the authenticated user
+   */
+  createContact: {
+    /** @description Contact data */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["models.ContactCreateRequest"];
+      };
+    };
+    responses: {
+      /** @description Created */
+      201: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.APIResponse"] & {
+            data?: components["schemas"]["models.ContactResponse"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Submit contact form
+   * @description Public endpoint to submit a contact form (no authentication required)
+   */
+  submitContactForm: {
+    /** @description Contact form data */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ContactFormRequest"];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.APIResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Get newsletter subscriptions
+   * @description Get all newsletter subscriptions
+   */
+  getNewsletterSubscriptions: {
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.Newsletter"][];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Unsubscribe from newsletter
+   * @description Unsubscribe an email address from the newsletter
+   */
+  unsubscribeFromNewsletter: {
+    parameters: {
+      path: {
+        /** @description Email address to unsubscribe */
+        email: string;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.APIResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Get contact by ID
+   * @description Get a specific contact by ID
+   */
+  getContactById: {
+    parameters: {
+      path: {
+        /** @description Contact ID (UUID) */
+        id: string;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.APIResponse"] & {
+            data?: components["schemas"]["models.Contact"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Update contact
+   * @description Update an existing contact by ID
+   */
+  updateContact: {
+    parameters: {
+      path: {
+        /** @description Contact ID (UUID) */
+        id: string;
+      };
+    };
+    /** @description Updated contact data */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["models.ContactUpdateRequest"];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.APIResponse"] & {
+            data?: components["schemas"]["models.ContactResponse"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Delete contact
+   * @description Soft delete a contact by ID
+   */
+  deleteContact: {
+    parameters: {
+      path: {
+        /** @description Contact ID (UUID) */
+        id: string;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.APIResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Get all customers
+   * @description Get a paginated list of all customers
+   */
+  getCustomers: {
+    parameters: {
+      query?: {
+        /** @description Page number */
+        page?: number;
+        /** @description Items per page */
+        limit?: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.APIResponse"] & {
+            data?: components["schemas"]["github_com_ae-base-server_internal_models.ListResponse"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Create a new customer
+   * @description Create a new customer
+   */
+  createCustomer: {
+    /** @description Customer data */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["models.CustomerRequest"];
+      };
+    };
+    responses: {
+      /** @description Created */
+      201: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.APIResponse"] & {
+            data?: components["schemas"]["github_com_ae-base-server_internal_models.CustomerResponse"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Get customer by ID
+   * @description Get a specific customer by its ID
+   */
+  getCustomerById: {
+    parameters: {
+      path: {
+        /** @description Customer ID */
+        id: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.APIResponse"] & {
+            data?: components["schemas"]["github_com_ae-base-server_internal_models.CustomerResponse"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Update a customer
+   * @description Update an existing customer by ID
+   */
+  updateCustomer: {
+    parameters: {
+      path: {
+        /** @description Customer ID */
+        id: number;
+      };
+    };
+    /** @description Updated customer data */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["models.CustomerRequest"];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.APIResponse"] & {
+            data?: components["schemas"]["github_com_ae-base-server_internal_models.CustomerResponse"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Delete a customer
+   * @description Soft delete a customer by ID
+   */
+  deleteCustomer: {
+    parameters: {
+      path: {
+        /** @description Customer ID */
+        id: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.APIResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Get all emails
+   * @description Get a paginated list of all emails
+   */
+  getEmails: {
+    parameters: {
+      query?: {
+        /** @description Page number */
+        page?: number;
+        /** @description Items per page */
+        limit?: number;
+        /** @description Filter by email status */
+        status?: string;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.APIResponse"] & {
+            data?: components["schemas"]["github_com_ae-base-server_internal_models.ListResponse"];
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Send an email
+   * @description Create and queue an email for sending
+   */
+  sendEmail: {
+    /** @description Email send data */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["github_com_ae-base-server_internal_models.EmailSendRequest"];
+      };
+    };
+    responses: {
+      /** @description Created */
+      201: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.APIResponse"] & {
+            data?: components["schemas"]["github_com_ae-base-server_internal_models.EmailResponse"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Get email statistics
+   * @description Get email statistics including counts by status
+   */
+  getEmailStats: {
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.APIResponse"] & {
+            data?: Record<string, never>;
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Get email by ID
+   * @description Get a specific email by its ID
+   */
+  getEmailById: {
+    parameters: {
+      path: {
+        /** @description Email ID */
+        id: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.APIResponse"] & {
+            data?: components["schemas"]["github_com_ae-base-server_internal_models.EmailResponse"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Health check
+   * @description Check the health status of the API and database
+   */
+  healthCheck: {
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.HealthResponse"];
+        };
+      };
+      /** @description Service Unavailable */
+      503: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Generate PDF from template
+   * @description Generate a PDF document based on a specified template and data
+   */
+  createPdf: {
+    /** @description PDF generation request */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["github_com_ae-base-server_modules_pdf_handlers.PDFGenerateRequest"];
+      };
+    };
+    responses: {
+      /** @description PDF generated successfully */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_modules_pdf_handlers.PDFGenerateResponse"];
+        };
+      };
+      /** @description Invalid request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_modules_pdf_handlers.ErrorResponse"];
+        };
+      };
+      /** @description Failed to generate PDF */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_modules_pdf_handlers.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Ping check
+   * @description Simple ping endpoint
+   */
+  ping: {
+    responses: {
+      /** @description pong */
+      200: {
+        content: {
+          "application/json": string;
+        };
+      };
+    };
+  };
+  /**
+   * Get all plans
+   * @description Get a list of all available subscription plans
+   */
+  getPlans: {
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.Plan"][];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Create a new plan
+   * @description Create a new subscription plan (admin only)
+   */
+  createPlan: {
+    /** @description Plan data */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["models.PlanRequest"];
+      };
+    };
+    responses: {
+      /** @description Created */
+      201: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.APIResponse"] & {
+            data?: components["schemas"]["github_com_ae-base-server_internal_models.Plan"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Get plan by ID
+   * @description Get a specific subscription plan by its ID
+   */
+  getPlanById: {
+    parameters: {
+      path: {
+        /** @description Plan ID */
+        id: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.APIResponse"] & {
+            data?: components["schemas"]["github_com_ae-base-server_internal_models.Plan"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Update a plan
+   * @description Update an existing subscription plan (admin only)
+   */
+  updatePlan: {
+    parameters: {
+      path: {
+        /** @description Plan ID */
+        id: number;
+      };
+    };
+    /** @description Updated plan data */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["models.PlanRequest"];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.APIResponse"] & {
+            data?: components["schemas"]["github_com_ae-base-server_internal_models.Plan"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Delete a plan
+   * @description Delete a subscription plan (admin only)
+   */
+  deletePlan: {
+    parameters: {
+      path: {
+        /** @description Plan ID */
+        id: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.APIResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * List available static JSON files
+   * @description Get a list of all JSON files available in the statics/json directory
+   */
+  listStaticFiles: {
+    responses: {
+      /** @description List of available JSON files */
+      200: {
+        content: {
+          "*/*": {
+            [key: string]: unknown;
+          };
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "*/*": {
+            [key: string]: unknown;
+          };
+        };
+      };
+      /** @description Failed to read directory */
+      500: {
+        content: {
+          "*/*": {
+            [key: string]: string;
+          };
+        };
+      };
+    };
+  };
+  /**
+   * Serve static JSON files (JSON only, security restricted)
+   * @description Securely serve JSON data files from statics/json directory only. Prevents access to other directories or file types.
+   */
+  getStaticFile: {
+    parameters: {
+      path: {
+        /**
+         * @description JSON filename (without .json extension)
+         * @example "bundeslaender"
+         */
+        filename: string;
+      };
+    };
+    responses: {
+      /** @description JSON file content */
+      200: {
+        content: {
+          "*/*": {
+            [key: string]: unknown;
+          };
+        };
+      };
+      /** @description Invalid file name */
+      400: {
+        content: {
+          "*/*": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "*/*": {
+            [key: string]: unknown;
+          };
+        };
+      };
+      /** @description File not found */
+      404: {
+        content: {
+          "*/*": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Failed to read file */
+      500: {
+        content: {
+          "*/*": {
+            [key: string]: string;
+          };
+        };
+      };
+    };
+  };
+  /**
+   * Get user settings
+   * @description Get settings for the authenticated user (creates default if not found)
+   */
+  getUserSettings: {
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.APIResponse"] & {
+            data?: components["schemas"]["models.UserSettings"];
+          };
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Update user settings
+   * @description Update settings for the authenticated user
+   */
+  updateUserSettings: {
+    /** @description Updated settings */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["models.UserSettingsUpdateRequest"];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.APIResponse"] & {
+            data?: components["schemas"]["models.UserSettings"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Reset user settings
+   * @description Reset user settings to default values
+   */
+  resetUserSettings: {
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.APIResponse"] & {
+            data?: components["schemas"]["models.UserSettings"];
+          };
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Get calendars with complete metadata
+   * @description Retrieve all calendars for the authenticated user with 2-level deep preloading including entries with their series and series with their entries
+   */
+  getCalendars: {
+    responses: {
+      /** @description Array of calendars with preloaded entries, series, and external calendars */
+      200: {
+        content: {
+          "application/json": components["schemas"]["entities.CalendarResponse"][];
+        };
+      };
+      /** @description Unauthorized - invalid or missing JWT token */
+      401: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Internal server error during calendar retrieval */
+      500: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Create a new calendar
+   * @description Create a new calendar for the authenticated user
+   */
+  createCalendar: {
+    /** @description Calendar data */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["entities.CreateCalendarRequest"];
+      };
+    };
+    responses: {
+      /** @description Created */
+      201: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"] & {
+            data?: components["schemas"]["entities.CalendarResponse"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Get all calendar entries
+   * @description Retrieve all calendar entries for the authenticated user. All datetime fields are returned in UTC ISO 8601 format (e.g., 2025-11-04T09:00:00Z).
+   */
+  getCalendarEntries: {
+    parameters: {
+      query?: {
+        /** @description Page number */
+        page?: number;
+        /** @description Items per page */
+        limit?: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"] & {
+            data?: components["schemas"]["api.ListResponse"];
+          };
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Create a new calendar entry
+   * @description Create a new calendar entry with UTC timestamps. All datetime fields use ISO 8601 format in UTC (e.g., 2025-11-04T09:00:00Z). Stored as timestamptz in PostgreSQL, ensuring timezone-aware storage and retrieval.
+   */
+  createCalendarEntry: {
+    /** @description Calendar entry data */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["entities.CreateCalendarEntryRequest"];
+      };
+    };
+    responses: {
+      /** @description Created */
+      201: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"] & {
+            data?: components["schemas"]["entities.CalendarEntryResponse"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Get calendar entry by ID
+   * @description Retrieve a calendar entry by its ID. Returns datetime fields in UTC ISO 8601 format (e.g., 2025-11-04T09:00:00Z).
+   */
+  getCalendarEntryById: {
+    parameters: {
+      path: {
+        /** @description Calendar Entry ID */
+        id: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"] & {
+            data?: components["schemas"]["entities.CalendarEntryResponse"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Update calendar entry
+   * @description Update an existing calendar entry. Datetime fields use UTC ISO 8601 format (e.g., 2025-11-04T09:00:00Z).
+   */
+  updateCalendarEntry: {
+    parameters: {
+      path: {
+        /** @description Calendar Entry ID */
+        id: number;
+      };
+    };
+    /** @description Updated calendar entry data */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["entities.UpdateCalendarEntryRequest"];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"] & {
+            data?: components["schemas"]["entities.CalendarEntryResponse"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Delete calendar entry
+   * @description Delete a calendar entry by ID
+   */
+  deleteCalendarEntry: {
+    parameters: {
+      path: {
+        /** @description Calendar Entry ID */
+        id: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Get all calendar series
+   * @description Retrieve all calendar series for the authenticated user. All datetime fields are returned in UTC ISO 8601 format (e.g., 2025-11-04T09:00:00Z).
+   */
+  getCalendarSeries: {
+    parameters: {
+      query?: {
+        /** @description Page number */
+        page?: number;
+        /** @description Items per page */
+        limit?: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"] & {
+            data?: components["schemas"]["api.ListResponse"];
+          };
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Create a new calendar series
+   * @description Create a new calendar series for recurring events. Start/end time fields use UTC ISO 8601 format (e.g., 2025-11-04T09:00:00Z). For recurring events, these represent the time portion that will be combined with calculated recurrence dates.
+   */
+  createCalendarSeries: {
+    /** @description Calendar series data */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["entities.CreateCalendarSeriesRequest"];
+      };
+    };
+    responses: {
+      /** @description Created */
+      201: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"] & {
+            data?: components["schemas"]["entities.CalendarSeriesResponse"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Get calendar series by ID
+   * @description Retrieve a calendar series by its ID. Returns datetime fields in UTC ISO 8601 format (e.g., 2025-11-04T09:00:00Z).
+   */
+  getCalendarSeriesById: {
+    parameters: {
+      path: {
+        /** @description Calendar Series ID */
+        id: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"] & {
+            data?: components["schemas"]["entities.CalendarSeriesResponse"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Update calendar series
+   * @description Update an existing calendar series. Datetime fields use UTC ISO 8601 format (e.g., 2025-11-04T09:00:00Z).
+   */
+  updateCalendarSeries: {
+    parameters: {
+      path: {
+        /** @description Calendar Series ID */
+        id: number;
+      };
+    };
+    /** @description Updated calendar series data */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["entities.UpdateCalendarSeriesRequest"];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"] & {
+            data?: components["schemas"]["entities.CalendarSeriesResponse"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Delete calendar series
+   * @description Delete a calendar series by ID
+   */
+  deleteCalendarSeries: {
+    parameters: {
+      path: {
+        /** @description Calendar Series ID */
+        id: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Get free time slots
+   * @description Find available time slots based on duration, interval, and maximum number
+   */
+  getFreeSlots: {
+    parameters: {
+      query: {
+        /** @description Duration in minutes */
+        duration: number;
+        /** @description Interval between slots in minutes */
+        interval: number;
+        /** @description Maximum number of slots to return */
+        number_max: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["entities.FreeSlot"][];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Get calendar week view
+   * @description Retrieve calendar entries for a specific week
+   */
+  getCalendarWeek: {
+    parameters: {
+      query: {
+        /** @description Date in YYYY-MM-DD format */
+        date: string;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["entities.CalendarEntryResponse"][];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Get calendar year view
+   * @description Retrieve calendar entries for a specific year
+   */
+  getCalendarYear: {
+    parameters: {
+      query: {
+        /** @description Year */
+        year: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["entities.CalendarEntryResponse"][];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Get calendar by ID
+   * @description Retrieve a calendar by its ID
+   */
+  getCalendarById: {
+    parameters: {
+      path: {
+        /** @description Calendar ID */
+        id: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"] & {
+            data?: components["schemas"]["entities.CalendarResponse"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Update calendar
+   * @description Update an existing calendar
+   */
+  updateCalendar: {
+    parameters: {
+      path: {
+        /** @description Calendar ID */
+        id: number;
+      };
+    };
+    /** @description Updated calendar data */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["entities.UpdateCalendarRequest"];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"] & {
+            data?: components["schemas"]["entities.CalendarResponse"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Delete calendar
+   * @description Delete a calendar by ID
+   */
+  deleteCalendar: {
+    parameters: {
+      path: {
+        /** @description Calendar ID */
+        id: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Import holidays into calendar
+   * @description Import school holidays and public holidays into a specific calendar from unburdy format data
+   */
+  importHolidays: {
+    parameters: {
+      path: {
+        /** @description Calendar ID */
+        id: number;
+      };
+    };
+    /** @description Import holidays request with state, year range, and holidays data */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["entities.ImportHolidaysRequest"];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["entities.HolidayImportResult"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Get all clients
+   * @description Retrieve all clients with optional pagination
+   */
+  getClients: {
+    parameters: {
+      query?: {
+        /** @description Page number */
+        page?: number;
+        /** @description Number of clients per page (respects DEFAULT_PAGE_LIMIT and MAX_PAGE_LIMIT env vars) */
+        limit?: number;
+      };
+    };
+    responses: {
+      /** @description Clients retrieved successfully */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"] & {
+            data?: components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ListResponse"];
+          };
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Create a new client
+   * @description Create a new client with the provided information
+   */
+  createClient: {
+    /** @description Client information */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["entities.CreateClientRequest"];
+      };
+    };
+    responses: {
+      /** @description Client created successfully */
+      201: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"] & {
+            data?: components["schemas"]["entities.ClientResponse"];
+          };
+        };
+      };
+      /** @description Bad request */
+      400: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+    };
+  };
+  /**
+   * Search clients
+   * @description Search clients by first name or last name
+   */
+  searchClients: {
+    parameters: {
+      query: {
+        /** @description Search query */
+        q: string;
+        /** @description Page number */
+        page?: number;
+        /** @description Number of clients per page (respects DEFAULT_PAGE_LIMIT and MAX_PAGE_LIMIT env vars) */
+        limit?: number;
+      };
+    };
+    responses: {
+      /** @description Search results */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"] & {
+            data?: components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ListResponse"];
+          };
+        };
+      };
+      /** @description Bad request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Get a client by ID
+   * @description Retrieve a specific client by their ID
+   */
+  getClientById: {
+    parameters: {
+      path: {
+        /** @description Client ID */
+        id: number;
+      };
+    };
+    responses: {
+      /** @description Client found */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"] & {
+            data?: components["schemas"]["entities.ClientResponse"];
+          };
+        };
+      };
+      /** @description Bad request */
+      400: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Client not found */
+      404: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+    };
+  };
+  /**
+   * Update a client
+   * @description Update a client's information
+   */
+  updateClient: {
+    parameters: {
+      path: {
+        /** @description Client ID */
+        id: number;
+      };
+    };
+    /** @description Updated client information */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["entities.UpdateClientRequest"];
+      };
+    };
+    responses: {
+      /** @description Updated client */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"] & {
+            data?: components["schemas"]["entities.ClientResponse"];
+          };
+        };
+      };
+      /** @description Bad request */
+      400: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Client not found */
+      404: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+    };
+  };
+  /**
+   * Delete a client
+   * @description Soft delete a client by ID
+   */
+  deleteClient: {
+    parameters: {
+      path: {
+        /** @description Client ID */
+        id: number;
+      };
+    };
+    responses: {
+      /** @description Client deleted successfully */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"];
+        };
+      };
+      /** @description Bad request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"];
+        };
+      };
+      /** @description Client not found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Get all cost providers
+   * @description Retrieve all cost providers with optional pagination
+   */
+  getCostProviders: {
+    parameters: {
+      query?: {
+        /** @description Page number */
+        page?: number;
+        /** @description Number of cost providers per page (respects DEFAULT_PAGE_LIMIT and MAX_PAGE_LIMIT env vars) */
+        limit?: number;
+      };
+    };
+    responses: {
+      /** @description Cost providers retrieved successfully */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"] & {
+            data?: components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ListResponse"];
+          };
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Create a new cost provider
+   * @description Create a new cost provider with the provided information
+   */
+  createCostProvider: {
+    /** @description Cost provider information */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["entities.CreateCostProviderRequest"];
+      };
+    };
+    responses: {
+      /** @description Created cost provider */
+      201: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"] & {
+            data?: components["schemas"]["entities.CostProviderResponse"];
+          };
+        };
+      };
+      /** @description Bad request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Search cost providers
+   * @description Search cost providers by organization name or contact name
+   */
+  searchCostProviders: {
+    parameters: {
+      query: {
+        /** @description Search query */
+        q: string;
+        /** @description Page number */
+        page?: number;
+        /** @description Number of cost providers per page (respects DEFAULT_PAGE_LIMIT and MAX_PAGE_LIMIT env vars) */
+        limit?: number;
+      };
+    };
+    responses: {
+      /** @description Search results */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"] & {
+            data?: components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ListResponse"];
+          };
+        };
+      };
+      /** @description Bad request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Get a cost provider by ID
+   * @description Retrieve a specific cost provider by their ID
+   */
+  getCostProviderById: {
+    parameters: {
+      path: {
+        /** @description Cost Provider ID */
+        id: number;
+      };
+    };
+    responses: {
+      /** @description Cost provider found */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"] & {
+            data?: components["schemas"]["entities.CostProviderResponse"];
+          };
+        };
+      };
+      /** @description Bad request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"];
+        };
+      };
+      /** @description Cost provider not found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Update a cost provider
+   * @description Update a cost provider's information
+   */
+  updateCostProvider: {
+    parameters: {
+      path: {
+        /** @description Cost Provider ID */
+        id: number;
+      };
+    };
+    /** @description Updated cost provider information */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["entities.UpdateCostProviderRequest"];
+      };
+    };
+    responses: {
+      /** @description Updated cost provider */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"] & {
+            data?: components["schemas"]["entities.CostProviderResponse"];
+          };
+        };
+      };
+      /** @description Bad request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"];
+        };
+      };
+      /** @description Cost provider not found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Delete a cost provider
+   * @description Soft delete a cost provider by ID
+   */
+  deleteCostProvider: {
+    parameters: {
+      path: {
+        /** @description Cost Provider ID */
+        id: number;
+      };
+    };
+    responses: {
+      /** @description Cost provider deleted successfully */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"];
+        };
+      };
+      /** @description Bad request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"];
+        };
+      };
+      /** @description Cost provider not found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Get all external calendars
+   * @description Retrieve all external calendars for the authenticated user
+   */
+  getExternalCalendars: {
+    parameters: {
+      query?: {
+        /** @description Page number */
+        page?: number;
+        /** @description Items per page */
+        limit?: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"] & {
+            data?: components["schemas"]["api.ListResponse"];
+          };
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Create a new external calendar
+   * @description Create a new external calendar
+   */
+  createExternalCalendar: {
+    /** @description External calendar data */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["entities.CreateExternalCalendarRequest"];
+      };
+    };
+    responses: {
+      /** @description Created */
+      201: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"] & {
+            data?: components["schemas"]["entities.ExternalCalendarResponse"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Get external calendar by ID
+   * @description Retrieve an external calendar by its ID
+   */
+  getExternalCalendarById: {
+    parameters: {
+      path: {
+        /** @description External Calendar ID */
+        id: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"] & {
+            data?: components["schemas"]["entities.ExternalCalendarResponse"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Update external calendar
+   * @description Update an existing external calendar
+   */
+  updateExternalCalendar: {
+    parameters: {
+      path: {
+        /** @description External Calendar ID */
+        id: number;
+      };
+    };
+    /** @description Updated external calendar data */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["entities.UpdateExternalCalendarRequest"];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"] & {
+            data?: components["schemas"]["entities.ExternalCalendarResponse"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Delete external calendar
+   * @description Delete an external calendar by ID
+   */
+  deleteExternalCalendar: {
+    parameters: {
+      path: {
+        /** @description External Calendar ID */
+        id: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+    };
+  };
+}
