@@ -29,12 +29,16 @@ export function usePasswordRequirements() {
       isLoading.value = true
       error.value = null
       
-      const apiClient = createApiClient({
-        baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api/v1'
-      })
+      // TODO: Implement getPasswordSecurity endpoint on the backend
+      // For now, use default requirements
+      console.log('Using default password requirements (getPasswordSecurity endpoint not available)')
       
-      const data = await apiClient.getPasswordSecurity()
-      requirements.value = data
+      // const apiClient = createApiClient({
+      //   baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api/v1'
+      // })
+      // 
+      // const data = await apiClient.getPasswordSecurity()
+      // requirements.value = data
     } catch (err: any) {
       console.error('Failed to load password requirements:', err)
       error.value = err.message

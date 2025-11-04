@@ -10,6 +10,47 @@ export default {
     signUp: 'Sign up'
   },
 
+  messages: {
+    // API Response Messages (using exact message property as key)
+    'Invalid credentials': 'Invalid credentials',
+    'Invalid request': 'Invalid request',
+    'Terms not accepted': 'Terms not accepted',
+    'User already exists': 'User already exists',
+    'Password mismatch': 'Password mismatch',
+    'Company name required': 'Company name required',
+    'User created successfully. Please check your email to verify your account.': 'User created successfully. Please check your email to verify your account.',
+    'Login successful': 'Login successful',
+    
+    // Error Messages
+    'User not found': 'User not found',
+    'Username or email already taken': 'Username or email already taken',
+    'You must accept the terms and conditions to register': 'You must accept the terms and conditions to register',
+    'Company name is required to create a new tenant': 'Company name is required to create a new tenant',
+    
+    // Field validation errors
+    "Key: 'UserCreateRequest.FirstName' Error:Field validation for 'FirstName' failed on the 'required' tag": 'First name is required',
+    "Key: 'UserCreateRequest.LastName' Error:Field validation for 'LastName' failed on the 'required' tag": 'Last name is required',
+    
+    // Frontend Messages
+    loginSuccessful: 'Login successful! Redirecting...',
+    loginSuccessfulWelcome: 'Welcome back',
+    loginFailed: 'Login failed',
+    invalidResponseFromServer: 'Invalid response from server',
+    registrationSuccessful: 'Registration successful! Redirecting to dashboard...',
+    registrationFailed: 'Registration failed. Please try again.',
+    passwordChangedSuccessfully: 'Password has been changed successfully!',
+    passwordResetSuccessfully: 'Password has been reset successfully. Redirecting to login...',
+    forgotPasswordEmailSent: 'If the email exists, a password reset link has been sent to your email.',
+    forgotPasswordFailed: 'Failed to send reset email. Please try again.',
+    usingDefaultPasswordRequirements: 'Using default password requirements (getPasswordSecurity endpoint not available)',
+    failedToFetchClients: 'Failed to fetch clients',
+    failedToDeleteClient: 'Failed to delete client',
+    failedToLoadCalendarData: 'Failed to load calendar data',
+    failedToCreateEvent: 'Failed to create event',
+    failedToDeleteEvent: 'Failed to delete event',
+    calendarDataCachedSuccessfully: 'Calendar data cached and loaded successfully'
+  },
+
   forgot: {
     title: 'Forgot Password',
     subtitle: 'Enter your email to receive a password reset link',
@@ -113,5 +154,31 @@ export default {
     goHome: 'Go to Home',
     helpfulLinks: 'You might find these links helpful:',
     mobileHint: 'Tap the back button or try the home page'
+  },
+
+  dashboard: {
+    welcome: 'Dashboard',
+    welcomeMessage: 'Welcome to the Dashboard',
+    description: 'Here you can find an overview of your account and perform various actions.',
+    plans: 'Plans',
+    customers: 'Customers',
+    users: 'Users',
+    emails: 'Emails',
+    newsletters: 'Newsletters',
+    activePlans: 'Active Plans',
+    totalCustomers: 'Total Customers',
+    registeredUsers: 'Registered Users',
+    emailsSent: 'Emails Sent',
+    subscribers: 'Subscribers',
+    recentPlans: 'Recent Plans',
+    recentCustomers: 'Recent Customers',
+    name: 'Name',
+    status: 'Status',
+    created: 'Created',
+    joined: 'Joined',
+    active: 'Active',
+    inactive: 'Inactive',
+    email: 'Email',
+    loadError: 'Error loading dashboard data'
   }
 }

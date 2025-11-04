@@ -78,6 +78,7 @@ export * from './config/app-config'
 export * from './config/api-config'
 export { useAppConfig } from './composables/useAppConfig'
 export { useDarkMode } from './composables/useDarkMode'
+export { useToast } from './composables/useToast'
 
 // Core Components
 export * from './components'

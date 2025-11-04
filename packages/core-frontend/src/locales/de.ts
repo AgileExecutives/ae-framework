@@ -10,6 +10,47 @@ export default {
     signUp: 'Registrieren'
   },
 
+  messages: {
+    // API Response Messages (using exact message property as key)
+    'Invalid credentials': 'Ungültige Anmeldedaten',
+    'Invalid request': 'Ungültige Anfrage',
+    'Terms not accepted': 'AGB nicht akzeptiert',
+    'User already exists': 'Benutzer existiert bereits',
+    'Password mismatch': 'Passwort stimmt nicht überein',
+    'Company name required': 'Firmenname erforderlich',
+    'User created successfully. Please check your email to verify your account.': 'Benutzer erfolgreich erstellt. Bitte überprüfen Sie Ihre E-Mail, um Ihr Konto zu verifizieren.',
+    'Login successful': 'Anmeldung erfolgreich',
+    
+    // Error Messages
+    'User not found': 'Benutzer nicht gefunden',
+    'Username or email already taken': 'Benutzername oder E-Mail bereits vergeben',
+    'You must accept the terms and conditions to register': 'Sie müssen die AGB akzeptieren, um sich zu registrieren',
+    'Company name is required to create a new tenant': 'Firmenname ist erforderlich, um einen neuen Mandanten zu erstellen',
+    
+    // Field validation errors
+    "Key: 'UserCreateRequest.FirstName' Error:Field validation for 'FirstName' failed on the 'required' tag": 'Vorname ist erforderlich',
+    "Key: 'UserCreateRequest.LastName' Error:Field validation for 'LastName' failed on the 'required' tag": 'Nachname ist erforderlich',
+    
+    // Frontend Messages
+    loginSuccessful: 'Anmeldung erfolgreich! Weiterleitung...',
+    loginSuccessfulWelcome: 'Willkommen zurück',
+    loginFailed: 'Anmeldung fehlgeschlagen',
+    invalidResponseFromServer: 'Ungültige Antwort vom Server',
+    registrationSuccessful: 'Registrierung erfolgreich! Weiterleitung zum Dashboard...',
+    registrationFailed: 'Registrierung fehlgeschlagen. Bitte versuchen Sie es erneut.',
+    passwordChangedSuccessfully: 'Passwort wurde erfolgreich geändert!',
+    passwordResetSuccessfully: 'Passwort wurde erfolgreich zurückgesetzt. Weiterleitung zur Anmeldung...',
+    forgotPasswordEmailSent: 'Wenn die E-Mail existiert, wurde ein Link zum Zurücksetzen an Ihre E-Mail gesendet.',
+    forgotPasswordFailed: 'Fehler beim Senden der E-Mail. Bitte versuchen Sie es erneut.',
+    usingDefaultPasswordRequirements: 'Verwende Standard-Passwort-Anforderungen (getPasswordSecurity-Endpunkt nicht verfügbar)',
+    failedToFetchClients: 'Fehler beim Laden der Kunden',
+    failedToDeleteClient: 'Fehler beim Löschen des Kunden',
+    failedToLoadCalendarData: 'Fehler beim Laden der Kalenderdaten',
+    failedToCreateEvent: 'Fehler beim Erstellen des Termins',
+    failedToDeleteEvent: 'Fehler beim Löschen des Termins',
+    calendarDataCachedSuccessfully: 'Kalenderdaten erfolgreich zwischengespeichert und geladen'
+  },
+
   forgot: {
     title: 'Passwort vergessen',
     subtitle: 'Geben Sie Ihre E-Mail-Adresse ein, um einen Link zum Zurücksetzen zu erhalten',
@@ -115,6 +156,32 @@ export default {
     goHome: 'Zur Startseite',
     helpfulLinks: 'Diese Links könnten hilfreich sein:',
     mobileHint: 'Tippe auf den Zurück-Button oder versuche die Startseite'
+  },
+
+  dashboard: {
+    welcome: 'Dashboard',
+    welcomeMessage: 'Willkommen im Dashboard',
+    description: 'Hier finden Sie eine Übersicht über Ihr Konto und können verschiedene Aktionen durchführen.',
+    plans: 'Pläne',
+    customers: 'Kunden',
+    users: 'Benutzer',
+    emails: 'E-Mails',
+    newsletters: 'Newsletter',
+    activePlans: 'Aktive Pläne',
+    totalCustomers: 'Gesamte Kunden',
+    registeredUsers: 'Registrierte Benutzer',
+    emailsSent: 'Gesendete E-Mails',
+    subscribers: 'Abonnenten',
+    recentPlans: 'Neueste Pläne',
+    recentCustomers: 'Neueste Kunden',
+    name: 'Name',
+    status: 'Status',
+    created: 'Erstellt',
+    joined: 'Beigetreten',
+    active: 'Aktiv',
+    inactive: 'Inaktiv',
+    email: 'E-Mail',
+    loadError: 'Fehler beim Laden der Dashboard-Daten'
   }
 }
 

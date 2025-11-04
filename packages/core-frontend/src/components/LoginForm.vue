@@ -1,22 +1,61 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
 import SingleFormCard from './SingleFormCard.vue';
-import { nextTick, ref } from "vue";
+import { nextTick, ref, watch } from "vue";
 import { useAuthStore } from "../stores/auth";
+import { useToast } from "../composables/useToast";
+import { useI18n } from 'vue-i18n';
 
 // Initialize router at top level
 const router = useRouter();
+const { t } = useI18n();
 
-const authStore = useAuthStore(); // Assuming you have a Pinia store for auth
+const authStore = useAuthStore();
+const { error: showErrorToast, success: showSuccessToast } = useToast();
+
 const credentials = ref({
   username: '',
   password: ''
 });
 
+// Helper function to translate API error messages
+const translateMessage = (message: string): string => {
+  if (!message) return message;
+  
+  // Define the message mappings based on our locale structure
+  const messageMap: Record<string, string> = {
+    'Invalid credentials': t('messages.Invalid credentials'),
+    'Invalid request': t('messages.Invalid request'),
+    'Terms not accepted': t('messages.Terms not accepted'),
+    'User already exists': t('messages.User already exists'),
+    'Password mismatch': t('messages.Password mismatch'),
+    'Company name required': t('messages.Company name required'),
+    'User created successfully. Please check your email to verify your account.': t('messages.User created successfully. Please check your email to verify your account.'),
+    'Login successful': t('messages.Login successful'),
+    'User not found': t('messages.User not found'),
+    'Username or email already taken': t('messages.Username or email already taken'),
+    'You must accept the terms and conditions to register': t('messages.You must accept the terms and conditions to register'),
+    'Company name is required to create a new tenant': t('messages.Company name is required to create a new tenant'),
+    'Login failed': t('messages.loginFailed'),
+    'Invalid response from server': t('messages.invalidResponseFromServer')
+  };
+  
+  // Return translated message if available, otherwise return original
+  return messageMap[message] || message;
+};
+
+// Clear errors when user starts typing
+watch(credentials, () => {
+  if (authStore.error) {
+    authStore.setError(null);
+  }
+}, { deep: true });
+
 async function handleLogin() {
   try {
     console.log('🔐 Login attempt started')
-    //authStore.clearError()
+    // Clear any previous errors
+    authStore.setError(null);
     
     console.log('🔐 Calling authStore.login...')
     await authStore.login(credentials.value)
@@ -26,6 +65,9 @@ async function handleLogin() {
       hasUser: !!authStore.user,
       hasToken: !!authStore.token
     })
+    
+    // Show success toast
+    showSuccessToast(t('messages.loginSuccessful'), t('messages.loginSuccessfulWelcome'));
     
     // Ensure Vue reactivity system processes all updates
     await nextTick()
@@ -41,17 +83,34 @@ async function handleLogin() {
     const result = await router.push(redirectPath as string)
     console.log('🔐 Navigation result:', result)
     
-  } catch (error) {
+  } catch (error: any) {
     console.error('🔐 Login failed:', error)
-    // Error is handled by the auth store
+    
+    // Show error toast in addition to the inline alert
+    const errorMessage = authStore.error || error.message || t('messages.loginFailed');
+    const translatedErrorMessage = translateMessage(errorMessage);
+    showErrorToast(translatedErrorMessage, t('messages.loginFailed'));
   }
 }
 </script>
 
 <template>
   <SingleFormCard :title="$t('auth.signIn')" :subtitle="$t('auth.signInSubtitle')">
-    <div v-if="authStore.error" class="alert alert-error mb-4">
-      <span class="break-words">{{ authStore.error }}</span>
+    <div v-if="authStore.error" class="alert alert-error mb-4 shadow-lg">
+      <div class="flex items-start gap-2">
+        <span class="text-lg flex-shrink-0">⚠️</span>
+        <div class="flex-1">
+          <div class="font-bold text-sm mb-1">{{ $t('messages.loginFailed') }}</div>
+          <div class="text-sm break-words">{{ translateMessage(authStore.error) }}</div>
+        </div>
+        <button
+          @click="authStore.setError(null)"
+          class="btn btn-sm btn-ghost btn-square"
+          aria-label="Close error"
+        >
+          ✕
+        </button>
+      </div>
     </div>
 
     <form @submit.prevent="handleLogin" autocomplete="on" class="space-y-6">

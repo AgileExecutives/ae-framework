@@ -52,6 +52,6 @@ test.describe('Vue App E2E Tests', () => {
     await page.waitForLoadState('networkidle');
     
     // Should see the restricted page content
-    await expect(page.locator('h1')).toContainText('Welcome to a restricted Page');
+    await expect(page.locator('h1')).toContainText('Dashboard');
   });
 });

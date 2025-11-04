@@ -5,6 +5,17 @@ import  AuthRestrictedView from '../views/AuthRestrictedView.vue'
 // Create default routes using base components
 const routes = [
   {
+    path: '/',
+    name: 'Root',
+    redirect: '/dashboard'
+  },
+  {
+    path: '/dashboard',
+    name: 'Dashboard',
+    component: () => import('../views/DashboardView.vue'),
+    meta: { requiresAuth: true },
+  },
+  {
     path: '/restricted',
     name: 'AuthRestrictedView',
     component: AuthRestrictedView,

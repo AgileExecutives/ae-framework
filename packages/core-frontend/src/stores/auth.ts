@@ -91,13 +91,23 @@ export const useAuthStore = defineStore('auth', () => {
       const client = initializeApiClient()
       const response = await client.login(credentials)
 
-      if (response.token && response.user) {
-        setToken(response.token)
-        setUser(response.user as AuthTypes.User)
-        console.log('✅ Auth Store: Login successful', { user: response.user.username })
-      } else {
-        throw new Error('Invalid response from server')
+      console.log('🔍 Auth Store: Raw API response:', JSON.stringify(response, null, 2))
+
+      // Handle successful response
+      if (response && response.success === true && response.data) {
+        const { token, user } = response.data
+        if (token && user) {
+          console.log('✅ Auth Store: Valid login response, setting auth state')
+          setToken(token)
+          setUser(user as AuthTypes.User)
+          console.log('✅ Auth Store: Login successful', { username: user.username })
+          return // Success - exit function
+        }
       }
+
+      // If we reach here, the response was invalid
+      console.error('❌ Auth Store: Invalid response structure')
+      throw new Error('Invalid response from server')
     } catch (err: any) {
       console.error('❌ Auth Store: Login failed', err)
       
@@ -124,17 +134,17 @@ export const useAuthStore = defineStore('auth', () => {
       console.log('✅ Auth Store: Registration response received', response)
       
       // Handle the response structure from the API client
-      if (response && response.user) {
+      if (response.success && response.data?.user) {
         // If token is provided, set it (auto-login after registration)
-        if (response.token) {
-          setToken(response.token)
-          setUser(response.user as AuthTypes.User)
-          console.log('✅ Auth Store: Registration successful with auto-login', { user: response.user.username })
+        if (response.data.token) {
+          setToken(response.data.token)
+          setUser(response.data.user as AuthTypes.User)
+          console.log('✅ Auth Store: Registration successful with auto-login', { user: response.data.user.username })
         } else {
           // Registration successful but no auto-login
-          console.log('✅ Auth Store: Registration successful, please login', { user: response.user.username })
+          console.log('✅ Auth Store: Registration successful, please login', { user: response.data.user.username })
         }
-        return response.user as AuthTypes.User
+        return response.data.user as AuthTypes.User
       } else {
         throw new Error('Invalid response from server')
       }

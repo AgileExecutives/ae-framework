@@ -20,6 +20,7 @@ export { default as LegalLinks } from './LegalLinks.vue'
 
 // Utility Components
 export { default as NotFoundCard } from './NotFoundCard.vue'
+export { default as ToastContainer } from './ToastContainer.vue'
 
 // Component Types (if any)
 // export type { ... } from './component-types'
