@@ -258,18 +258,6 @@ export interface paths {
      */
     post: operations["resetUserSettings"];
   };
-  "/calendar": {
-    /**
-     * Get calendars with complete metadata
-     * @description Retrieve all calendars for the authenticated user with 2-level deep preloading including entries with their series and series with their entries
-     */
-    get: operations["getCalendars"];
-    /**
-     * Create a new calendar
-     * @description Create a new calendar for the authenticated user
-     */
-    post: operations["createCalendar"];
-  };
   "/calendar-entries": {
     /**
      * Get all calendar entries
@@ -328,28 +316,40 @@ export interface paths {
      */
     delete: operations["deleteCalendarSeries"];
   };
-  "/calendar/free-slots": {
+  "/calendars": {
+    /**
+     * Get calendars with complete metadata
+     * @description Retrieve all calendars for the authenticated user with 2-level deep preloading including entries with their series and series with their entries
+     */
+    get: operations["getCalendars"];
+    /**
+     * Create a new calendar
+     * @description Create a new calendar for the authenticated user
+     */
+    post: operations["createCalendar"];
+  };
+  "/calendars/free-slots": {
     /**
      * Get free time slots
      * @description Find available time slots based on duration, interval, and maximum number
      */
     get: operations["getFreeSlots"];
   };
-  "/calendar/week": {
+  "/calendars/week": {
     /**
      * Get calendar week view
      * @description Retrieve calendar entries for a specific week
      */
     get: operations["getCalendarWeek"];
   };
-  "/calendar/year": {
+  "/calendars/year": {
     /**
      * Get calendar year view
      * @description Retrieve calendar entries for a specific year
      */
     get: operations["getCalendarYear"];
   };
-  "/calendar/{id}": {
+  "/calendars/{id}": {
     /**
      * Get calendar by ID
      * @description Retrieve a calendar by its ID
@@ -366,7 +366,7 @@ export interface paths {
      */
     delete: operations["deleteCalendar"];
   };
-  "/calendar/{id}/import_holidays": {
+  "/calendars/{id}/import_holidays": {
     /**
      * Import holidays into calendar
      * @description Import school holidays and public holidays into a specific calendar from unburdy format data
@@ -500,9 +500,11 @@ export interface components {
       is_exception?: boolean;
       location?: string;
       participants?: number[];
+      series?: components["schemas"]["entities.CalendarSeriesResponse"];
       series_id?: number;
       start_time?: string;
       tenant_id?: number;
+      timezone?: string;
       title?: string;
       type?: string;
       updated_at?: string;
@@ -538,6 +540,7 @@ export interface components {
       sequence?: number;
       start_time?: string;
       tenant_id?: number;
+      timezone?: string;
       title?: string;
       updated_at?: string;
       user_id?: number;
@@ -2450,72 +2453,6 @@ export interface operations {
     };
   };
   /**
-   * Get calendars with complete metadata
-   * @description Retrieve all calendars for the authenticated user with 2-level deep preloading including entries with their series and series with their entries
-   */
-  getCalendars: {
-    responses: {
-      /** @description Array of calendars with preloaded entries, series, and external calendars */
-      200: {
-        content: {
-          "application/json": components["schemas"]["entities.CalendarResponse"][];
-        };
-      };
-      /** @description Unauthorized - invalid or missing JWT token */
-      401: {
-        content: {
-          "application/json": components["schemas"]["api.APIResponse"];
-        };
-      };
-      /** @description Internal server error during calendar retrieval */
-      500: {
-        content: {
-          "application/json": components["schemas"]["api.APIResponse"];
-        };
-      };
-    };
-  };
-  /**
-   * Create a new calendar
-   * @description Create a new calendar for the authenticated user
-   */
-  createCalendar: {
-    /** @description Calendar data */
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["entities.CreateCalendarRequest"];
-      };
-    };
-    responses: {
-      /** @description Created */
-      201: {
-        content: {
-          "application/json": components["schemas"]["api.APIResponse"] & {
-            data?: components["schemas"]["entities.CalendarResponse"];
-          };
-        };
-      };
-      /** @description Bad Request */
-      400: {
-        content: {
-          "application/json": components["schemas"]["api.APIResponse"];
-        };
-      };
-      /** @description Unauthorized */
-      401: {
-        content: {
-          "application/json": components["schemas"]["api.APIResponse"];
-        };
-      };
-      /** @description Internal Server Error */
-      500: {
-        content: {
-          "application/json": components["schemas"]["api.APIResponse"];
-        };
-      };
-    };
-  };
-  /**
    * Get all calendar entries
    * @description Retrieve all calendar entries for the authenticated user. All datetime fields are returned in UTC ISO 8601 format (e.g., 2025-11-04T09:00:00Z).
    */
@@ -2939,6 +2876,74 @@ export interface operations {
       };
       /** @description Not Found */
       404: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Get calendars with complete metadata
+   * @description Retrieve all calendars for the authenticated user with 2-level deep preloading including entries with their series and series with their entries
+   */
+  getCalendars: {
+    responses: {
+      /** @description Returns calendars array with complete metadata including nested relationships */
+      200: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"] & {
+            data?: components["schemas"]["entities.CalendarResponse"][];
+          };
+        };
+      };
+      /** @description Unauthorized - invalid or missing JWT token */
+      401: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Internal server error during calendar retrieval */
+      500: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Create a new calendar
+   * @description Create a new calendar for the authenticated user
+   */
+  createCalendar: {
+    /** @description Calendar data */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["entities.CreateCalendarRequest"];
+      };
+    };
+    responses: {
+      /** @description Created */
+      201: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"] & {
+            data?: components["schemas"]["entities.CalendarResponse"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
         content: {
           "application/json": components["schemas"]["api.APIResponse"];
         };

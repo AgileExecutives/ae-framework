@@ -171,8 +171,8 @@ function generateApiClient(openApiSpec) {
       }
       
       if (endpoint.method === 'DELETE') {
-        methodCode += `    await this.request<ApiResponse<any>>(${requestArgs.join(', ')});\n`;
-        methodCode += `    return { success: true };\n`;
+        methodCode += `    const response = await this.request<ApiResponse<any>>(${requestArgs.join(', ')});\n`;
+        methodCode += `    return response || { success: true };\n`;
       } else {
         methodCode += `    const response = await this.request<${responseType}>(${requestArgs.join(', ')});\n`;
         if (isListEndpoint) {
@@ -194,7 +194,7 @@ function generateApiClient(openApiSpec) {
   return `import axios, { AxiosInstance, AxiosResponse, AxiosRequestConfig } from 'axios';
 import type { paths, components } from './types';
 
-// API Response types
+// API Response types from backend
 export type ApiResponse<T = any> = {
   success: boolean;
   message?: string;
@@ -204,7 +204,9 @@ export type ApiResponse<T = any> = {
 
 export type ListResponse<T = any> = {
   success: boolean;
+  message?: string;
   data: T[];
+  error?: string;
   pagination?: {
     page: number;
     limit: number;

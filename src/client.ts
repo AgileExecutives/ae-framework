@@ -2,7 +2,7 @@ import axios from 'axios';
 import type { AxiosInstance, AxiosResponse, AxiosRequestConfig } from 'axios';
 import type { paths, components } from './types';
 
-// API Response types
+// API Response types from backend
 export type ApiResponse<T = any> = {
   success: boolean;
   message?: string;
@@ -12,7 +12,9 @@ export type ApiResponse<T = any> = {
 
 export type ListResponse<T = any> = {
   success: boolean;
+  message?: string;
   data: T[];
+  error?: string;
   pagination?: {
     page: number;
     limit: number;
@@ -175,8 +177,8 @@ export class AESaasApiClient {
 
   async unsubscribeFromNewsletter(email: string) {
     if (!email) throw new Error('email is required');
-    await this.request<ApiResponse<any>>('DELETE', `/contacts/newsletter/${email}`, undefined);
-    return { success: true };
+    const response = await this.request<ApiResponse<any>>('DELETE', `/contacts/newsletter/${email}`, undefined);
+    return response || { success: true };
   }
 
   async getContactById(id: string) {
@@ -193,8 +195,8 @@ export class AESaasApiClient {
 
   async deleteContact(id: string) {
     if (!id) throw new Error('id is required');
-    await this.request<ApiResponse<any>>('DELETE', `/contacts/${id}`, undefined);
-    return { success: true };
+    const response = await this.request<ApiResponse<any>>('DELETE', `/contacts/${id}`, undefined);
+    return response || { success: true };
   }
 
   async getCustomers(params?: Record<string, any>) {
@@ -221,8 +223,8 @@ export class AESaasApiClient {
 
   async deleteCustomer(id: number) {
     if (!id) throw new Error('id is required');
-    await this.request<ApiResponse<any>>('DELETE', `/customers/${id}`, undefined);
-    return { success: true };
+    const response = await this.request<ApiResponse<any>>('DELETE', `/customers/${id}`, undefined);
+    return response || { success: true };
   }
 
   async getEmails(params?: Record<string, any>) {
@@ -285,8 +287,8 @@ export class AESaasApiClient {
 
   async deletePlan(id: number) {
     if (!id) throw new Error('id is required');
-    await this.request<ApiResponse<any>>('DELETE', `/plans/${id}`, undefined);
-    return { success: true };
+    const response = await this.request<ApiResponse<any>>('DELETE', `/plans/${id}`, undefined);
+    return response || { success: true };
   }
 
   async listStaticFiles() {
@@ -315,16 +317,6 @@ export class AESaasApiClient {
     return response;
   }
 
-  async getCalendars() {
-    const response = await this.request<any>('GET', `/calendar`, undefined);
-    return response;
-  }
-
-  async createCalendar(data: any) {
-    const response = await this.request<ApiResponse<any>>('POST', `/calendar`, data);
-    return response;
-  }
-
   async getCalendarEntries(params?: Record<string, any>) {
     const response = await this.request<any>('GET', `/calendar-entries`, undefined, params);
     return response;
@@ -349,8 +341,8 @@ export class AESaasApiClient {
 
   async deleteCalendarEntry(id: number) {
     if (!id) throw new Error('id is required');
-    await this.request<ApiResponse<any>>('DELETE', `/calendar-entries/${id}`, undefined);
-    return { success: true };
+    const response = await this.request<ApiResponse<any>>('DELETE', `/calendar-entries/${id}`, undefined);
+    return response || { success: true };
   }
 
   async getCalendarSeries(params?: Record<string, any>) {
@@ -377,46 +369,56 @@ export class AESaasApiClient {
 
   async deleteCalendarSeries(id: number) {
     if (!id) throw new Error('id is required');
-    await this.request<ApiResponse<any>>('DELETE', `/calendar-series/${id}`, undefined);
-    return { success: true };
+    const response = await this.request<ApiResponse<any>>('DELETE', `/calendar-series/${id}`, undefined);
+    return response || { success: true };
+  }
+
+  async getCalendars() {
+    const response = await this.request<any>('GET', `/calendars`, undefined);
+    return response;
+  }
+
+  async createCalendar(data: any) {
+    const response = await this.request<ApiResponse<any>>('POST', `/calendars`, data);
+    return response;
   }
 
   async getFreeSlots(params?: Record<string, any>) {
-    const response = await this.request<any>('GET', `/calendar/free-slots`, undefined, params);
+    const response = await this.request<any>('GET', `/calendars/free-slots`, undefined, params);
     return response;
   }
 
   async getCalendarWeek(params?: Record<string, any>) {
-    const response = await this.request<ApiResponse<any>>('GET', `/calendar/week`, undefined, params);
+    const response = await this.request<ApiResponse<any>>('GET', `/calendars/week`, undefined, params);
     return response;
   }
 
   async getCalendarYear(params?: Record<string, any>) {
-    const response = await this.request<ApiResponse<any>>('GET', `/calendar/year`, undefined, params);
+    const response = await this.request<ApiResponse<any>>('GET', `/calendars/year`, undefined, params);
     return response;
   }
 
   async getCalendarById(id: number) {
     if (!id) throw new Error('id is required');
-    const response = await this.request<ApiResponse<any>>('GET', `/calendar/${id}`, undefined);
+    const response = await this.request<ApiResponse<any>>('GET', `/calendars/${id}`, undefined);
     return response;
   }
 
   async updateCalendar(id: number, data: any) {
     if (!id) throw new Error('id is required');
-    const response = await this.request<ApiResponse<any>>('PUT', `/calendar/${id}`, data);
+    const response = await this.request<ApiResponse<any>>('PUT', `/calendars/${id}`, data);
     return response;
   }
 
   async deleteCalendar(id: number) {
     if (!id) throw new Error('id is required');
-    await this.request<ApiResponse<any>>('DELETE', `/calendar/${id}`, undefined);
-    return { success: true };
+    const response = await this.request<ApiResponse<any>>('DELETE', `/calendars/${id}`, undefined);
+    return response || { success: true };
   }
 
   async importHolidays(id: number, data: any) {
     if (!id) throw new Error('id is required');
-    const response = await this.request<ApiResponse<any>>('POST', `/calendar/${id}/import_holidays`, data);
+    const response = await this.request<ApiResponse<any>>('POST', `/calendars/${id}/import_holidays`, data);
     return response;
   }
 
@@ -449,8 +451,8 @@ export class AESaasApiClient {
 
   async deleteClient(id: number) {
     if (!id) throw new Error('id is required');
-    await this.request<ApiResponse<any>>('DELETE', `/clients/${id}`, undefined);
-    return { success: true };
+    const response = await this.request<ApiResponse<any>>('DELETE', `/clients/${id}`, undefined);
+    return response || { success: true };
   }
 
   async getCostProviders(params?: Record<string, any>) {
@@ -482,8 +484,8 @@ export class AESaasApiClient {
 
   async deleteCostProvider(id: number) {
     if (!id) throw new Error('id is required');
-    await this.request<ApiResponse<any>>('DELETE', `/cost-providers/${id}`, undefined);
-    return { success: true };
+    const response = await this.request<ApiResponse<any>>('DELETE', `/cost-providers/${id}`, undefined);
+    return response || { success: true };
   }
 
   async getExternalCalendars(params?: Record<string, any>) {
@@ -510,8 +512,8 @@ export class AESaasApiClient {
 
   async deleteExternalCalendar(id: number) {
     if (!id) throw new Error('id is required');
-    await this.request<ApiResponse<any>>('DELETE', `/external-calendars/${id}`, undefined);
-    return { success: true };
+    const response = await this.request<ApiResponse<any>>('DELETE', `/external-calendars/${id}`, undefined);
+    return response || { success: true };
   }
 
 }
