@@ -317,6 +317,17 @@ export class AESaasApiClient {
     return response;
   }
 
+  async getBookingFreeSlots(token: string, params?: Record<string, any>) {
+    if (!token) throw new Error('token is required');
+    const response = await this.request<any>('GET', `/booking/freeslots/${token}`, undefined, params);
+    return response;
+  }
+
+  async createBookingLink(data: any) {
+    const response = await this.request<ApiResponse<any>>('POST', `/booking/link`, data);
+    return response;
+  }
+
   async listBookingTemplates() {
     const response = await this.request<ApiResponse<any>>('GET', `/booking/templates`, undefined);
     return response;
@@ -418,11 +429,6 @@ export class AESaasApiClient {
 
   async createCalendar(data: any) {
     const response = await this.request<ApiResponse<any>>('POST', `/calendars`, data);
-    return response;
-  }
-
-  async getFreeSlots(params?: Record<string, any>) {
-    const response = await this.request<any>('GET', `/calendars/free-slots`, undefined, params);
     return response;
   }
 

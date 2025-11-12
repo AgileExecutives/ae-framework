@@ -258,6 +258,20 @@ export interface paths {
      */
     post: operations["resetUserSettings"];
   };
+  "/booking/freeslots/{token}": {
+    /**
+     * Get available time slots for booking
+     * @description Retrieve available time slots based on a booking link token. Token is validated and must not be blacklisted.
+     */
+    get: operations["getBookingFreeSlots"];
+  };
+  "/booking/link": {
+    /**
+     * Create a booking link
+     * @description Generate a booking link token for a client to book appointments
+     */
+    post: operations["createBookingLink"];
+  };
   "/booking/templates": {
     /**
      * Get all booking configurations
@@ -370,13 +384,6 @@ export interface paths {
      * @description Create a new calendar for the authenticated user
      */
     post: operations["createCalendar"];
-  };
-  "/calendars/free-slots": {
-    /**
-     * Get free time slots
-     * @description Find available time slots based on duration, interval, and maximum number
-     */
-    get: operations["getFreeSlots"];
   };
   "/calendars/week": {
     /**
@@ -533,6 +540,13 @@ export interface components {
       data?: unknown;
       pagination?: components["schemas"]["github_com_ae-base-server_internal_models.PaginationResponse"];
     };
+    "entities.BookingLinkResponse": {
+      created_at?: string;
+      expires_at?: string;
+      purpose?: components["schemas"]["entities.TokenPurpose"];
+      token?: string;
+      url?: string;
+    };
     "entities.BookingTemplateResponse": {
       advance_booking_days?: number;
       allow_back_to_back?: boolean;
@@ -658,6 +672,12 @@ export interface components {
       updated_at?: string;
       zip?: string;
     };
+    "entities.CreateBookingLinkRequest": {
+      client_id: number;
+      template_id: number;
+      /** @enum {unknown} */
+      token_purpose: "one-time-booking-link" | "permanent-booking-link";
+    };
     "entities.CreateBookingTemplateRequest": {
       advance_booking_days: number;
       allow_back_to_back?: boolean;
@@ -701,6 +721,14 @@ export interface components {
       /** @description Date in YYYY-MM-DD format */
       start?: string;
     };
+    "entities.DayData": {
+      /** @description Number of free slots */
+      availableCount?: number;
+      /** @description YYYY-MM-DD format */
+      date?: string;
+      /** @description "available", "partial", "none" */
+      status?: string;
+    };
     "entities.ExternalCalendarResponse": {
       calendar_id?: number;
       calendar_uuid?: string;
@@ -715,13 +743,10 @@ export interface components {
       url?: string;
       user_id?: number;
     };
-    "entities.FreeSlot": {
-      /** @example 60 */
-      duration?: number;
-      /** @example 2025-01-15T10:00:00Z */
-      end_time?: string;
-      /** @example 2025-01-15T09:00:00Z */
-      start_time?: string;
+    "entities.FreeSlotsResponse": {
+      config?: components["schemas"]["entities.SlotConfiguration"];
+      monthData?: components["schemas"]["entities.MonthData"];
+      slots?: components["schemas"]["entities.TimeSlot"][];
     };
     "entities.HolidayImportResult": {
       errors?: string[];
@@ -741,8 +766,28 @@ export interface components {
     };
     /** @enum {string} */
     "entities.IntervalType": "none" | "weekly" | "monthly-date" | "monthly-day" | "yearly";
+    "entities.MonthData": {
+      /** @description Array of all days in month */
+      days?: components["schemas"]["entities.DayData"][];
+      /** @description 1-12 */
+      month?: number;
+      /** @description e.g., 2025 */
+      year?: number;
+    };
     "entities.NullableDate": {
       "time.Time"?: string;
+    };
+    "entities.SlotConfiguration": {
+      /** @description Buffer between slots in minutes */
+      buffer_time?: number;
+      /** @description Slot duration in minutes */
+      duration?: number;
+      /** @description "weekly", "biweekly", "none" */
+      interval?: string;
+      /** @description Max number of series slots */
+      number_max?: number;
+      /** @description Weekly availability config */
+      weekly_availability?: components["schemas"]["entities.WeeklyAvailability"];
     };
     "entities.TimeRange": {
       /** @description Time in HH:mm format (e.g., "17:00") */
@@ -750,6 +795,28 @@ export interface components {
       /** @description Time in HH:mm format (e.g., "09:00") */
       start?: string;
     };
+    "entities.TimeSlot": {
+      /** @description Is this slot available? */
+      available?: boolean;
+      /** @description YYYY-MM-DD format */
+      date?: string;
+      /** @description Duration in minutes */
+      duration?: number;
+      /** @description ISO datetime (e.g., "2025-11-05T09:30:00+01:00") */
+      end_time?: string;
+      /** @description Unique identifier (e.g., "slot-2025-11-05-09-00") */
+      id?: string;
+      /** @description ISO datetime (e.g., "2025-11-05T09:00:00+01:00") */
+      start_time?: string;
+      /** @description HH:mm format */
+      time?: string;
+      /** @description "morning", "afternoon", "evening" */
+      time_of_day?: string;
+      /** @description e.g., "Europe/Berlin" */
+      timezone?: string;
+    };
+    /** @enum {string} */
+    "entities.TokenPurpose": "one-time-booking-link" | "permanent-booking-link";
     "entities.UnburdyHolidaysData": {
       public_holidays?: {
         [key: string]: {
@@ -2575,6 +2642,104 @@ export interface operations {
     };
   };
   /**
+   * Get available time slots for booking
+   * @description Retrieve available time slots based on a booking link token. Token is validated and must not be blacklisted.
+   */
+  getBookingFreeSlots: {
+    parameters: {
+      query?: {
+        /** @description Start date for slot search (YYYY-MM-DD) */
+        start?: string;
+        /** @description End date for slot search (YYYY-MM-DD) */
+        end?: string;
+      };
+      path: {
+        /** @description Booking link token */
+        token: string;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"] & {
+            data?: components["schemas"]["entities.FreeSlotsResponse"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Create a booking link
+   * @description Generate a booking link token for a client to book appointments
+   */
+  createBookingLink: {
+    /** @description Booking link data */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["entities.CreateBookingLinkRequest"];
+      };
+    };
+    responses: {
+      /** @description Created */
+      201: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"] & {
+            data?: components["schemas"]["entities.BookingLinkResponse"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
    * Get all booking configurations
    * @description Retrieve all booking configurations for the tenant
    */
@@ -3346,48 +3511,6 @@ export interface operations {
           "application/json": components["schemas"]["api.APIResponse"] & {
             data?: components["schemas"]["entities.CalendarResponse"];
           };
-        };
-      };
-      /** @description Bad Request */
-      400: {
-        content: {
-          "application/json": components["schemas"]["api.APIResponse"];
-        };
-      };
-      /** @description Unauthorized */
-      401: {
-        content: {
-          "application/json": components["schemas"]["api.APIResponse"];
-        };
-      };
-      /** @description Internal Server Error */
-      500: {
-        content: {
-          "application/json": components["schemas"]["api.APIResponse"];
-        };
-      };
-    };
-  };
-  /**
-   * Get free time slots
-   * @description Find available time slots based on duration, interval, and maximum number
-   */
-  getFreeSlots: {
-    parameters: {
-      query: {
-        /** @description Duration in minutes */
-        duration: number;
-        /** @description Interval between slots in minutes */
-        interval: number;
-        /** @description Maximum number of slots to return */
-        number_max: number;
-      };
-    };
-    responses: {
-      /** @description OK */
-      200: {
-        content: {
-          "application/json": components["schemas"]["entities.FreeSlot"][];
         };
       };
       /** @description Bad Request */
