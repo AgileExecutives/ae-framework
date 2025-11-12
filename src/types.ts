@@ -258,6 +258,49 @@ export interface paths {
      */
     post: operations["resetUserSettings"];
   };
+  "/booking/templates": {
+    /**
+     * Get all booking configurations
+     * @description Retrieve all booking configurations for the tenant
+     */
+    get: operations["listBookingTemplates"];
+    /**
+     * Create a new booking configuration
+     * @description Create a new booking configuration/template for a user's calendar
+     */
+    post: operations["createBookingTemplate"];
+  };
+  "/booking/templates/by-calendar": {
+    /**
+     * Get booking configurations by calendar ID
+     * @description Retrieve all booking configurations for a specific calendar
+     */
+    get: operations["listBookingTemplatesByCalendar"];
+  };
+  "/booking/templates/by-user": {
+    /**
+     * Get booking configurations by user ID
+     * @description Retrieve all booking configurations for a specific user
+     */
+    get: operations["listBookingTemplatesByUser"];
+  };
+  "/booking/templates/{id}": {
+    /**
+     * Get a booking configuration by ID
+     * @description Retrieve a specific booking configuration by ID
+     */
+    get: operations["getBookingTemplate"];
+    /**
+     * Update a booking configuration
+     * @description Update an existing booking configuration
+     */
+    put: operations["updateBookingTemplate"];
+    /**
+     * Delete a booking configuration
+     * @description Soft delete a booking configuration by ID
+     */
+    delete: operations["deleteBookingTemplate"];
+  };
   "/calendar-entries": {
     /**
      * Get all calendar entries
@@ -490,6 +533,28 @@ export interface components {
       data?: unknown;
       pagination?: components["schemas"]["github_com_ae-base-server_internal_models.PaginationResponse"];
     };
+    "entities.BookingTemplateResponse": {
+      advance_booking_days?: number;
+      allow_back_to_back?: boolean;
+      allowed_intervals?: components["schemas"]["entities.IntervalType"][];
+      block_dates?: components["schemas"]["entities.DateRange"][];
+      buffer_time?: number;
+      calendar_id?: number;
+      created_at?: string;
+      description?: string;
+      id?: number;
+      max_bookings_per_day?: number;
+      max_series_bookings?: number;
+      min_notice_hours?: number;
+      name?: string;
+      number_of_intervals?: number;
+      slot_duration?: number;
+      tenant_id?: number;
+      timezone?: string;
+      updated_at?: string;
+      user_id?: number;
+      weekly_availability?: components["schemas"]["entities.WeeklyAvailability"];
+    };
     "entities.CalendarEntryResponse": {
       calendar_id?: number;
       created_at?: string;
@@ -593,6 +658,24 @@ export interface components {
       updated_at?: string;
       zip?: string;
     };
+    "entities.CreateBookingTemplateRequest": {
+      advance_booking_days: number;
+      allow_back_to_back?: boolean;
+      allowed_intervals: components["schemas"]["entities.IntervalType"][];
+      block_dates?: components["schemas"]["entities.DateRange"][];
+      buffer_time?: number;
+      calendar_id: number;
+      description?: string;
+      max_bookings_per_day?: number;
+      max_series_bookings: number;
+      min_notice_hours: number;
+      name: string;
+      number_of_intervals: number;
+      slot_duration: number;
+      timezone: string;
+      user_id: number;
+      weekly_availability: components["schemas"]["entities.WeeklyAvailability"];
+    };
     "entities.CreateCalendarEntryRequest": Record<string, never>;
     "entities.CreateCalendarRequest": Record<string, never>;
     "entities.CreateCalendarSeriesRequest": Record<string, never>;
@@ -612,6 +695,12 @@ export interface components {
       zip?: string;
     };
     "entities.CreateExternalCalendarRequest": Record<string, never>;
+    "entities.DateRange": {
+      /** @description Date in YYYY-MM-DD format */
+      end?: string;
+      /** @description Date in YYYY-MM-DD format */
+      start?: string;
+    };
     "entities.ExternalCalendarResponse": {
       calendar_id?: number;
       calendar_uuid?: string;
@@ -650,8 +739,16 @@ export interface components {
       /** @example 2027 */
       year_to: number;
     };
+    /** @enum {string} */
+    "entities.IntervalType": "none" | "weekly" | "monthly-date" | "monthly-day" | "yearly";
     "entities.NullableDate": {
       "time.Time"?: string;
+    };
+    "entities.TimeRange": {
+      /** @description Time in HH:mm format (e.g., "17:00") */
+      end?: string;
+      /** @description Time in HH:mm format (e.g., "09:00") */
+      start?: string;
     };
     "entities.UnburdyHolidaysData": {
       public_holidays?: {
@@ -664,6 +761,22 @@ export interface components {
           [key: string]: string[];
         };
       };
+    };
+    "entities.UpdateBookingTemplateRequest": {
+      advance_booking_days?: number;
+      allow_back_to_back?: boolean;
+      allowed_intervals?: components["schemas"]["entities.IntervalType"][];
+      block_dates?: components["schemas"]["entities.DateRange"][];
+      buffer_time?: number;
+      description?: string;
+      max_bookings_per_day?: number;
+      max_series_bookings?: number;
+      min_notice_hours?: number;
+      name?: string;
+      number_of_intervals?: number;
+      slot_duration?: number;
+      timezone?: string;
+      weekly_availability?: components["schemas"]["entities.WeeklyAvailability"];
     };
     "entities.UpdateCalendarEntryRequest": Record<string, never>;
     "entities.UpdateCalendarRequest": Record<string, never>;
@@ -684,6 +797,15 @@ export interface components {
       zip?: string;
     };
     "entities.UpdateExternalCalendarRequest": Record<string, never>;
+    "entities.WeeklyAvailability": {
+      friday?: components["schemas"]["entities.TimeRange"][];
+      monday?: components["schemas"]["entities.TimeRange"][];
+      saturday?: components["schemas"]["entities.TimeRange"][];
+      sunday?: components["schemas"]["entities.TimeRange"][];
+      thursday?: components["schemas"]["entities.TimeRange"][];
+      tuesday?: components["schemas"]["entities.TimeRange"][];
+      wednesday?: components["schemas"]["entities.TimeRange"][];
+    };
     "github_com_ae-base-server_internal_models.APIResponse": {
       data?: unknown;
       error?: string;
@@ -2448,6 +2570,296 @@ export interface operations {
       500: {
         content: {
           "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Get all booking configurations
+   * @description Retrieve all booking configurations for the tenant
+   */
+  listBookingTemplates: {
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"] & {
+            data?: components["schemas"]["entities.BookingTemplateResponse"][];
+          };
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Create a new booking configuration
+   * @description Create a new booking configuration/template for a user's calendar
+   */
+  createBookingTemplate: {
+    /** @description Booking configuration data */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["entities.CreateBookingTemplateRequest"];
+      };
+    };
+    responses: {
+      /** @description Created */
+      201: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"] & {
+            data?: components["schemas"]["entities.BookingTemplateResponse"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Get booking configurations by calendar ID
+   * @description Retrieve all booking configurations for a specific calendar
+   */
+  listBookingTemplatesByCalendar: {
+    parameters: {
+      query: {
+        /** @description Calendar ID */
+        calendar_id: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"] & {
+            data?: components["schemas"]["entities.BookingTemplateResponse"][];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Get booking configurations by user ID
+   * @description Retrieve all booking configurations for a specific user
+   */
+  listBookingTemplatesByUser: {
+    parameters: {
+      query: {
+        /** @description User ID */
+        user_id: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"] & {
+            data?: components["schemas"]["entities.BookingTemplateResponse"][];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Get a booking configuration by ID
+   * @description Retrieve a specific booking configuration by ID
+   */
+  getBookingTemplate: {
+    parameters: {
+      path: {
+        /** @description Configuration ID */
+        id: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"] & {
+            data?: components["schemas"]["entities.BookingTemplateResponse"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Update a booking configuration
+   * @description Update an existing booking configuration
+   */
+  updateBookingTemplate: {
+    parameters: {
+      path: {
+        /** @description Configuration ID */
+        id: number;
+      };
+    };
+    /** @description Updated configuration data */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["entities.UpdateBookingTemplateRequest"];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"] & {
+            data?: components["schemas"]["entities.BookingTemplateResponse"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Delete a booking configuration
+   * @description Soft delete a booking configuration by ID
+   */
+  deleteBookingTemplate: {
+    parameters: {
+      path: {
+        /** @description Configuration ID */
+        id: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
         };
       };
     };
