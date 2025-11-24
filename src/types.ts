@@ -263,26 +263,178 @@ export interface paths {
      * Get available time slots for booking
      * @description Retrieve available time slots based on a booking link token. Token is validated and must not be blacklisted.
      */
-    get: operations["getBookingFreeSlots"];
+    get: {
+      parameters: {
+        query?: {
+          /**
+           * @description Start date for slot search (YYYY-MM-DD)
+           * @example "2025-11-01"
+           */
+          start?: string;
+          /**
+           * @description End date for slot search (YYYY-MM-DD)
+           * @example "2025-11-30"
+           */
+          end?: string;
+        };
+        path: {
+          /** @description Booking link token */
+          token: string;
+        };
+      };
+      responses: {
+        /** @description OK */
+        200: {
+          content: {
+            "application/json": components["schemas"]["api.APIResponse"] & {
+              data?: components["schemas"]["entities.FreeSlotsResponse"];
+            };
+          };
+        };
+        /** @description Bad Request */
+        400: {
+          content: {
+            "application/json": components["schemas"]["api.APIResponse"];
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          content: {
+            "application/json": components["schemas"]["api.APIResponse"];
+          };
+        };
+        /** @description Not Found */
+        404: {
+          content: {
+            "application/json": components["schemas"]["api.APIResponse"];
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          content: {
+            "application/json": components["schemas"]["api.APIResponse"];
+          };
+        };
+      };
+    };
   };
   "/booking/link": {
     /**
      * Create a booking link
      * @description Generate a booking link token for a client to book appointments
      */
-    post: operations["createBookingLink"];
+    post: {
+      /** @description Booking link data */
+      requestBody: {
+        content: {
+          "application/json": components["schemas"]["entities.CreateBookingLinkRequest"];
+        };
+      };
+      responses: {
+        /** @description Created */
+        201: {
+          content: {
+            "application/json": components["schemas"]["api.APIResponse"] & {
+              data?: components["schemas"]["entities.BookingLinkResponse"];
+            };
+          };
+        };
+        /** @description Bad Request */
+        400: {
+          content: {
+            "application/json": components["schemas"]["api.APIResponse"];
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          content: {
+            "application/json": components["schemas"]["api.APIResponse"];
+          };
+        };
+        /** @description Not Found */
+        404: {
+          content: {
+            "application/json": components["schemas"]["api.APIResponse"];
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          content: {
+            "application/json": components["schemas"]["api.APIResponse"];
+          };
+        };
+      };
+    };
   };
   "/booking/templates": {
     /**
      * Get all booking configurations
      * @description Retrieve all booking configurations for the tenant
      */
-    get: operations["listBookingTemplates"];
+    get: {
+      responses: {
+        /** @description OK */
+        200: {
+          content: {
+            "application/json": components["schemas"]["api.APIResponse"] & {
+              data?: components["schemas"]["entities.BookingTemplateResponse"][];
+            };
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          content: {
+            "application/json": components["schemas"]["api.APIResponse"];
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          content: {
+            "application/json": components["schemas"]["api.APIResponse"];
+          };
+        };
+      };
+    };
     /**
      * Create a new booking configuration
      * @description Create a new booking configuration/template for a user's calendar
      */
-    post: operations["createBookingTemplate"];
+    post: {
+      /** @description Booking configuration data (includes allowed_start_minutes) */
+      requestBody: {
+        content: {
+          "application/json": components["schemas"]["entities.CreateBookingTemplateRequest"];
+        };
+      };
+      responses: {
+        /** @description Created */
+        201: {
+          content: {
+            "application/json": components["schemas"]["api.APIResponse"] & {
+              data?: components["schemas"]["entities.BookingTemplateResponse"];
+            };
+          };
+        };
+        /** @description Bad Request */
+        400: {
+          content: {
+            "application/json": components["schemas"]["api.APIResponse"];
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          content: {
+            "application/json": components["schemas"]["api.APIResponse"];
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          content: {
+            "application/json": components["schemas"]["api.APIResponse"];
+          };
+        };
+      };
+    };
   };
   "/booking/templates/by-calendar": {
     /**
@@ -303,17 +455,144 @@ export interface paths {
      * Get a booking configuration by ID
      * @description Retrieve a specific booking configuration by ID
      */
-    get: operations["getBookingTemplate"];
+    get: {
+      parameters: {
+        path: {
+          /** @description Configuration ID */
+          id: number;
+        };
+      };
+      responses: {
+        /** @description OK */
+        200: {
+          content: {
+            "application/json": components["schemas"]["api.APIResponse"] & {
+              data?: components["schemas"]["entities.BookingTemplateResponse"];
+            };
+          };
+        };
+        /** @description Bad Request */
+        400: {
+          content: {
+            "application/json": components["schemas"]["api.APIResponse"];
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          content: {
+            "application/json": components["schemas"]["api.APIResponse"];
+          };
+        };
+        /** @description Not Found */
+        404: {
+          content: {
+            "application/json": components["schemas"]["api.APIResponse"];
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          content: {
+            "application/json": components["schemas"]["api.APIResponse"];
+          };
+        };
+      };
+    };
     /**
      * Update a booking configuration
      * @description Update an existing booking configuration
      */
-    put: operations["updateBookingTemplate"];
+    put: {
+      parameters: {
+        path: {
+          /** @description Configuration ID */
+          id: number;
+        };
+      };
+      /** @description Updated configuration data (allowed_start_minutes optional) */
+      requestBody: {
+        content: {
+          "application/json": components["schemas"]["entities.UpdateBookingTemplateRequest"];
+        };
+      };
+      responses: {
+        /** @description OK */
+        200: {
+          content: {
+            "application/json": components["schemas"]["api.APIResponse"] & {
+              data?: components["schemas"]["entities.BookingTemplateResponse"];
+            };
+          };
+        };
+        /** @description Bad Request */
+        400: {
+          content: {
+            "application/json": components["schemas"]["api.APIResponse"];
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          content: {
+            "application/json": components["schemas"]["api.APIResponse"];
+          };
+        };
+        /** @description Not Found */
+        404: {
+          content: {
+            "application/json": components["schemas"]["api.APIResponse"];
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          content: {
+            "application/json": components["schemas"]["api.APIResponse"];
+          };
+        };
+      };
+    };
     /**
      * Delete a booking configuration
      * @description Soft delete a booking configuration by ID
      */
-    delete: operations["deleteBookingTemplate"];
+    delete: {
+      parameters: {
+        path: {
+          /** @description Configuration ID */
+          id: number;
+        };
+      };
+      responses: {
+        /** @description OK */
+        200: {
+          content: {
+            "application/json": components["schemas"]["api.APIResponse"];
+          };
+        };
+        /** @description Bad Request */
+        400: {
+          content: {
+            "application/json": components["schemas"]["api.APIResponse"];
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          content: {
+            "application/json": components["schemas"]["api.APIResponse"];
+          };
+        };
+        /** @description Not Found */
+        404: {
+          content: {
+            "application/json": components["schemas"]["api.APIResponse"];
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          content: {
+            "application/json": components["schemas"]["api.APIResponse"];
+          };
+        };
+      };
+    };
   };
   "/calendar-entries": {
     /**
@@ -324,6 +603,20 @@ export interface paths {
     /**
      * Create a new calendar entry
      * @description Create a new calendar entry with UTC timestamps. All datetime fields use ISO 8601 format in UTC (e.g., 2025-11-04T09:00:00Z). Stored as timestamptz in PostgreSQL, ensuring timezone-aware storage and retrieval.
+     *
+     * **Request Body Fields:**
+     * - `calendar_id` (required): ID of the calendar to create the entry in
+     * - `series_id` (optional): ID of the series this entry belongs to
+     * - `title` (required): Title of the calendar entry
+     * - `is_exception` (optional): Whether this is an exception to a recurring series
+     * - `participants` (optional): JSON array of participant objects
+     * - `start_time` (optional): Start time in ISO 8601 UTC format (e.g., 2025-11-04T09:00:00Z)
+     * - `end_time` (optional): End time in ISO 8601 UTC format
+     * - `type` (optional): Type of event (e.g., "meeting", "appointment")
+     * - `description` (optional): Detailed description of the event
+     * - `location` (optional): Location of the event
+     * - `timezone` (optional): Timezone identifier (e.g., "Europe/Berlin")
+     * - `is_all_day` (optional): Whether this is an all-day event
      */
     post: operations["createCalendarEntry"];
   };
@@ -353,6 +646,23 @@ export interface paths {
     /**
      * Create a new calendar series
      * @description Create a new calendar series for recurring events. Start/end time fields use UTC ISO 8601 format (e.g., 2025-11-04T09:00:00Z). For recurring events, these represent the time portion that will be combined with calculated recurrence dates.
+     *
+     * **Request Body Fields:**
+     * - `calendar_id` (required): ID of the calendar to create the series in
+     * - `title` (required): Title of the recurring series
+     * - `participants` (optional): JSON array of participant objects
+     * - `interval_type` (required): Type of recurrence - one of: "none", "weekly", "monthly-date", "monthly-day", "yearly"
+     * - `interval_value` (required): Number of intervals between occurrences (e.g., 2 = every 2 weeks for weekly type)
+     * - `last_date` (optional): End date for the recurring series in ISO 8601 UTC format (e.g., 2025-12-31T23:59:59Z)
+     * - `start_time` (optional): Start time for each occurrence in ISO 8601 UTC format
+     * - `end_time` (optional): End time for each occurrence in ISO 8601 UTC format
+     * - `description` (optional): Description of the series
+     * - `location` (optional): Location for all events in the series
+     * - `timezone` (optional): Timezone identifier (e.g., "Europe/Berlin")
+     * - `external_uid` (optional): External unique identifier for integration
+     * - `external_calendar_uuid` (optional): UUID of external calendar if imported
+     *
+     * **Response:** Returns the created series and all auto-generated calendar entries based on the recurrence rules.
      */
     post: operations["createCalendarSeries"];
   };
@@ -422,6 +732,13 @@ export interface paths {
      * @description Import school holidays and public holidays into a specific calendar from unburdy format data
      */
     post: operations["importHolidays"];
+  };
+  "/client/{token}": {
+    /**
+     * Get client by token
+     * @description Retrieve client details from any valid JWT token containing client_id
+     */
+    get: operations["getClientByToken"];
   };
   "/clients": {
     /**
@@ -551,6 +868,11 @@ export interface components {
       advance_booking_days?: number;
       allow_back_to_back?: boolean;
       allowed_intervals?: components["schemas"]["entities.IntervalType"][];
+      /**
+       * @description Allowed start minute marks within an hour (e.g., [0,15,30,45]). Empty when all allowed.
+       * swagger:example [0,15,30,45]
+       */
+      allowed_start_minutes?: number[];
       block_dates?: components["schemas"]["entities.DateRange"][];
       buffer_time?: number;
       calendar_id?: number;
@@ -579,6 +901,7 @@ export interface components {
       is_exception?: boolean;
       location?: string;
       participants?: number[];
+      position_in_series?: number;
       series?: components["schemas"]["entities.CalendarSeriesResponse"];
       series_id?: number;
       start_time?: string;
@@ -613,7 +936,9 @@ export interface components {
       external_calendar_uuid?: string;
       external_uid?: string;
       id?: number;
-      interval?: number;
+      interval_type?: string;
+      interval_value?: number;
+      last_date?: string;
       location?: string;
       participants?: number[];
       sequence?: number;
@@ -623,7 +948,10 @@ export interface components {
       title?: string;
       updated_at?: string;
       user_id?: number;
-      weekday?: number;
+    };
+    "entities.CalendarSeriesWithEntriesResponse": {
+      entries?: components["schemas"]["entities.CalendarEntryResponse"][];
+      series?: components["schemas"]["entities.CalendarSeriesResponse"];
     };
     "entities.ClientResponse": {
       admission_date?: string;
@@ -682,6 +1010,12 @@ export interface components {
       advance_booking_days: number;
       allow_back_to_back?: boolean;
       allowed_intervals: components["schemas"]["entities.IntervalType"][];
+      /**
+       * @description Allowed start minute marks within an hour (e.g., [0,15,30,45]). Optional.
+       * Allowed start minute marks within an hour (e.g., [0,15,30,45]). Optional. Empty means all minute marks permitted.
+       * swagger:example [0,15,30,45]
+       */
+      allowed_start_minutes?: number[];
       block_dates?: components["schemas"]["entities.DateRange"][];
       buffer_time?: number;
       calendar_id: number;
@@ -696,9 +1030,62 @@ export interface components {
       user_id: number;
       weekly_availability: components["schemas"]["entities.WeeklyAvailability"];
     };
-    "entities.CreateCalendarEntryRequest": Record<string, never>;
+    "entities.CreateCalendarEntryRequest": {
+      /** @example 1 */
+      calendar_id: number;
+      /** @example Team meeting */
+      description?: string;
+      /** @example 2025-11-04T10:00:00Z */
+      end_time?: string;
+      /** @example false */
+      is_all_day?: boolean;
+      /** @example false */
+      is_exception?: boolean;
+      /** @example Conference Room A */
+      location?: string;
+      participants?: Record<string, never>;
+      /** @example 1 */
+      series_id?: number;
+      /** @example 2025-11-04T09:00:00Z */
+      start_time?: string;
+      /** @example Europe/Berlin */
+      timezone?: string;
+      /** @example Meeting */
+      title: string;
+      /** @example meeting */
+      type?: string;
+    };
     "entities.CreateCalendarRequest": Record<string, never>;
-    "entities.CreateCalendarSeriesRequest": Record<string, never>;
+    "entities.CreateCalendarSeriesRequest": {
+      /** @example 1 */
+      calendar_id: number;
+      /** @example Weekly team meeting */
+      description?: string;
+      /** @example 2025-11-04T10:00:00Z */
+      end_time?: string;
+      /** @example ext-cal-123 */
+      external_calendar_uuid?: string;
+      /** @example ext-123 */
+      external_uid?: string;
+      /**
+       * @example weekly
+       * @enum {string}
+       */
+      interval_type: "none" | "weekly" | "monthly-date" | "monthly-day" | "yearly";
+      /** @example 1 */
+      interval_value: number;
+      /** @example 2025-12-31T23:59:59Z */
+      last_date?: string;
+      /** @example Conference Room A */
+      location?: string;
+      participants?: Record<string, never>;
+      /** @example 2025-11-04T09:00:00Z */
+      start_time?: string;
+      /** @example Europe/Berlin */
+      timezone?: string;
+      /** @example Weekly Meeting */
+      title: string;
+    };
     "entities.CreateClientRequest": Record<string, never>;
     "entities.CreateCostProviderRequest": {
       /** @example New York */
@@ -747,6 +1134,7 @@ export interface components {
       config?: components["schemas"]["entities.SlotConfiguration"];
       monthData?: components["schemas"]["entities.MonthData"];
       slots?: components["schemas"]["entities.TimeSlot"][];
+      template?: components["schemas"]["entities.BookingTemplateResponse"];
     };
     "entities.HolidayImportResult": {
       errors?: string[];
@@ -833,6 +1221,12 @@ export interface components {
       advance_booking_days?: number;
       allow_back_to_back?: boolean;
       allowed_intervals?: components["schemas"]["entities.IntervalType"][];
+      /**
+       * @description Allowed start minute marks within an hour (e.g., [0,15,30,45]). Optional.
+       * Allowed start minute marks within an hour (e.g., [0,15,30,45]). Optional. Empty means all minute marks permitted.
+       * swagger:example [0,15,30,45]
+       */
+      allowed_start_minutes?: number[];
       block_dates?: components["schemas"]["entities.DateRange"][];
       buffer_time?: number;
       description?: string;
@@ -845,9 +1239,53 @@ export interface components {
       timezone?: string;
       weekly_availability?: components["schemas"]["entities.WeeklyAvailability"];
     };
-    "entities.UpdateCalendarEntryRequest": Record<string, never>;
+    "entities.UpdateCalendarEntryRequest": {
+      /** @example Updated team meeting */
+      description?: string;
+      /** @example 2025-11-04T10:00:00Z */
+      end_time?: string;
+      /** @example false */
+      is_all_day?: boolean;
+      /** @example false */
+      is_exception?: boolean;
+      /** @example Conference Room A */
+      location?: string;
+      participants?: Record<string, never>;
+      /** @example 1 */
+      position_in_series?: number;
+      /** @example 2025-11-04T09:00:00Z */
+      start_time?: string;
+      /** @example Europe/Berlin */
+      timezone?: string;
+      /** @example Updated Meeting */
+      title?: string;
+      /** @example meeting */
+      type?: string;
+    };
     "entities.UpdateCalendarRequest": Record<string, never>;
-    "entities.UpdateCalendarSeriesRequest": Record<string, never>;
+    "entities.UpdateCalendarSeriesRequest": {
+      /** @example Weekly team meeting - updated */
+      description?: string;
+      /** @example 2025-11-04T10:00:00Z */
+      end_time?: string;
+      /** @example ext-123-updated */
+      external_uid?: string;
+      /** @example weekly */
+      interval_type?: string;
+      /** @example 1 */
+      interval_value?: number;
+      /** @example 2025-12-31T23:59:59Z */
+      last_date?: string;
+      /** @example Conference Room B */
+      location?: string;
+      participants?: Record<string, never>;
+      /** @example 2025-11-04T09:00:00Z */
+      start_time?: string;
+      /** @example Europe/Berlin */
+      timezone?: string;
+      /** @example Weekly Meeting Updated */
+      title?: string;
+    };
     "entities.UpdateClientRequest": Record<string, never>;
     "entities.UpdateCostProviderRequest": {
       /** @example New York */
@@ -2642,172 +3080,6 @@ export interface operations {
     };
   };
   /**
-   * Get available time slots for booking
-   * @description Retrieve available time slots based on a booking link token. Token is validated and must not be blacklisted.
-   */
-  getBookingFreeSlots: {
-    parameters: {
-      query?: {
-        /** @description Start date for slot search (YYYY-MM-DD) */
-        start?: string;
-        /** @description End date for slot search (YYYY-MM-DD) */
-        end?: string;
-      };
-      path: {
-        /** @description Booking link token */
-        token: string;
-      };
-    };
-    responses: {
-      /** @description OK */
-      200: {
-        content: {
-          "application/json": components["schemas"]["api.APIResponse"] & {
-            data?: components["schemas"]["entities.FreeSlotsResponse"];
-          };
-        };
-      };
-      /** @description Bad Request */
-      400: {
-        content: {
-          "application/json": components["schemas"]["api.APIResponse"];
-        };
-      };
-      /** @description Unauthorized */
-      401: {
-        content: {
-          "application/json": components["schemas"]["api.APIResponse"];
-        };
-      };
-      /** @description Not Found */
-      404: {
-        content: {
-          "application/json": components["schemas"]["api.APIResponse"];
-        };
-      };
-      /** @description Internal Server Error */
-      500: {
-        content: {
-          "application/json": components["schemas"]["api.APIResponse"];
-        };
-      };
-    };
-  };
-  /**
-   * Create a booking link
-   * @description Generate a booking link token for a client to book appointments
-   */
-  createBookingLink: {
-    /** @description Booking link data */
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["entities.CreateBookingLinkRequest"];
-      };
-    };
-    responses: {
-      /** @description Created */
-      201: {
-        content: {
-          "application/json": components["schemas"]["api.APIResponse"] & {
-            data?: components["schemas"]["entities.BookingLinkResponse"];
-          };
-        };
-      };
-      /** @description Bad Request */
-      400: {
-        content: {
-          "application/json": components["schemas"]["api.APIResponse"];
-        };
-      };
-      /** @description Unauthorized */
-      401: {
-        content: {
-          "application/json": components["schemas"]["api.APIResponse"];
-        };
-      };
-      /** @description Not Found */
-      404: {
-        content: {
-          "application/json": components["schemas"]["api.APIResponse"];
-        };
-      };
-      /** @description Internal Server Error */
-      500: {
-        content: {
-          "application/json": components["schemas"]["api.APIResponse"];
-        };
-      };
-    };
-  };
-  /**
-   * Get all booking configurations
-   * @description Retrieve all booking configurations for the tenant
-   */
-  listBookingTemplates: {
-    responses: {
-      /** @description OK */
-      200: {
-        content: {
-          "application/json": components["schemas"]["api.APIResponse"] & {
-            data?: components["schemas"]["entities.BookingTemplateResponse"][];
-          };
-        };
-      };
-      /** @description Unauthorized */
-      401: {
-        content: {
-          "application/json": components["schemas"]["api.APIResponse"];
-        };
-      };
-      /** @description Internal Server Error */
-      500: {
-        content: {
-          "application/json": components["schemas"]["api.APIResponse"];
-        };
-      };
-    };
-  };
-  /**
-   * Create a new booking configuration
-   * @description Create a new booking configuration/template for a user's calendar
-   */
-  createBookingTemplate: {
-    /** @description Booking configuration data */
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["entities.CreateBookingTemplateRequest"];
-      };
-    };
-    responses: {
-      /** @description Created */
-      201: {
-        content: {
-          "application/json": components["schemas"]["api.APIResponse"] & {
-            data?: components["schemas"]["entities.BookingTemplateResponse"];
-          };
-        };
-      };
-      /** @description Bad Request */
-      400: {
-        content: {
-          "application/json": components["schemas"]["api.APIResponse"];
-        };
-      };
-      /** @description Unauthorized */
-      401: {
-        content: {
-          "application/json": components["schemas"]["api.APIResponse"];
-        };
-      };
-      /** @description Internal Server Error */
-      500: {
-        content: {
-          "application/json": components["schemas"]["api.APIResponse"];
-        };
-      };
-    };
-  };
-  /**
    * Get booking configurations by calendar ID
    * @description Retrieve all booking configurations for a specific calendar
    */
@@ -2888,148 +3160,6 @@ export interface operations {
     };
   };
   /**
-   * Get a booking configuration by ID
-   * @description Retrieve a specific booking configuration by ID
-   */
-  getBookingTemplate: {
-    parameters: {
-      path: {
-        /** @description Configuration ID */
-        id: number;
-      };
-    };
-    responses: {
-      /** @description OK */
-      200: {
-        content: {
-          "application/json": components["schemas"]["api.APIResponse"] & {
-            data?: components["schemas"]["entities.BookingTemplateResponse"];
-          };
-        };
-      };
-      /** @description Bad Request */
-      400: {
-        content: {
-          "application/json": components["schemas"]["api.APIResponse"];
-        };
-      };
-      /** @description Unauthorized */
-      401: {
-        content: {
-          "application/json": components["schemas"]["api.APIResponse"];
-        };
-      };
-      /** @description Not Found */
-      404: {
-        content: {
-          "application/json": components["schemas"]["api.APIResponse"];
-        };
-      };
-      /** @description Internal Server Error */
-      500: {
-        content: {
-          "application/json": components["schemas"]["api.APIResponse"];
-        };
-      };
-    };
-  };
-  /**
-   * Update a booking configuration
-   * @description Update an existing booking configuration
-   */
-  updateBookingTemplate: {
-    parameters: {
-      path: {
-        /** @description Configuration ID */
-        id: number;
-      };
-    };
-    /** @description Updated configuration data */
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["entities.UpdateBookingTemplateRequest"];
-      };
-    };
-    responses: {
-      /** @description OK */
-      200: {
-        content: {
-          "application/json": components["schemas"]["api.APIResponse"] & {
-            data?: components["schemas"]["entities.BookingTemplateResponse"];
-          };
-        };
-      };
-      /** @description Bad Request */
-      400: {
-        content: {
-          "application/json": components["schemas"]["api.APIResponse"];
-        };
-      };
-      /** @description Unauthorized */
-      401: {
-        content: {
-          "application/json": components["schemas"]["api.APIResponse"];
-        };
-      };
-      /** @description Not Found */
-      404: {
-        content: {
-          "application/json": components["schemas"]["api.APIResponse"];
-        };
-      };
-      /** @description Internal Server Error */
-      500: {
-        content: {
-          "application/json": components["schemas"]["api.APIResponse"];
-        };
-      };
-    };
-  };
-  /**
-   * Delete a booking configuration
-   * @description Soft delete a booking configuration by ID
-   */
-  deleteBookingTemplate: {
-    parameters: {
-      path: {
-        /** @description Configuration ID */
-        id: number;
-      };
-    };
-    responses: {
-      /** @description OK */
-      200: {
-        content: {
-          "application/json": components["schemas"]["api.APIResponse"];
-        };
-      };
-      /** @description Bad Request */
-      400: {
-        content: {
-          "application/json": components["schemas"]["api.APIResponse"];
-        };
-      };
-      /** @description Unauthorized */
-      401: {
-        content: {
-          "application/json": components["schemas"]["api.APIResponse"];
-        };
-      };
-      /** @description Not Found */
-      404: {
-        content: {
-          "application/json": components["schemas"]["api.APIResponse"];
-        };
-      };
-      /** @description Internal Server Error */
-      500: {
-        content: {
-          "application/json": components["schemas"]["api.APIResponse"];
-        };
-      };
-    };
-  };
-  /**
    * Get all calendar entries
    * @description Retrieve all calendar entries for the authenticated user. All datetime fields are returned in UTC ISO 8601 format (e.g., 2025-11-04T09:00:00Z).
    */
@@ -3068,6 +3198,20 @@ export interface operations {
   /**
    * Create a new calendar entry
    * @description Create a new calendar entry with UTC timestamps. All datetime fields use ISO 8601 format in UTC (e.g., 2025-11-04T09:00:00Z). Stored as timestamptz in PostgreSQL, ensuring timezone-aware storage and retrieval.
+   *
+   * **Request Body Fields:**
+   * - `calendar_id` (required): ID of the calendar to create the entry in
+   * - `series_id` (optional): ID of the series this entry belongs to
+   * - `title` (required): Title of the calendar entry
+   * - `is_exception` (optional): Whether this is an exception to a recurring series
+   * - `participants` (optional): JSON array of participant objects
+   * - `start_time` (optional): Start time in ISO 8601 UTC format (e.g., 2025-11-04T09:00:00Z)
+   * - `end_time` (optional): End time in ISO 8601 UTC format
+   * - `type` (optional): Type of event (e.g., "meeting", "appointment")
+   * - `description` (optional): Detailed description of the event
+   * - `location` (optional): Location of the event
+   * - `timezone` (optional): Timezone identifier (e.g., "Europe/Berlin")
+   * - `is_all_day` (optional): Whether this is an all-day event
    */
   createCalendarEntry: {
     /** @description Calendar entry data */
@@ -3286,6 +3430,23 @@ export interface operations {
   /**
    * Create a new calendar series
    * @description Create a new calendar series for recurring events. Start/end time fields use UTC ISO 8601 format (e.g., 2025-11-04T09:00:00Z). For recurring events, these represent the time portion that will be combined with calculated recurrence dates.
+   *
+   * **Request Body Fields:**
+   * - `calendar_id` (required): ID of the calendar to create the series in
+   * - `title` (required): Title of the recurring series
+   * - `participants` (optional): JSON array of participant objects
+   * - `interval_type` (required): Type of recurrence - one of: "none", "weekly", "monthly-date", "monthly-day", "yearly"
+   * - `interval_value` (required): Number of intervals between occurrences (e.g., 2 = every 2 weeks for weekly type)
+   * - `last_date` (optional): End date for the recurring series in ISO 8601 UTC format (e.g., 2025-12-31T23:59:59Z)
+   * - `start_time` (optional): Start time for each occurrence in ISO 8601 UTC format
+   * - `end_time` (optional): End time for each occurrence in ISO 8601 UTC format
+   * - `description` (optional): Description of the series
+   * - `location` (optional): Location for all events in the series
+   * - `timezone` (optional): Timezone identifier (e.g., "Europe/Berlin")
+   * - `external_uid` (optional): External unique identifier for integration
+   * - `external_calendar_uuid` (optional): UUID of external calendar if imported
+   *
+   * **Response:** Returns the created series and all auto-generated calendar entries based on the recurrence rules.
    */
   createCalendarSeries: {
     /** @description Calendar series data */
@@ -3299,7 +3460,7 @@ export interface operations {
       201: {
         content: {
           "application/json": components["schemas"]["api.APIResponse"] & {
-            data?: components["schemas"]["entities.CalendarSeriesResponse"];
+            data?: components["schemas"]["entities.CalendarSeriesWithEntriesResponse"];
           };
         };
       };
@@ -3797,6 +3958,52 @@ export interface operations {
       500: {
         content: {
           "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Get client by token
+   * @description Retrieve client details from any valid JWT token containing client_id
+   */
+  getClientByToken: {
+    parameters: {
+      path: {
+        /** @description JWT token containing client_id */
+        token: string;
+      };
+    };
+    responses: {
+      /** @description Client found */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"] & {
+            data?: components["schemas"]["entities.ClientResponse"];
+          };
+        };
+      };
+      /** @description Unauthorized or invalid token */
+      401: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Client not found */
+      404: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
         };
       };
     };

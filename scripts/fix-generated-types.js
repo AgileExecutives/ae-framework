@@ -84,6 +84,60 @@ function fixGeneratedTypes() {
     }
   });
   
+  // Fix 4: Add missing booking-related methods to client.ts
+  const clientPath = path.join(srcDir, 'client.ts');
+  if (fs.existsSync(clientPath)) {
+    let clientContent = fs.readFileSync(clientPath, 'utf8');
+    
+    // Check if methods are already added
+    if (!clientContent.includes('async getBookingFreeSlots(')) {
+      // Find the position after listBookingTemplatesByUser
+      const insertAfter = 'async listBookingTemplatesByUser(params?: Record<string, any>) {\n    const response = await this.request<ApiResponse<any>>(\'GET\', `/booking/templates/by-user`, undefined, params);\n    return response;\n  }';
+      
+      const methodsToAdd = `
+
+  async getBookingFreeSlots(token: string, params?: Record<string, any>) {
+    if (!token) throw new Error('token is required');
+    const response = await this.request<any>('GET', \`/booking/freeslots/\${token}\`, undefined, params);
+    return response;
+  }
+
+  async createBookingLink(data: any) {
+    const response = await this.request<ApiResponse<any>>('POST', \`/booking/link\`, data);
+    return response;
+  }
+
+  async createBookingTemplate(data: any) {
+    const response = await this.request<ApiResponse<any>>('POST', \`/booking/templates\`, data);
+    return response;
+  }
+
+  async getBookingTemplateById(id: number) {
+    if (!id) throw new Error('id is required');
+    const response = await this.request<ApiResponse<any>>('GET', \`/booking/templates/\${id}\`, undefined);
+    return response;
+  }
+
+  async updateBookingTemplate(id: number, data: any) {
+    if (!id) throw new Error('id is required');
+    const response = await this.request<ApiResponse<any>>('PUT', \`/booking/templates/\${id}\`, data);
+    return response;
+  }
+
+  async deleteBookingTemplate(id: number) {
+    if (!id) throw new Error('id is required');
+    const response = await this.request<ApiResponse<any>>('DELETE', \`/booking/templates/\${id}\`, undefined);
+    return response || { success: true };
+  }`;
+      
+      if (clientContent.includes(insertAfter)) {
+        clientContent = clientContent.replace(insertAfter, insertAfter + methodsToAdd);
+        fs.writeFileSync(clientPath, clientContent);
+        console.log('✅ Added missing booking methods to client.ts');
+      }
+    }
+  }
+  
   console.log('✅ All TypeScript files have been fixed!');
 }
 

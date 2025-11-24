@@ -317,6 +317,16 @@ export class AESaasApiClient {
     return response;
   }
 
+  async listBookingTemplatesByCalendar(params?: Record<string, any>) {
+    const response = await this.request<ApiResponse<any>>('GET', `/booking/templates/by-calendar`, undefined, params);
+    return response;
+  }
+
+  async listBookingTemplatesByUser(params?: Record<string, any>) {
+    const response = await this.request<ApiResponse<any>>('GET', `/booking/templates/by-user`, undefined, params);
+    return response;
+  }
+
   async getBookingFreeSlots(token: string, params?: Record<string, any>) {
     if (!token) throw new Error('token is required');
     const response = await this.request<any>('GET', `/booking/freeslots/${token}`, undefined, params);
@@ -328,27 +338,12 @@ export class AESaasApiClient {
     return response;
   }
 
-  async listBookingTemplates() {
-    const response = await this.request<ApiResponse<any>>('GET', `/booking/templates`, undefined);
-    return response;
-  }
-
   async createBookingTemplate(data: any) {
     const response = await this.request<ApiResponse<any>>('POST', `/booking/templates`, data);
     return response;
   }
 
-  async listBookingTemplatesByCalendar(params?: Record<string, any>) {
-    const response = await this.request<ApiResponse<any>>('GET', `/booking/templates/by-calendar`, undefined, params);
-    return response;
-  }
-
-  async listBookingTemplatesByUser(params?: Record<string, any>) {
-    const response = await this.request<ApiResponse<any>>('GET', `/booking/templates/by-user`, undefined, params);
-    return response;
-  }
-
-  async getBookingTemplate(id: number) {
+  async getBookingTemplateById(id: number) {
     if (!id) throw new Error('id is required');
     const response = await this.request<ApiResponse<any>>('GET', `/booking/templates/${id}`, undefined);
     return response;
@@ -463,6 +458,12 @@ export class AESaasApiClient {
   async importHolidays(id: number, data: any) {
     if (!id) throw new Error('id is required');
     const response = await this.request<ApiResponse<any>>('POST', `/calendars/${id}/import_holidays`, data);
+    return response;
+  }
+
+  async getClientByToken(token: string) {
+    if (!token) throw new Error('token is required');
+    const response = await this.request<ApiResponse<any>>('GET', `/client/${token}`, undefined);
     return response;
   }
 
