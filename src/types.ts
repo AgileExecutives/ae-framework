@@ -841,6 +841,13 @@ export interface paths {
      */
     post: operations["bookSessionsWithToken"];
   };
+  "/sessions/by_entry/{id}": {
+    /**
+     * Get session by calendar entry ID
+     * @description Retrieve a session associated with a specific calendar entry
+     */
+    get: operations["getSessionByCalendarEntry"];
+  };
   "/sessions/{id}": {
     /**
      * Get session by ID
@@ -5000,6 +5007,52 @@ export interface operations {
         };
       };
       /** @description Invalid or expired token */
+      404: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Get session by calendar entry ID
+   * @description Retrieve a session associated with a specific calendar entry
+   */
+  getSessionByCalendarEntry: {
+    parameters: {
+      path: {
+        /** @description Calendar Entry ID */
+        id: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"] & {
+            data?: components["schemas"]["entities.SessionResponse"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Not Found */
       404: {
         content: {
           "application/json": components["schemas"]["api.APIResponse"];

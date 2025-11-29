@@ -563,15 +563,15 @@ export class AESaasApiClient {
     return response;
   }
 
-  async getSessionById(id: number) {
+  async getSessionByCalendarEntry(id: number) {
     if (!id) throw new Error('id is required');
-    const response = await this.request<any>('GET', `/sessions/${id}`, undefined);
+    const response = await this.request<any>('GET', `/sessions/by_entry/${id}`, undefined);
     return response;
   }
 
-  async getSessionByEntry(id: number) {
+  async getSessionById(id: number) {
     if (!id) throw new Error('id is required');
-    const response = await this.request<any>('GET', `/sessions/by_entry/${id}`, undefined);
+    const response = await this.request<any>('GET', `/sessions/${id}`, undefined);
     return response;
   }
 
