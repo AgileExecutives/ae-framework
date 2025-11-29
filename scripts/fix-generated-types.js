@@ -84,18 +84,19 @@ function fixGeneratedTypes() {
     }
   });
   
-  // Fix 4: Add missing booking-related methods to client.ts
+  // Fix 4: Add missing booking methods (endpoints without operationIds)
   const clientPath = path.join(srcDir, 'client.ts');
   if (fs.existsSync(clientPath)) {
     let clientContent = fs.readFileSync(clientPath, 'utf8');
     
-    // Check if methods are already added
+    // Only add if these methods don't exist
     if (!clientContent.includes('async getBookingFreeSlots(')) {
       // Find the position after listBookingTemplatesByUser
       const insertAfter = 'async listBookingTemplatesByUser(params?: Record<string, any>) {\n    const response = await this.request<ApiResponse<any>>(\'GET\', `/booking/templates/by-user`, undefined, params);\n    return response;\n  }';
       
       const methodsToAdd = `
 
+  // Booking methods for endpoints without operationIds (temporary until backend adds them)
   async getBookingFreeSlots(token: string, params?: Record<string, any>) {
     if (!token) throw new Error('token is required');
     const response = await this.request<any>('GET', \`/booking/freeslots/\${token}\`, undefined, params);
@@ -135,6 +136,49 @@ function fixGeneratedTypes() {
         fs.writeFileSync(clientPath, clientContent);
         console.log('✅ Added missing booking methods to client.ts');
       }
+    }
+  }
+  
+  // Fix 5: Comment out missing auth methods in composables
+  const composablesPath = path.join(srcDir, 'composables', 'index.ts');
+  if (fs.existsSync(composablesPath)) {
+    let composablesContent = fs.readFileSync(composablesPath, 'utf8');
+    
+    // Only comment out if auth methods don't exist in client
+    const clientPath = path.join(srcDir, 'client.ts');
+    const clientContent = fs.readFileSync(clientPath, 'utf8');
+    
+    // Check if login method exists in the generated client
+    if (!clientContent.includes('async login(')) {
+      // Comment out calls to non-existent auth methods
+      if (composablesContent.includes('await client.login(credentials)')) {
+        composablesContent = composablesContent.replace(
+          /const response = await client\.login\(credentials\);[\s\S]*?return response;/,
+          `// const response = await client.login(credentials);
+      // user.value = response.data?.user;
+      // isAuthenticated.value = true;
+      
+      // return response;
+      throw new Error('Login endpoint not yet implemented');`
+        );
+        composablesContent = composablesContent.replace(
+          /await client\.logout\(\);/,
+          `// await client.logout();`
+        );
+        composablesContent = composablesContent.replace(
+          /const userData = await client\.getCurrentUser\(\);[\s\S]*?return userData;/,
+          `// const userData = await client.getCurrentUser();
+      // user.value = userData;
+      // isAuthenticated.value = true;
+      
+      // return userData;
+      throw new Error('getCurrentUser endpoint not yet implemented');`
+        );
+        fs.writeFileSync(composablesPath, composablesContent);
+        console.log('✅ Fixed missing auth methods in composables/index.ts');
+      }
+    } else {
+      console.log('✅ Auth methods already exist in client, skipping composables fix');
     }
   }
   

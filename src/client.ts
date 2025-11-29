@@ -155,168 +155,6 @@ export class AESaasApiClient {
     return response;
   }
 
-  async getContacts(params?: Record<string, any>) {
-    const response = await this.request<any>('GET', `/contacts`, undefined, params);
-    return response;
-  }
-
-  async createContact(data: any) {
-    const response = await this.request<ApiResponse<any>>('POST', `/contacts`, data);
-    return response;
-  }
-
-  async submitContactForm(data: any) {
-    const response = await this.request<ApiResponse<any>>('POST', `/contacts/form`, data);
-    return response;
-  }
-
-  async getNewsletterSubscriptions() {
-    const response = await this.request<any>('GET', `/contacts/newsletter`, undefined);
-    return response;
-  }
-
-  async unsubscribeFromNewsletter(email: string) {
-    if (!email) throw new Error('email is required');
-    const response = await this.request<ApiResponse<any>>('DELETE', `/contacts/newsletter/${email}`, undefined);
-    return response || { success: true };
-  }
-
-  async getContactById(id: string) {
-    if (!id) throw new Error('id is required');
-    const response = await this.request<ApiResponse<any>>('GET', `/contacts/${id}`, undefined);
-    return response;
-  }
-
-  async updateContact(id: string, data: any) {
-    if (!id) throw new Error('id is required');
-    const response = await this.request<ApiResponse<any>>('PUT', `/contacts/${id}`, data);
-    return response;
-  }
-
-  async deleteContact(id: string) {
-    if (!id) throw new Error('id is required');
-    const response = await this.request<ApiResponse<any>>('DELETE', `/contacts/${id}`, undefined);
-    return response || { success: true };
-  }
-
-  async getCustomers(params?: Record<string, any>) {
-    const response = await this.request<any>('GET', `/customers`, undefined, params);
-    return response;
-  }
-
-  async createCustomer(data: any) {
-    const response = await this.request<ApiResponse<any>>('POST', `/customers`, data);
-    return response;
-  }
-
-  async getCustomerById(id: number) {
-    if (!id) throw new Error('id is required');
-    const response = await this.request<any>('GET', `/customers/${id}`, undefined);
-    return response;
-  }
-
-  async updateCustomer(id: number, data: any) {
-    if (!id) throw new Error('id is required');
-    const response = await this.request<ApiResponse<any>>('PUT', `/customers/${id}`, data);
-    return response;
-  }
-
-  async deleteCustomer(id: number) {
-    if (!id) throw new Error('id is required');
-    const response = await this.request<ApiResponse<any>>('DELETE', `/customers/${id}`, undefined);
-    return response || { success: true };
-  }
-
-  async getEmails(params?: Record<string, any>) {
-    const response = await this.request<any>('GET', `/emails`, undefined, params);
-    return response;
-  }
-
-  async sendEmail(data: any) {
-    const response = await this.request<ApiResponse<any>>('POST', `/emails/send`, data);
-    return response;
-  }
-
-  async getEmailStats() {
-    const response = await this.request<any>('GET', `/emails/stats`, undefined);
-    return response;
-  }
-
-  async getEmailById(id: number) {
-    if (!id) throw new Error('id is required');
-    const response = await this.request<ApiResponse<any>>('GET', `/emails/${id}`, undefined);
-    return response;
-  }
-
-  async healthCheck() {
-    const response = await this.request<ApiResponse<any>>('GET', `/health`, undefined);
-    return response;
-  }
-
-  async createPdf(data: any) {
-    const response = await this.request<ApiResponse<any>>('POST', `/pdf/create`, data);
-    return response;
-  }
-
-  async ping() {
-    const response = await this.request<ApiResponse<any>>('GET', `/ping`, undefined);
-    return response;
-  }
-
-  async getPlans() {
-    const response = await this.request<any>('GET', `/plans`, undefined);
-    return response;
-  }
-
-  async createPlan(data: any) {
-    const response = await this.request<ApiResponse<any>>('POST', `/plans`, data);
-    return response;
-  }
-
-  async getPlanById(id: number) {
-    if (!id) throw new Error('id is required');
-    const response = await this.request<ApiResponse<any>>('GET', `/plans/${id}`, undefined);
-    return response;
-  }
-
-  async updatePlan(id: number, data: any) {
-    if (!id) throw new Error('id is required');
-    const response = await this.request<ApiResponse<any>>('PUT', `/plans/${id}`, data);
-    return response;
-  }
-
-  async deletePlan(id: number) {
-    if (!id) throw new Error('id is required');
-    const response = await this.request<ApiResponse<any>>('DELETE', `/plans/${id}`, undefined);
-    return response || { success: true };
-  }
-
-  async listStaticFiles() {
-    const response = await this.request<ApiResponse<any>>('GET', `/static`, undefined);
-    return response;
-  }
-
-  async getStaticFile(filename: string) {
-    if (!filename) throw new Error('filename is required');
-    const response = await this.request<ApiResponse<any>>('GET', `/static/${filename}`, undefined);
-    return response;
-  }
-
-  async getUserSettings() {
-    const response = await this.request<any>('GET', `/user-settings`, undefined);
-    return response;
-  }
-
-  async updateUserSettings(data: any) {
-    const response = await this.request<ApiResponse<any>>('PUT', `/user-settings`, data);
-    return response;
-  }
-
-  async resetUserSettings() {
-    const response = await this.request<ApiResponse<any>>('POST', `/user-settings/reset`, undefined);
-    return response;
-  }
-
   async listBookingTemplatesByCalendar(params?: Record<string, any>) {
     const response = await this.request<ApiResponse<any>>('GET', `/booking/templates/by-calendar`, undefined, params);
     return response;
@@ -327,6 +165,7 @@ export class AESaasApiClient {
     return response;
   }
 
+  // Booking methods for endpoints without operationIds (temporary until backend adds them)
   async getBookingFreeSlots(token: string, params?: Record<string, any>) {
     if (!token) throw new Error('token is required');
     const response = await this.request<any>('GET', `/booking/freeslots/${token}`, undefined, params);
@@ -411,9 +250,9 @@ export class AESaasApiClient {
     return response;
   }
 
-  async deleteCalendarSeries(id: number) {
+  async deleteCalendarSeries(id: number, data: any) {
     if (!id) throw new Error('id is required');
-    const response = await this.request<ApiResponse<any>>('DELETE', `/calendar-series/${id}`, undefined);
+    const response = await this.request<ApiResponse<any>>('DELETE', `/calendar-series/${id}`, data);
     return response || { success: true };
   }
 
@@ -500,6 +339,56 @@ export class AESaasApiClient {
     return response || { success: true };
   }
 
+  async getSessionsByClient(id: number, params?: Record<string, any>) {
+    if (!id) throw new Error('id is required');
+    const response = await this.request<any>('GET', `/clients/${id}/sessions`, undefined, params);
+    return response;
+  }
+
+  async getContacts(params?: Record<string, any>) {
+    const response = await this.request<any>('GET', `/contacts`, undefined, params);
+    return response;
+  }
+
+  async createContact(data: any) {
+    const response = await this.request<ApiResponse<any>>('POST', `/contacts`, data);
+    return response;
+  }
+
+  async submitContactForm(data: any) {
+    const response = await this.request<ApiResponse<any>>('POST', `/contacts/form`, data);
+    return response;
+  }
+
+  async getNewsletterSubscriptions() {
+    const response = await this.request<any>('GET', `/contacts/newsletter`, undefined);
+    return response;
+  }
+
+  async unsubscribeFromNewsletter(email: string) {
+    if (!email) throw new Error('email is required');
+    const response = await this.request<ApiResponse<any>>('DELETE', `/contacts/newsletter/${email}`, undefined);
+    return response || { success: true };
+  }
+
+  async getContactById(id: string) {
+    if (!id) throw new Error('id is required');
+    const response = await this.request<ApiResponse<any>>('GET', `/contacts/${id}`, undefined);
+    return response;
+  }
+
+  async updateContact(id: string, data: any) {
+    if (!id) throw new Error('id is required');
+    const response = await this.request<ApiResponse<any>>('PUT', `/contacts/${id}`, data);
+    return response;
+  }
+
+  async deleteContact(id: string) {
+    if (!id) throw new Error('id is required');
+    const response = await this.request<ApiResponse<any>>('DELETE', `/contacts/${id}`, undefined);
+    return response || { success: true };
+  }
+
   async getCostProviders(params?: Record<string, any>) {
     const response = await this.request<any>('GET', `/cost-providers`, undefined, params);
     return response;
@@ -533,6 +422,55 @@ export class AESaasApiClient {
     return response || { success: true };
   }
 
+  async getCustomers(params?: Record<string, any>) {
+    const response = await this.request<any>('GET', `/customers`, undefined, params);
+    return response;
+  }
+
+  async createCustomer(data: any) {
+    const response = await this.request<ApiResponse<any>>('POST', `/customers`, data);
+    return response;
+  }
+
+  async getCustomerById(id: number) {
+    if (!id) throw new Error('id is required');
+    const response = await this.request<any>('GET', `/customers/${id}`, undefined);
+    return response;
+  }
+
+  async updateCustomer(id: number, data: any) {
+    if (!id) throw new Error('id is required');
+    const response = await this.request<ApiResponse<any>>('PUT', `/customers/${id}`, data);
+    return response;
+  }
+
+  async deleteCustomer(id: number) {
+    if (!id) throw new Error('id is required');
+    const response = await this.request<ApiResponse<any>>('DELETE', `/customers/${id}`, undefined);
+    return response || { success: true };
+  }
+
+  async getEmails(params?: Record<string, any>) {
+    const response = await this.request<any>('GET', `/emails`, undefined, params);
+    return response;
+  }
+
+  async sendEmail(data: any) {
+    const response = await this.request<ApiResponse<any>>('POST', `/emails/send`, data);
+    return response;
+  }
+
+  async getEmailStats() {
+    const response = await this.request<any>('GET', `/emails/stats`, undefined);
+    return response;
+  }
+
+  async getEmailById(id: number) {
+    if (!id) throw new Error('id is required');
+    const response = await this.request<ApiResponse<any>>('GET', `/emails/${id}`, undefined);
+    return response;
+  }
+
   async getExternalCalendars(params?: Record<string, any>) {
     const response = await this.request<any>('GET', `/external-calendars`, undefined, params);
     return response;
@@ -559,6 +497,120 @@ export class AESaasApiClient {
     if (!id) throw new Error('id is required');
     const response = await this.request<ApiResponse<any>>('DELETE', `/external-calendars/${id}`, undefined);
     return response || { success: true };
+  }
+
+  async healthCheck() {
+    const response = await this.request<ApiResponse<any>>('GET', `/health`, undefined);
+    return response;
+  }
+
+  async createPdf(data: any) {
+    const response = await this.request<ApiResponse<any>>('POST', `/pdf/create`, data);
+    return response;
+  }
+
+  async ping() {
+    const response = await this.request<ApiResponse<any>>('GET', `/ping`, undefined);
+    return response;
+  }
+
+  async getPlans() {
+    const response = await this.request<any>('GET', `/plans`, undefined);
+    return response;
+  }
+
+  async createPlan(data: any) {
+    const response = await this.request<ApiResponse<any>>('POST', `/plans`, data);
+    return response;
+  }
+
+  async getPlanById(id: number) {
+    if (!id) throw new Error('id is required');
+    const response = await this.request<ApiResponse<any>>('GET', `/plans/${id}`, undefined);
+    return response;
+  }
+
+  async updatePlan(id: number, data: any) {
+    if (!id) throw new Error('id is required');
+    const response = await this.request<ApiResponse<any>>('PUT', `/plans/${id}`, data);
+    return response;
+  }
+
+  async deletePlan(id: number) {
+    if (!id) throw new Error('id is required');
+    const response = await this.request<ApiResponse<any>>('DELETE', `/plans/${id}`, undefined);
+    return response || { success: true };
+  }
+
+  async getAllSessions(params?: Record<string, any>) {
+    const response = await this.request<any>('GET', `/sessions`, undefined, params);
+    return response;
+  }
+
+  async createSession(data: any) {
+    const response = await this.request<ApiResponse<any>>('POST', `/sessions`, data);
+    return response;
+  }
+
+  async bookSessions(data: any) {
+    const response = await this.request<ApiResponse<any>>('POST', `/sessions/book`, data);
+    return response;
+  }
+
+  async bookSessionsWithToken(token: string, data: any) {
+    if (!token) throw new Error('token is required');
+    const response = await this.request<ApiResponse<any>>('POST', `/sessions/book/${token}`, data);
+    return response;
+  }
+
+  async getSessionById(id: number) {
+    if (!id) throw new Error('id is required');
+    const response = await this.request<any>('GET', `/sessions/${id}`, undefined);
+    return response;
+  }
+
+  async getSessionByEntry(id: number) {
+    if (!id) throw new Error('id is required');
+    const response = await this.request<any>('GET', `/sessions/by_entry/${id}`, undefined);
+    return response;
+  }
+
+  async updateSession(id: number, data: any) {
+    if (!id) throw new Error('id is required');
+    const response = await this.request<ApiResponse<any>>('PUT', `/sessions/${id}`, data);
+    return response;
+  }
+
+  async deleteSession(id: number) {
+    if (!id) throw new Error('id is required');
+    const response = await this.request<ApiResponse<any>>('DELETE', `/sessions/${id}`, undefined);
+    return response || { success: true };
+  }
+
+  async listStaticFiles() {
+    const response = await this.request<ApiResponse<any>>('GET', `/static`, undefined);
+    return response;
+  }
+
+  async getStaticFile(filename: string) {
+    if (!filename) throw new Error('filename is required');
+    const response = await this.request<ApiResponse<any>>('GET', `/static/${filename}`, undefined);
+    return response;
+  }
+
+  async getUserSettings() {
+    const response = await this.request<any>('GET', `/user-settings`, undefined);
+    return response;
+  }
+
+  async updateUserSettings(data: any) {
+    const response = await this.request<ApiResponse<any>>('PUT', `/user-settings`, data);
+    return response;
+  }
+
+  async resetUserSettings() {
+    const response = await this.request<ApiResponse<any>>('POST', `/user-settings/reset`, undefined);
+    return response;
   }
 
 }
