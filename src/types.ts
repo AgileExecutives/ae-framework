@@ -1149,9 +1149,13 @@ export interface components {
     };
     "entities.CreateBookingLinkRequest": {
       client_id: number;
+      /** @description Maximum number of uses (0 = unlimited, 1 = one-time) */
+      max_use_count?: number;
       template_id: number;
       /** @enum {unknown} */
-      token_purpose: "one-time-booking-link" | "permanent-booking-link";
+      token_purpose: "one-time-booking-link" | "timed-booking-link";
+      /** @description Number of days token is valid (default: 180 for timed links, 1 for one-time) */
+      validity_days?: number;
     };
     "entities.CreateBookingTemplateRequest": {
       advance_booking_days: number;
@@ -1393,6 +1397,8 @@ export interface components {
     "entities.TimeSlot": {
       /** @description Is this slot available? */
       available?: boolean;
+      /** @description Number of available recurrences for series bookings (0 if not series) */
+      available_recurrences?: number;
       /** @description YYYY-MM-DD format */
       date?: string;
       /** @description Duration in minutes */
@@ -1411,7 +1417,7 @@ export interface components {
       timezone?: string;
     };
     /** @enum {string} */
-    "entities.TokenPurpose": "one-time-booking-link" | "permanent-booking-link";
+    "entities.TokenPurpose": "one-time-booking-link" | "timed-booking-link";
     "entities.UnburdyHolidaysData": {
       public_holidays?: {
         [key: string]: {
