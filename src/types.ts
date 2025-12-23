@@ -274,7 +274,7 @@ export interface paths {
   "/clients": {
     /**
      * Get all clients
-     * @description Retrieve all clients with optional pagination
+     * @description Retrieve all clients with optional pagination and status filtering
      */
     get: operations["getClients"];
     /**
@@ -492,6 +492,35 @@ export interface paths {
      * @description Check the health status of the API and database
      */
     get: operations["healthCheck"];
+  };
+  "/organizations": {
+    /**
+     * Get all organizations
+     * @description Retrieve all organizations for the authenticated user with pagination
+     */
+    get: operations["getOrganizations"];
+    /**
+     * Create a new organization
+     * @description Create a new organization with the provided information
+     */
+    post: operations["createOrganization"];
+  };
+  "/organizations/{id}": {
+    /**
+     * Get an organization by ID
+     * @description Retrieve a specific organization by ID
+     */
+    get: operations["getOrganizationById"];
+    /**
+     * Update an organization
+     * @description Update an organization's information
+     */
+    put: operations["updateOrganization"];
+    /**
+     * Delete an organization
+     * @description Delete an organization by ID
+     */
+    delete: operations["deleteOrganization"];
   };
   "/pdf/create": {
     /**
@@ -864,44 +893,6 @@ export interface components {
       updated_at?: string;
       zip?: string;
     };
-    "entities.ClientWithSessions": {
-      admission_date?: string;
-      alternative_email?: string;
-      alternative_first_name?: string;
-      alternative_last_name?: string;
-      alternative_phone?: string;
-      city?: string;
-      contact_email?: string;
-      contact_first_name?: string;
-      contact_last_name?: string;
-      contact_phone?: string;
-      cost_provider?: components["schemas"]["entities.CostProviderResponse"];
-      cost_provider_id?: number;
-      created_at?: string;
-      date_of_birth?: string;
-      email?: string;
-      first_name?: string;
-      gender?: string;
-      id?: number;
-      invoiced_individually?: boolean;
-      last_name?: string;
-      next_session?: components["schemas"]["entities.SessionResponse"];
-      notes?: string;
-      phone?: string;
-      previous_session?: components["schemas"]["entities.SessionResponse"];
-      primary_language?: string;
-      provider_approval_code?: string;
-      provider_approval_date?: string;
-      referral_source?: string;
-      status?: string;
-      street_address?: string;
-      tenant_id?: number;
-      therapy_title?: string;
-      timezone?: string;
-      unit_price?: number;
-      updated_at?: string;
-      zip?: string;
-    };
     "entities.CostProviderResponse": {
       city?: string;
       contact_name?: string;
@@ -1020,6 +1011,42 @@ export interface components {
       zip?: string;
     };
     "entities.CreateExternalCalendarRequest": Record<string, never>;
+    "entities.CreateOrganizationRequest": {
+      additional_payment_methods?: Record<string, never>;
+      /** @example Deutsche Bank */
+      bankaccount_bank?: string;
+      /** @example DEUTDEFF */
+      bankaccount_bic?: string;
+      /** @example DE89370400440532013000 */
+      bankaccount_iban?: string;
+      /** @example Acme Corporation */
+      bankaccount_owner?: string;
+      /** @example New York */
+      city?: string;
+      /** @example info@acme.com */
+      email?: string;
+      invoice_content?: Record<string, never>;
+      /** @example Acme Corporation */
+      name: string;
+      /** @example John Doe */
+      owner_name?: string;
+      /** @example CEO */
+      owner_title?: string;
+      /** @example +1-555-0123 */
+      phone?: string;
+      /** @example 123 Business St */
+      street_address?: string;
+      /** @example TAX123456 */
+      tax_id?: string;
+      /** @example 19 */
+      tax_rate?: number;
+      /** @example DE123456789 */
+      tax_ustid?: string;
+      /** @example 150 */
+      unit_price?: number;
+      /** @example 12345 */
+      zip?: string;
+    };
     "entities.CreateSessionRequest": {
       /** @example 1 */
       calendar_entry_id: number;
@@ -1076,6 +1103,14 @@ export interface components {
        */
       from_date?: string;
     };
+    "entities.ErrorResponse": {
+      /** @example Detailed error information */
+      error?: string;
+      /** @example Error message */
+      message?: string;
+      /** @example false */
+      success?: boolean;
+    };
     "entities.ExternalCalendarResponse": {
       calendar_id?: number;
       calendar_uuid?: string;
@@ -1125,20 +1160,73 @@ export interface components {
     "entities.NullableDate": {
       "time.Time"?: string;
     };
+    "entities.OrganizationAPIResponse": {
+      data?: components["schemas"]["entities.OrganizationResponse"];
+      /** @example Organization retrieved successfully */
+      message?: string;
+      /** @example true */
+      success?: boolean;
+    };
+    "entities.OrganizationDeleteResponse": {
+      /** @example Organization deleted successfully */
+      message?: string;
+      /** @example true */
+      success?: boolean;
+    };
+    "entities.OrganizationListAPIResponse": {
+      data?: components["schemas"]["entities.OrganizationResponse"][];
+      /** @example 10 */
+      limit?: number;
+      /** @example Organizations retrieved successfully */
+      message?: string;
+      /** @example 1 */
+      page?: number;
+      /** @example true */
+      success?: boolean;
+      /** @example 100 */
+      total?: number;
+    };
+    "entities.OrganizationResponse": {
+      additional_payment_methods?: number[];
+      bankaccount_bank?: string;
+      bankaccount_bic?: string;
+      bankaccount_iban?: string;
+      bankaccount_owner?: string;
+      city?: string;
+      created_at?: string;
+      email?: string;
+      id?: number;
+      invoice_content?: number[];
+      name?: string;
+      owner_name?: string;
+      owner_title?: string;
+      phone?: string;
+      street_address?: string;
+      tax_id?: string;
+      tax_rate?: number;
+      tax_ustid?: string;
+      tenant_id?: number;
+      unit_price?: number;
+      updated_at?: string;
+      user_id?: number;
+      zip?: string;
+    };
     "entities.SessionDetailResponse": {
       /** @description Nullable - NULL if calendar entry was deleted */
       calendar_entry_id?: number;
-      client?: components["schemas"]["entities.ClientWithSessions"];
+      client?: components["schemas"]["entities.ClientResponse"];
       client_id?: number;
       created_at?: string;
       documentation?: string;
       duration_min?: number;
       id?: number;
+      next_session?: components["schemas"]["entities.SessionResponse"];
       number_units?: number;
       /** @description UTC - Date of original calendar entry */
       original_date?: string;
       /** @description UTC - Start time from original calendar entry */
       original_start_time?: string;
+      previous_session?: components["schemas"]["entities.SessionResponse"];
       status?: string;
       tenant_id?: number;
       type?: string;
@@ -1301,6 +1389,42 @@ export interface components {
       zip?: string;
     };
     "entities.UpdateExternalCalendarRequest": Record<string, never>;
+    "entities.UpdateOrganizationRequest": {
+      additional_payment_methods?: Record<string, never>;
+      /** @example Deutsche Bank */
+      bankaccount_bank?: string;
+      /** @example DEUTDEFF */
+      bankaccount_bic?: string;
+      /** @example DE89370400440532013000 */
+      bankaccount_iban?: string;
+      /** @example Acme Corporation */
+      bankaccount_owner?: string;
+      /** @example New York */
+      city?: string;
+      /** @example info@acme.com */
+      email?: string;
+      invoice_content?: Record<string, never>;
+      /** @example Acme Corporation */
+      name?: string;
+      /** @example John Doe */
+      owner_name?: string;
+      /** @example CEO */
+      owner_title?: string;
+      /** @example +1-555-0123 */
+      phone?: string;
+      /** @example 123 Business St */
+      street_address?: string;
+      /** @example TAX123456 */
+      tax_id?: string;
+      /** @example 19 */
+      tax_rate?: number;
+      /** @example DE123456789 */
+      tax_ustid?: string;
+      /** @example 150 */
+      unit_price?: number;
+      /** @example 12345 */
+      zip?: string;
+    };
     "entities.UpdateSessionRequest": {
       /** @example Updated session notes */
       documentation?: string;
@@ -3359,7 +3483,7 @@ export interface operations {
   };
   /**
    * Get all clients
-   * @description Retrieve all clients with optional pagination
+   * @description Retrieve all clients with optional pagination and status filtering
    */
   getClients: {
     parameters: {
@@ -3368,6 +3492,8 @@ export interface operations {
         page?: number;
         /** @description Number of clients per page (respects DEFAULT_PAGE_LIMIT and MAX_PAGE_LIMIT env vars) */
         limit?: number;
+        /** @description Filter by client status (waiting, active, archived) */
+        status?: string;
       };
     };
     responses: {
@@ -4745,6 +4871,216 @@ export interface operations {
       503: {
         content: {
           "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Get all organizations
+   * @description Retrieve all organizations for the authenticated user with pagination
+   */
+  getOrganizations: {
+    parameters: {
+      query?: {
+        /** @description Page number */
+        page?: number;
+        /** @description Number of items per page */
+        limit?: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["entities.OrganizationListAPIResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["entities.ErrorResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["entities.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Create a new organization
+   * @description Create a new organization with the provided information
+   */
+  createOrganization: {
+    /** @description Organization information */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["entities.CreateOrganizationRequest"];
+      };
+    };
+    responses: {
+      /** @description Created */
+      201: {
+        content: {
+          "application/json": components["schemas"]["entities.OrganizationAPIResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["entities.ErrorResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["entities.ErrorResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["entities.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Get an organization by ID
+   * @description Retrieve a specific organization by ID
+   */
+  getOrganizationById: {
+    parameters: {
+      path: {
+        /** @description Organization ID */
+        id: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["entities.OrganizationAPIResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["entities.ErrorResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["entities.ErrorResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["entities.ErrorResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["entities.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Update an organization
+   * @description Update an organization's information
+   */
+  updateOrganization: {
+    parameters: {
+      path: {
+        /** @description Organization ID */
+        id: number;
+      };
+    };
+    /** @description Updated organization information */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["entities.UpdateOrganizationRequest"];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["entities.OrganizationAPIResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["entities.ErrorResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["entities.ErrorResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["entities.ErrorResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["entities.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Delete an organization
+   * @description Delete an organization by ID
+   */
+  deleteOrganization: {
+    parameters: {
+      path: {
+        /** @description Organization ID */
+        id: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["entities.OrganizationDeleteResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["entities.ErrorResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["entities.ErrorResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["entities.ErrorResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["entities.ErrorResponse"];
         };
       };
     };

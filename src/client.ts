@@ -508,6 +508,34 @@ export class AESaasApiClient {
     return response;
   }
 
+  async getOrganizations(params?: Record<string, any>) {
+    const response = await this.request<any>('GET', `/organizations`, undefined, params);
+    return response;
+  }
+
+  async createOrganization(data: any) {
+    const response = await this.request<ApiResponse<any>>('POST', `/organizations`, data);
+    return response;
+  }
+
+  async getOrganizationById(id: number) {
+    if (!id) throw new Error('id is required');
+    const response = await this.request<ApiResponse<any>>('GET', `/organizations/${id}`, undefined);
+    return response;
+  }
+
+  async updateOrganization(id: number, data: any) {
+    if (!id) throw new Error('id is required');
+    const response = await this.request<ApiResponse<any>>('PUT', `/organizations/${id}`, data);
+    return response;
+  }
+
+  async deleteOrganization(id: number) {
+    if (!id) throw new Error('id is required');
+    const response = await this.request<ApiResponse<any>>('DELETE', `/organizations/${id}`, undefined);
+    return response || { success: true };
+  }
+
   async createPdf(data: any) {
     const response = await this.request<ApiResponse<any>>('POST', `/pdf/create`, data);
     return response;
