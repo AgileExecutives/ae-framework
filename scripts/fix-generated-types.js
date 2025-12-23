@@ -84,12 +84,140 @@ function fixGeneratedTypes() {
     }
   });
   
-  // Fix 4: Add missing booking methods (endpoints without operationIds)
+  // Fix 4: Add missing auth and dashboard methods
   const clientPath = path.join(srcDir, 'client.ts');
   if (fs.existsSync(clientPath)) {
     let clientContent = fs.readFileSync(clientPath, 'utf8');
     
-    // Only add if these methods don't exist
+    // Add auth methods after clearToken()
+    if (!clientContent.includes('async login(')) {
+      const authMethodsToAdd = `
+
+  // Auth methods (not auto-generated, manually maintained)
+  async login(credentials: { email: string; password: string }) {
+    const response = await this.request<ApiResponse<{ token: string; user: any }>>('POST', '/auth/login', credentials);
+    return response;
+  }
+
+  async register(credentials: { email: string; password: string; name?: string }) {
+    const response = await this.request<ApiResponse<{ token: string; user: any }>>('POST', '/auth/register', credentials);
+    return response;
+  }
+
+  async logout() {
+    const response = await this.request<ApiResponse<any>>('POST', '/auth/logout', undefined);
+    return response;
+  }
+
+  async getCurrentUser() {
+    const response = await this.request<ApiResponse<any>>('GET', '/auth/me', undefined);
+    return response;
+  }
+
+  async changePassword(credentials: { current_password: string; new_password: string }) {
+    const response = await this.request<ApiResponse<any>>('POST', '/auth/change-password', credentials);
+    return response;
+  }
+
+  async forgotPassword(email: string) {
+    const response = await this.request<ApiResponse<any>>('POST', '/auth/forgot-password', { email });
+    return response;
+  }
+
+  async resetPassword(token: string, newPassword: string) {
+    const response = await this.request<ApiResponse<any>>('POST', '/auth/reset-password', { token, new_password: newPassword });
+    return response;
+  }
+
+  async getPlans() {
+    const response = await this.request<ApiResponse<any>>('GET', '/plans', undefined);
+    return response;
+  }
+
+  async getCustomers(params?: Record<string, any>) {
+    const response = await this.request<ApiResponse<any>>('GET', '/customers', undefined, params);
+    return response;
+  }
+
+  async getEmailStats() {
+    const response = await this.request<ApiResponse<any>>('GET', '/email-stats', undefined);
+    return response;
+  }
+
+  async getNewsletterSubscriptions(params?: Record<string, any>) {
+    const response = await this.request<ApiResponse<any>>('GET', '/newsletter-subscriptions', undefined, params);
+    return response;
+  }
+
+  // Calendar methods (not in Swagger spec)
+  async getCalendars(params?: Record<string, any>) {
+    const response = await this.request<any>('GET', '/calendars', undefined, params);
+    return response;
+  }
+
+  async createCalendarEntry(data: any) {
+    const response = await this.request<ApiResponse<any>>('POST', '/calendar/entries', data);
+    return response;
+  }
+
+  async updateCalendarEntry(id: number, data: any) {
+    const response = await this.request<ApiResponse<any>>('PUT', \`/calendar/entries/\${id}\`, data);
+    return response;
+  }
+
+  async deleteCalendarEntry(id: number) {
+    const response = await this.request<ApiResponse<any>>('DELETE', \`/calendar/entries/\${id}\`, undefined);
+    return response;
+  }
+
+  async getCalendarEntryById(id: number) {
+    const response = await this.request<ApiResponse<any>>('GET', \`/calendar/entries/\${id}\`, undefined);
+    return response;
+  }
+
+  async createCalendarSeries(data: any) {
+    const response = await this.request<ApiResponse<any>>('POST', '/calendar/series', data);
+    return response;
+  }
+
+  async updateCalendarSeries(id: number, data: any) {
+    const response = await this.request<ApiResponse<any>>('PUT', \`/calendar/series/\${id}\`, data);
+    return response;
+  }
+
+  async deleteCalendarSeries(id: number, options?: any) {
+    const response = await this.request<ApiResponse<any>>('DELETE', \`/calendar/series/\${id}\`, options);
+    return response;
+  }
+
+  async updateCalendar(id: number, data: any) {
+    const response = await this.request<ApiResponse<any>>('PUT', \`/calendars/\${id}\`, data);
+    return response;
+  }
+
+  // Additional booking methods
+  async listBookingTemplatesByUser(params?: Record<string, any>) {
+    const response = await this.request<ApiResponse<any>>('GET', '/booking/templates/by-user', undefined, params);
+    return response;
+  }
+
+  async getStaticFile(filename: string) {
+    const response = await this.request<any>('GET', \`/static/\${filename}\`, undefined);
+    return response;
+  }
+`;
+      
+      // Insert after clearToken() method
+      const clearTokenPos = clientContent.indexOf('  clearToken() {\n    this.token = null;\n  }');
+      if (clearTokenPos !== -1) {
+        const insertPos = clearTokenPos + '  clearToken() {\n    this.token = null;\n  }'.length;
+        clientContent = clientContent.slice(0, insertPos) + authMethodsToAdd + clientContent.slice(insertPos);
+        fs.writeFileSync(clientPath, clientContent);
+        console.log('✅ Added missing auth and calendar methods to client.ts');
+      }
+    }
+    
+    // Only add booking methods if they don't exist
     if (!clientContent.includes('async getBookingFreeSlots(')) {
       // Find the position after listBookingTemplatesByUser
       const insertAfter = 'async listBookingTemplatesByUser(params?: Record<string, any>) {\n    const response = await this.request<ApiResponse<any>>(\'GET\', `/booking/templates/by-user`, undefined, params);\n    return response;\n  }';
@@ -139,46 +267,42 @@ function fixGeneratedTypes() {
     }
   }
   
-  // Fix 5: Comment out missing auth methods in composables
+  // Fix 5: Fix composables auth methods
   const composablesPath = path.join(srcDir, 'composables', 'index.ts');
   if (fs.existsSync(composablesPath)) {
     let composablesContent = fs.readFileSync(composablesPath, 'utf8');
+    let modified = false;
     
-    // Only comment out if auth methods don't exist in client
-    const clientPath = path.join(srcDir, 'client.ts');
-    const clientContent = fs.readFileSync(clientPath, 'utf8');
+    // Fix user ref type
+    if (composablesContent.includes('const user = ref(null);')) {
+      composablesContent = composablesContent.replace(
+        'const user = ref(null);',
+        'const user = ref<any | null>(null);'
+      );
+      modified = true;
+    }
     
-    // Check if login method exists in the generated client
-    if (!clientContent.includes('async login(')) {
-      // Comment out calls to non-existent auth methods
-      if (composablesContent.includes('await client.login(credentials)')) {
-        composablesContent = composablesContent.replace(
-          /const response = await client\.login\(credentials\);[\s\S]*?return response;/,
-          `// const response = await client.login(credentials);
-      // user.value = response.data?.user;
-      // isAuthenticated.value = true;
-      
-      // return response;
-      throw new Error('Login endpoint not yet implemented');`
-        );
-        composablesContent = composablesContent.replace(
-          /await client\.logout\(\);/,
-          `// await client.logout();`
-        );
-        composablesContent = composablesContent.replace(
-          /const userData = await client\.getCurrentUser\(\);[\s\S]*?return userData;/,
-          `// const userData = await client.getCurrentUser();
-      // user.value = userData;
-      // isAuthenticated.value = true;
-      
-      // return userData;
-      throw new Error('getCurrentUser endpoint not yet implemented');`
-        );
-        fs.writeFileSync(composablesPath, composablesContent);
-        console.log('✅ Fixed missing auth methods in composables/index.ts');
-      }
-    } else {
-      console.log('✅ Auth methods already exist in client, skipping composables fix');
+    // Fix login credentials: username -> email
+    if (composablesContent.includes('{ username: string; password: string }')) {
+      composablesContent = composablesContent.replace(
+        '{ username: string; password: string }',
+        '{ email: string; password: string }'
+      );
+      modified = true;
+    }
+    
+    // Fix getCurrentUser to access userData.data
+    if (composablesContent.includes('user.value = userData;')) {
+      composablesContent = composablesContent.replace(
+        /const userData = await client\.getCurrentUser\(\);\s+user\.value = userData;/,
+        'const userData = await client.getCurrentUser();\n      user.value = userData.data;'
+      );
+      modified = true;
+    }
+    
+    if (modified) {
+      fs.writeFileSync(composablesPath, composablesContent);
+      console.log('✅ Fixed composables auth methods');
     }
   }
   

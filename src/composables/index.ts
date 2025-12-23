@@ -21,11 +21,11 @@ export function useApiClient() {
 export function useAuth() {
   const client = useApiClient();
   const isAuthenticated = ref(false);
-  const user = ref(null);
+  const user = ref<any | null>(null);
   const loading = ref(false);
   const error = ref<string | null>(null);
 
-  const login = async (credentials: { username: string; password: string }) => {
+  const login = async (credentials: { email: string; password: string }) => {
     try {
       loading.value = true;
       error.value = null;
@@ -63,7 +63,7 @@ export function useAuth() {
       error.value = null;
       
       const userData = await client.getCurrentUser();
-      user.value = userData;
+      user.value = userData.data;
       isAuthenticated.value = true;
       
       return userData;
