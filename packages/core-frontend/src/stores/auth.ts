@@ -1,13 +1,10 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
-import { createApiClient, ApiError } from '@agile-exec/api-client'
+import { useApiClient, ApiError } from '@agile-exec/api-client'
 import type { AESaasApiClient } from '@agile-exec/api-client'
 import type * as AuthTypes from './auth-types'
 
 export const useAuthStore = defineStore('auth', () => {
-  // API Client instance
-  const apiClient = ref<AESaasApiClient | null>(null)
-  
   // State
   const user = ref<AuthTypes.User | null>(null)
   const token = ref<string | null>(null)
@@ -15,21 +12,9 @@ export const useAuthStore = defineStore('auth', () => {
   const error = ref<string | null>(null)
   const initialized = ref(false)
 
-  // Initialize API client
-  const initializeApiClient = () => {
-    if (!apiClient.value) {
-      console.log('🔍 Auth Store: Creating new API client')
-      apiClient.value = createApiClient({
-        baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api/v1'
-      })
-      
-      // If we have a token, set it on the newly created client
-      if (token.value) {
-        console.log('🔍 Auth Store: Setting token on new client')
-        apiClient.value.setToken(token.value)
-      }
-    }
-    return apiClient.value
+  // Get the global API client
+  const getApiClient = () => {
+    return useApiClient()
   }
 
   // Getters
@@ -49,7 +34,7 @@ export const useAuthStore = defineStore('auth', () => {
   // Actions
   const setToken = (newToken: string | null) => {
     token.value = newToken
-    const client = initializeApiClient()
+    const client = getApiClient()
     
     console.log('🔍 Auth Store: setToken called', {
       hasToken: !!newToken,
@@ -88,8 +73,11 @@ export const useAuthStore = defineStore('auth', () => {
       isLoading.value = true
       setError(null)
 
-      const client = initializeApiClient()
-      const response = await client.login(credentials)
+      const client = getApiClient()
+      const response = await client.login({
+        username: credentials.username,
+        password: credentials.password
+      })
 
       console.log('🔍 Auth Store: Raw API response:', JSON.stringify(response, null, 2))
 
@@ -129,7 +117,7 @@ export const useAuthStore = defineStore('auth', () => {
       isLoading.value = true
       setError(null)
 
-      const client = initializeApiClient()
+      const client = getApiClient()
       const response = await client.register(credentials)
       console.log('✅ Auth Store: Registration response received', response)
       
@@ -175,7 +163,7 @@ export const useAuthStore = defineStore('auth', () => {
         hasUser: !!user.value
       })
 
-      const client = initializeApiClient()
+      const client = getApiClient()
       await client.changePassword(credentials)
 
       console.log('✅ Auth Store: Password changed successfully')
@@ -199,7 +187,7 @@ export const useAuthStore = defineStore('auth', () => {
       isLoading.value = true
       setError(null)
 
-      const client = initializeApiClient()
+      const client = getApiClient()
       await client.forgotPassword(email)
 
       console.log('✅ Auth Store: Password reset email sent')
@@ -223,7 +211,7 @@ export const useAuthStore = defineStore('auth', () => {
       isLoading.value = true
       setError(null)
 
-      const client = initializeApiClient()
+      const client = getApiClient()
       await client.resetPassword(token, newPassword)
 
       console.log('✅ Auth Store: Password reset successful')
@@ -247,7 +235,7 @@ export const useAuthStore = defineStore('auth', () => {
       isLoading.value = true
       setError(null)
 
-      const client = initializeApiClient()
+      const client = getApiClient()
       
       // Try to logout from server, but don't fail if it doesn't work
       try {
@@ -271,13 +259,15 @@ export const useAuthStore = defineStore('auth', () => {
       isLoading.value = true
       setError(null)
 
-      const client = initializeApiClient()
-      const userData = await client.getCurrentUser()
+      const client = getApiClient()
+      const response = await client.getCurrentUser()
       
-      setUser(userData as AuthTypes.User)
+      // Extract user data from response
+      const userData = response.data as AuthTypes.User
+      setUser(userData)
       console.log('✅ Auth Store: User data refreshed', { user: userData.username })
       
-      return userData as AuthTypes.User
+      return userData
     } catch (err: any) {
       console.error('❌ Auth Store: Failed to get current user', err)
       
@@ -300,7 +290,7 @@ export const useAuthStore = defineStore('auth', () => {
       console.log('🔄 Auth Store: Initializing authentication...')
       
       // Initialize API client
-      initializeApiClient()
+      getApiClient()
       
       // Check for stored token
       const storedToken = localStorage.getItem('auth_token')
@@ -382,7 +372,7 @@ export const useAuthStore = defineStore('auth', () => {
     setError,
     
     // API client access
-    apiClient: computed(() => apiClient.value),
+    apiClient: computed(() => getApiClient()),
     
     // Utility methods
     hasRole,
