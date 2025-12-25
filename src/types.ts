@@ -493,6 +493,42 @@ export interface paths {
      */
     get: operations["healthCheck"];
   };
+  "/invoices": {
+    /**
+     * Get all invoices
+     * @description Retrieve all invoices for the authenticated user with pagination and all associations preloaded
+     */
+    get: operations["getInvoices"];
+    /**
+     * Create a new invoice
+     * @description Create a new invoice with invoice items for specified sessions
+     */
+    post: operations["createInvoice"];
+  };
+  "/invoices/clientsessions": {
+    /**
+     * Get clients with unbilled sessions
+     * @description Retrieve all clients that have sessions not yet associated with any invoice
+     */
+    get: operations["getClientsWithUnbilledSessions"];
+  };
+  "/invoices/{id}": {
+    /**
+     * Get an invoice by ID
+     * @description Retrieve a specific invoice by ID with all associations preloaded
+     */
+    get: operations["getInvoiceById"];
+    /**
+     * Update an invoice
+     * @description Update an invoice's status or invoice items (not both at once)
+     */
+    put: operations["updateInvoice"];
+    /**
+     * Delete an invoice
+     * @description Delete an invoice and all its invoice items by ID
+     */
+    delete: operations["deleteInvoice"];
+  };
   "/organizations": {
     /**
      * Get all organizations
@@ -893,6 +929,50 @@ export interface components {
       updated_at?: string;
       zip?: string;
     };
+    "entities.ClientSessionsAPIResponse": {
+      data?: components["schemas"]["entities.ClientWithUnbilledSessionsResponse"][];
+      /** @example Clients with unbilled sessions retrieved successfully */
+      message?: string;
+      /** @example true */
+      success?: boolean;
+    };
+    "entities.ClientWithUnbilledSessionsResponse": {
+      admission_date?: string;
+      alternative_email?: string;
+      alternative_first_name?: string;
+      alternative_last_name?: string;
+      alternative_phone?: string;
+      city?: string;
+      contact_email?: string;
+      contact_first_name?: string;
+      contact_last_name?: string;
+      contact_phone?: string;
+      cost_provider?: components["schemas"]["entities.CostProviderResponse"];
+      cost_provider_id?: number;
+      created_at?: string;
+      date_of_birth?: string;
+      email?: string;
+      first_name?: string;
+      gender?: string;
+      id?: number;
+      invoiced_individually?: boolean;
+      last_name?: string;
+      notes?: string;
+      phone?: string;
+      primary_language?: string;
+      provider_approval_code?: string;
+      provider_approval_date?: string;
+      referral_source?: string;
+      sessions?: components["schemas"]["entities.SessionResponse"][];
+      status?: string;
+      street_address?: string;
+      tenant_id?: number;
+      therapy_title?: string;
+      timezone?: string;
+      unit_price?: number;
+      updated_at?: string;
+      zip?: string;
+    };
     "entities.CostProviderResponse": {
       city?: string;
       contact_name?: string;
@@ -1011,6 +1091,18 @@ export interface components {
       zip?: string;
     };
     "entities.CreateExternalCalendarRequest": Record<string, never>;
+    "entities.CreateInvoiceRequest": {
+      /** @example 1 */
+      client_id: number;
+      /**
+       * @example [
+       *   1,
+       *   2,
+       *   3
+       * ]
+       */
+      session_ids: number[];
+    };
     "entities.CreateOrganizationRequest": {
       additional_payment_methods?: Record<string, never>;
       /** @example Deutsche Bank */
@@ -1149,6 +1241,66 @@ export interface components {
     };
     /** @enum {string} */
     "entities.IntervalType": "none" | "weekly" | "monthly-date" | "monthly-day" | "yearly";
+    "entities.InvoiceAPIResponse": {
+      data?: components["schemas"]["entities.InvoiceResponse"];
+      /** @example Invoice retrieved successfully */
+      message?: string;
+      /** @example true */
+      success?: boolean;
+    };
+    "entities.InvoiceDeleteResponse": {
+      /** @example Invoice deleted successfully */
+      message?: string;
+      /** @example true */
+      success?: boolean;
+    };
+    "entities.InvoiceItemResponse": {
+      created_at?: string;
+      id?: number;
+      invoice_id?: number;
+      session?: components["schemas"]["entities.SessionResponse"];
+      session_id?: number;
+      updated_at?: string;
+    };
+    "entities.InvoiceListAPIResponse": {
+      data?: components["schemas"]["entities.InvoiceResponse"][];
+      /** @example 10 */
+      limit?: number;
+      /** @example Invoices retrieved successfully */
+      message?: string;
+      /** @example 1 */
+      page?: number;
+      /** @example true */
+      success?: boolean;
+      /** @example 100 */
+      total?: number;
+    };
+    "entities.InvoiceResponse": {
+      client?: components["schemas"]["entities.ClientResponse"];
+      client_id?: number;
+      cost_provider?: components["schemas"]["entities.CostProviderResponse"];
+      cost_provider_id?: number;
+      created_at?: string;
+      id?: number;
+      invoice_date?: string;
+      invoice_items?: components["schemas"]["entities.InvoiceItemResponse"][];
+      invoice_number?: string;
+      latest_reminder?: string;
+      num_reminders?: number;
+      number_units?: number;
+      organization?: components["schemas"]["entities.OrganizationResponse"];
+      organization_id?: number;
+      payed_date?: string;
+      status?: components["schemas"]["entities.InvoiceStatus"];
+      sum_amount?: number;
+      tax_amount?: number;
+      tenant_id?: number;
+      total_amount?: number;
+      updated_at?: string;
+      user_id?: number;
+    };
+    /** @enum {string} */
+    "entities.InvoiceStatus": "draft" | "generated" | "sent" | "reminder" | "payed";
     "entities.MonthData": {
       /** @description Array of all days in month */
       days?: components["schemas"]["entities.DayData"][];
@@ -1389,6 +1541,18 @@ export interface components {
       zip?: string;
     };
     "entities.UpdateExternalCalendarRequest": Record<string, never>;
+    "entities.UpdateInvoiceRequest": {
+      /**
+       * @example [
+       *   1,
+       *   2,
+       *   3
+       * ]
+       */
+      session_ids?: number[];
+      /** @example sent */
+      status?: components["schemas"]["entities.InvoiceStatus"];
+    };
     "entities.UpdateOrganizationRequest": {
       additional_payment_methods?: Record<string, never>;
       /** @example Deutsche Bank */
@@ -1640,6 +1804,11 @@ export interface components {
       error?: string;
       message?: string;
       success?: boolean;
+    };
+    "github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse": {
+      code?: number;
+      details?: string;
+      error?: string;
     };
     "github_com_unburdy_unburdy-server-api_internal_models.ListResponse": {
       data?: unknown;
@@ -4871,6 +5040,242 @@ export interface operations {
       503: {
         content: {
           "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Get all invoices
+   * @description Retrieve all invoices for the authenticated user with pagination and all associations preloaded
+   */
+  getInvoices: {
+    parameters: {
+      query?: {
+        /** @description Page number */
+        page?: number;
+        /** @description Number of items per page */
+        limit?: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["entities.InvoiceListAPIResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Create a new invoice
+   * @description Create a new invoice with invoice items for specified sessions
+   */
+  createInvoice: {
+    /** @description Invoice information with client ID and session IDs */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["entities.CreateInvoiceRequest"];
+      };
+    };
+    responses: {
+      /** @description Created */
+      201: {
+        content: {
+          "application/json": components["schemas"]["entities.InvoiceAPIResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Get clients with unbilled sessions
+   * @description Retrieve all clients that have sessions not yet associated with any invoice
+   */
+  getClientsWithUnbilledSessions: {
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["entities.ClientSessionsAPIResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Get an invoice by ID
+   * @description Retrieve a specific invoice by ID with all associations preloaded
+   */
+  getInvoiceById: {
+    parameters: {
+      path: {
+        /** @description Invoice ID */
+        id: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["entities.InvoiceAPIResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Update an invoice
+   * @description Update an invoice's status or invoice items (not both at once)
+   */
+  updateInvoice: {
+    parameters: {
+      path: {
+        /** @description Invoice ID */
+        id: number;
+      };
+    };
+    /** @description Updated invoice information (status OR session_ids) */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["entities.UpdateInvoiceRequest"];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["entities.InvoiceAPIResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Delete an invoice
+   * @description Delete an invoice and all its invoice items by ID
+   */
+  deleteInvoice: {
+    parameters: {
+      path: {
+        /** @description Invoice ID */
+        id: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["entities.InvoiceDeleteResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
         };
       };
     };

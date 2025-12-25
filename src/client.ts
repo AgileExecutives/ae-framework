@@ -508,6 +508,39 @@ export class AESaasApiClient {
     return response;
   }
 
+  async getInvoices(params?: Record<string, any>) {
+    const response = await this.request<any>('GET', `/invoices`, undefined, params);
+    return response;
+  }
+
+  async createInvoice(data: any) {
+    const response = await this.request<ApiResponse<any>>('POST', `/invoices`, data);
+    return response;
+  }
+
+  async getClientsWithUnbilledSessions() {
+    const response = await this.request<any>('GET', `/invoices/clientsessions`, undefined);
+    return response;
+  }
+
+  async getInvoiceById(id: number) {
+    if (!id) throw new Error('id is required');
+    const response = await this.request<ApiResponse<any>>('GET', `/invoices/${id}`, undefined);
+    return response;
+  }
+
+  async updateInvoice(id: number, data: any) {
+    if (!id) throw new Error('id is required');
+    const response = await this.request<ApiResponse<any>>('PUT', `/invoices/${id}`, data);
+    return response;
+  }
+
+  async deleteInvoice(id: number) {
+    if (!id) throw new Error('id is required');
+    const response = await this.request<ApiResponse<any>>('DELETE', `/invoices/${id}`, undefined);
+    return response || { success: true };
+  }
+
   async getOrganizations(params?: Record<string, any>) {
     const response = await this.request<any>('GET', `/organizations`, undefined, params);
     return response;
