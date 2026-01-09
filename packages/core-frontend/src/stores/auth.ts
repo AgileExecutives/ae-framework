@@ -75,7 +75,7 @@ export const useAuthStore = defineStore('auth', () => {
 
       const client = getApiClient()
       const response = await client.login({
-        username: credentials.username,
+        email: credentials.username,
         password: credentials.password
       })
 
