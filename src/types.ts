@@ -33,6 +33,265 @@ export interface paths {
      */
     get: operations["getAuditStatistics"];
   };
+  "/auth/change-password": {
+    /**
+     * Change password
+     * @description Change password for authenticated user
+     */
+    post: operations["changePassword"];
+  };
+  "/auth/forgot-password": {
+    /**
+     * Request password reset
+     * @description Send password reset email to user
+     */
+    post: operations["forgotPassword"];
+  };
+  "/auth/login": {
+    /**
+     * User login
+     * @description Authenticate user with username/email and password
+     */
+    post: operations["login"];
+  };
+  "/auth/logout": {
+    /**
+     * User logout
+     * @description Logout user and invalidate token
+     */
+    post: operations["logout"];
+  };
+  "/auth/me": {
+    /**
+     * Get current user
+     * @description Get current authenticated user information
+     */
+    get: operations["getCurrentUser"];
+  };
+  "/auth/new-password/{token}": {
+    /**
+     * Reset password
+     * @description Reset user password with reset token
+     */
+    post: operations["resetPassword"];
+  };
+  "/auth/refresh": {
+    /**
+     * Refresh access token
+     * @description Refresh user access token
+     */
+    post: operations["refreshToken"];
+  };
+  "/auth/register": {
+    /**
+     * User registration
+     * @description Register a new user account
+     */
+    post: operations["register"];
+  };
+  "/auth/verify-email/{token}": {
+    /**
+     * Verify email address
+     * @description Verify user email address with verification token
+     */
+    get: operations["verifyEmail"];
+  };
+  "/booking/freeslots/{token}": {
+    /**
+     * Get available time slots for booking
+     * @description Retrieve available time slots based on a booking link token. Token is validated and must not be blacklisted.
+     */
+    get: operations["getBookingFreeSlots"];
+  };
+  "/booking/link": {
+    /**
+     * Create a booking link
+     * @description Generate a booking link token for a client to book appointments
+     */
+    post: operations["createBookingLink"];
+  };
+  "/booking/templates": {
+    /**
+     * Get all booking configurations
+     * @description Retrieve all booking configurations for the tenant
+     */
+    get: operations["listBookingTemplates"];
+    /**
+     * Create a new booking configuration
+     * @description Create a new booking configuration/template for a user's calendar
+     */
+    post: operations["createBookingTemplate"];
+  };
+  "/booking/templates/by-calendar": {
+    /**
+     * Get booking configurations by calendar ID
+     * @description Retrieve all booking configurations for a specific calendar
+     */
+    get: operations["listBookingTemplatesByCalendar"];
+  };
+  "/booking/templates/by-user": {
+    /**
+     * Get booking configurations by user ID
+     * @description Retrieve all booking configurations for a specific user
+     */
+    get: operations["listBookingTemplatesByUser"];
+  };
+  "/booking/templates/{id}": {
+    /**
+     * Get a booking configuration by ID
+     * @description Retrieve a specific booking configuration by ID
+     */
+    get: operations["getBookingTemplate"];
+    /**
+     * Update a booking configuration
+     * @description Update an existing booking configuration
+     */
+    put: operations["updateBookingTemplate"];
+    /**
+     * Delete a booking configuration
+     * @description Delete a booking configuration by ID
+     */
+    delete: operations["deleteBookingTemplate"];
+  };
+  "/calendar-entries": {
+    /**
+     * Get all calendar entries
+     * @description Retrieve all calendar entries for the authenticated user. All datetime fields are returned in UTC ISO 8601 format (e.g., 2025-11-04T09:00:00Z).
+     */
+    get: operations["getCalendarEntries"];
+    /**
+     * Create a new calendar entry
+     * @description Create a new calendar entry with UTC timestamps. All datetime fields use ISO 8601 format in UTC (e.g., 2025-11-04T09:00:00Z). Stored as timestamptz in PostgreSQL, ensuring timezone-aware storage and retrieval.
+     *
+     * **Request Body Fields:**
+     * - `calendar_id` (required): ID of the calendar to create the entry in
+     * - `series_id` (optional): ID of the series this entry belongs to
+     * - `title` (required): Title of the calendar entry
+     * - `is_exception` (optional): Whether this is an exception to a recurring series
+     * - `participants` (optional): JSON array of participant objects
+     * - `start_time` (optional): Start time in ISO 8601 UTC format (e.g., 2025-11-04T09:00:00Z)
+     * - `end_time` (optional): End time in ISO 8601 UTC format
+     * - `type` (optional): Type of event (e.g., "meeting", "appointment")
+     * - `description` (optional): Detailed description of the event
+     * - `location` (optional): Location of the event
+     * - `timezone` (optional): Timezone identifier (e.g., "Europe/Berlin")
+     * - `is_all_day` (optional): Whether this is an all-day event
+     */
+    post: operations["createCalendarEntry"];
+  };
+  "/calendar-entries/{id}": {
+    /**
+     * Get calendar entry by ID
+     * @description Retrieve a calendar entry by its ID. Returns datetime fields in UTC ISO 8601 format (e.g., 2025-11-04T09:00:00Z).
+     */
+    get: operations["getCalendarEntryById"];
+    /**
+     * Update calendar entry
+     * @description Update an existing calendar entry. Datetime fields use UTC ISO 8601 format (e.g., 2025-11-04T09:00:00Z).
+     */
+    put: operations["updateCalendarEntry"];
+    /**
+     * Delete calendar entry
+     * @description Delete a calendar entry by ID
+     */
+    delete: operations["deleteCalendarEntry"];
+  };
+  "/calendar-series": {
+    /**
+     * Get all calendar series
+     * @description Retrieve all calendar series for the authenticated user. All datetime fields are returned in UTC ISO 8601 format (e.g., 2025-11-04T09:00:00Z).
+     */
+    get: operations["getCalendarSeries"];
+    /**
+     * Create a new calendar series
+     * @description Create a new calendar series for recurring events. Start/end time fields use UTC ISO 8601 format (e.g., 2025-11-04T09:00:00Z). For recurring events, these represent the time portion that will be combined with calculated recurrence dates.
+     *
+     * **Request Body Fields:**
+     * - `calendar_id` (required): ID of the calendar to create the series in
+     * - `title` (required): Title of the recurring series
+     * - `participants` (optional): JSON array of participant objects
+     * - `interval_type` (required): Type of recurrence - one of: "none", "weekly", "monthly-date", "monthly-day", "yearly"
+     * - `interval_value` (required): Number of intervals between occurrences (e.g., 2 = every 2 weeks for weekly type)
+     * - `last_date` (optional): End date for the recurring series in ISO 8601 UTC format (e.g., 2025-12-31T23:59:59Z)
+     * - `start_time` (optional): Start time for each occurrence in ISO 8601 UTC format
+     * - `end_time` (optional): End time for each occurrence in ISO 8601 UTC format
+     * - `description` (optional): Description of the series
+     * - `location` (optional): Location for all events in the series
+     * - `timezone` (optional): Timezone identifier (e.g., "Europe/Berlin")
+     * - `external_uid` (optional): External unique identifier for integration
+     * - `external_calendar_uuid` (optional): UUID of external calendar if imported
+     *
+     * **Response:** Returns the created series and all auto-generated calendar entries based on the recurrence rules.
+     */
+    post: operations["createCalendarSeries"];
+  };
+  "/calendar-series/{id}": {
+    /**
+     * Get calendar series by ID
+     * @description Retrieve a calendar series by its ID. Returns datetime fields in UTC ISO 8601 format (e.g., 2025-11-04T09:00:00Z).
+     */
+    get: operations["getCalendarSeriesById"];
+    /**
+     * Update calendar series
+     * @description Update an existing calendar series. Datetime fields use UTC ISO 8601 format (e.g., 2025-11-04T09:00:00Z).
+     */
+    put: operations["updateCalendarSeries"];
+    /**
+     * Delete calendar series
+     * @description Delete a calendar series with two options: 'all' deletes the entire series and all entries, 'from_date' deletes entries from a specific date onwards and updates the series end date. When using 'from_date' mode, provide the from_date in UTC ISO 8601 format (e.g., 2025-12-01T00:00:00Z).
+     */
+    delete: operations["deleteCalendarSeries"];
+  };
+  "/calendars": {
+    /**
+     * Get calendars with complete metadata
+     * @description Retrieve all calendars for the authenticated user with 2-level deep preloading including entries with their series and series with their entries
+     */
+    get: operations["getCalendars"];
+    /**
+     * Create a new calendar
+     * @description Create a new calendar for the authenticated user
+     */
+    post: operations["createCalendar"];
+  };
+  "/calendars/week": {
+    /**
+     * Get calendar week view
+     * @description Retrieve calendar entries for a specific week
+     */
+    get: operations["getCalendarWeek"];
+  };
+  "/calendars/year": {
+    /**
+     * Get calendar year view
+     * @description Retrieve calendar entries for a specific year
+     */
+    get: operations["getCalendarYear"];
+  };
+  "/calendars/{id}": {
+    /**
+     * Get calendar by ID
+     * @description Retrieve a calendar by its ID
+     */
+    get: operations["getCalendarById"];
+    /**
+     * Update calendar
+     * @description Update an existing calendar
+     */
+    put: operations["updateCalendar"];
+    /**
+     * Delete calendar
+     * @description Delete a calendar by ID
+     */
+    delete: operations["deleteCalendar"];
+  };
+  "/calendars/{id}/import_holidays": {
+    /**
+     * Import holidays into calendar
+     * @description Import school holidays and public holidays into a specific calendar from unburdy format data
+     */
+    post: operations["importHolidays"];
+  };
   "/client-invoices": {
     /**
      * Get all invoices
@@ -167,6 +426,56 @@ export interface paths {
      */
     get: operations["getSessionsByClient"];
   };
+  "/contacts": {
+    /**
+     * Get all contacts
+     * @description Get paginated list of contacts with optional filters
+     */
+    get: operations["getContacts"];
+    /**
+     * Create new contact
+     * @description Create a new contact for the authenticated user
+     */
+    post: operations["createContact"];
+  };
+  "/contacts/form": {
+    /**
+     * Submit contact form
+     * @description Public endpoint to submit a contact form (no authentication required)
+     */
+    post: operations["submitContactForm"];
+  };
+  "/contacts/newsletter": {
+    /**
+     * Get newsletter subscriptions
+     * @description Get all newsletter subscriptions
+     */
+    get: operations["getNewsletterSubscriptions"];
+  };
+  "/contacts/newsletter/{email}": {
+    /**
+     * Unsubscribe from newsletter
+     * @description Unsubscribe an email address from the newsletter
+     */
+    delete: operations["unsubscribeFromNewsletter"];
+  };
+  "/contacts/{id}": {
+    /**
+     * Get contact by ID
+     * @description Get a specific contact by ID
+     */
+    get: operations["getContactById"];
+    /**
+     * Update contact
+     * @description Update an existing contact by ID
+     */
+    put: operations["updateContact"];
+    /**
+     * Delete contact
+     * @description Soft delete a contact by ID
+     */
+    delete: operations["deleteContact"];
+  };
   "/cost-providers": {
     /**
      * Get all cost providers
@@ -203,6 +512,172 @@ export interface paths {
      */
     delete: operations["deleteCostProvider"];
   };
+  "/customers": {
+    /**
+     * Get all customers
+     * @description Get a paginated list of all customers
+     */
+    get: operations["getCustomers"];
+    /**
+     * Create a new customer
+     * @description Create a new customer
+     */
+    post: operations["createCustomer"];
+  };
+  "/customers/{id}": {
+    /**
+     * Get customer by ID
+     * @description Get a specific customer by its ID
+     */
+    get: operations["getCustomerById"];
+    /**
+     * Update a customer
+     * @description Update an existing customer by ID
+     */
+    put: operations["updateCustomer"];
+    /**
+     * Delete a customer
+     * @description Soft delete a customer by ID
+     */
+    delete: operations["deleteCustomer"];
+  };
+  "/documents": {
+    /**
+     * Upload a document
+     * @description Upload a document file with metadata to MinIO storage
+     */
+    post: operations["uploadDocument"];
+  };
+  "/documents/pdf/invoice/{invoice_id}": {
+    /**
+     * Generate invoice PDF
+     * @description Generate a PDF invoice document using predefined templates
+     */
+    post: {
+      parameters: {
+        path: {
+          /** @description Invoice ID */
+          invoice_id: number;
+        };
+      };
+      responses: {
+        /** @description PDF file */
+        200: {
+          content: {
+            "application/pdf": string;
+          };
+        };
+        /** @description Invalid request */
+        400: {
+          content: {
+            "application/pdf": {
+              [key: string]: unknown;
+            };
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          content: {
+            "application/pdf": {
+              [key: string]: unknown;
+            };
+          };
+        };
+        /** @description Invoice not found */
+        404: {
+          content: {
+            "application/pdf": {
+              [key: string]: unknown;
+            };
+          };
+        };
+        /** @description Internal server error */
+        500: {
+          content: {
+            "application/pdf": {
+              [key: string]: unknown;
+            };
+          };
+        };
+      };
+    };
+  };
+  "/documents/{id}": {
+    /**
+     * Get document metadata
+     * @description Retrieve metadata for a specific document by ID
+     */
+    get: operations["getDocument"];
+    /**
+     * Delete document
+     * @description Soft delete a document (marks as deleted, does not remove from storage)
+     */
+    delete: operations["deleteDocument"];
+  };
+  "/documents/{id}/download": {
+    /**
+     * Download document
+     * @description Get a pre-signed URL for downloading a document (valid for 1 hour)
+     */
+    get: operations["downloadDocument"];
+  };
+  "/emails": {
+    /**
+     * Get all emails
+     * @description Get a paginated list of all emails
+     */
+    get: operations["getEmails"];
+  };
+  "/emails/send": {
+    /**
+     * Send an email
+     * @description Create and queue an email for sending
+     */
+    post: operations["sendEmail"];
+  };
+  "/emails/stats": {
+    /**
+     * Get email statistics
+     * @description Get email statistics including counts by status
+     */
+    get: operations["getEmailStats"];
+  };
+  "/emails/{id}": {
+    /**
+     * Get email by ID
+     * @description Get a specific email by its ID
+     */
+    get: operations["getEmailById"];
+  };
+  "/external-calendars": {
+    /**
+     * Get all external calendars
+     * @description Retrieve all external calendars for the authenticated user
+     */
+    get: operations["getExternalCalendars"];
+    /**
+     * Create a new external calendar
+     * @description Create a new external calendar
+     */
+    post: operations["createExternalCalendar"];
+  };
+  "/external-calendars/{id}": {
+    /**
+     * Get external calendar by ID
+     * @description Retrieve an external calendar by its ID
+     */
+    get: operations["getExternalCalendarById"];
+    /**
+     * Update external calendar
+     * @description Update an existing external calendar
+     */
+    put: operations["updateExternalCalendar"];
+    /**
+     * Delete external calendar
+     * @description Delete an external calendar by ID
+     */
+    delete: operations["deleteExternalCalendar"];
+  };
   "/extra-efforts": {
     /**
      * List extra efforts
@@ -232,6 +707,139 @@ export interface paths {
      */
     delete: operations["deleteExtraEffort"];
   };
+  "/health": {
+    /**
+     * Health check
+     * @description Check the health status of the API and database
+     */
+    get: operations["healthCheck"];
+  };
+  "/invoice-numbers/current": {
+    /**
+     * Get current sequence
+     * @description Get the current invoice number sequence for an organization
+     */
+    get: operations["getCurrentInvoiceSequence"];
+  };
+  "/invoice-numbers/generate": {
+    /**
+     * Generate next invoice number
+     * @description Generate the next sequential invoice number for an organization
+     */
+    post: operations["generateInvoiceNumber"];
+  };
+  "/invoice-numbers/history": {
+    /**
+     * Get invoice number history
+     * @description Retrieve the history of generated invoice numbers
+     */
+    get: operations["getInvoiceNumberHistory"];
+  };
+  "/invoice-numbers/void": {
+    /**
+     * Void invoice number
+     * @description Mark an invoice number as voided in the audit log
+     */
+    post: operations["voidInvoiceNumber"];
+  };
+  "/invoices": {
+    /**
+     * List invoices
+     * @description Get a paginated list of invoices with optional filters
+     */
+    get: {
+      parameters: {
+        query?: {
+          /** @description Filter by organization ID */
+          organization_id?: number;
+          /** @description Filter by status */
+          status?: "draft" | "sent" | "paid" | "overdue" | "cancelled";
+          /** @description Page number */
+          page?: number;
+          /** @description Page size */
+          page_size?: number;
+        };
+      };
+      responses: {
+        /** @description OK */
+        200: {
+          content: {
+            "application/json": {
+              [key: string]: unknown;
+            };
+          };
+        };
+        /** @description Bad Request */
+        400: {
+          content: {
+            "application/json": {
+              [key: string]: string;
+            };
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          content: {
+            "application/json": {
+              [key: string]: string;
+            };
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          content: {
+            "application/json": {
+              [key: string]: string;
+            };
+          };
+        };
+      };
+    };
+    /**
+     * Create a new invoice
+     * @description Create a new invoice with line items
+     */
+    post: {
+      /** @description Invoice data */
+      requestBody: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_invoice-module_entities.CreateInvoiceRequest"];
+        };
+      };
+      responses: {
+        /** @description Created */
+        201: {
+          content: {
+            "application/json": components["schemas"]["github_com_unburdy_invoice-module_entities.InvoiceResponse"];
+          };
+        };
+        /** @description Bad Request */
+        400: {
+          content: {
+            "application/json": {
+              [key: string]: string;
+            };
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          content: {
+            "application/json": {
+              [key: string]: string;
+            };
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          content: {
+            "application/json": {
+              [key: string]: string;
+            };
+          };
+        };
+      };
+    };
+  };
   "/invoices/draft": {
     /**
      * Create a draft invoice
@@ -247,6 +855,50 @@ export interface paths {
     get: operations["getVATCategories"];
   };
   "/invoices/{id}": {
+    /**
+     * Get invoice by ID
+     * @description Retrieve a single invoice by its ID
+     */
+    get: {
+      parameters: {
+        path: {
+          /** @description Invoice ID */
+          id: number;
+        };
+      };
+      responses: {
+        /** @description OK */
+        200: {
+          content: {
+            "application/json": components["schemas"]["github_com_unburdy_invoice-module_entities.InvoiceResponse"];
+          };
+        };
+        /** @description Bad Request */
+        400: {
+          content: {
+            "application/json": {
+              [key: string]: string;
+            };
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          content: {
+            "application/json": {
+              [key: string]: string;
+            };
+          };
+        };
+        /** @description Not Found */
+        404: {
+          content: {
+            "application/json": {
+              [key: string]: string;
+            };
+          };
+        };
+      };
+    };
     /**
      * Update a draft invoice
      * @description Edit a draft invoice by adding/removing items and recalculating totals
@@ -286,6 +938,20 @@ export interface paths {
      */
     post: operations["markInvoiceAsPaid"];
   };
+  "/invoices/{id}/pdf": {
+    /**
+     * Download invoice PDF
+     * @description Download the PDF document for a finalized invoice
+     */
+    get: operations["downloadInvoicePDF"];
+  };
+  "/invoices/{id}/preview-pdf": {
+    /**
+     * Preview invoice PDF
+     * @description Generate and display PDF for preview without download
+     */
+    get: operations["previewInvoicePDF"];
+  };
   "/invoices/{id}/reminder": {
     /**
      * Send payment reminder
@@ -306,6 +972,106 @@ export interface paths {
      * @description Generate and download XRechnung-compliant UBL XML for a finalized invoice to a government customer
      */
     get: operations["exportXRechnung"];
+  };
+  "/organizations": {
+    /**
+     * Get all organizations
+     * @description Retrieve all organizations for the authenticated user with pagination
+     */
+    get: operations["getOrganizations"];
+    /**
+     * Create a new organization
+     * @description Create a new organization with the provided information
+     */
+    post: operations["createOrganization"];
+  };
+  "/organizations/supported-formats": {
+    /**
+     * Get supported formats
+     * @description Get all supported date, time, and amount formats with examples
+     */
+    get: operations["getSupportedFormats"];
+  };
+  "/organizations/{id}": {
+    /**
+     * Get an organization by ID
+     * @description Retrieve a specific organization by ID
+     */
+    get: operations["getOrganizationById"];
+    /**
+     * Update an organization
+     * @description Update an organization's information
+     */
+    put: operations["updateOrganization"];
+    /**
+     * Delete an organization
+     * @description Delete an organization by ID
+     */
+    delete: operations["deleteOrganization"];
+  };
+  "/organizations/{id}/billing-config": {
+    /**
+     * Update organization billing configuration
+     * @description Update billing mode and configuration for extra efforts tracking
+     */
+    put: operations["updateOrganizationBillingConfig"];
+  };
+  "/pdf/create": {
+    /**
+     * Generate PDF from template
+     * @description Generate a PDF document based on a specified template and data
+     */
+    post: operations["createPdf"];
+  };
+  "/pdfs/from-template": {
+    /**
+     * Generate PDF from template
+     * @description Generate a PDF document from a template with data
+     */
+    post: operations["generatePDFFromTemplate"];
+  };
+  "/pdfs/generate": {
+    /**
+     * Generate PDF from HTML
+     * @description Generate a PDF document from HTML content using Chromedp
+     */
+    post: operations["generatePDFFromHTML"];
+  };
+  "/ping": {
+    /**
+     * Ping check
+     * @description Simple ping endpoint
+     */
+    get: operations["ping"];
+  };
+  "/plans": {
+    /**
+     * Get all plans
+     * @description Get a list of all available subscription plans
+     */
+    get: operations["getPlans"];
+    /**
+     * Create a new plan
+     * @description Create a new subscription plan (admin only)
+     */
+    post: operations["createPlan"];
+  };
+  "/plans/{id}": {
+    /**
+     * Get plan by ID
+     * @description Get a specific subscription plan by its ID
+     */
+    get: operations["getPlanById"];
+    /**
+     * Update a plan
+     * @description Update an existing subscription plan (admin only)
+     */
+    put: operations["updatePlan"];
+    /**
+     * Delete a plan
+     * @description Delete a subscription plan (admin only)
+     */
+    delete: operations["deletePlan"];
   };
   "/sessions": {
     /**
@@ -363,6 +1129,89 @@ export interface paths {
      * @description Delete a session by ID
      */
     delete: operations["deleteSession"];
+  };
+  "/static": {
+    /**
+     * List available static JSON files
+     * @description Get a list of all JSON files available in the statics/json directory
+     */
+    get: operations["listStaticFiles"];
+  };
+  "/static/{filename}": {
+    /**
+     * Serve static JSON files (JSON only, security restricted)
+     * @description Securely serve JSON data files from statics/json directory only. Prevents access to other directories or file types.
+     */
+    get: operations["getStaticFile"];
+  };
+  "/templates": {
+    /**
+     * List templates
+     * @description List templates with optional filters and pagination (organization_id from auth middleware)
+     */
+    get: operations["listTemplates"];
+    /**
+     * Create template
+     * @description Create a new email/PDF template with content stored in MinIO
+     */
+    post: operations["createTemplate"];
+  };
+  "/templates/default": {
+    /**
+     * Get default template
+     * @description Get the default template for a specific type (organization from auth middleware)
+     */
+    get: operations["getDefaultTemplate"];
+  };
+  "/templates/{id}": {
+    /**
+     * Get template
+     * @description Get template metadata by ID
+     */
+    get: operations["getTemplate"];
+    /**
+     * Update template
+     * @description Update template metadata or content (creates new version)
+     */
+    put: operations["updateTemplate"];
+    /**
+     * Delete template
+     * @description Soft delete a template
+     */
+    delete: operations["deleteTemplate"];
+  };
+  "/templates/{id}/duplicate": {
+    /**
+     * Duplicate template
+     * @description Create a copy of an existing template
+     */
+    post: operations["duplicateTemplate"];
+  };
+  "/templates/{id}/render": {
+    /**
+     * Render template
+     * @description Render template with provided data
+     */
+    post: operations["renderTemplate"];
+  };
+  "/user-settings": {
+    /**
+     * Get user settings
+     * @description Get settings for the authenticated user (creates default if not found)
+     */
+    get: operations["getUserSettings"];
+    /**
+     * Update user settings
+     * @description Update settings for the authenticated user
+     */
+    put: operations["updateUserSettings"];
+  };
+  "/user-settings/reset": {
+    /**
+     * Reset user settings
+     * @description Reset user settings to default values
+     */
+    post: operations["resetUserSettings"];
   };
 }
 
@@ -526,6 +1375,102 @@ export interface components {
       /** @example therapy */
       type: string;
     };
+    "entities.BookingLinkResponse": {
+      created_at?: string;
+      expires_at?: string;
+      purpose?: components["schemas"]["entities.TokenPurpose"];
+      token?: string;
+      url?: string;
+    };
+    "entities.BookingTemplateResponse": {
+      advance_booking_days?: number;
+      allow_back_to_back?: boolean;
+      allowed_intervals?: components["schemas"]["entities.IntervalType"][];
+      /**
+       * @description Allowed start minute marks within an hour (e.g., [0,15,30,45]). Empty when all allowed.
+       * swagger:example [0,15,30,45]
+       */
+      allowed_start_minutes?: number[];
+      block_dates?: components["schemas"]["entities.DateRange"][];
+      buffer_time?: number;
+      calendar_id?: number;
+      created_at?: string;
+      description?: string;
+      id?: number;
+      max_bookings_per_day?: number;
+      max_series_bookings?: number;
+      min_notice_hours?: number;
+      name?: string;
+      number_of_intervals?: number;
+      slot_duration?: number;
+      tenant_id?: number;
+      timezone?: string;
+      updated_at?: string;
+      user_id?: number;
+      weekly_availability?: components["schemas"]["entities.WeeklyAvailability"];
+    };
+    "entities.CalendarEntryResponse": {
+      calendar_id?: number;
+      created_at?: string;
+      description?: string;
+      end_time?: string;
+      id?: number;
+      is_all_day?: boolean;
+      is_exception?: boolean;
+      location?: string;
+      participants?: number[];
+      position_in_series?: number;
+      series?: components["schemas"]["entities.CalendarSeriesResponse"];
+      series_id?: number;
+      start_time?: string;
+      tenant_id?: number;
+      timezone?: string;
+      title?: string;
+      type?: string;
+      updated_at?: string;
+      user_id?: number;
+    };
+    "entities.CalendarResponse": {
+      calendar_entries?: components["schemas"]["entities.CalendarEntryResponse"][];
+      calendar_series?: components["schemas"]["entities.CalendarSeriesResponse"][];
+      calendar_uuid?: string;
+      color?: string;
+      created_at?: string;
+      external_calendars?: components["schemas"]["entities.ExternalCalendarResponse"][];
+      id?: number;
+      tenant_id?: number;
+      timezone?: string;
+      title?: string;
+      updated_at?: string;
+      user_id?: number;
+      weekly_availability?: number[];
+    };
+    "entities.CalendarSeriesResponse": {
+      calendar_id?: number;
+      created_at?: string;
+      description?: string;
+      end_time?: string;
+      entry_uuid?: string;
+      external_calendar_uuid?: string;
+      external_uid?: string;
+      id?: number;
+      interval_type?: string;
+      interval_value?: number;
+      last_date?: string;
+      location?: string;
+      participants?: number[];
+      sequence?: number;
+      start_time?: string;
+      tenant_id?: number;
+      timezone?: string;
+      title?: string;
+      updated_at?: string;
+      user_id?: number;
+    };
+    "entities.CalendarSeriesWithEntriesResponse": {
+      entries?: components["schemas"]["entities.CalendarEntryResponse"][];
+      series?: components["schemas"]["entities.CalendarSeriesResponse"];
+    };
     "entities.ClientInvoiceResponse": {
       client?: components["schemas"]["entities.ClientResponse"];
       client_id?: number;
@@ -630,6 +1575,96 @@ export interface components {
       updated_at?: string;
       zip?: string;
     };
+    "entities.CreateBookingLinkRequest": {
+      client_id: number;
+      /** @description Maximum number of uses (0 = unlimited, 1 = one-time) */
+      max_use_count?: number;
+      template_id: number;
+      /** @enum {unknown} */
+      token_purpose: "one-time-booking-link" | "timed-booking-link";
+      /** @description Number of days token is valid (default: 180 for timed links, 1 for one-time) */
+      validity_days?: number;
+    };
+    "entities.CreateBookingTemplateRequest": {
+      advance_booking_days: number;
+      allow_back_to_back?: boolean;
+      allowed_intervals: components["schemas"]["entities.IntervalType"][];
+      /**
+       * @description Allowed start minute marks within an hour (e.g., [0,15,30,45]). Optional.
+       * Allowed start minute marks within an hour (e.g., [0,15,30,45]). Optional. Empty means all minute marks permitted.
+       * swagger:example [0,15,30,45]
+       */
+      allowed_start_minutes?: number[];
+      block_dates?: components["schemas"]["entities.DateRange"][];
+      buffer_time?: number;
+      calendar_id: number;
+      description?: string;
+      max_bookings_per_day?: number;
+      max_series_bookings: number;
+      min_notice_hours: number;
+      name: string;
+      number_of_intervals: number;
+      slot_duration: number;
+      timezone: string;
+      user_id: number;
+      weekly_availability: components["schemas"]["entities.WeeklyAvailability"];
+    };
+    "entities.CreateCalendarEntryRequest": {
+      /** @example 1 */
+      calendar_id: number;
+      /** @example Team meeting */
+      description?: string;
+      /** @example 2025-11-04T10:00:00Z */
+      end_time?: string;
+      /** @example false */
+      is_all_day?: boolean;
+      /** @example false */
+      is_exception?: boolean;
+      /** @example Conference Room A */
+      location?: string;
+      participants?: Record<string, never>;
+      /** @example 1 */
+      series_id?: number;
+      /** @example 2025-11-04T09:00:00Z */
+      start_time?: string;
+      /** @example Europe/Berlin */
+      timezone?: string;
+      /** @example Meeting */
+      title: string;
+      /** @example meeting */
+      type?: string;
+    };
+    "entities.CreateCalendarRequest": Record<string, never>;
+    "entities.CreateCalendarSeriesRequest": {
+      /** @example 1 */
+      calendar_id: number;
+      /** @example Weekly team meeting */
+      description?: string;
+      /** @example 2025-11-04T10:00:00Z */
+      end_time?: string;
+      /** @example ext-cal-123 */
+      external_calendar_uuid?: string;
+      /** @example ext-123 */
+      external_uid?: string;
+      /**
+       * @example weekly
+       * @enum {string}
+       */
+      interval_type: "none" | "weekly" | "monthly-date" | "monthly-day" | "yearly";
+      /** @example 1 */
+      interval_value: number;
+      /** @example 2025-12-31T23:59:59Z */
+      last_date?: string;
+      /** @example Conference Room A */
+      location?: string;
+      participants?: Record<string, never>;
+      /** @example 2025-11-04T09:00:00Z */
+      start_time?: string;
+      /** @example Europe/Berlin */
+      timezone?: string;
+      /** @example Weekly Meeting */
+      title: string;
+    };
     "entities.CreateClientRequest": Record<string, never>;
     "entities.CreateCostProviderRequest": {
       /** @example Jugendamt Berlin */
@@ -687,6 +1722,7 @@ export interface components {
        */
       session_ids?: number[];
     };
+    "entities.CreateExternalCalendarRequest": Record<string, never>;
     "entities.CreateExtraEffortRequest": {
       /** @example true */
       billable?: boolean;
@@ -753,8 +1789,67 @@ export interface components {
       /** @example 19 */
       vat_rate?: number;
     };
+    "entities.DateRange": {
+      /** @description Date in YYYY-MM-DD format */
+      end?: string;
+      /** @description Date in YYYY-MM-DD format */
+      start?: string;
+    };
+    "entities.DayData": {
+      /** @description Number of free slots */
+      availableCount?: number;
+      /** @description YYYY-MM-DD format */
+      date?: string;
+      /** @description "available", "partial", "none" */
+      status?: string;
+    };
+    "entities.DeleteCalendarSeriesRequest": {
+      /**
+       * @description DeleteMode specifies the deletion mode: "all" or "from_date"
+       * @example all
+       * @enum {string}
+       */
+      delete_mode: "all" | "from_date";
+      /**
+       * @description FromDate is required when delete_mode is "from_date" - all entries from this date onwards will be deleted (UTC ISO 8601 format)
+       * @example 2025-12-01T00:00:00Z
+       */
+      from_date?: string;
+    };
+    "entities.DocumentResponse": {
+      content_type?: string;
+      created_at?: string;
+      document_type?: string;
+      file_name?: string;
+      file_size_bytes?: number;
+      id?: number;
+      metadata?: {
+        [key: string]: unknown;
+      };
+      organization_id?: number;
+      reference_id?: number;
+      reference_type?: string;
+      storage_bucket?: string;
+      tags?: string[];
+      tenant_id?: number;
+      updated_at?: string;
+    };
     /** @enum {string} */
     "entities.EntityType": "invoice" | "invoice_item" | "session" | "extra_effort";
+    "entities.ExternalCalendarResponse": {
+      calendar_id?: number;
+      calendar_uuid?: string;
+      color?: string;
+      created_at?: string;
+      id?: number;
+      settings?: number[];
+      sync_last_run?: string;
+      tenant_id?: number;
+      title?: string;
+      updated_at?: string;
+      url?: string;
+      user_id?: number;
+    };
     "entities.ExtraEffortAPIResponse": {
       data?: components["schemas"]["entities.ExtraEffortResponse"];
       /** @example Extra effort retrieved successfully */
@@ -789,6 +1884,30 @@ export interface components {
       id?: number;
       session_id?: number;
     };
+    "entities.FreeSlotsResponse": {
+      config?: components["schemas"]["entities.SlotConfiguration"];
+      monthData?: components["schemas"]["entities.MonthData"];
+      slots?: components["schemas"]["entities.TimeSlot"][];
+      template?: components["schemas"]["entities.BookingTemplateResponse"];
+    };
+    "entities.HolidayImportResult": {
+      errors?: string[];
+      imported_years?: string[];
+      public_holidays?: number;
+      school_holidays?: number;
+      total_imported?: number;
+    };
+    "entities.ImportHolidaysRequest": {
+      holidays: components["schemas"]["entities.UnburdyHolidaysData"];
+      /** @example BW */
+      state: string;
+      /** @example 2025 */
+      year_from: number;
+      /** @example 2027 */
+      year_to: number;
+    };
+    /** @enum {string} */
+    "entities.IntervalType": "none" | "weekly" | "monthly-date" | "monthly-day" | "yearly";
     "entities.InvoiceAPIResponse": {
       data?: components["schemas"]["github_com_unburdy_unburdy-server-api_modules_client_management_entities.InvoiceResponse"];
       /** @example Invoice retrieved successfully */
@@ -801,6 +1920,12 @@ export interface components {
       message?: string;
       /** @example true */
       success?: boolean;
+    };
+    "entities.InvoiceItemData": {
+      description: string;
+      quantity: number;
+      tax_rate?: number;
+      unit_price: number;
     };
     "entities.InvoiceListAPIResponse": {
       data?: components["schemas"]["github_com_unburdy_unburdy-server-api_modules_client_management_entities.InvoiceResponse"][];
@@ -820,6 +1945,14 @@ export interface components {
       payment_date?: string;
       /** @example TRANSFER-123456 */
       payment_reference?: string;
+    };
+    "entities.MonthData": {
+      /** @description Array of all days in month */
+      days?: components["schemas"]["entities.DayData"][];
+      /** @description 1-12 */
+      month?: number;
+      /** @description e.g., 2025 */
+      year?: number;
     };
     "entities.NullableDate": {
       "time.Time"?: string;
@@ -862,6 +1995,147 @@ export interface components {
       tenant_id?: number;
       type?: string;
       updated_at?: string;
+    };
+    "entities.SlotConfiguration": {
+      /** @description Buffer between slots in minutes */
+      buffer_time?: number;
+      /** @description Slot duration in minutes */
+      duration?: number;
+      /** @description "weekly", "biweekly", "none" */
+      interval?: string;
+      /** @description Max number of series slots */
+      number_max?: number;
+      /** @description Weekly availability config */
+      weekly_availability?: components["schemas"]["entities.WeeklyAvailability"];
+    };
+    "entities.TemplateResponse": {
+      created_at?: string;
+      description?: string;
+      id?: number;
+      is_active?: boolean;
+      is_default?: boolean;
+      name?: string;
+      organization_id?: number;
+      preview_url?: string;
+      sample_data?: {
+        [key: string]: unknown;
+      };
+      template_type?: string;
+      tenant_id?: number;
+      updated_at?: string;
+      variables?: string[];
+      version?: number;
+    };
+    "entities.TimeRange": {
+      /** @description Time in HH:mm format (e.g., "17:00") */
+      end?: string;
+      /** @description Time in HH:mm format (e.g., "09:00") */
+      start?: string;
+    };
+    "entities.TimeSlot": {
+      /** @description Is this slot available? */
+      available?: boolean;
+      /** @description Number of available recurrences for series bookings (0 if not series) */
+      available_recurrences?: number;
+      /** @description YYYY-MM-DD format */
+      date?: string;
+      /** @description Duration in minutes */
+      duration?: number;
+      /** @description ISO datetime (e.g., "2025-11-05T09:30:00+01:00") */
+      end_time?: string;
+      /** @description Unique identifier (e.g., "slot-2025-11-05-09-00") */
+      id?: string;
+      /** @description ISO datetime (e.g., "2025-11-05T09:00:00+01:00") */
+      start_time?: string;
+      /** @description HH:mm format */
+      time?: string;
+      /** @description "morning", "afternoon", "evening" */
+      time_of_day?: string;
+      /** @description e.g., "Europe/Berlin" */
+      timezone?: string;
+    };
+    /** @enum {string} */
+    "entities.TokenPurpose": "one-time-booking-link" | "timed-booking-link";
+    "entities.UnburdyHolidaysData": {
+      public_holidays?: {
+        [key: string]: {
+          [key: string]: string;
+        };
+      };
+      school_holidays?: {
+        [key: string]: {
+          [key: string]: string[];
+        };
+      };
+    };
+    "entities.UpdateBookingTemplateRequest": {
+      advance_booking_days?: number;
+      allow_back_to_back?: boolean;
+      allowed_intervals?: components["schemas"]["entities.IntervalType"][];
+      /**
+       * @description Allowed start minute marks within an hour (e.g., [0,15,30,45]). Optional.
+       * Allowed start minute marks within an hour (e.g., [0,15,30,45]). Optional. Empty means all minute marks permitted.
+       * swagger:example [0,15,30,45]
+       */
+      allowed_start_minutes?: number[];
+      block_dates?: components["schemas"]["entities.DateRange"][];
+      buffer_time?: number;
+      description?: string;
+      max_bookings_per_day?: number;
+      max_series_bookings?: number;
+      min_notice_hours?: number;
+      name?: string;
+      number_of_intervals?: number;
+      slot_duration?: number;
+      timezone?: string;
+      weekly_availability?: components["schemas"]["entities.WeeklyAvailability"];
+    };
+    "entities.UpdateCalendarEntryRequest": {
+      /** @example Updated team meeting */
+      description?: string;
+      /** @example 2025-11-04T10:00:00Z */
+      end_time?: string;
+      /** @example false */
+      is_all_day?: boolean;
+      /** @example false */
+      is_exception?: boolean;
+      /** @example Conference Room A */
+      location?: string;
+      participants?: Record<string, never>;
+      /** @example 1 */
+      position_in_series?: number;
+      /** @example 2025-11-04T09:00:00Z */
+      start_time?: string;
+      /** @example Europe/Berlin */
+      timezone?: string;
+      /** @example Updated Meeting */
+      title?: string;
+      /** @example meeting */
+      type?: string;
+    };
+    "entities.UpdateCalendarRequest": Record<string, never>;
+    "entities.UpdateCalendarSeriesRequest": {
+      /** @example Weekly team meeting - updated */
+      description?: string;
+      /** @example 2025-11-04T10:00:00Z */
+      end_time?: string;
+      /** @example ext-123-updated */
+      external_uid?: string;
+      /** @example weekly */
+      interval_type?: string;
+      /** @example 1 */
+      interval_value?: number;
+      /** @example 2025-12-31T23:59:59Z */
+      last_date?: string;
+      /** @example Conference Room B */
+      location?: string;
+      participants?: Record<string, never>;
+      /** @example 2025-11-04T09:00:00Z */
+      start_time?: string;
+      /** @example Europe/Berlin */
+      timezone?: string;
+      /** @example Weekly Meeting Updated */
+      title?: string;
     };
     "entities.UpdateClientRequest": Record<string, never>;
     "entities.UpdateCostProviderRequest": {
@@ -914,6 +2188,7 @@ export interface components {
        */
       remove_session_ids?: number[];
     };
+    "entities.UpdateExternalCalendarRequest": Record<string, never>;
     "entities.UpdateExtraEffortRequest": {
       /** @example false */
       billable?: boolean;
@@ -956,11 +2231,280 @@ export interface components {
       subtotal?: number;
       total_tax?: number;
     };
+    "entities.WeeklyAvailability": {
+      friday?: components["schemas"]["entities.TimeRange"][];
+      monday?: components["schemas"]["entities.TimeRange"][];
+      saturday?: components["schemas"]["entities.TimeRange"][];
+      sunday?: components["schemas"]["entities.TimeRange"][];
+      thursday?: components["schemas"]["entities.TimeRange"][];
+      tuesday?: components["schemas"]["entities.TimeRange"][];
+      wednesday?: components["schemas"]["entities.TimeRange"][];
+    };
+    "github_com_ae-base-server_internal_models.APIResponse": {
+      data?: unknown;
+      error?: string;
+      message?: string;
+      success?: boolean;
+    };
+    /** @description Contact form submission request */
+    "github_com_ae-base-server_internal_models.ContactFormRequest": {
+      /** @example john.doe@example.com */
+      email: string;
+      /** @example I am interested in learning more about your therapy services. */
+      message: string;
+      /** @example John Doe */
+      name: string;
+      /** @example true */
+      newsletter?: boolean;
+      /** @example website */
+      source: string;
+      /** @example Inquiry about therapy services */
+      subject: string;
+      /** @example 2025-08-03T10:00:00Z */
+      timestamp?: string;
+    };
+    "github_com_ae-base-server_internal_models.CustomerResponse": {
+      active?: boolean;
+      city?: string;
+      country?: string;
+      created_at?: string;
+      email?: string;
+      id?: number;
+      name?: string;
+      payment_method?: string;
+      phone?: string;
+      plan?: components["schemas"]["models.PlanResponse"];
+      plan_id?: number;
+      status?: string;
+      street?: string;
+      tax_id?: string;
+      tenant?: components["schemas"]["github_com_ae-base-server_internal_models.TenantResponse"];
+      tenant_id?: number;
+      vat?: string;
+      zip?: string;
+    };
+    "github_com_ae-base-server_internal_models.EmailResponse": {
+      created_at?: string;
+      delivered_at?: string;
+      error_message?: string;
+      from?: string;
+      id?: number;
+      sent_at?: string;
+      status?: string;
+      subject?: string;
+      to?: string;
+    };
+    "github_com_ae-base-server_internal_models.EmailSendRequest": {
+      body: string;
+      from: string;
+      html_body?: string;
+      subject: string;
+      to: string;
+    };
+    "github_com_ae-base-server_internal_models.ErrorResponse": {
+      code?: number;
+      details?: string;
+      error?: string;
+    };
+    "github_com_ae-base-server_internal_models.ListResponse": {
+      data?: unknown;
+      pagination?: components["schemas"]["github_com_ae-base-server_internal_models.PaginationResponse"];
+    };
+    "github_com_ae-base-server_internal_models.LoginRequest": {
+      password: string;
+      username: string;
+    };
+    "github_com_ae-base-server_internal_models.LoginResponse": {
+      token?: string;
+      user?: components["schemas"]["github_com_ae-base-server_internal_models.UserResponse"];
+    };
+    "github_com_ae-base-server_internal_models.Newsletter": {
+      /** @example 2025-08-03T10:00:00Z */
+      createdAt?: string;
+      /** @example john.doe@example.com */
+      email?: string;
+      /** @example 1 */
+      id?: number;
+      /** @example mental_health */
+      interest?: string;
+      /** @example 2025-08-03T10:00:00Z */
+      lastContact?: string;
+      /** @example John Doe */
+      name?: string;
+      /** @example website */
+      source?: string;
+      /** @example 2025-08-03T10:00:00Z */
+      updatedAt?: string;
+    };
     "github_com_ae-base-server_internal_models.PaginationResponse": {
       limit?: number;
       page?: number;
       total?: number;
       total_pages?: number;
+    };
+    "github_com_ae-base-server_internal_models.Plan": {
+      active?: boolean;
+      created_at?: string;
+      currency?: string;
+      description?: string;
+      features?: string;
+      id?: number;
+      invoice_period?: string;
+      max_clients?: number;
+      max_users?: number;
+      name: string;
+      price: number;
+      slug: string;
+      updated_at?: string;
+    };
+    "github_com_ae-base-server_internal_models.TenantResponse": {
+      created_at?: string;
+      customer_id?: number;
+      id?: number;
+      name?: string;
+      slug?: string;
+    };
+    "github_com_ae-base-server_internal_models.UserCreateRequest": {
+      /** @description Terms and conditions acceptance */
+      accept_terms?: boolean;
+      /** @description Required unless user-signup token is present */
+      company_name?: string;
+      email: string;
+      first_name: string;
+      last_name: string;
+      /** @description Newsletter subscription */
+      newsletter_opt_in?: boolean;
+      password: string;
+      role?: string;
+      username: string;
+    };
+    "github_com_ae-base-server_internal_models.UserResponse": {
+      active?: boolean;
+      created_at?: string;
+      email?: string;
+      email_verified?: boolean;
+      email_verified_at?: string;
+      first_name?: string;
+      id?: number;
+      last_name?: string;
+      organization_id?: number;
+      role?: string;
+      tenant?: components["schemas"]["github_com_ae-base-server_internal_models.TenantResponse"];
+      tenant_id?: number;
+      username?: string;
+    };
+    "github_com_ae-base-server_modules_base_models.ErrorResponse": {
+      code?: number;
+      details?: string;
+      error?: string;
+    };
+    "github_com_ae-base-server_modules_base_models.HealthResponse": {
+      database?: string;
+      environment?: {
+        [key: string]: unknown;
+      };
+      status?: string;
+      timestamp?: string;
+      version?: string;
+    };
+    "github_com_ae-base-server_modules_pdf_handlers.ErrorResponse": {
+      /** @example Additional error details */
+      details?: string;
+      /** @example Template name is required */
+      error?: string;
+    };
+    "github_com_ae-base-server_modules_pdf_handlers.PDFGenerateRequest": {
+      data?: {
+        [key: string]: unknown;
+      };
+      /** @example generated-report */
+      fileName?: string;
+      /** @example report.html */
+      templateName?: string;
+    };
+    "github_com_ae-base-server_modules_pdf_handlers.PDFGenerateResponse": {
+      /** @example generated-report.pdf */
+      filename?: string;
+      /** @example PDF generated successfully */
+      message?: string;
+      /** @example true */
+      success?: boolean;
+    };
+    "github_com_unburdy_documents-module_handlers.ErrorResponse": {
+      /** @example Error message */
+      error?: string;
+      /** @example false */
+      success?: boolean;
+    };
+    "github_com_unburdy_invoice-module_entities.CreateInvoiceRequest": {
+      currency?: string;
+      customer_address?: string;
+      customer_email?: string;
+      customer_name: string;
+      customer_tax_id?: string;
+      due_date?: string;
+      internal_note?: string;
+      invoice_date: string;
+      invoice_number: string;
+      items: components["schemas"]["entities.InvoiceItemData"][];
+      notes?: string;
+      organization_id: number;
+      payment_method?: string;
+      payment_terms?: string;
+      tax_rate?: number;
+      /** @description HTML template for PDF generation */
+      template_html?: string;
+    };
+    "github_com_unburdy_invoice-module_entities.InvoiceItemResponse": {
+      amount?: number;
+      description?: string;
+      id?: number;
+      position?: number;
+      quantity?: number;
+      tax_rate?: number;
+      unit_price?: number;
+    };
+    "github_com_unburdy_invoice-module_entities.InvoiceResponse": {
+      created_at?: string;
+      currency?: string;
+      customer_address?: string;
+      customer_email?: string;
+      customer_name?: string;
+      customer_tax_id?: string;
+      document_id?: number;
+      due_date?: string;
+      id?: number;
+      invoice_date?: string;
+      invoice_number?: string;
+      items?: components["schemas"]["github_com_unburdy_invoice-module_entities.InvoiceItemResponse"][];
+      notes?: string;
+      organization_id?: number;
+      payment_date?: string;
+      payment_method?: string;
+      payment_terms?: string;
+      status?: components["schemas"]["github_com_unburdy_invoice-module_entities.InvoiceStatus"];
+      subtotal_amount?: number;
+      tax_amount?: number;
+      tax_rate?: number;
+      tenant_id?: number;
+      total_amount?: number;
+      updated_at?: string;
+      user_id?: number;
+    };
+    /** @enum {string} */
+    "github_com_unburdy_invoice-module_entities.InvoiceStatus": "draft" | "sent" | "paid" | "overdue" | "cancelled";
+    "github_com_unburdy_invoice-module_entities.UpdateInvoiceRequest": {
+      customer_address?: string;
+      customer_email?: string;
+      customer_name?: string;
+      due_date?: string;
+      internal_note?: string;
+      items?: components["schemas"]["entities.InvoiceItemData"][];
+      notes?: string;
+      payment_date?: string;
+      payment_method?: string;
+      payment_terms?: string;
+      status?: components["schemas"]["github_com_unburdy_invoice-module_entities.InvoiceStatus"];
     };
     "github_com_unburdy_unburdy-server-api_internal_models.APIResponse": {
       data?: unknown;
@@ -1057,6 +2601,132 @@ export interface components {
       organization_id: number;
       template_id?: number;
     };
+    "handlers.CreateTemplateRequest": {
+      /** @example <!DOCTYPE html>... */
+      content: string;
+      /** @example Default invoice template */
+      description?: string;
+      /** @example true */
+      is_active?: boolean;
+      /** @example false */
+      is_default?: boolean;
+      /** @example Standard Invoice */
+      name: string;
+      /** @example 10 */
+      organization_id?: number;
+      sample_data?: {
+        [key: string]: unknown;
+      };
+      /** @example invoice */
+      template_type: string;
+      /**
+       * @example [
+       *   "customer_name",
+       *   "date"
+       * ]
+       */
+      variables?: string[];
+    };
+    "handlers.DownloadURLResponse": {
+      /** @example 1 */
+      document_id?: number;
+      /** @example https://minio.example.com/... */
+      download_url?: string;
+      /** @example 2025-12-26T11:00:00Z */
+      expires_at?: string;
+      /** @example invoice-001.pdf */
+      file_name?: string;
+      /** @example Download URL generated successfully */
+      message?: string;
+      /** @example true */
+      success?: boolean;
+    };
+    "handlers.GenerateInvoiceNumberRequest": {
+      /** @example 12 */
+      month?: number;
+      /**
+       * @description "MM", "M", or ""
+       * @example MM
+       */
+      month_format?: string;
+      /**
+       * @description Optional - will use authenticated user's organization if not provided
+       * @example 10
+       */
+      organization_id?: number;
+      /**
+       * @description e.g., 4 for "0001"
+       * @example 4
+       */
+      padding?: number;
+      /** @example INV */
+      prefix?: string;
+      /**
+       * @description pointer to distinguish false from not set
+       * @example false
+       */
+      reset_monthly?: boolean;
+      /**
+       * @description e.g., "-"
+       * @example -
+       */
+      separator?: string;
+      /** @example 2025 */
+      year?: number;
+      /**
+       * @description "YYYY" or "YY"
+       * @example YYYY
+       */
+      year_format?: string;
+    };
+    "handlers.InvoiceNumberResponse": {
+      /** @example INV-2025-0001 */
+      invoice_number?: string;
+      /** @example 12 */
+      month?: number;
+      /** @example 1 */
+      sequence?: number;
+      /** @example true */
+      success?: boolean;
+      /** @example 2025 */
+      year?: number;
+    };
+    "handlers.SuccessResponse": {
+      /** @example Operation successful */
+      message?: string;
+      /** @example true */
+      success?: boolean;
+    };
+    "handlers.TemplateResponse": {
+      /** @example 2025-12-26T10:00:00Z */
+      created_at?: string;
+      /** @example Default invoice template */
+      description?: string;
+      /** @example 1 */
+      id?: number;
+      /** @example true */
+      is_active?: boolean;
+      /** @example false */
+      is_default?: boolean;
+      /** @example Standard Invoice */
+      name?: string;
+      /** @example 10 */
+      organization_id?: number;
+      sample_data?: {
+        [key: string]: unknown;
+      };
+      /** @example tenants/1/templates/invoice/... */
+      storage_key?: string;
+      /** @example invoice */
+      template_type?: string;
+      /** @example 1 */
+      tenant_id?: number;
+      /** @example 2025-12-26T10:00:00Z */
+      updated_at?: string;
+      variables?: string[];
+      /** @example 1 */
+      version?: number;
+    };
     "models.ClientResponse": {
       admission_date?: string;
       alternative_email?: string;
@@ -1090,6 +2760,66 @@ export interface components {
       therapy_title?: string;
       unit_price?: number;
       updated_at?: string;
+      zip?: string;
+    };
+    "models.Contact": {
+      active?: boolean;
+      city?: string;
+      country?: string;
+      created_at?: string;
+      email?: string;
+      first_name: string;
+      id?: number;
+      last_name: string;
+      mobile?: string;
+      notes?: string;
+      phone?: string;
+      street?: string;
+      type?: string;
+      updated_at?: string;
+      zip?: string;
+    };
+    "models.ContactCreateRequest": {
+      city?: string;
+      country?: string;
+      email?: string;
+      first_name: string;
+      last_name: string;
+      mobile?: string;
+      notes?: string;
+      phone?: string;
+      street?: string;
+      type?: string;
+      zip?: string;
+    };
+    "models.ContactResponse": {
+      active?: boolean;
+      city?: string;
+      country?: string;
+      created_at?: string;
+      email?: string;
+      first_name?: string;
+      id?: number;
+      last_name?: string;
+      mobile?: string;
+      notes?: string;
+      phone?: string;
+      street?: string;
+      type?: string;
+      zip?: string;
+    };
+    "models.ContactUpdateRequest": {
+      active?: boolean;
+      city?: string;
+      country?: string;
+      email?: string;
+      first_name?: string;
+      last_name?: string;
+      mobile?: string;
+      notes?: string;
+      phone?: string;
+      street?: string;
+      type?: string;
       zip?: string;
     };
     "models.CostProviderResponse": {
@@ -1176,6 +2906,172 @@ export interface components {
       /** @example 12345 */
       zip?: string;
     };
+    "models.CreateOrganizationRequest": {
+      additional_payment_methods?: Record<string, never>;
+      /** @example de */
+      amount_format?: string;
+      /** @example Deutsche Bank */
+      bankaccount_bank?: string;
+      /** @example DEUTDEFF */
+      bankaccount_bic?: string;
+      /** @example DE89370400440532013000 */
+      bankaccount_iban?: string;
+      /** @example Acme Corporation */
+      bankaccount_owner?: string;
+      /** @example New York */
+      city?: string;
+      /** @example 02.01.2006 */
+      date_format?: string;
+      /** @example false */
+      default_vat_exempt?: boolean;
+      /** @example 19 */
+      default_vat_rate?: number;
+      /** @example info@acme.com */
+      email?: string;
+      /** @example ignore */
+      extra_efforts_billing_mode?: string;
+      extra_efforts_config?: Record<string, never>;
+      /** @example 7 */
+      first_reminder_days?: number;
+      invoice_content?: Record<string, never>;
+      /** @example sequential */
+      invoice_number_format?: string;
+      /** @example INV- */
+      invoice_number_prefix?: string;
+      /** @example Doppelstunde */
+      line_item_double_unit_text?: string;
+      /** @example Einzelstunde */
+      line_item_single_unit_text?: string;
+      /** @example de-DE */
+      locale?: string;
+      /** @example Acme Corporation */
+      name: string;
+      /** @example John Doe */
+      owner_name?: string;
+      /** @example CEO */
+      owner_title?: string;
+      /** @example 14 */
+      payment_due_days?: number;
+      /** @example +1-555-0123 */
+      phone?: string;
+      /** @example 14 */
+      second_reminder_days?: number;
+      /** @example 123 Business St */
+      street_address?: string;
+      /** @example TAX123456 */
+      tax_id?: string;
+      /** @example 19 */
+      tax_rate?: number;
+      /** @example DE123456789 */
+      tax_ustid?: string;
+      /** @example 15:04 */
+      time_format?: string;
+      /** @example 150 */
+      unit_price?: number;
+      /** @example 12345 */
+      zip?: string;
+    };
+    "models.CustomerRequest": {
+      /** @example Acme Corp */
+      company_name?: string;
+      /** @example john@example.com */
+      email: string;
+      /** @example John Doe */
+      name: string;
+      /** @example +1-555-123-4567 */
+      phone?: string;
+    };
+    "models.OrganizationAPIResponse": {
+      data?: components["schemas"]["models.OrganizationResponse"];
+      /** @example Organization retrieved successfully */
+      message?: string;
+      /** @example true */
+      success?: boolean;
+    };
+    "models.OrganizationDeleteResponse": {
+      /** @example Organization deleted successfully */
+      message?: string;
+      /** @example true */
+      success?: boolean;
+    };
+    "models.OrganizationListAPIResponse": {
+      data?: components["schemas"]["models.OrganizationResponse"][];
+      /** @example 10 */
+      limit?: number;
+      /** @example Organizations retrieved successfully */
+      message?: string;
+      /** @example 1 */
+      page?: number;
+      /** @example true */
+      success?: boolean;
+      /** @example 100 */
+      total?: number;
+    };
+    "models.OrganizationResponse": {
+      additional_payment_methods?: Record<string, never>;
+      amount_format?: string;
+      bankaccount_bank?: string;
+      bankaccount_bic?: string;
+      bankaccount_iban?: string;
+      bankaccount_owner?: string;
+      city?: string;
+      created_at?: string;
+      date_format?: string;
+      email?: string;
+      extra_efforts_billing_mode?: string;
+      extra_efforts_config?: Record<string, never>;
+      id?: number;
+      invoice_content?: Record<string, never>;
+      line_item_double_unit_text?: string;
+      line_item_single_unit_text?: string;
+      locale?: string;
+      name?: string;
+      owner_name?: string;
+      owner_title?: string;
+      phone?: string;
+      street_address?: string;
+      tax_id?: string;
+      tax_rate?: number;
+      tax_ustid?: string;
+      tenant_id?: number;
+      time_format?: string;
+      unit_price?: number;
+      updated_at?: string;
+      zip?: string;
+    };
+    "models.PlanRequest": {
+      /** @example USD */
+      currency: string;
+      /** @example Basic subscription plan */
+      description?: string;
+      /** @example Basic Plan */
+      name: string;
+      /** @example 29.99 */
+      price: number;
+    };
+    "models.PlanResponse": {
+      active?: boolean;
+      created_at?: string;
+      currency?: string;
+      description?: string;
+      features?: string;
+      id?: number;
+      invoice_period?: string;
+      max_clients?: number;
+      max_users?: number;
+      name?: string;
+      price?: number;
+      slug?: string;
+    };
+    "models.UpdateBillingConfigRequest": {
+      /** @example bundle_double_units */
+      extra_efforts_billing_mode?: string;
+      extra_efforts_config?: Record<string, never>;
+      /** @example Therapie Doppelstunde */
+      line_item_double_unit_text?: string;
+      /** @example Therapiestunde */
+      line_item_single_unit_text?: string;
+    };
     "models.UpdateClientRequest": {
       /** @example 2025-01-01 */
       admission_date?: string;
@@ -1248,10 +3144,136 @@ export interface components {
       /** @example 12345 */
       zip?: string;
     };
+    "models.UpdateOrganizationRequest": {
+      additional_payment_methods?: Record<string, never>;
+      /** @example de */
+      amount_format?: string;
+      /** @example Deutsche Bank */
+      bankaccount_bank?: string;
+      /** @example DEUTDEFF */
+      bankaccount_bic?: string;
+      /** @example DE89370400440532013000 */
+      bankaccount_iban?: string;
+      /** @example Acme Corporation */
+      bankaccount_owner?: string;
+      /** @example New York */
+      city?: string;
+      /** @example 02.01.2006 */
+      date_format?: string;
+      /** @example false */
+      default_vat_exempt?: boolean;
+      /** @example 19 */
+      default_vat_rate?: number;
+      /** @example info@acme.com */
+      email?: string;
+      /** @example bundle_double_units */
+      extra_efforts_billing_mode?: string;
+      extra_efforts_config?: Record<string, never>;
+      /** @example 7 */
+      first_reminder_days?: number;
+      invoice_content?: Record<string, never>;
+      /** @example sequential */
+      invoice_number_format?: string;
+      /** @example INV- */
+      invoice_number_prefix?: string;
+      /** @example Therapie Doppelstunde */
+      line_item_double_unit_text?: string;
+      /** @example Therapiestunde */
+      line_item_single_unit_text?: string;
+      /** @example de-DE */
+      locale?: string;
+      /** @example Acme Corporation */
+      name?: string;
+      /** @example John Doe */
+      owner_name?: string;
+      /** @example CEO */
+      owner_title?: string;
+      /** @example 14 */
+      payment_due_days?: number;
+      /** @example +1-555-0123 */
+      phone?: string;
+      /** @example 14 */
+      second_reminder_days?: number;
+      /** @example 123 Business St */
+      street_address?: string;
+      /** @example TAX123456 */
+      tax_id?: string;
+      /** @example 19 */
+      tax_rate?: number;
+      /** @example DE123456789 */
+      tax_ustid?: string;
+      /** @example 15:04 */
+      time_format?: string;
+      /** @example 150 */
+      unit_price?: number;
+      /** @example 12345 */
+      zip?: string;
+    };
+    "models.UserSettings": {
+      created_at?: string;
+      id?: number;
+      /** @description User      User           `gorm:"foreignKey:UserID" json:"user,omitempty"` // Disabled for migration */
+      language?: string;
+      settings?: string;
+      theme?: string;
+      timezone?: string;
+      updated_at?: string;
+      user_id: number;
+    };
+    "models.UserSettingsUpdateRequest": {
+      language?: string;
+      settings?: string;
+      theme?: string;
+      timezone?: string;
+    };
+    "services.GeneratePDFFromHTMLRequest": {
+      document_type?: string;
+      filename?: string;
+      html: string;
+      metadata?: {
+        [key: string]: unknown;
+      };
+      /** @description If true, save to documents table */
+      save_document?: boolean;
+    };
+    "services.GeneratePDFFromTemplateRequest": {
+      data?: {
+        [key: string]: unknown;
+      };
+      document_type?: string;
+      filename?: string;
+      metadata?: {
+        [key: string]: unknown;
+      };
+      organization_id?: number;
+      /** @description If true, save to documents table */
+      save_document?: boolean;
+      template_id: number;
+    };
+    "services.UpdateTemplateRequest": {
+      content?: string;
+      description?: string;
+      is_active?: boolean;
+      is_default?: boolean;
+      name?: string;
+      /** @description Set from middleware, not from client */
+      organization_id?: number;
+      sample_data?: {
+        [key: string]: unknown;
+      };
+      variables?: string[];
+    };
   };
   responses: never;
   parameters: never;
-  requestBodies: never;
+  requestBodies: {
+    /** @description Allowed minute marks within the hour (e.g., [0,15,30,45]) */
+    createBookingTemplateAllowedStartMinutes?: {
+      content: {
+        "application/json": number[];
+      };
+    };
+  };
   headers: never;
   pathItems: never;
 }
@@ -1476,6 +3498,1460 @@ export interface operations {
       500: {
         content: {
           "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Change password
+   * @description Change password for authenticated user
+   */
+  changePassword: {
+    /** @description Password change request */
+    requestBody: {
+      content: {
+        "application/json": {
+          current_password?: string;
+          new_password?: string;
+        };
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.APIResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Request password reset
+   * @description Send password reset email to user
+   */
+  forgotPassword: {
+    /** @description User email */
+    requestBody: {
+      content: {
+        "application/json": {
+          email?: string;
+        };
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.APIResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * User login
+   * @description Authenticate user with username/email and password
+   */
+  login: {
+    /** @description Login credentials */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["github_com_ae-base-server_internal_models.LoginRequest"];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.APIResponse"] & {
+            data?: components["schemas"]["github_com_ae-base-server_internal_models.LoginResponse"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * User logout
+   * @description Logout user and invalidate token
+   */
+  logout: {
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.APIResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Get current user
+   * @description Get current authenticated user information
+   */
+  getCurrentUser: {
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.APIResponse"] & {
+            data?: components["schemas"]["github_com_ae-base-server_internal_models.UserResponse"];
+          };
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Reset password
+   * @description Reset user password with reset token
+   */
+  resetPassword: {
+    parameters: {
+      path: {
+        /** @description Reset token */
+        token: string;
+      };
+    };
+    /** @description New password */
+    requestBody: {
+      content: {
+        "application/json": {
+          new_password?: string;
+        };
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.APIResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Refresh access token
+   * @description Refresh user access token
+   */
+  refreshToken: {
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.APIResponse"] & {
+            data?: components["schemas"]["github_com_ae-base-server_internal_models.LoginResponse"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * User registration
+   * @description Register a new user account
+   */
+  register: {
+    /** @description User registration data */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["github_com_ae-base-server_internal_models.UserCreateRequest"];
+      };
+    };
+    responses: {
+      /** @description Created */
+      201: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.APIResponse"] & {
+            data?: components["schemas"]["github_com_ae-base-server_internal_models.LoginResponse"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Conflict */
+      409: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Verify email address
+   * @description Verify user email address with verification token
+   */
+  verifyEmail: {
+    parameters: {
+      path: {
+        /** @description Verification token */
+        token: string;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.APIResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Get available time slots for booking
+   * @description Retrieve available time slots based on a booking link token. Token is validated and must not be blacklisted.
+   */
+  getBookingFreeSlots: {
+    parameters: {
+      query?: {
+        /** @description Start date for slot search (YYYY-MM-DD) */
+        start?: string;
+        /** @description End date for slot search (YYYY-MM-DD) */
+        end?: string;
+      };
+      path: {
+        /** @description Booking link token */
+        token: string;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"] & {
+            data?: components["schemas"]["entities.FreeSlotsResponse"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Create a booking link
+   * @description Generate a booking link token for a client to book appointments
+   */
+  createBookingLink: {
+    /** @description Booking link data */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["entities.CreateBookingLinkRequest"];
+      };
+    };
+    responses: {
+      /** @description Created */
+      201: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"] & {
+            data?: components["schemas"]["entities.BookingLinkResponse"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Get all booking configurations
+   * @description Retrieve all booking configurations for the tenant
+   */
+  listBookingTemplates: {
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"] & {
+            data?: components["schemas"]["entities.BookingTemplateResponse"][];
+          };
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Create a new booking configuration
+   * @description Create a new booking configuration/template for a user's calendar
+   */
+  createBookingTemplate: {
+    requestBody: components["requestBodies"]["createBookingTemplateAllowedStartMinutes"];
+    responses: {
+      /** @description Created */
+      201: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"] & {
+            data?: components["schemas"]["entities.BookingTemplateResponse"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Get booking configurations by calendar ID
+   * @description Retrieve all booking configurations for a specific calendar
+   */
+  listBookingTemplatesByCalendar: {
+    parameters: {
+      query: {
+        /** @description Calendar ID */
+        calendar_id: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"] & {
+            data?: components["schemas"]["entities.BookingTemplateResponse"][];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Get booking configurations by user ID
+   * @description Retrieve all booking configurations for a specific user
+   */
+  listBookingTemplatesByUser: {
+    parameters: {
+      query: {
+        /** @description User ID */
+        user_id: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"] & {
+            data?: components["schemas"]["entities.BookingTemplateResponse"][];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Get a booking configuration by ID
+   * @description Retrieve a specific booking configuration by ID
+   */
+  getBookingTemplate: {
+    parameters: {
+      path: {
+        /** @description Configuration ID */
+        id: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"] & {
+            data?: components["schemas"]["entities.BookingTemplateResponse"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Update a booking configuration
+   * @description Update an existing booking configuration
+   */
+  updateBookingTemplate: {
+    parameters: {
+      path: {
+        /** @description Configuration ID */
+        id: number;
+      };
+    };
+    requestBody: components["requestBodies"]["createBookingTemplateAllowedStartMinutes"];
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"] & {
+            data?: components["schemas"]["entities.BookingTemplateResponse"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Delete a booking configuration
+   * @description Delete a booking configuration by ID
+   */
+  deleteBookingTemplate: {
+    parameters: {
+      path: {
+        /** @description Configuration ID */
+        id: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Get all calendar entries
+   * @description Retrieve all calendar entries for the authenticated user. All datetime fields are returned in UTC ISO 8601 format (e.g., 2025-11-04T09:00:00Z).
+   */
+  getCalendarEntries: {
+    parameters: {
+      query?: {
+        /** @description Page number */
+        page?: number;
+        /** @description Items per page */
+        limit?: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"] & {
+            data?: components["schemas"]["api.ListResponse"];
+          };
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Create a new calendar entry
+   * @description Create a new calendar entry with UTC timestamps. All datetime fields use ISO 8601 format in UTC (e.g., 2025-11-04T09:00:00Z). Stored as timestamptz in PostgreSQL, ensuring timezone-aware storage and retrieval.
+   *
+   * **Request Body Fields:**
+   * - `calendar_id` (required): ID of the calendar to create the entry in
+   * - `series_id` (optional): ID of the series this entry belongs to
+   * - `title` (required): Title of the calendar entry
+   * - `is_exception` (optional): Whether this is an exception to a recurring series
+   * - `participants` (optional): JSON array of participant objects
+   * - `start_time` (optional): Start time in ISO 8601 UTC format (e.g., 2025-11-04T09:00:00Z)
+   * - `end_time` (optional): End time in ISO 8601 UTC format
+   * - `type` (optional): Type of event (e.g., "meeting", "appointment")
+   * - `description` (optional): Detailed description of the event
+   * - `location` (optional): Location of the event
+   * - `timezone` (optional): Timezone identifier (e.g., "Europe/Berlin")
+   * - `is_all_day` (optional): Whether this is an all-day event
+   */
+  createCalendarEntry: {
+    /** @description Calendar entry data */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["entities.CreateCalendarEntryRequest"];
+      };
+    };
+    responses: {
+      /** @description Created */
+      201: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"] & {
+            data?: components["schemas"]["entities.CalendarEntryResponse"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Get calendar entry by ID
+   * @description Retrieve a calendar entry by its ID. Returns datetime fields in UTC ISO 8601 format (e.g., 2025-11-04T09:00:00Z).
+   */
+  getCalendarEntryById: {
+    parameters: {
+      path: {
+        /** @description Calendar Entry ID */
+        id: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"] & {
+            data?: components["schemas"]["entities.CalendarEntryResponse"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Update calendar entry
+   * @description Update an existing calendar entry. Datetime fields use UTC ISO 8601 format (e.g., 2025-11-04T09:00:00Z).
+   */
+  updateCalendarEntry: {
+    parameters: {
+      path: {
+        /** @description Calendar Entry ID */
+        id: number;
+      };
+    };
+    /** @description Updated calendar entry data */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["entities.UpdateCalendarEntryRequest"];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"] & {
+            data?: components["schemas"]["entities.CalendarEntryResponse"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Delete calendar entry
+   * @description Delete a calendar entry by ID
+   */
+  deleteCalendarEntry: {
+    parameters: {
+      path: {
+        /** @description Calendar Entry ID */
+        id: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Get all calendar series
+   * @description Retrieve all calendar series for the authenticated user. All datetime fields are returned in UTC ISO 8601 format (e.g., 2025-11-04T09:00:00Z).
+   */
+  getCalendarSeries: {
+    parameters: {
+      query?: {
+        /** @description Page number */
+        page?: number;
+        /** @description Items per page */
+        limit?: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"] & {
+            data?: components["schemas"]["api.ListResponse"];
+          };
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Create a new calendar series
+   * @description Create a new calendar series for recurring events. Start/end time fields use UTC ISO 8601 format (e.g., 2025-11-04T09:00:00Z). For recurring events, these represent the time portion that will be combined with calculated recurrence dates.
+   *
+   * **Request Body Fields:**
+   * - `calendar_id` (required): ID of the calendar to create the series in
+   * - `title` (required): Title of the recurring series
+   * - `participants` (optional): JSON array of participant objects
+   * - `interval_type` (required): Type of recurrence - one of: "none", "weekly", "monthly-date", "monthly-day", "yearly"
+   * - `interval_value` (required): Number of intervals between occurrences (e.g., 2 = every 2 weeks for weekly type)
+   * - `last_date` (optional): End date for the recurring series in ISO 8601 UTC format (e.g., 2025-12-31T23:59:59Z)
+   * - `start_time` (optional): Start time for each occurrence in ISO 8601 UTC format
+   * - `end_time` (optional): End time for each occurrence in ISO 8601 UTC format
+   * - `description` (optional): Description of the series
+   * - `location` (optional): Location for all events in the series
+   * - `timezone` (optional): Timezone identifier (e.g., "Europe/Berlin")
+   * - `external_uid` (optional): External unique identifier for integration
+   * - `external_calendar_uuid` (optional): UUID of external calendar if imported
+   *
+   * **Response:** Returns the created series and all auto-generated calendar entries based on the recurrence rules.
+   */
+  createCalendarSeries: {
+    /** @description Calendar series data */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["entities.CreateCalendarSeriesRequest"];
+      };
+    };
+    responses: {
+      /** @description Created */
+      201: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"] & {
+            data?: components["schemas"]["entities.CalendarSeriesWithEntriesResponse"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Get calendar series by ID
+   * @description Retrieve a calendar series by its ID. Returns datetime fields in UTC ISO 8601 format (e.g., 2025-11-04T09:00:00Z).
+   */
+  getCalendarSeriesById: {
+    parameters: {
+      path: {
+        /** @description Calendar Series ID */
+        id: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"] & {
+            data?: components["schemas"]["entities.CalendarSeriesResponse"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Update calendar series
+   * @description Update an existing calendar series. Datetime fields use UTC ISO 8601 format (e.g., 2025-11-04T09:00:00Z).
+   */
+  updateCalendarSeries: {
+    parameters: {
+      path: {
+        /** @description Calendar Series ID */
+        id: number;
+      };
+    };
+    /** @description Updated calendar series data */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["entities.UpdateCalendarSeriesRequest"];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"] & {
+            data?: components["schemas"]["entities.CalendarSeriesResponse"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Delete calendar series
+   * @description Delete a calendar series with two options: 'all' deletes the entire series and all entries, 'from_date' deletes entries from a specific date onwards and updates the series end date. When using 'from_date' mode, provide the from_date in UTC ISO 8601 format (e.g., 2025-12-01T00:00:00Z).
+   */
+  deleteCalendarSeries: {
+    parameters: {
+      path: {
+        /** @description Calendar Series ID */
+        id: number;
+      };
+    };
+    /** @description Delete options */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["entities.DeleteCalendarSeriesRequest"];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Get calendars with complete metadata
+   * @description Retrieve all calendars for the authenticated user with 2-level deep preloading including entries with their series and series with their entries
+   */
+  getCalendars: {
+    responses: {
+      /** @description Returns calendars array with complete metadata including nested relationships */
+      200: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"] & {
+            data?: components["schemas"]["entities.CalendarResponse"][];
+          };
+        };
+      };
+      /** @description Unauthorized - invalid or missing JWT token */
+      401: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Internal server error during calendar retrieval */
+      500: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Create a new calendar
+   * @description Create a new calendar for the authenticated user
+   */
+  createCalendar: {
+    /** @description Calendar data */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["entities.CreateCalendarRequest"];
+      };
+    };
+    responses: {
+      /** @description Created */
+      201: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"] & {
+            data?: components["schemas"]["entities.CalendarResponse"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Get calendar week view
+   * @description Retrieve calendar entries for a specific week
+   */
+  getCalendarWeek: {
+    parameters: {
+      query: {
+        /** @description Date in YYYY-MM-DD format */
+        date: string;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["entities.CalendarEntryResponse"][];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Get calendar year view
+   * @description Retrieve calendar entries for a specific year
+   */
+  getCalendarYear: {
+    parameters: {
+      query: {
+        /** @description Year */
+        year: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["entities.CalendarEntryResponse"][];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Get calendar by ID
+   * @description Retrieve a calendar by its ID
+   */
+  getCalendarById: {
+    parameters: {
+      path: {
+        /** @description Calendar ID */
+        id: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"] & {
+            data?: components["schemas"]["entities.CalendarResponse"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Update calendar
+   * @description Update an existing calendar
+   */
+  updateCalendar: {
+    parameters: {
+      path: {
+        /** @description Calendar ID */
+        id: number;
+      };
+    };
+    /** @description Updated calendar data */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["entities.UpdateCalendarRequest"];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"] & {
+            data?: components["schemas"]["entities.CalendarResponse"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Delete calendar
+   * @description Delete a calendar by ID
+   */
+  deleteCalendar: {
+    parameters: {
+      path: {
+        /** @description Calendar ID */
+        id: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Import holidays into calendar
+   * @description Import school holidays and public holidays into a specific calendar from unburdy format data
+   */
+  importHolidays: {
+    parameters: {
+      path: {
+        /** @description Calendar ID */
+        id: number;
+      };
+    };
+    /** @description Import holidays request with state, year range, and holidays data */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["entities.ImportHolidaysRequest"];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["entities.HolidayImportResult"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
         };
       };
     };
@@ -2095,6 +5571,288 @@ export interface operations {
     };
   };
   /**
+   * Get all contacts
+   * @description Get paginated list of contacts with optional filters
+   */
+  getContacts: {
+    parameters: {
+      query?: {
+        /** @description Page number */
+        page?: number;
+        /** @description Items per page */
+        limit?: number;
+        /** @description Filter by active status */
+        active?: boolean;
+        /** @description Filter by contact type (business, personal, etc) */
+        type?: string;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.APIResponse"] & {
+            data?: components["schemas"]["github_com_ae-base-server_internal_models.ListResponse"];
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Create new contact
+   * @description Create a new contact for the authenticated user
+   */
+  createContact: {
+    /** @description Contact data */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["models.ContactCreateRequest"];
+      };
+    };
+    responses: {
+      /** @description Created */
+      201: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.APIResponse"] & {
+            data?: components["schemas"]["models.ContactResponse"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Submit contact form
+   * @description Public endpoint to submit a contact form (no authentication required)
+   */
+  submitContactForm: {
+    /** @description Contact form data */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ContactFormRequest"];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.APIResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Get newsletter subscriptions
+   * @description Get all newsletter subscriptions
+   */
+  getNewsletterSubscriptions: {
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.Newsletter"][];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Unsubscribe from newsletter
+   * @description Unsubscribe an email address from the newsletter
+   */
+  unsubscribeFromNewsletter: {
+    parameters: {
+      path: {
+        /** @description Email address to unsubscribe */
+        email: string;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.APIResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Get contact by ID
+   * @description Get a specific contact by ID
+   */
+  getContactById: {
+    parameters: {
+      path: {
+        /** @description Contact ID (UUID) */
+        id: string;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.APIResponse"] & {
+            data?: components["schemas"]["models.Contact"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Update contact
+   * @description Update an existing contact by ID
+   */
+  updateContact: {
+    parameters: {
+      path: {
+        /** @description Contact ID (UUID) */
+        id: string;
+      };
+    };
+    /** @description Updated contact data */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["models.ContactUpdateRequest"];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.APIResponse"] & {
+            data?: components["schemas"]["models.ContactResponse"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Delete contact
+   * @description Soft delete a contact by ID
+   */
+  deleteContact: {
+    parameters: {
+      path: {
+        /** @description Contact ID (UUID) */
+        id: string;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.APIResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
    * Get all cost providers
    * @description Retrieve all cost providers with optional pagination
    */
@@ -2357,6 +6115,705 @@ export interface operations {
     };
   };
   /**
+   * Get all customers
+   * @description Get a paginated list of all customers
+   */
+  getCustomers: {
+    parameters: {
+      query?: {
+        /** @description Page number */
+        page?: number;
+        /** @description Items per page */
+        limit?: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.APIResponse"] & {
+            data?: components["schemas"]["github_com_ae-base-server_internal_models.ListResponse"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Create a new customer
+   * @description Create a new customer
+   */
+  createCustomer: {
+    /** @description Customer data */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["models.CustomerRequest"];
+      };
+    };
+    responses: {
+      /** @description Created */
+      201: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.APIResponse"] & {
+            data?: components["schemas"]["github_com_ae-base-server_internal_models.CustomerResponse"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Get customer by ID
+   * @description Get a specific customer by its ID
+   */
+  getCustomerById: {
+    parameters: {
+      path: {
+        /** @description Customer ID */
+        id: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.APIResponse"] & {
+            data?: components["schemas"]["github_com_ae-base-server_internal_models.CustomerResponse"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Update a customer
+   * @description Update an existing customer by ID
+   */
+  updateCustomer: {
+    parameters: {
+      path: {
+        /** @description Customer ID */
+        id: number;
+      };
+    };
+    /** @description Updated customer data */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["models.CustomerRequest"];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.APIResponse"] & {
+            data?: components["schemas"]["github_com_ae-base-server_internal_models.CustomerResponse"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Delete a customer
+   * @description Soft delete a customer by ID
+   */
+  deleteCustomer: {
+    parameters: {
+      path: {
+        /** @description Customer ID */
+        id: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.APIResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Upload a document
+   * @description Upload a document file with metadata to MinIO storage
+   */
+  uploadDocument: {
+    requestBody: {
+      content: {
+        "multipart/form-data": {
+          /**
+           * Format: binary
+           * @description Document file to upload
+           */
+          file: string;
+          /** @description Document type (invoice, contract, report, etc.) */
+          document_type: string;
+          /** @description Storage bucket (default: documents) */
+          bucket?: string;
+          /** @description Storage path (default: filename) */
+          path?: string;
+          /** @description Reference type (invoice, client, session) */
+          reference_type?: string;
+          /** @description Reference ID */
+          reference_id?: number;
+          /** @description Organization ID */
+          organization_id?: number;
+        };
+      };
+    };
+    responses: {
+      /** @description Created */
+      201: {
+        content: {
+          "application/json": components["schemas"]["entities.DocumentResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": {
+            [key: string]: unknown;
+          };
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": {
+            [key: string]: unknown;
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": {
+            [key: string]: unknown;
+          };
+        };
+      };
+    };
+  };
+  /**
+   * Get document metadata
+   * @description Retrieve metadata for a specific document by ID
+   */
+  getDocument: {
+    parameters: {
+      path: {
+        /** @description Document ID */
+        id: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["entities.DocumentResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": {
+            [key: string]: unknown;
+          };
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": {
+            [key: string]: unknown;
+          };
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": {
+            [key: string]: unknown;
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": {
+            [key: string]: unknown;
+          };
+        };
+      };
+    };
+  };
+  /**
+   * Delete document
+   * @description Soft delete a document (marks as deleted, does not remove from storage)
+   */
+  deleteDocument: {
+    parameters: {
+      path: {
+        /** @description Document ID */
+        id: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["handlers.SuccessResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_documents-module_handlers.ErrorResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_documents-module_handlers.ErrorResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_documents-module_handlers.ErrorResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_documents-module_handlers.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Download document
+   * @description Get a pre-signed URL for downloading a document (valid for 1 hour)
+   */
+  downloadDocument: {
+    parameters: {
+      path: {
+        /** @description Document ID */
+        id: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["handlers.DownloadURLResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_documents-module_handlers.ErrorResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_documents-module_handlers.ErrorResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_documents-module_handlers.ErrorResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_documents-module_handlers.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Get all emails
+   * @description Get a paginated list of all emails
+   */
+  getEmails: {
+    parameters: {
+      query?: {
+        /** @description Page number */
+        page?: number;
+        /** @description Items per page */
+        limit?: number;
+        /** @description Filter by email status */
+        status?: string;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.APIResponse"] & {
+            data?: components["schemas"]["github_com_ae-base-server_internal_models.ListResponse"];
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Send an email
+   * @description Create and queue an email for sending
+   */
+  sendEmail: {
+    /** @description Email send data */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["github_com_ae-base-server_internal_models.EmailSendRequest"];
+      };
+    };
+    responses: {
+      /** @description Created */
+      201: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.APIResponse"] & {
+            data?: components["schemas"]["github_com_ae-base-server_internal_models.EmailResponse"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Get email statistics
+   * @description Get email statistics including counts by status
+   */
+  getEmailStats: {
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.APIResponse"] & {
+            data?: Record<string, never>;
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Get email by ID
+   * @description Get a specific email by its ID
+   */
+  getEmailById: {
+    parameters: {
+      path: {
+        /** @description Email ID */
+        id: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.APIResponse"] & {
+            data?: components["schemas"]["github_com_ae-base-server_internal_models.EmailResponse"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Get all external calendars
+   * @description Retrieve all external calendars for the authenticated user
+   */
+  getExternalCalendars: {
+    parameters: {
+      query?: {
+        /** @description Page number */
+        page?: number;
+        /** @description Items per page */
+        limit?: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"] & {
+            data?: components["schemas"]["api.ListResponse"];
+          };
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Create a new external calendar
+   * @description Create a new external calendar
+   */
+  createExternalCalendar: {
+    /** @description External calendar data */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["entities.CreateExternalCalendarRequest"];
+      };
+    };
+    responses: {
+      /** @description Created */
+      201: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"] & {
+            data?: components["schemas"]["entities.ExternalCalendarResponse"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Get external calendar by ID
+   * @description Retrieve an external calendar by its ID
+   */
+  getExternalCalendarById: {
+    parameters: {
+      path: {
+        /** @description External Calendar ID */
+        id: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"] & {
+            data?: components["schemas"]["entities.ExternalCalendarResponse"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Update external calendar
+   * @description Update an existing external calendar
+   */
+  updateExternalCalendar: {
+    parameters: {
+      path: {
+        /** @description External Calendar ID */
+        id: number;
+      };
+    };
+    /** @description Updated external calendar data */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["entities.UpdateExternalCalendarRequest"];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"] & {
+            data?: components["schemas"]["entities.ExternalCalendarResponse"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Delete external calendar
+   * @description Delete an external calendar by ID
+   */
+  deleteExternalCalendar: {
+    parameters: {
+      path: {
+        /** @description External Calendar ID */
+        id: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
    * List extra efforts
    * @description Retrieve extra efforts with optional filters
    */
@@ -2564,6 +7021,222 @@ export interface operations {
       500: {
         content: {
           "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Health check
+   * @description Check the health status of the API and database
+   */
+  healthCheck: {
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.HealthResponse"];
+        };
+      };
+      /** @description Service Unavailable */
+      503: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_modules_base_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Get current sequence
+   * @description Get the current invoice number sequence for an organization
+   */
+  getCurrentInvoiceSequence: {
+    parameters: {
+      query: {
+        /** @description Organization ID */
+        organization_id: number;
+        /** @description Year (defaults to current year) */
+        year?: number;
+        /** @description Month (defaults to current month) */
+        month?: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": {
+            [key: string]: unknown;
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+    };
+  };
+  /**
+   * Generate next invoice number
+   * @description Generate the next sequential invoice number for an organization
+   */
+  generateInvoiceNumber: {
+    /** @description Invoice number configuration */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["handlers.GenerateInvoiceNumberRequest"];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["handlers.InvoiceNumberResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+    };
+  };
+  /**
+   * Get invoice number history
+   * @description Retrieve the history of generated invoice numbers
+   */
+  getInvoiceNumberHistory: {
+    parameters: {
+      query: {
+        /** @description Organization ID */
+        organization_id: number;
+        /** @description Filter by year */
+        year?: number;
+        /** @description Filter by month */
+        month?: number;
+        /** @description Page number (default 1) */
+        page?: number;
+        /** @description Page size (default 20) */
+        page_size?: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": {
+            [key: string]: unknown;
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+    };
+  };
+  /**
+   * Void invoice number
+   * @description Mark an invoice number as voided in the audit log
+   */
+  voidInvoiceNumber: {
+    /** @description Invoice number to void */
+    requestBody: {
+      content: {
+        "application/json": {
+          [key: string]: string;
+        };
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": {
+            [key: string]: unknown;
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
         };
       };
     };
@@ -2967,6 +7640,88 @@ export interface operations {
     };
   };
   /**
+   * Download invoice PDF
+   * @description Download the PDF document for a finalized invoice
+   */
+  downloadInvoicePDF: {
+    parameters: {
+      path: {
+        /** @description Invoice ID */
+        id: number;
+      };
+    };
+    responses: {
+      /** @description PDF file */
+      200: {
+        content: {
+          "application/pdf": string;
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/pdf": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/pdf": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/pdf": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Invoice not finalized */
+      422: {
+        content: {
+          "application/pdf": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Preview invoice PDF
+   * @description Generate and display PDF for preview without download
+   */
+  previewInvoicePDF: {
+    parameters: {
+      path: {
+        /** @description Invoice ID */
+        id: number;
+      };
+    };
+    responses: {
+      /** @description PDF file for preview */
+      200: {
+        content: {
+          "application/pdf": string;
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/pdf": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/pdf": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/pdf": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
    * Send payment reminder
    * @description Send a payment reminder email for an overdue invoice
    */
@@ -3110,6 +7865,578 @@ export interface operations {
       500: {
         content: {
           "application/xml": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Get all organizations
+   * @description Retrieve all organizations for the authenticated user with pagination
+   */
+  getOrganizations: {
+    parameters: {
+      query?: {
+        /** @description Page number */
+        page?: number;
+        /** @description Number of items per page */
+        limit?: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["models.OrganizationListAPIResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Create a new organization
+   * @description Create a new organization with the provided information
+   */
+  createOrganization: {
+    /** @description Organization information */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["models.CreateOrganizationRequest"];
+      };
+    };
+    responses: {
+      /** @description Created */
+      201: {
+        content: {
+          "application/json": components["schemas"]["models.OrganizationAPIResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Get supported formats
+   * @description Get all supported date, time, and amount formats with examples
+   */
+  getSupportedFormats: {
+    responses: {
+      /** @description Supported formats with examples */
+      200: {
+        content: {
+          "application/json": {
+            [key: string]: unknown;
+          };
+        };
+      };
+    };
+  };
+  /**
+   * Get an organization by ID
+   * @description Retrieve a specific organization by ID
+   */
+  getOrganizationById: {
+    parameters: {
+      path: {
+        /** @description Organization ID */
+        id: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["models.OrganizationAPIResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Update an organization
+   * @description Update an organization's information
+   */
+  updateOrganization: {
+    parameters: {
+      path: {
+        /** @description Organization ID */
+        id: number;
+      };
+    };
+    /** @description Updated organization information */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["models.UpdateOrganizationRequest"];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["models.OrganizationAPIResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Delete an organization
+   * @description Delete an organization by ID
+   */
+  deleteOrganization: {
+    parameters: {
+      path: {
+        /** @description Organization ID */
+        id: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["models.OrganizationDeleteResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Update organization billing configuration
+   * @description Update billing mode and configuration for extra efforts tracking
+   */
+  updateOrganizationBillingConfig: {
+    parameters: {
+      path: {
+        /** @description Organization ID */
+        id: number;
+      };
+    };
+    /** @description Billing configuration */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["models.UpdateBillingConfigRequest"];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["models.OrganizationAPIResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Generate PDF from template
+   * @description Generate a PDF document based on a specified template and data
+   */
+  createPdf: {
+    /** @description PDF generation request */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["github_com_ae-base-server_modules_pdf_handlers.PDFGenerateRequest"];
+      };
+    };
+    responses: {
+      /** @description PDF generated successfully */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_modules_pdf_handlers.PDFGenerateResponse"];
+        };
+      };
+      /** @description Invalid request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_modules_pdf_handlers.ErrorResponse"];
+        };
+      };
+      /** @description Failed to generate PDF */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_modules_pdf_handlers.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Generate PDF from template
+   * @description Generate a PDF document from a template with data
+   */
+  generatePDFFromTemplate: {
+    /** @description Template ID and data */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["services.GeneratePDFFromTemplateRequest"];
+      };
+    };
+    responses: {
+      /** @description PDF file */
+      200: {
+        content: {
+          "application/pdf": string;
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/pdf": {
+            [key: string]: unknown;
+          };
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/pdf": {
+            [key: string]: unknown;
+          };
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/pdf": {
+            [key: string]: unknown;
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/pdf": {
+            [key: string]: unknown;
+          };
+        };
+      };
+    };
+  };
+  /**
+   * Generate PDF from HTML
+   * @description Generate a PDF document from HTML content using Chromedp
+   */
+  generatePDFFromHTML: {
+    /** @description HTML and metadata */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["services.GeneratePDFFromHTMLRequest"];
+      };
+    };
+    responses: {
+      /** @description PDF file */
+      200: {
+        content: {
+          "application/pdf": string;
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/pdf": {
+            [key: string]: unknown;
+          };
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/pdf": {
+            [key: string]: unknown;
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/pdf": {
+            [key: string]: unknown;
+          };
+        };
+      };
+    };
+  };
+  /**
+   * Ping check
+   * @description Simple ping endpoint
+   */
+  ping: {
+    responses: {
+      /** @description pong */
+      200: {
+        content: {
+          "application/json": string;
+        };
+      };
+    };
+  };
+  /**
+   * Get all plans
+   * @description Get a list of all available subscription plans
+   */
+  getPlans: {
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.Plan"][];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Create a new plan
+   * @description Create a new subscription plan (admin only)
+   */
+  createPlan: {
+    /** @description Plan data */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["models.PlanRequest"];
+      };
+    };
+    responses: {
+      /** @description Created */
+      201: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.APIResponse"] & {
+            data?: components["schemas"]["github_com_ae-base-server_internal_models.Plan"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Get plan by ID
+   * @description Get a specific subscription plan by its ID
+   */
+  getPlanById: {
+    parameters: {
+      path: {
+        /** @description Plan ID */
+        id: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.APIResponse"] & {
+            data?: components["schemas"]["github_com_ae-base-server_internal_models.Plan"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Update a plan
+   * @description Update an existing subscription plan (admin only)
+   */
+  updatePlan: {
+    parameters: {
+      path: {
+        /** @description Plan ID */
+        id: number;
+      };
+    };
+    /** @description Updated plan data */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["models.PlanRequest"];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.APIResponse"] & {
+            data?: components["schemas"]["github_com_ae-base-server_internal_models.Plan"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Delete a plan
+   * @description Delete a subscription plan (admin only)
+   */
+  deletePlan: {
+    parameters: {
+      path: {
+        /** @description Plan ID */
+        id: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.APIResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
         };
       };
     };
@@ -3500,6 +8827,591 @@ export interface operations {
       500: {
         content: {
           "application/json": components["schemas"]["api.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * List available static JSON files
+   * @description Get a list of all JSON files available in the statics/json directory
+   */
+  listStaticFiles: {
+    responses: {
+      /** @description List of available JSON files */
+      200: {
+        content: {
+          "*/*": {
+            [key: string]: unknown;
+          };
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "*/*": {
+            [key: string]: unknown;
+          };
+        };
+      };
+      /** @description Failed to read directory */
+      500: {
+        content: {
+          "*/*": {
+            [key: string]: string;
+          };
+        };
+      };
+    };
+  };
+  /**
+   * Serve static JSON files (JSON only, security restricted)
+   * @description Securely serve JSON data files from statics/json directory only. Prevents access to other directories or file types.
+   */
+  getStaticFile: {
+    parameters: {
+      path: {
+        /**
+         * @description JSON filename (without .json extension)
+         * @example "bundeslaender"
+         */
+        filename: string;
+      };
+    };
+    responses: {
+      /** @description JSON file content */
+      200: {
+        content: {
+          "*/*": {
+            [key: string]: unknown;
+          };
+        };
+      };
+      /** @description Invalid file name */
+      400: {
+        content: {
+          "*/*": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "*/*": {
+            [key: string]: unknown;
+          };
+        };
+      };
+      /** @description File not found */
+      404: {
+        content: {
+          "*/*": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Failed to read file */
+      500: {
+        content: {
+          "*/*": {
+            [key: string]: string;
+          };
+        };
+      };
+    };
+  };
+  /**
+   * List templates
+   * @description List templates with optional filters and pagination (organization_id from auth middleware)
+   */
+  listTemplates: {
+    parameters: {
+      query?: {
+        /** @description Template type (email, pdf, invoice, document) */
+        template_type?: string;
+        /** @description Active status filter */
+        is_active?: boolean;
+        /** @description Page number (default 1) */
+        page?: number;
+        /** @description Page size (default 20) */
+        page_size?: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["handlers.SuccessResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+    };
+  };
+  /**
+   * Create template
+   * @description Create a new email/PDF template with content stored in MinIO
+   */
+  createTemplate: {
+    /** @description Template data */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["handlers.CreateTemplateRequest"];
+      };
+    };
+    responses: {
+      /** @description Created */
+      201: {
+        content: {
+          "application/json": components["schemas"]["handlers.TemplateResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+    };
+  };
+  /**
+   * Get default template
+   * @description Get the default template for a specific type (organization from auth middleware)
+   */
+  getDefaultTemplate: {
+    parameters: {
+      query: {
+        /** @description Template type (email, pdf, invoice, document) */
+        template_type: string;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["entities.TemplateResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": {
+            [key: string]: unknown;
+          };
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": {
+            [key: string]: unknown;
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": {
+            [key: string]: unknown;
+          };
+        };
+      };
+    };
+  };
+  /**
+   * Get template
+   * @description Get template metadata by ID
+   */
+  getTemplate: {
+    parameters: {
+      path: {
+        /** @description Template ID */
+        id: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["entities.TemplateResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": {
+            [key: string]: unknown;
+          };
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": {
+            [key: string]: unknown;
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": {
+            [key: string]: unknown;
+          };
+        };
+      };
+    };
+  };
+  /**
+   * Update template
+   * @description Update template metadata or content (creates new version)
+   */
+  updateTemplate: {
+    parameters: {
+      path: {
+        /** @description Template ID */
+        id: number;
+      };
+    };
+    /** @description Update data */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["services.UpdateTemplateRequest"];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["entities.TemplateResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": {
+            [key: string]: unknown;
+          };
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": {
+            [key: string]: unknown;
+          };
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": {
+            [key: string]: unknown;
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": {
+            [key: string]: unknown;
+          };
+        };
+      };
+    };
+  };
+  /**
+   * Delete template
+   * @description Soft delete a template
+   */
+  deleteTemplate: {
+    parameters: {
+      path: {
+        /** @description Template ID */
+        id: number;
+      };
+    };
+    responses: {
+      /** @description No Content */
+      204: {
+        content: never;
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "*/*": {
+            [key: string]: unknown;
+          };
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "*/*": {
+            [key: string]: unknown;
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "*/*": {
+            [key: string]: unknown;
+          };
+        };
+      };
+    };
+  };
+  /**
+   * Duplicate template
+   * @description Create a copy of an existing template
+   */
+  duplicateTemplate: {
+    parameters: {
+      path: {
+        /** @description Template ID */
+        id: number;
+      };
+    };
+    /** @description Duplicate request with name */
+    requestBody: {
+      content: {
+        "application/json": {
+          [key: string]: unknown;
+        };
+      };
+    };
+    responses: {
+      /** @description Created */
+      201: {
+        content: {
+          "application/json": components["schemas"]["entities.TemplateResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": {
+            [key: string]: unknown;
+          };
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": {
+            [key: string]: unknown;
+          };
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": {
+            [key: string]: unknown;
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": {
+            [key: string]: unknown;
+          };
+        };
+      };
+    };
+  };
+  /**
+   * Render template
+   * @description Render template with provided data
+   */
+  renderTemplate: {
+    parameters: {
+      path: {
+        /** @description Template ID */
+        id: number;
+      };
+    };
+    /** @description Template data */
+    requestBody: {
+      content: {
+        "application/json": {
+          [key: string]: unknown;
+        };
+      };
+    };
+    responses: {
+      /** @description HTML content */
+      200: {
+        content: {
+          "text/html": string;
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "text/html": {
+            [key: string]: unknown;
+          };
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "text/html": {
+            [key: string]: unknown;
+          };
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "text/html": {
+            [key: string]: unknown;
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "text/html": {
+            [key: string]: unknown;
+          };
+        };
+      };
+    };
+  };
+  /**
+   * Get user settings
+   * @description Get settings for the authenticated user (creates default if not found)
+   */
+  getUserSettings: {
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.APIResponse"] & {
+            data?: components["schemas"]["models.UserSettings"];
+          };
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Update user settings
+   * @description Update settings for the authenticated user
+   */
+  updateUserSettings: {
+    /** @description Updated settings */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["models.UserSettingsUpdateRequest"];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.APIResponse"] & {
+            data?: components["schemas"]["models.UserSettings"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Reset user settings
+   * @description Reset user settings to default values
+   */
+  resetUserSettings: {
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.APIResponse"] & {
+            data?: components["schemas"]["models.UserSettings"];
+          };
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
         };
       };
     };
