@@ -728,6 +728,13 @@ export interface paths {
      */
     post: operations["generateInvoiceNumber"];
   };
+  "/invoice-numbers/generate/next": {
+    /**
+     * Generate next invoice number from settings
+     * @description Generate the next sequential invoice number using organization settings (prefix, next number)
+     */
+    post: operations["generateNextInvoiceNumber"];
+  };
   "/invoice-numbers/history": {
     /**
      * Get invoice number history
@@ -1073,6 +1080,13 @@ export interface paths {
      */
     delete: operations["deletePlan"];
   };
+  "/public/templates/assets/{tenant}/{template}/{file}": {
+    /**
+     * Get public template asset
+     * @description Retrieve a template asset (image, CSS, etc.) without authentication
+     */
+    get: operations["getPublicTemplateAsset"];
+  };
   "/sessions": {
     /**
      * Get all sessions
@@ -1130,6 +1144,103 @@ export interface paths {
      */
     delete: operations["deleteSession"];
   };
+  "/settings/health": {
+    /**
+     * Settings system health check
+     * @description Check the health status of the settings system
+     */
+    get: operations["settingsHealthCheck"];
+  };
+  "/settings/modules": {
+    /**
+     * Get registered settings modules
+     * @description Get list of all registered settings modules
+     */
+    get: operations["getRegisteredModules"];
+  };
+  "/settings/organizations/{organization_id}": {
+    /**
+     * Get organization settings
+     * @description Get all settings for an organization grouped by domain
+     */
+    get: operations["getOrganizationSettings"];
+    /**
+     * Set organization setting
+     * @description Set a single setting for an organization
+     */
+    post: operations["setOrganizationSetting"];
+  };
+  "/settings/organizations/{organization_id}/bulk": {
+    /**
+     * Bulk set organization settings
+     * @description Set multiple settings for an organization
+     */
+    post: operations["bulkSetOrganizationSettings"];
+  };
+  "/settings/organizations/{organization_id}/domains": {
+    /**
+     * Get organization domains
+     * @description Get list of available settings domains for an organization
+     */
+    get: operations["getOrganizationDomains"];
+  };
+  "/settings/organizations/{organization_id}/domains/{domain}": {
+    /**
+     * Get domain settings
+     * @description Get all settings for a specific domain
+     */
+    get: operations["getOrganizationDomainSettings"];
+    /**
+     * Set domain settings
+     * @description Set multiple settings for a specific domain
+     */
+    post: operations["setOrganizationDomainSettings"];
+    /**
+     * Delete domain settings
+     * @description Delete all settings for a specific domain
+     */
+    delete: operations["deleteOrganizationDomainSettings"];
+  };
+  "/settings/organizations/{organization_id}/export": {
+    /**
+     * Export organization settings
+     * @description Export all settings for an organization
+     */
+    get: operations["exportOrganizationSettings"];
+  };
+  "/settings/organizations/{organization_id}/import": {
+    /**
+     * Import organization settings
+     * @description Import settings for an organization
+     */
+    post: operations["importOrganizationSettings"];
+  };
+  "/settings/organizations/{organization_id}/validate": {
+    /**
+     * Validate settings
+     * @description Validate settings against their schema definitions
+     */
+    post: operations["validateOrganizationSettings"];
+  };
+  "/settings/organizations/{organization_id}/{domain}/{key}": {
+    /**
+     * Update organization setting
+     * @description Update a specific setting for an organization
+     */
+    put: operations["updateOrganizationSetting"];
+    /**
+     * Delete organization setting
+     * @description Delete a specific setting for an organization
+     */
+    delete: operations["deleteOrganizationSetting"];
+  };
+  "/settings/version": {
+    /**
+     * Get settings system version
+     * @description Get settings system version information
+     */
+    get: operations["getSettingsVersion"];
+  };
   "/static": {
     /**
      * List available static JSON files
@@ -1155,6 +1266,42 @@ export interface paths {
      * @description Create a new email/PDF template with content stored in MinIO
      */
     post: operations["createTemplate"];
+  };
+  "/templates/contracts": {
+    /**
+     * List template contracts
+     * @description List all contracts or filter by module
+     */
+    get: operations["listContracts"];
+    /**
+     * Register template contract
+     * @description Register a new template contract or update existing one
+     */
+    post: operations["registerContract"];
+  };
+  "/templates/contracts/by-key/{module}/{template_key}": {
+    /**
+     * Get template contract
+     * @description Get contract by module and template key
+     */
+    get: operations["getContractByKey"];
+  };
+  "/templates/contracts/{id}": {
+    /**
+     * Get template contract by ID
+     * @description Get contract by ID
+     */
+    get: operations["getContractByID"];
+    /**
+     * Update template contract
+     * @description Update an existing template contract
+     */
+    put: operations["updateContract"];
+    /**
+     * Delete template contract
+     * @description Delete a template contract (only if not in use)
+     */
+    delete: operations["deleteContract"];
   };
   "/templates/default": {
     /**
@@ -1409,6 +1556,9 @@ export interface components {
       user_id?: number;
       weekly_availability?: components["schemas"]["entities.WeeklyAvailability"];
     };
+    "entities.BulkSettingRequest": {
+      settings: components["schemas"]["entities.SettingRequest"][];
+    };
     "entities.CalendarEntryResponse": {
       calendar_id?: number;
       created_at?: string;
@@ -1559,6 +1709,21 @@ export interface components {
       updated_at?: string;
       zip?: string;
     };
+    "entities.ContractResponse": {
+      created_at?: string;
+      default_sample_data?: {
+        [key: string]: unknown;
+      };
+      description?: string;
+      id?: number;
+      module?: string;
+      supported_channels?: string[];
+      template_key?: string;
+      updated_at?: string;
+      variable_schema?: {
+        [key: string]: unknown;
+      };
+    };
     "entities.CostProviderResponse": {
       authority_name?: string;
       city?: string;
@@ -1634,7 +1799,15 @@ export interface components {
       /** @example meeting */
       type?: string;
     };
-    "entities.CreateCalendarRequest": Record<string, never>;
+    "entities.CreateCalendarRequest": {
+      /** @example #FF5733 */
+      color?: string;
+      /** @example UTC */
+      timezone?: string;
+      /** @example My Calendar */
+      title: string;
+      weekly_availability?: number[];
+    };
     "entities.CreateCalendarSeriesRequest": {
       /** @example 1 */
       calendar_id: number;
@@ -1665,7 +1838,63 @@ export interface components {
       /** @example Weekly Meeting */
       title: string;
     };
-    "entities.CreateClientRequest": Record<string, never>;
+    "entities.CreateClientRequest": {
+      admission_date?: components["schemas"]["entities.NullableDate"];
+      /** @example johnny.d@example.com */
+      alternative_email?: string;
+      /** @example Johnny */
+      alternative_first_name?: string;
+      /** @example D */
+      alternative_last_name?: string;
+      /** @example +0987654321 */
+      alternative_phone?: string;
+      /** @example New York */
+      city?: string;
+      /** @example jane.smith@example.com */
+      contact_email?: string;
+      /** @example Jane */
+      contact_first_name?: string;
+      /** @example Smith */
+      contact_last_name?: string;
+      /** @example +1234567890 */
+      contact_phone?: string;
+      /** @example 1 */
+      cost_provider_id?: number;
+      date_of_birth?: components["schemas"]["entities.NullableDate"];
+      /** @example john.doe@example.com */
+      email?: string;
+      /** @example John */
+      first_name: string;
+      /** @example male */
+      gender?: string;
+      /** @example false */
+      invoiced_individually?: boolean;
+      /** @example Doe */
+      last_name: string;
+      /** @example Additional notes about the client */
+      notes?: string;
+      /** @example +1234567890 */
+      phone?: string;
+      /** @example English */
+      primary_language?: string;
+      /** @example PROV123456 */
+      provider_approval_code?: string;
+      provider_approval_date?: components["schemas"]["entities.NullableDate"];
+      /** @example Doctor Smith */
+      referral_source?: string;
+      /** @example waiting */
+      status?: string;
+      /** @example 123 Main Street */
+      street_address?: string;
+      /** @example Cognitive Behavioral Therapy */
+      therapy_title?: string;
+      /** @example Europe/Berlin */
+      timezone?: string;
+      /** @example 150 */
+      unit_price?: number;
+      /** @example 12345 */
+      zip?: string;
+    };
     "entities.CreateCostProviderRequest": {
       /** @example Jugendamt Berlin */
       authority_name?: string;
@@ -1722,7 +1951,17 @@ export interface components {
        */
       session_ids?: number[];
     };
-    "entities.CreateExternalCalendarRequest": Record<string, never>;
+    "entities.CreateExternalCalendarRequest": {
+      /** @example 1 */
+      calendar_id: number;
+      /** @example #33FF57 */
+      color?: string;
+      settings?: number[];
+      /** @example External Calendar */
+      title: string;
+      /** @example https://calendar.google.com/ical/... */
+      url?: string;
+    };
     "entities.CreateExtraEffortRequest": {
       /** @example true */
       billable?: boolean;
@@ -1834,6 +2073,14 @@ export interface components {
       tenant_id?: number;
       updated_at?: string;
     };
+    "entities.DomainResponse": {
+      domains?: string[];
+    };
+    "entities.DomainSettingsRequest": {
+      settings: {
+        [key: string]: unknown;
+      };
+    };
     /** @enum {string} */
     "entities.EntityType": "invoice" | "invoice_item" | "session" | "extra_effort";
     "entities.ExternalCalendarResponse": {
@@ -1889,6 +2136,16 @@ export interface components {
       monthData?: components["schemas"]["entities.MonthData"];
       slots?: components["schemas"]["entities.TimeSlot"][];
       template?: components["schemas"]["entities.BookingTemplateResponse"];
+    };
+    "entities.HealthResponse": {
+      /** @example connected */
+      database?: string;
+      /** @example 7 */
+      modules?: number;
+      /** @example ok */
+      status?: string;
+      /** @example 1.0.0 */
+      version?: string;
     };
     "entities.HolidayImportResult": {
       errors?: string[];
@@ -1946,6 +2203,9 @@ export interface components {
       /** @example TRANSFER-123456 */
       payment_reference?: string;
     };
+    "entities.ModuleListResponse": {
+      modules?: string[];
+    };
     "entities.MonthData": {
       /** @description Array of all days in month */
       days?: components["schemas"]["entities.DayData"][];
@@ -1956,6 +2216,18 @@ export interface components {
     };
     "entities.NullableDate": {
       "time.Time"?: string;
+    };
+    "entities.RegisterContractRequest": {
+      default_sample_data?: {
+        [key: string]: unknown;
+      };
+      description?: string;
+      module: string;
+      supported_channels: string[];
+      template_key: string;
+      variable_schema?: {
+        [key: string]: unknown;
+      };
     };
     "entities.SessionDetailResponse": {
       /** @description Nullable - NULL if calendar entry was deleted */
@@ -1995,6 +2267,42 @@ export interface components {
       tenant_id?: number;
       type?: string;
       updated_at?: string;
+    };
+    "entities.SettingRequest": {
+      /** @example company */
+      domain: string;
+      /** @example company_name */
+      key: string;
+      /** @example string */
+      type: string;
+      value: unknown;
+    };
+    "entities.SettingResponse": {
+      /** @example 2025-01-09T10:00:00Z */
+      created_at?: string;
+      /** @example company */
+      domain?: string;
+      /** @example 123 */
+      id?: number;
+      /** @example company_name */
+      key?: string;
+      /** @example org-123 */
+      organization_id?: string;
+      /** @example 1 */
+      tenant_id?: number;
+      /** @example string */
+      type?: string;
+      /** @example 2025-01-09T10:00:00Z */
+      updated_at?: string;
+      /** @example My Company */
+      value?: string;
+    };
+    "entities.SettingsResponse": {
+      settings?: {
+        [key: string]: {
+          [key: string]: unknown;
+        };
+      };
     };
     "entities.SlotConfiguration": {
       /** @description Buffer between slots in minutes */
@@ -2113,7 +2421,15 @@ export interface components {
       /** @example meeting */
       type?: string;
     };
-    "entities.UpdateCalendarRequest": Record<string, never>;
+    "entities.UpdateCalendarRequest": {
+      /** @example #FF5733 */
+      color?: string;
+      /** @example UTC */
+      timezone?: string;
+      /** @example My Updated Calendar */
+      title?: string;
+      weekly_availability?: number[];
+    };
     "entities.UpdateCalendarSeriesRequest": {
       /** @example Weekly team meeting - updated */
       description?: string;
@@ -2137,7 +2453,73 @@ export interface components {
       /** @example Weekly Meeting Updated */
       title?: string;
     };
-    "entities.UpdateClientRequest": Record<string, never>;
+    "entities.UpdateClientRequest": {
+      admission_date?: components["schemas"]["entities.NullableDate"];
+      /** @example johnny.d@example.com */
+      alternative_email?: string;
+      /** @example Johnny */
+      alternative_first_name?: string;
+      /** @example D */
+      alternative_last_name?: string;
+      /** @example +0987654321 */
+      alternative_phone?: string;
+      /** @example New York */
+      city?: string;
+      /** @example jane.smith@example.com */
+      contact_email?: string;
+      /** @example Jane */
+      contact_first_name?: string;
+      /** @example Smith */
+      contact_last_name?: string;
+      /** @example +1234567890 */
+      contact_phone?: string;
+      /** @example 1 */
+      cost_provider_id?: number;
+      date_of_birth?: components["schemas"]["entities.NullableDate"];
+      /** @example john.doe@example.com */
+      email?: string;
+      /** @example John */
+      first_name?: string;
+      /** @example male */
+      gender?: string;
+      /** @example false */
+      invoiced_individually?: boolean;
+      /** @example Doe */
+      last_name?: string;
+      /** @example Additional notes about the client */
+      notes?: string;
+      /** @example +1234567890 */
+      phone?: string;
+      /** @example English */
+      primary_language?: string;
+      /** @example PROV123456 */
+      provider_approval_code?: string;
+      provider_approval_date?: components["schemas"]["entities.NullableDate"];
+      /** @example Doctor Smith */
+      referral_source?: string;
+      /** @example active */
+      status?: string;
+      /** @example 123 Main Street */
+      street_address?: string;
+      /** @example Cognitive Behavioral Therapy */
+      therapy_title?: string;
+      /** @example Europe/Berlin */
+      timezone?: string;
+      /** @example 150 */
+      unit_price?: number;
+      /** @example 12345 */
+      zip?: string;
+    };
+    "entities.UpdateContractRequest": {
+      default_sample_data?: {
+        [key: string]: unknown;
+      };
+      description?: string;
+      supported_channels?: string[];
+      variable_schema?: {
+        [key: string]: unknown;
+      };
+    };
     "entities.UpdateCostProviderRequest": {
       /** @example Jugendamt Berlin */
       authority_name?: string;
@@ -2188,7 +2570,15 @@ export interface components {
        */
       remove_session_ids?: number[];
     };
-    "entities.UpdateExternalCalendarRequest": Record<string, never>;
+    "entities.UpdateExternalCalendarRequest": {
+      /** @example #33FF57 */
+      color?: string;
+      settings?: number[];
+      /** @example Updated External Calendar */
+      title?: string;
+      /** @example https://calendar.google.com/ical/... */
+      url?: string;
+    };
     "entities.UpdateExtraEffortRequest": {
       /** @example false */
       billable?: boolean;
@@ -2230,6 +2620,18 @@ export interface components {
       items?: components["schemas"]["entities.VATBreakdownItemResponse"][];
       subtotal?: number;
       total_tax?: number;
+    };
+    "entities.ValidationRequest": {
+      /** @example company */
+      domain: string;
+      settings: {
+        [key: string]: unknown;
+      };
+    };
+    "entities.ValidationResponse": {
+      errors?: string[];
+      /** @example true */
+      valid?: boolean;
     };
     "entities.WeeklyAvailability": {
       friday?: components["schemas"]["entities.TimeRange"][];
@@ -2311,8 +2713,8 @@ export interface components {
       pagination?: components["schemas"]["github_com_ae-base-server_internal_models.PaginationResponse"];
     };
     "github_com_ae-base-server_internal_models.LoginRequest": {
+      email: string;
       password: string;
-      username: string;
     };
     "github_com_ae-base-server_internal_models.LoginResponse": {
       token?: string;
@@ -2601,32 +3003,6 @@ export interface components {
       organization_id: number;
       template_id?: number;
     };
-    "handlers.CreateTemplateRequest": {
-      /** @example <!DOCTYPE html>... */
-      content: string;
-      /** @example Default invoice template */
-      description?: string;
-      /** @example true */
-      is_active?: boolean;
-      /** @example false */
-      is_default?: boolean;
-      /** @example Standard Invoice */
-      name: string;
-      /** @example 10 */
-      organization_id?: number;
-      sample_data?: {
-        [key: string]: unknown;
-      };
-      /** @example invoice */
-      template_type: string;
-      /**
-       * @example [
-       *   "customer_name",
-       *   "date"
-       * ]
-       */
-      variables?: string[];
-    };
     "handlers.DownloadURLResponse": {
       /** @example 1 */
       document_id?: number;
@@ -2679,6 +3055,13 @@ export interface components {
        */
       year_format?: string;
     };
+    "handlers.GenerateNextInvoiceNumberRequest": {
+      /**
+       * @description Optional - will use authenticated user's organization if not provided
+       * @example 10
+       */
+      organization_id?: number;
+    };
     "handlers.InvoiceNumberResponse": {
       /** @example INV-2025-0001 */
       invoice_number?: string;
@@ -2696,36 +3079,6 @@ export interface components {
       message?: string;
       /** @example true */
       success?: boolean;
-    };
-    "handlers.TemplateResponse": {
-      /** @example 2025-12-26T10:00:00Z */
-      created_at?: string;
-      /** @example Default invoice template */
-      description?: string;
-      /** @example 1 */
-      id?: number;
-      /** @example true */
-      is_active?: boolean;
-      /** @example false */
-      is_default?: boolean;
-      /** @example Standard Invoice */
-      name?: string;
-      /** @example 10 */
-      organization_id?: number;
-      sample_data?: {
-        [key: string]: unknown;
-      };
-      /** @example tenants/1/templates/invoice/... */
-      storage_key?: string;
-      /** @example invoice */
-      template_type?: string;
-      /** @example 1 */
-      tenant_id?: number;
-      /** @example 2025-12-26T10:00:00Z */
-      updated_at?: string;
-      variables?: string[];
-      /** @example 1 */
-      version?: number;
     };
     "models.ClientResponse": {
       admission_date?: string;
@@ -3225,6 +3578,24 @@ export interface components {
       settings?: string;
       theme?: string;
       timezone?: string;
+    };
+    "services.CreateTemplateRequest": {
+      /** @description HTML content */
+      content: string;
+      description?: string;
+      is_active?: boolean;
+      is_default?: boolean;
+      name: string;
+      /** @description NULL = system default */
+      organization_id?: number;
+      /** @description Sample data for preview */
+      sample_data?: {
+        [key: string]: unknown;
+      };
+      template_type: string;
+      tenant_id?: number;
+      /** @description List of variable names */
+      variables?: string[];
     };
     "services.GeneratePDFFromHTMLRequest": {
       document_type?: string;
@@ -7140,6 +7511,50 @@ export interface operations {
     };
   };
   /**
+   * Generate next invoice number from settings
+   * @description Generate the next sequential invoice number using organization settings (prefix, next number)
+   */
+  generateNextInvoiceNumber: {
+    /** @description Organization ID */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["handlers.GenerateNextInvoiceNumberRequest"];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["handlers.InvoiceNumberResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+    };
+  };
+  /**
    * Get invoice number history
    * @description Retrieve the history of generated invoice numbers
    */
@@ -8442,6 +8857,46 @@ export interface operations {
     };
   };
   /**
+   * Get public template asset
+   * @description Retrieve a template asset (image, CSS, etc.) without authentication
+   */
+  getPublicTemplateAsset: {
+    parameters: {
+      path: {
+        /** @description Tenant ID */
+        tenant: string;
+        /** @description Template ID */
+        template: string;
+        /** @description Asset filename */
+        file: string;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/octet-stream": string;
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/octet-stream": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/octet-stream": {
+            [key: string]: string;
+          };
+        };
+      };
+    };
+  };
+  /**
    * Get all sessions
    * @description Retrieve all sessions with pagination
    */
@@ -8832,6 +9287,680 @@ export interface operations {
     };
   };
   /**
+   * Settings system health check
+   * @description Check the health status of the settings system
+   */
+  settingsHealthCheck: {
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["entities.HealthResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+    };
+  };
+  /**
+   * Get registered settings modules
+   * @description Get list of all registered settings modules
+   */
+  getRegisteredModules: {
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["entities.ModuleListResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+    };
+  };
+  /**
+   * Get organization settings
+   * @description Get all settings for an organization grouped by domain
+   */
+  getOrganizationSettings: {
+    parameters: {
+      path: {
+        /** @description Organization ID */
+        organization_id: string;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["entities.SettingsResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+    };
+  };
+  /**
+   * Set organization setting
+   * @description Set a single setting for an organization
+   */
+  setOrganizationSetting: {
+    parameters: {
+      path: {
+        /** @description Organization ID */
+        organization_id: string;
+      };
+    };
+    /** @description Setting data */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["entities.SettingRequest"];
+      };
+    };
+    responses: {
+      /** @description Created */
+      201: {
+        content: {
+          "application/json": components["schemas"]["entities.SettingResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+    };
+  };
+  /**
+   * Bulk set organization settings
+   * @description Set multiple settings for an organization
+   */
+  bulkSetOrganizationSettings: {
+    parameters: {
+      path: {
+        /** @description Organization ID */
+        organization_id: string;
+      };
+    };
+    /** @description Multiple settings data */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["entities.BulkSettingRequest"];
+      };
+    };
+    responses: {
+      /** @description Created */
+      201: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+    };
+  };
+  /**
+   * Get organization domains
+   * @description Get list of available settings domains for an organization
+   */
+  getOrganizationDomains: {
+    parameters: {
+      path: {
+        /** @description Organization ID */
+        organization_id: string;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["entities.DomainResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+    };
+  };
+  /**
+   * Get domain settings
+   * @description Get all settings for a specific domain
+   */
+  getOrganizationDomainSettings: {
+    parameters: {
+      path: {
+        /** @description Organization ID */
+        organization_id: string;
+        /** @description Settings domain */
+        domain: string;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+    };
+  };
+  /**
+   * Set domain settings
+   * @description Set multiple settings for a specific domain
+   */
+  setOrganizationDomainSettings: {
+    parameters: {
+      path: {
+        /** @description Organization ID */
+        organization_id: string;
+        /** @description Settings domain */
+        domain: string;
+      };
+    };
+    /** @description Domain settings */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["entities.DomainSettingsRequest"];
+      };
+    };
+    responses: {
+      /** @description Created */
+      201: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+    };
+  };
+  /**
+   * Delete domain settings
+   * @description Delete all settings for a specific domain
+   */
+  deleteOrganizationDomainSettings: {
+    parameters: {
+      path: {
+        /** @description Organization ID */
+        organization_id: string;
+        /** @description Settings domain */
+        domain: string;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+    };
+  };
+  /**
+   * Export organization settings
+   * @description Export all settings for an organization
+   */
+  exportOrganizationSettings: {
+    parameters: {
+      query?: {
+        /** @description Export format */
+        format?: "json" | "yaml";
+      };
+      path: {
+        /** @description Organization ID */
+        organization_id: string;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+    };
+  };
+  /**
+   * Import organization settings
+   * @description Import settings for an organization
+   */
+  importOrganizationSettings: {
+    parameters: {
+      path: {
+        /** @description Organization ID */
+        organization_id: string;
+      };
+    };
+    /** @description Settings to import */
+    requestBody: {
+      content: {
+        "application/json": {
+          [key: string]: unknown;
+        };
+      };
+    };
+    responses: {
+      /** @description Created */
+      201: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+    };
+  };
+  /**
+   * Validate settings
+   * @description Validate settings against their schema definitions
+   */
+  validateOrganizationSettings: {
+    parameters: {
+      path: {
+        /** @description Organization ID */
+        organization_id: string;
+      };
+    };
+    /** @description Settings to validate */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["entities.ValidationRequest"];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["entities.ValidationResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["entities.ValidationResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+    };
+  };
+  /**
+   * Update organization setting
+   * @description Update a specific setting for an organization
+   */
+  updateOrganizationSetting: {
+    parameters: {
+      path: {
+        /** @description Organization ID */
+        organization_id: string;
+        /** @description Settings domain */
+        domain: string;
+        /** @description Setting key */
+        key: string;
+      };
+    };
+    /** @description Updated setting data */
+    requestBody: {
+      content: {
+        "application/json": {
+          [key: string]: unknown;
+        };
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["entities.SettingResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+    };
+  };
+  /**
+   * Delete organization setting
+   * @description Delete a specific setting for an organization
+   */
+  deleteOrganizationSetting: {
+    parameters: {
+      path: {
+        /** @description Organization ID */
+        organization_id: string;
+        /** @description Settings domain */
+        domain: string;
+        /** @description Setting key */
+        key: string;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+    };
+  };
+  /**
+   * Get settings system version
+   * @description Get settings system version information
+   */
+  getSettingsVersion: {
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+    };
+  };
+  /**
    * List available static JSON files
    * @description Get a list of all JSON files available in the statics/json directory
    */
@@ -8941,7 +10070,9 @@ export interface operations {
       /** @description OK */
       200: {
         content: {
-          "application/json": components["schemas"]["handlers.SuccessResponse"];
+          "application/json": {
+            [key: string]: unknown;
+          };
         };
       };
       /** @description Unauthorized */
@@ -8970,14 +10101,14 @@ export interface operations {
     /** @description Template data */
     requestBody: {
       content: {
-        "application/json": components["schemas"]["handlers.CreateTemplateRequest"];
+        "application/json": components["schemas"]["services.CreateTemplateRequest"];
       };
     };
     responses: {
       /** @description Created */
       201: {
         content: {
-          "application/json": components["schemas"]["handlers.TemplateResponse"];
+          "application/json": components["schemas"]["entities.TemplateResponse"];
         };
       };
       /** @description Bad Request */
@@ -9000,6 +10131,242 @@ export interface operations {
       500: {
         content: {
           "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+    };
+  };
+  /**
+   * List template contracts
+   * @description List all contracts or filter by module
+   */
+  listContracts: {
+    parameters: {
+      query?: {
+        /** @description Filter by module name */
+        module?: string;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["entities.ContractResponse"][];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+    };
+  };
+  /**
+   * Register template contract
+   * @description Register a new template contract or update existing one
+   */
+  registerContract: {
+    /** @description Contract data */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["entities.RegisterContractRequest"];
+      };
+    };
+    responses: {
+      /** @description Contract updated */
+      200: {
+        content: {
+          "application/json": components["schemas"]["entities.ContractResponse"];
+        };
+      };
+      /** @description Created */
+      201: {
+        content: {
+          "application/json": components["schemas"]["entities.ContractResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+    };
+  };
+  /**
+   * Get template contract
+   * @description Get contract by module and template key
+   */
+  getContractByKey: {
+    parameters: {
+      path: {
+        /** @description Module name */
+        module: string;
+        /** @description Template key */
+        template_key: string;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["entities.ContractResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+    };
+  };
+  /**
+   * Get template contract by ID
+   * @description Get contract by ID
+   */
+  getContractByID: {
+    parameters: {
+      path: {
+        /** @description Contract ID */
+        id: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["entities.ContractResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+    };
+  };
+  /**
+   * Update template contract
+   * @description Update an existing template contract
+   */
+  updateContract: {
+    parameters: {
+      path: {
+        /** @description Contract ID */
+        id: number;
+      };
+    };
+    /** @description Update data */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["entities.UpdateContractRequest"];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["entities.ContractResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+    };
+  };
+  /**
+   * Delete template contract
+   * @description Delete a template contract (only if not in use)
+   */
+  deleteContract: {
+    parameters: {
+      path: {
+        /** @description Contract ID */
+        id: number;
+      };
+    };
+    responses: {
+      /** @description Contract deleted */
+      204: {
+        content: never;
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "*/*": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "*/*": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "*/*": {
             [key: string]: string;
           };
         };

@@ -19,6 +19,85 @@ export interface CostProvider {
   updated_at?: string;
 }
 
+// Template Contract System Types
+export type TemplateChannel = 'EMAIL' | 'DOCUMENT';
+
+export interface VariableSchema {
+  type: string;
+  description?: string;
+  required?: boolean;
+  properties?: Record<string, VariableSchema>;
+  items?: VariableSchema;
+  example?: any;
+}
+
+export interface TemplateContract {
+  id: number;
+  module: string;
+  template_key: string;
+  description: string;
+  supported_channels: TemplateChannel[];
+  variable_schema: Record<string, VariableSchema>;
+  default_sample_data: Record<string, any>;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Template {
+  id: number;
+  tenant_id?: number;
+  organization_id?: number;
+  template_type: string; // Reference to contract's module/template_key
+  name: string;
+  description?: string;
+  content: string;
+  variables?: string[];
+  sample_data?: Record<string, any>;
+  is_active: boolean;
+  is_default: boolean;
+  version?: number;
+  created_at: string;
+  updated_at: string;
+  storage_key?: string;
+  preview_url?: string;
+}
+
+export interface CreateTemplateRequest {
+  template_type: string;
+  name: string;
+  description?: string;
+  content: string;
+  variables?: string[];
+  sample_data?: Record<string, any>;
+  is_active?: boolean;
+  is_default?: boolean;
+}
+
+export interface UpdateTemplateRequest {
+  name?: string;
+  description?: string;
+  content?: string;
+  variables?: string[];
+  sample_data?: Record<string, any>;
+  is_active?: boolean;
+  is_default?: boolean;
+}
+
+export interface DuplicateTemplateRequest {
+  name: string;
+  description?: string;
+}
+
+export interface RenderTemplateRequest {
+  data: Record<string, any>;
+}
+
+export interface RenderTemplateResponse {
+  content: string;
+  channel?: TemplateChannel;
+  subject?: string; // For EMAIL channel
+}
+
 // Export Client type from generated types
 export type Client = components['schemas']['models.ClientResponse'];
 
