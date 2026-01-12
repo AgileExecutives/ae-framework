@@ -161,6 +161,11 @@ export class AESaasApiClient {
     return response;
   }
 
+  async getPasswordSecurity() {
+    const response = await this.request<any>('GET', `/auth/password-security`, undefined);
+    return response;
+  }
+
   async refreshToken() {
     const response = await this.request<ApiResponse<any>>('POST', `/auth/refresh`, undefined);
     return response;

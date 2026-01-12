@@ -75,6 +75,13 @@ export interface paths {
      */
     post: operations["resetPassword"];
   };
+  "/auth/password-security": {
+    /**
+     * Get password security requirements
+     * @description Returns the current password security requirements including minimum length and character requirements
+     */
+    get: operations["getPasswordSecurity"];
+  };
   "/auth/refresh": {
     /**
      * Refresh access token
@@ -1306,7 +1313,7 @@ export interface paths {
   "/templates/default": {
     /**
      * Get default template
-     * @description Get the default template for a specific type (organization from auth middleware)
+     * @description Get the default template by channel and template key (organization from auth middleware)
      */
     get: operations["getDefaultTemplate"];
   };
@@ -3580,6 +3587,8 @@ export interface components {
       timezone?: string;
     };
     "services.CreateTemplateRequest": {
+      /** @description EMAIL or DOCUMENT */
+      channel?: string;
       /** @description HTML content */
       content: string;
       description?: string;
@@ -3592,6 +3601,10 @@ export interface components {
       sample_data?: {
         [key: string]: unknown;
       };
+      /** @description Required for EMAIL templates */
+      subject?: string;
+      /** @description Key derived from filename */
+      template_key?: string;
       template_type: string;
       tenant_id?: number;
       /** @description List of variable names */
@@ -3633,6 +3646,12 @@ export interface components {
         [key: string]: unknown;
       };
       variables?: string[];
+    };
+    "utils.PasswordRequirements": {
+      capital?: boolean;
+      minLength?: number;
+      numbers?: boolean;
+      special?: boolean;
     };
   };
   responses: never;
@@ -4048,6 +4067,20 @@ export interface operations {
       400: {
         content: {
           "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Get password security requirements
+   * @description Returns the current password security requirements including minimum length and character requirements
+   */
+  getPasswordSecurity: {
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["utils.PasswordRequirements"];
         };
       };
     };
@@ -10056,8 +10089,10 @@ export interface operations {
   listTemplates: {
     parameters: {
       query?: {
-        /** @description Template type (email, pdf, invoice, document) */
-        template_type?: string;
+        /** @description Template channel (EMAIL, DOCUMENT) */
+        channel?: string;
+        /** @description Template key (password_reset, invoice, etc.) */
+        template_key?: string;
         /** @description Active status filter */
         is_active?: boolean;
         /** @description Page number (default 1) */
@@ -10375,13 +10410,15 @@ export interface operations {
   };
   /**
    * Get default template
-   * @description Get the default template for a specific type (organization from auth middleware)
+   * @description Get the default template by channel and template key (organization from auth middleware)
    */
   getDefaultTemplate: {
     parameters: {
       query: {
-        /** @description Template type (email, pdf, invoice, document) */
-        template_type: string;
+        /** @description Template channel (EMAIL, DOCUMENT) */
+        channel?: string;
+        /** @description Template key (password_reset, invoice, etc.) */
+        template_key: string;
       };
     };
     responses: {
