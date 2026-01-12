@@ -1,7 +1,8 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
-import { useApiClient, ApiError } from '@agile-exec/api-client'
+import { ApiError } from '@agile-exec/api-client'
 import type { AESaasApiClient } from '@agile-exec/api-client'
+import { getApiClient as getGlobalApiClient } from '@/config/api-config'
 import type * as AuthTypes from './auth-types'
 
 export const useAuthStore = defineStore('auth', () => {
@@ -14,7 +15,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   // Get the global API client
   const getApiClient = () => {
-    return useApiClient()
+    return getGlobalApiClient()
   }
 
   // Getters
@@ -188,7 +189,7 @@ export const useAuthStore = defineStore('auth', () => {
       setError(null)
 
       const client = getApiClient()
-      await client.forgotPassword(email)
+      await client.forgotPassword({ email })
 
       console.log('✅ Auth Store: Password reset email sent')
     } catch (err: any) {
@@ -212,7 +213,7 @@ export const useAuthStore = defineStore('auth', () => {
       setError(null)
 
       const client = getApiClient()
-      await client.resetPassword(token, newPassword)
+      await client.resetPassword(token, { new_password: newPassword })
 
       console.log('✅ Auth Store: Password reset successful')
     } catch (err: any) {

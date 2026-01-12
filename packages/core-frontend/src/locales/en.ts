@@ -132,6 +132,7 @@ export default {
 
   passwordRequirements: {
     minLength: 'At least 8 characters',
+    atLeastChars: 'At least {n} characters',
     hasUppercase: 'At least one uppercase letter',
     hasLowercase: 'At least one lowercase letter',
     hasNumber: 'At least one number',
@@ -154,6 +155,17 @@ export default {
     goHome: 'Go to Home',
     helpfulLinks: 'You might find these links helpful:',
     mobileHint: 'Tap the back button or try the home page'
+  },
+
+  verifyEmail: {
+    title: 'Email Verification',
+    verifying: 'Verifying your email address...',
+    success: 'Email verified successfully!',
+    successMessage: 'Your email address has been successfully verified. You can now log in.',
+    error: 'Verification failed',
+    missingToken: 'Verification token is missing',
+    defaultError: 'Verification failed. The link may be expired or invalid.',
+    goToLogin: 'Go to Login'
   },
 
   dashboard: {

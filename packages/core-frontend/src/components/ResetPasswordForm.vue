@@ -1,21 +1,32 @@
 <script setup lang="ts">
 // Reset Password Form - handles password reset with token validation
 import SingleFormCard from "./SingleFormCard.vue"
+import PasswordField from "./PasswordField.vue"
 import { useAuthStore } from "../stores/auth"
 import { useRouter } from "vue-router"
 import { ref, reactive } from "vue"
 import { useI18n } from 'vue-i18n'
+import { usePasswordRequirements } from '../composables/usePasswordRequirements'
 
 const { t } = useI18n()
 const authStore = useAuthStore()
 const router = useRouter()
+const { validatePassword, requirements } = usePasswordRequirements()
 
-const token = router.currentRoute.value.params.token as string
+const token = router.currentRoute.value.query.token as string
 const successMessage = ref<string | null>(null)
 const errorMessage = ref<string | null>(null)
 const isSubmitting = ref(false)
 const formErrors = reactive<Record<string, string>>({})
 const hasAttemptedSubmit = ref(false)
+
+// Password requirements state
+const newPasswordRequirementsMet = ref(false)
+
+// Password requirements handler
+const onNewPasswordRequirementsChanged = (isValid: boolean, checks: any) => {
+  newPasswordRequirementsMet.value = isValid
+}
 
 // Form data
 const formData = reactive({
@@ -28,7 +39,8 @@ const validateField = (field: string, value: string) => {
   switch (field) {
     case 'newPassword':
       if (!value) return t('validation.passwordRequired')
-      if (value.length < 8) return t('validation.passwordMin')
+      const passwordValidation = validatePassword(value)
+      if (!passwordValidation.valid) return passwordValidation.errors[0]
       break
     case 'confirmPassword':
       if (!value) return t('validation.passwordRepeatRequired')
@@ -135,55 +147,39 @@ const onSubmit = async (event: Event) => {
       <fieldset class="space-y-4">
         <legend class="text-base font-semibold text-base-content mb-4 break-words text-wrap">New Password Setup</legend>
         
-        <div class="form-control">
-          <label class="label">
-            <span class="label-text">{{ $t('reset.newPassword') }}</span>
-          </label>
-          <input 
-            type="password" 
-            autocomplete="new-password" 
-            placeholder="••••••••"
-            v-model="formData.newPassword"
-            @blur="onFieldBlur('newPassword', formData.newPassword)"
-            @input="onFieldInput('confirmPassword', formData.confirmPassword)"
-            :class="['input input-bordered w-full', formErrors.newPassword ? 'input-error' : '']"
-            data-testid="reset-new-password"
-            required
-            minlength="8"
-          />
-          <label class="label">
-            <span class="label-text-alt break-words">{{ $t('reset.passwordRequirements') }}</span>
-          </label>
-          <label v-if="formErrors.newPassword" class="label">
-            <span class="label-text-alt text-error break-words">{{ formErrors.newPassword }}</span>
-          </label>
-        </div>
+        <PasswordField
+          v-model="formData.newPassword"
+          :label="$t('reset.newPassword')"
+          name="newPassword"
+          autocomplete="new-password"
+          :error="formErrors.newPassword"
+          :min-length="requirements.minLength"
+          :show-requirements="true"
+          @blur="onFieldBlur('newPassword', formData.newPassword)"
+          @input="onFieldInput('confirmPassword', formData.confirmPassword)"
+          @requirements-changed="onNewPasswordRequirementsChanged"
+          test-id="reset-new-password"
+          required
+        />
         
-        <div class="form-control">
-          <label class="label">
-            <span class="label-text">{{ $t('reset.confirmPassword') }}</span>
-          </label>
-          <input 
-            type="password" 
-            autocomplete="new-password" 
-            placeholder="••••••••" 
-            v-model="formData.confirmPassword"
-            @blur="onFieldBlur('confirmPassword', formData.confirmPassword)"
-            :class="['input input-bordered w-full', formErrors.confirmPassword ? 'input-error' : '']"
-            data-testid="reset-confirm-password"
-            required
-          />
-          <label v-if="formErrors.confirmPassword" class="label">
-            <span class="label-text-alt text-error break-words">{{ formErrors.confirmPassword }}</span>
-          </label>
-        </div>
+        <PasswordField
+          v-model="formData.confirmPassword"
+          :label="$t('reset.confirmPassword')"
+          name="confirmPassword"
+          autocomplete="new-password"
+          :error="formErrors.confirmPassword"
+          :min-length="requirements.minLength"
+          @blur="onFieldBlur('confirmPassword', formData.confirmPassword)"
+          test-id="reset-confirm-password"
+          required
+        />
       </fieldset>
       
       <!-- Submit Button -->
       <button 
         type="submit" 
         class="btn btn-primary w-full"
-        :disabled="isSubmitting"
+        :disabled="isSubmitting || !newPasswordRequirementsMet"
         data-testid="reset-submit"
       >
         <span v-if="isSubmitting" class="loading loading-spinner loading-sm"></span>

@@ -1,5 +1,5 @@
 import { ref, computed, onMounted } from 'vue'
-import { createApiClient } from '@agile-exec/api-client'
+import { getApiClient } from '@/config/api-config'
 import * as z from 'zod'
 import { useI18n } from 'vue-i18n'
 
@@ -29,16 +29,35 @@ export function usePasswordRequirements() {
       isLoading.value = true
       error.value = null
       
-      // TODO: Implement getPasswordSecurity endpoint on the backend
-      // For now, use default requirements
-      console.log('Using default password requirements (getPasswordSecurity endpoint not available)')
+      // Try to fetch password requirements from the password security endpoint
+      try {
+        const apiClient = getApiClient()
+        const response = await apiClient.getPasswordSecurity()
+        console.log('🔐 Password security API response:', response)
+        
+        if (response && typeof response === 'object') {
+          // The API returns the PasswordRequirements object directly
+          // Type: { capital?: boolean, minLength?: number, numbers?: boolean, special?: boolean }
+          const passwordSettings = response as any
+          
+          requirements.value = {
+            minLength: passwordSettings.minLength ?? 8,
+            capital: passwordSettings.capital ?? true,
+            numbers: passwordSettings.numbers ?? true,
+            special: passwordSettings.special ?? true
+          }
+          console.log('✅ Loaded password requirements from backend:', requirements.value)
+          return
+        }
+        
+        console.warn('⚠️ Password security response format unexpected:', response)
+      } catch (settingsErr) {
+        console.error('❌ Password security endpoint error:', settingsErr)
+        // Settings endpoint may not exist or may not have password requirements
+      }
       
-      // const apiClient = createApiClient({
-      //   baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api/v1'
-      // })
-      // 
-      // const data = await apiClient.getPasswordSecurity()
-      // requirements.value = data
+      // Fall back to default requirements
+      console.log('ℹ️ Using default password requirements:', requirements.value)
     } catch (err: any) {
       console.error('Failed to load password requirements:', err)
       error.value = err.message
@@ -48,10 +67,6 @@ export function usePasswordRequirements() {
     }
   }
 
-  // Auto-load on mount
-  onMounted(() => {
-    loadRequirements()
-  })
 
   // Build error message for validation
   const buildErrorMessage = (req: PasswordRequirements): string => {
@@ -99,6 +114,8 @@ export function usePasswordRequirements() {
   const validatePassword = (password: string): { valid: boolean; errors: string[] } => {
     const req = requirements.value
     const errors: string[] = []
+    
+    console.log('🔍 Validating password with requirements:', req)
 
     if (password.length < req.minLength) {
       errors.push(t('validation.passwordMinLength', { n: req.minLength }))
@@ -115,6 +132,8 @@ export function usePasswordRequirements() {
     if (req.special && !/[^a-zA-Z0-9]/.test(password)) {
       errors.push(t('validation.passwordRequireSpecial'))
     }
+    
+    console.log('🔍 Validation result:', { valid: errors.length === 0, errors })
 
     return {
       valid: errors.length === 0,
@@ -126,10 +145,13 @@ export function usePasswordRequirements() {
   const checkRequirements = (password: string) => {
     const req = requirements.value
     
+    // Only require lowercase if at least one other character requirement is enabled
+    const requireLowercase = req.capital || req.numbers || req.special
+    
     const checks = computed(() => [
       {
         id: 'length',
-        label: t('passwordRequirements.minLength'),
+        label: t('passwordRequirements.atLeastChars', { n: req.minLength }),
         met: password.length >= req.minLength,
         required: true
       },
@@ -143,7 +165,7 @@ export function usePasswordRequirements() {
         id: 'lowercase',
         label: t('passwordRequirements.hasLowercase'),
         met: /[a-z]/.test(password),
-        required: true
+        required: requireLowercase
       },
       {
         id: 'number',
@@ -205,6 +227,11 @@ export function usePasswordRequirements() {
       strengthLabel
     }
   }
+
+  // Auto-load on mount
+  onMounted(() => {
+    loadRequirements()
+  })
 
   return {
     requirements,

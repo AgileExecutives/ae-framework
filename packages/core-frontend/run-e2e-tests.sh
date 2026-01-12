@@ -62,8 +62,8 @@ fi
 # Check if base app is available (in case it's already running)
 echo ""
 echo "🔍 Checking if base app needs to be started..."
-if curl -s http://localhost:3000 > /dev/null 2>&1; then
-    print_status "Base app is running on http://localhost:3000"
+if curl -s http://localhost:3003 > /dev/null 2>&1; then
+    print_status "Base app is running on http://localhost:3003"
 else
     print_warning "Base app is not running. Starting it now..."
     echo "Starting dev server in background..."
@@ -75,15 +75,15 @@ else
     # Wait for dev server to start
     echo "Waiting for dev server to start..."
     for i in {1..30}; do
-        if curl -s http://localhost:3000 > /dev/null 2>&1; then
-            print_status "Base app started successfully on http://localhost:3000"
+        if curl -s http://localhost:3003 > /dev/null 2>&1; then
+            print_status "Base app started successfully on http://localhost:3003"
             break
         fi
         sleep 2
     done
     
     # Check if it actually started
-    if ! curl -s http://localhost:3000 > /dev/null 2>&1; then
+    if ! curl -s http://localhost:3003 > /dev/null 2>&1; then
         print_error "Failed to start base app"
         kill $DEV_SERVER_PID 2>/dev/null || true
         exit 1

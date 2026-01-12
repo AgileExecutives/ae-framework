@@ -13,7 +13,7 @@ const { t } = useI18n()
 const authStore = useAuthStore()
 const router = useRouter()
 const { termsOfServiceText, privacyPolicyText } = useAppConfig()
-const { validatePassword } = usePasswordRequirements()
+const { validatePassword, requirements } = usePasswordRequirements()
 
 const successMessage = ref<string | null>(null)
 const errorMessage = ref<string | null>(null)
@@ -274,7 +274,7 @@ const onSubmit = async (event: Event) => {
           :error="formErrors.password"
           test-id="register-password"
           :required="true"
-          :min-length="8"
+          :min-length="requirements.minLength"
           :show-requirements="true"
           @blur="onFieldBlur('password', formData.password)"
           @update:model-value="onFieldInput('passwordRepeat', formData.passwordRepeat)"
@@ -290,6 +290,7 @@ const onSubmit = async (event: Event) => {
           :error="formErrors.passwordRepeat"
           test-id="register-password-repeat"
           :required="true"
+          :min-length="requirements.minLength"
           :show-requirements="false"
           @blur="onFieldBlur('passwordRepeat', formData.passwordRepeat)"
         />

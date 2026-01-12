@@ -132,6 +132,7 @@ export default {
 
   passwordRequirements: {
     minLength: 'Mindestens 8 Zeichen',
+    atLeastChars: 'Mindestens {n} Zeichen',
     hasUppercase: 'Mindestens ein Großbuchstabe',
     hasLowercase: 'Mindestens ein Kleinbuchstabe', 
     hasNumber: 'Mindestens eine Zahl',
@@ -156,6 +157,17 @@ export default {
     goHome: 'Zur Startseite',
     helpfulLinks: 'Diese Links könnten hilfreich sein:',
     mobileHint: 'Tippe auf den Zurück-Button oder versuche die Startseite'
+  },
+
+  verifyEmail: {
+    title: 'E-Mail-Verifizierung',
+    verifying: 'Verifiziere Ihre E-Mail-Adresse...',
+    success: 'E-Mail erfolgreich verifiziert!',
+    successMessage: 'Ihre E-Mail-Adresse wurde erfolgreich verifiziert. Sie können sich jetzt anmelden.',
+    error: 'Verifizierung fehlgeschlagen',
+    missingToken: 'Verifizierungstoken fehlt',
+    defaultError: 'Verifizierung fehlgeschlagen. Der Link ist möglicherweise abgelaufen oder ungültig.',
+    goToLogin: 'Zur Anmeldung'
   },
 
   dashboard: {

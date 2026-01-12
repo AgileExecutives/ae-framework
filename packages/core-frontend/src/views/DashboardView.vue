@@ -146,10 +146,10 @@ import { useAuthStore } from '../stores/auth'
 import { useToast } from '../composables/useToast'
 import { useI18n } from 'vue-i18n'
 import LogoutButton from '../components/LogoutButton.vue'
-import { AESaasApiClient } from '@agile-exec/api-client'
+import { getApiClient } from '@/config/api-config'
 
-// Create API client instance
-const apiClient = new AESaasApiClient({ baseURL: 'http://localhost:8080' })
+// Get the global API client instance
+const apiClient = getApiClient()
 
 const authStore = useAuthStore()
 const toast = useToast()

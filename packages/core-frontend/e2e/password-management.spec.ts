@@ -190,7 +190,7 @@ test.describe('Password Management E2E Tests', () => {
     // For now, we'll use a test token format
     const testToken = 'test-reset-token-123';
     
-    await page.goto(`/new-password/${testToken}`);
+    await page.goto(`/new-password?token=${testToken}`);
     await page.waitForLoadState('networkidle');
     
     // Verify form elements using testids
@@ -206,7 +206,7 @@ test.describe('Password Management E2E Tests', () => {
     console.log('🧪 Test: Password requirements validation');
     
     const testToken = 'test-reset-token-123';
-    await page.goto(`/new-password/${testToken}`);
+    await page.goto(`/new-password?token=${testToken}`);
     await page.waitForLoadState('networkidle');
     
     // Wait for password requirements to load
@@ -226,19 +226,17 @@ test.describe('Password Management E2E Tests', () => {
     // Try weak password using testids
     await page.locator('[data-testid="reset-new-password"]').fill('weak');
     await page.locator('[data-testid="reset-confirm-password"]').fill('weak');
-    await page.locator('[data-testid="reset-submit"]').click();
     
-    // Check for validation error (may prevent submission instead of showing error)
-    try {
-      const germanPassError = page.getByText(/passwort muss mindestens.*zeichen/i);
-      const englishPassError = page.getByText(/password must be at least.*characters/i);
-      await expect(germanPassError.or(englishPassError).first()).toBeVisible({ timeout: 2000 });
-      console.log('✅ Password validation error shown');
-    } catch (error) {
-      // Check if we're still on the reset password page (validation prevented submission)
-      await expect(page).toHaveURL(/new-password/);
-      console.log('⚠️  Validation prevented submission (no visible error message)');
-    }
+    // Check that submit button is disabled when password requirements are not met
+    await expect(page.locator('[data-testid="reset-submit"]')).toBeDisabled();
+    console.log('✅ Submit button is disabled for weak password');
+    
+    // Try a valid password that meets requirements
+    await page.locator('[data-testid="reset-new-password"]').fill('ValidPass123!');
+    await page.locator('[data-testid="reset-confirm-password"]').fill('ValidPass123!');
+    
+    // Now button should be enabled
+    await expect(page.locator('[data-testid="reset-submit"]')).toBeEnabled();
     
     console.log('✅ Password requirements validation works');
   });
@@ -247,7 +245,7 @@ test.describe('Password Management E2E Tests', () => {
     console.log('🧪 Test: Password confirmation matching');
     
     const testToken = 'test-reset-token-123';
-    await page.goto(`/new-password/${testToken}`);
+    await page.goto(`/new-password?token=${testToken}`);
     await page.waitForLoadState('networkidle');
     
     // Fill passwords that don't match using testids

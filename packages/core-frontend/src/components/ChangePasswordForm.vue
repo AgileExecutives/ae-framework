@@ -5,10 +5,12 @@ import { useAuthStore } from "../stores/auth"
 import { useRouter } from "vue-router"
 import { ref, reactive } from "vue"
 import { useI18n } from 'vue-i18n'
+import { usePasswordRequirements } from '../composables/usePasswordRequirements'
 
 const { t } = useI18n()
 const authStore = useAuthStore()
 const router = useRouter()
+const { validatePassword, requirements } = usePasswordRequirements()
 
 const successMessage = ref<string | null>(null)
 const errorMessage = ref<string | null>(null)
@@ -39,7 +41,8 @@ const validateField = (field: string, value: string) => {
       break
     case 'newPassword':
       if (!value) return t('validation.passwordRequired')
-      if (value.length < 8) return t('validation.passwordMin')
+      const passwordValidation = validatePassword(value)
+      if (!passwordValidation.valid) return passwordValidation.errors[0]
       if (value === formData.currentPassword) return t('validation.passwordSameAsCurrent')
       break
     case 'confirmPassword':
@@ -154,6 +157,7 @@ const onSubmit = async (event: Event) => {
           autocomplete="current-password"
           :error="formErrors.currentPassword"
           test-id="change-current-password"
+          :min-length="0"        
           :required="true"
           :show-requirements="false"
           @blur="onFieldBlur('currentPassword', formData.currentPassword)"
@@ -172,7 +176,7 @@ const onSubmit = async (event: Event) => {
           :error="formErrors.newPassword"
           test-id="change-new-password"
           :required="true"
-          :min-length="8"
+          :min-length="requirements.minLength"
           :show-requirements="true"
           @blur="onFieldBlur('newPassword', formData.newPassword)"
           @update:model-value="onFieldInput('confirmPassword', formData.confirmPassword)"
@@ -187,6 +191,7 @@ const onSubmit = async (event: Event) => {
           :error="formErrors.confirmPassword"
           test-id="change-confirm-password"
           :required="true"
+          :min-length="requirements.minLength"
           :show-requirements="false"
           @blur="onFieldBlur('confirmPassword', formData.confirmPassword)"
         />
