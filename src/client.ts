@@ -1038,6 +1038,12 @@ export class AESaasApiClient {
     return response || { success: true };
   }
 
+  async getTemplateContent(id: number) {
+    if (!id) throw new Error('id is required');
+    const response = await this.request<ApiResponse<any>>('GET', `/templates/${id}/content`, undefined);
+    return response;
+  }
+
   async duplicateTemplate(id: number, data: any) {
     if (!id) throw new Error('id is required');
     const response = await this.request<ApiResponse<any>>('POST', `/templates/${id}/duplicate`, data);

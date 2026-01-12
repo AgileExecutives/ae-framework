@@ -1320,7 +1320,7 @@ export interface paths {
   "/templates/{id}": {
     /**
      * Get template
-     * @description Get template metadata by ID
+     * @description Get template metadata by ID with preview URL and variables
      */
     get: operations["getTemplate"];
     /**
@@ -1330,21 +1330,28 @@ export interface paths {
     put: operations["updateTemplate"];
     /**
      * Delete template
-     * @description Soft delete a template
+     * @description Soft delete a template (marks as deleted)
      */
     delete: operations["deleteTemplate"];
+  };
+  "/templates/{id}/content": {
+    /**
+     * Get template content
+     * @description Get the raw HTML content of a template (without rendering variables)
+     */
+    get: operations["getTemplateContent"];
   };
   "/templates/{id}/duplicate": {
     /**
      * Duplicate template
-     * @description Create a copy of an existing template
+     * @description Create a copy of an existing template with a new name
      */
     post: operations["duplicateTemplate"];
   };
   "/templates/{id}/render": {
     /**
      * Render template
-     * @description Render template with provided data
+     * @description Render template with provided data variables
      */
     post: operations["renderTemplate"];
   };
@@ -2322,6 +2329,19 @@ export interface components {
       number_max?: number;
       /** @description Weekly availability config */
       weekly_availability?: components["schemas"]["entities.WeeklyAvailability"];
+    };
+    "entities.TemplateAPIResponse": {
+      data?: components["schemas"]["entities.TemplateResponse"];
+      message?: string;
+      success?: boolean;
+    };
+    "entities.TemplateListResponse": {
+      data?: components["schemas"]["entities.TemplateResponse"][];
+      limit?: number;
+      message?: string;
+      page?: number;
+      success?: boolean;
+      total?: number;
     };
     "entities.TemplateResponse": {
       created_at?: string;
@@ -10089,15 +10109,30 @@ export interface operations {
   listTemplates: {
     parameters: {
       query?: {
-        /** @description Template channel (EMAIL, DOCUMENT) */
+        /**
+         * @description Template channel (EMAIL, DOCUMENT)
+         * @example "EMAIL"
+         */
         channel?: string;
-        /** @description Template key (password_reset, invoice, etc.) */
+        /**
+         * @description Template key (password_reset, invoice, etc.)
+         * @example "welcome_email"
+         */
         template_key?: string;
-        /** @description Active status filter */
+        /**
+         * @description Active status filter
+         * @example true
+         */
         is_active?: boolean;
-        /** @description Page number (default 1) */
+        /**
+         * @description Page number (default 1)
+         * @example 1
+         */
         page?: number;
-        /** @description Page size (default 20) */
+        /**
+         * @description Page size (default 20)
+         * @example 10
+         */
         page_size?: number;
       };
     };
@@ -10105,9 +10140,7 @@ export interface operations {
       /** @description OK */
       200: {
         content: {
-          "application/json": {
-            [key: string]: unknown;
-          };
+          "application/json": components["schemas"]["entities.TemplateListResponse"];
         };
       };
       /** @description Unauthorized */
@@ -10133,7 +10166,7 @@ export interface operations {
    * @description Create a new email/PDF template with content stored in MinIO
    */
   createTemplate: {
-    /** @description Template data */
+    /** @description Template creation request */
     requestBody: {
       content: {
         "application/json": components["schemas"]["services.CreateTemplateRequest"];
@@ -10143,7 +10176,7 @@ export interface operations {
       /** @description Created */
       201: {
         content: {
-          "application/json": components["schemas"]["entities.TemplateResponse"];
+          "application/json": components["schemas"]["entities.TemplateAPIResponse"];
         };
       };
       /** @description Bad Request */
@@ -10415,9 +10448,15 @@ export interface operations {
   getDefaultTemplate: {
     parameters: {
       query: {
-        /** @description Template channel (EMAIL, DOCUMENT) */
+        /**
+         * @description Template channel (EMAIL, DOCUMENT)
+         * @example "EMAIL"
+         */
         channel?: string;
-        /** @description Template key (password_reset, invoice, etc.) */
+        /**
+         * @description Template key (password_reset, invoice, etc.)
+         * @example "welcome_email"
+         */
         template_key: string;
       };
     };
@@ -10425,7 +10464,7 @@ export interface operations {
       /** @description OK */
       200: {
         content: {
-          "application/json": components["schemas"]["entities.TemplateResponse"];
+          "application/json": components["schemas"]["entities.TemplateAPIResponse"];
         };
       };
       /** @description Unauthorized */
@@ -10456,12 +10495,15 @@ export interface operations {
   };
   /**
    * Get template
-   * @description Get template metadata by ID
+   * @description Get template metadata by ID with preview URL and variables
    */
   getTemplate: {
     parameters: {
       path: {
-        /** @description Template ID */
+        /**
+         * @description Template ID
+         * @example 1
+         */
         id: number;
       };
     };
@@ -10469,7 +10511,7 @@ export interface operations {
       /** @description OK */
       200: {
         content: {
-          "application/json": components["schemas"]["entities.TemplateResponse"];
+          "application/json": components["schemas"]["entities.TemplateAPIResponse"];
         };
       };
       /** @description Unauthorized */
@@ -10505,7 +10547,10 @@ export interface operations {
   updateTemplate: {
     parameters: {
       path: {
-        /** @description Template ID */
+        /**
+         * @description Template ID
+         * @example 1
+         */
         id: number;
       };
     };
@@ -10519,7 +10564,7 @@ export interface operations {
       /** @description OK */
       200: {
         content: {
-          "application/json": components["schemas"]["entities.TemplateResponse"];
+          "application/json": components["schemas"]["entities.TemplateAPIResponse"];
         };
       };
       /** @description Bad Request */
@@ -10558,19 +10603,24 @@ export interface operations {
   };
   /**
    * Delete template
-   * @description Soft delete a template
+   * @description Soft delete a template (marks as deleted)
    */
   deleteTemplate: {
     parameters: {
       path: {
-        /** @description Template ID */
+        /**
+         * @description Template ID
+         * @example 1
+         */
         id: number;
       };
     };
     responses: {
-      /** @description No Content */
+      /** @description Template deleted successfully */
       204: {
-        content: never;
+        content: {
+          "*/*": string;
+        };
       };
       /** @description Unauthorized */
       401: {
@@ -10599,13 +10649,63 @@ export interface operations {
     };
   };
   /**
+   * Get template content
+   * @description Get the raw HTML content of a template (without rendering variables)
+   */
+  getTemplateContent: {
+    parameters: {
+      path: {
+        /**
+         * @description Template ID
+         * @example 1
+         */
+        id: number;
+      };
+    };
+    responses: {
+      /** @description Raw HTML content */
+      200: {
+        content: {
+          "text/html": string;
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "text/html": {
+            [key: string]: unknown;
+          };
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "text/html": {
+            [key: string]: unknown;
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "text/html": {
+            [key: string]: unknown;
+          };
+        };
+      };
+    };
+  };
+  /**
    * Duplicate template
-   * @description Create a copy of an existing template
+   * @description Create a copy of an existing template with a new name
    */
   duplicateTemplate: {
     parameters: {
       path: {
-        /** @description Template ID */
+        /**
+         * @description Template ID
+         * @example 1
+         */
         id: number;
       };
     };
@@ -10621,7 +10721,7 @@ export interface operations {
       /** @description Created */
       201: {
         content: {
-          "application/json": components["schemas"]["entities.TemplateResponse"];
+          "application/json": components["schemas"]["entities.TemplateAPIResponse"];
         };
       };
       /** @description Bad Request */
@@ -10660,12 +10760,15 @@ export interface operations {
   };
   /**
    * Render template
-   * @description Render template with provided data
+   * @description Render template with provided data variables
    */
   renderTemplate: {
     parameters: {
       path: {
-        /** @description Template ID */
+        /**
+         * @description Template ID
+         * @example 1
+         */
         id: number;
       };
     };
@@ -10678,7 +10781,7 @@ export interface operations {
       };
     };
     responses: {
-      /** @description HTML content */
+      /** @description Rendered HTML content" example("<h1>Hello Alice Johnson!</h1><p>Welcome to Tech Innovators Inc. We're excited to have you!</p>") */
       200: {
         content: {
           "text/html": string;
