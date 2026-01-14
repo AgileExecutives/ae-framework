@@ -311,6 +311,13 @@ export interface paths {
      */
     post: operations["createInvoice"];
   };
+  "/client-invoices/draft": {
+    /**
+     * Create a draft invoice
+     * @description Create a new draft invoice with sessions, extra efforts, and/or custom line items. Items are reserved with status 'invoice-draft'.
+     */
+    post: operations["createDraftInvoice"];
+  };
   "/client-invoices/from-sessions": {
     /**
      * Create invoice from sessions
@@ -366,6 +373,13 @@ export interface paths {
      */
     get: operations["getClientsWithUnbilledSessions"];
   };
+  "/client-invoices/vat-categories": {
+    /**
+     * Get available VAT categories
+     * @description Get list of available VAT categories with rates and exemption information
+     */
+    get: operations["getVATCategories"];
+  };
   "/client-invoices/{id}": {
     /**
      * Get an invoice by ID
@@ -382,6 +396,69 @@ export interface paths {
      * @description Delete an invoice and all its invoice items by ID
      */
     delete: operations["deleteInvoice"];
+  };
+  "/client-invoices/{id}/credit-note": {
+    /**
+     * Create a credit note
+     * @description Create a credit note for an existing invoice with selected line items
+     */
+    post: operations["createCreditNote"];
+  };
+  "/client-invoices/{id}/finalize": {
+    /**
+     * Finalize a draft invoice
+     * @description Finalize a draft invoice by generating invoice number and changing status to 'sent'
+     */
+    post: operations["finalizeInvoice"];
+  };
+  "/client-invoices/{id}/mark-overdue": {
+    /**
+     * Mark an invoice as overdue
+     * @description Mark an invoice as overdue if payment is past due date
+     */
+    post: operations["markInvoiceAsOverdue"];
+  };
+  "/client-invoices/{id}/mark-paid": {
+    /**
+     * Mark an invoice as paid
+     * @description Mark an invoice as paid with optional payment date and reference
+     */
+    post: operations["markInvoiceAsPaid"];
+  };
+  "/client-invoices/{id}/pdf": {
+    /**
+     * Download invoice PDF
+     * @description Download the PDF document for a finalized invoice
+     */
+    get: operations["downloadInvoicePDF"];
+  };
+  "/client-invoices/{id}/preview-pdf": {
+    /**
+     * Preview invoice PDF
+     * @description Generate and display PDF for preview without download
+     */
+    get: operations["previewInvoicePDF"];
+  };
+  "/client-invoices/{id}/reminder": {
+    /**
+     * Send payment reminder
+     * @description Send a payment reminder email for an overdue invoice
+     */
+    post: operations["sendReminder"];
+  };
+  "/client-invoices/{id}/send-email": {
+    /**
+     * Send invoice via email
+     * @description Send an invoice to the client via email
+     */
+    post: operations["sendInvoiceEmail"];
+  };
+  "/client-invoices/{id}/xrechnung": {
+    /**
+     * Export invoice as XRechnung XML
+     * @description Generate and download XRechnung-compliant UBL XML for a finalized invoice to a government customer
+     */
+    get: operations["exportXRechnung"];
   };
   "/client/{token}": {
     /**
@@ -854,20 +931,6 @@ export interface paths {
       };
     };
   };
-  "/invoices/draft": {
-    /**
-     * Create a draft invoice
-     * @description Create a new draft invoice with sessions, extra efforts, and/or custom line items. Items are reserved with status 'invoice-draft'.
-     */
-    post: operations["createDraftInvoice"];
-  };
-  "/invoices/vat-categories": {
-    /**
-     * Get available VAT categories
-     * @description Get list of available VAT categories with rates and exemption information
-     */
-    get: operations["getVATCategories"];
-  };
   "/invoices/{id}": {
     /**
      * Get invoice by ID
@@ -914,78 +977,157 @@ export interface paths {
       };
     };
     /**
-     * Update a draft invoice
-     * @description Edit a draft invoice by adding/removing items and recalculating totals
+     * Update invoice
+     * @description Update an existing invoice's details
      */
-    put: operations["updateDraftInvoice"];
+    put: {
+      parameters: {
+        path: {
+          /** @description Invoice ID */
+          id: number;
+        };
+      };
+      /** @description Updated invoice data */
+      requestBody: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_invoice-module_entities.UpdateInvoiceRequest"];
+        };
+      };
+      responses: {
+        /** @description OK */
+        200: {
+          content: {
+            "application/json": components["schemas"]["github_com_unburdy_invoice-module_entities.InvoiceResponse"];
+          };
+        };
+        /** @description Bad Request */
+        400: {
+          content: {
+            "application/json": {
+              [key: string]: string;
+            };
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          content: {
+            "application/json": {
+              [key: string]: string;
+            };
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          content: {
+            "application/json": {
+              [key: string]: string;
+            };
+          };
+        };
+      };
+    };
     /**
-     * Cancel a draft invoice
-     * @description Cancel a draft invoice and revert all item statuses
+     * Delete invoice
+     * @description Soft delete an invoice by ID
      */
-    delete: operations["cancelDraftInvoice"];
-  };
-  "/invoices/{id}/credit-note": {
-    /**
-     * Create a credit note
-     * @description Create a credit note for an existing invoice with selected line items
-     */
-    post: operations["createCreditNote"];
-  };
-  "/invoices/{id}/finalize": {
-    /**
-     * Finalize a draft invoice
-     * @description Finalize a draft invoice by generating invoice number and changing status to 'sent'
-     */
-    post: operations["finalizeInvoice"];
-  };
-  "/invoices/{id}/mark-overdue": {
-    /**
-     * Mark an invoice as overdue
-     * @description Mark an invoice as overdue if payment is past due date
-     */
-    post: operations["markInvoiceAsOverdue"];
+    delete: {
+      parameters: {
+        path: {
+          /** @description Invoice ID */
+          id: number;
+        };
+      };
+      responses: {
+        /** @description OK */
+        200: {
+          content: {
+            "application/json": {
+              [key: string]: unknown;
+            };
+          };
+        };
+        /** @description Bad Request */
+        400: {
+          content: {
+            "application/json": {
+              [key: string]: string;
+            };
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          content: {
+            "application/json": {
+              [key: string]: string;
+            };
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          content: {
+            "application/json": {
+              [key: string]: string;
+            };
+          };
+        };
+      };
+    };
   };
   "/invoices/{id}/mark-paid": {
     /**
-     * Mark an invoice as paid
-     * @description Mark an invoice as paid with optional payment date and reference
+     * Mark invoice as paid
+     * @description Mark an invoice as paid with payment date
      */
-    post: operations["markInvoiceAsPaid"];
-  };
-  "/invoices/{id}/pdf": {
-    /**
-     * Download invoice PDF
-     * @description Download the PDF document for a finalized invoice
-     */
-    get: operations["downloadInvoicePDF"];
-  };
-  "/invoices/{id}/preview-pdf": {
-    /**
-     * Preview invoice PDF
-     * @description Generate and display PDF for preview without download
-     */
-    get: operations["previewInvoicePDF"];
-  };
-  "/invoices/{id}/reminder": {
-    /**
-     * Send payment reminder
-     * @description Send a payment reminder email for an overdue invoice
-     */
-    post: operations["sendReminder"];
-  };
-  "/invoices/{id}/send-email": {
-    /**
-     * Send invoice via email
-     * @description Send an invoice to the client via email
-     */
-    post: operations["sendInvoiceEmail"];
-  };
-  "/invoices/{id}/xrechnung": {
-    /**
-     * Export invoice as XRechnung XML
-     * @description Generate and download XRechnung-compliant UBL XML for a finalized invoice to a government customer
-     */
-    get: operations["exportXRechnung"];
+    post: {
+      parameters: {
+        path: {
+          /** @description Invoice ID */
+          id: number;
+        };
+      };
+      /** @description Payment date (RFC3339 format) */
+      requestBody: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      responses: {
+        /** @description OK */
+        200: {
+          content: {
+            "application/json": {
+              [key: string]: unknown;
+            };
+          };
+        };
+        /** @description Bad Request */
+        400: {
+          content: {
+            "application/json": {
+              [key: string]: string;
+            };
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          content: {
+            "application/json": {
+              [key: string]: string;
+            };
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          content: {
+            "application/json": {
+              [key: string]: string;
+            };
+          };
+        };
+      };
+    };
   };
   "/organizations": {
     /**
@@ -2095,6 +2237,10 @@ export interface components {
         [key: string]: unknown;
       };
     };
+    "entities.DuplicateTemplateRequest": {
+      /** @example Copy of Welcome Email Template */
+      name: string;
+    };
     /** @enum {string} */
     "entities.EntityType": "invoice" | "invoice_item" | "session" | "extra_effort";
     "entities.ExternalCalendarResponse": {
@@ -2242,6 +2388,16 @@ export interface components {
       variable_schema?: {
         [key: string]: unknown;
       };
+    };
+    "entities.RenderTemplateRequest": {
+      /** @example alice.johnson@techinnovators.com */
+      Email?: string;
+      /** @example Alice */
+      FirstName?: string;
+      /** @example Johnson */
+      LastName?: string;
+      /** @example Tech Innovators Inc */
+      OrganizationName?: string;
     };
     "entities.SessionDetailResponse": {
       /** @description Nullable - NULL if calendar entry was deleted */
@@ -3614,6 +3770,8 @@ export interface components {
       description?: string;
       is_active?: boolean;
       is_default?: boolean;
+      /** @description Module name for contract binding */
+      module?: string;
       name: string;
       /** @description NULL = system default */
       organization_id?: number;
@@ -5453,6 +5611,44 @@ export interface operations {
     };
   };
   /**
+   * Create a draft invoice
+   * @description Create a new draft invoice with sessions, extra efforts, and/or custom line items. Items are reserved with status 'invoice-draft'.
+   */
+  createDraftInvoice: {
+    /** @description Draft invoice information */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["entities.CreateDraftInvoiceRequest"];
+      };
+    };
+    responses: {
+      /** @description Created */
+      201: {
+        content: {
+          "application/json": components["schemas"]["entities.InvoiceAPIResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
    * Get clients with unbilled sessions
    * @description Retrieve all clients that have sessions not yet associated with any invoice
    */
@@ -5472,6 +5668,28 @@ export interface operations {
       };
       /** @description Internal Server Error */
       500: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Get available VAT categories
+   * @description Get list of available VAT categories with rates and exemption information
+   */
+  getVATCategories: {
+    responses: {
+      /** @description List of VAT categories with code, description, rate, is_exempt fields */
+      200: {
+        content: {
+          "application/json": {
+              [key: string]: unknown;
+            }[];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
         content: {
           "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
         };
@@ -5612,6 +5830,466 @@ export interface operations {
       500: {
         content: {
           "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Create a credit note
+   * @description Create a credit note for an existing invoice with selected line items
+   */
+  createCreditNote: {
+    parameters: {
+      path: {
+        /** @description Original Invoice ID */
+        id: number;
+      };
+    };
+    /** @description Credit note details */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["entities.CreateCreditNoteRequest"];
+      };
+    };
+    responses: {
+      /** @description Created */
+      201: {
+        content: {
+          "application/json": components["schemas"]["entities.InvoiceAPIResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Forbidden */
+      403: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Unprocessable Entity */
+      422: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Finalize a draft invoice
+   * @description Finalize a draft invoice by generating invoice number and changing status to 'sent'
+   */
+  finalizeInvoice: {
+    parameters: {
+      path: {
+        /** @description Invoice ID */
+        id: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["entities.InvoiceAPIResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Forbidden */
+      403: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Unprocessable Entity */
+      422: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Mark an invoice as overdue
+   * @description Mark an invoice as overdue if payment is past due date
+   */
+  markInvoiceAsOverdue: {
+    parameters: {
+      path: {
+        /** @description Invoice ID */
+        id: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["entities.InvoiceAPIResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Forbidden */
+      403: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Unprocessable Entity */
+      422: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Mark an invoice as paid
+   * @description Mark an invoice as paid with optional payment date and reference
+   */
+  markInvoiceAsPaid: {
+    parameters: {
+      path: {
+        /** @description Invoice ID */
+        id: number;
+      };
+    };
+    /** @description Payment details */
+    requestBody?: {
+      content: {
+        "application/json": components["schemas"]["entities.MarkInvoiceAsPaidRequest"];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["entities.InvoiceAPIResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Forbidden */
+      403: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Download invoice PDF
+   * @description Download the PDF document for a finalized invoice
+   */
+  downloadInvoicePDF: {
+    parameters: {
+      path: {
+        /** @description Invoice ID */
+        id: number;
+      };
+    };
+    responses: {
+      /** @description PDF file */
+      200: {
+        content: {
+          "application/pdf": string;
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/pdf": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/pdf": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/pdf": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Invoice not finalized */
+      422: {
+        content: {
+          "application/pdf": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Preview invoice PDF
+   * @description Generate and display PDF for preview without download
+   */
+  previewInvoicePDF: {
+    parameters: {
+      path: {
+        /** @description Invoice ID */
+        id: number;
+      };
+    };
+    responses: {
+      /** @description PDF file for preview */
+      200: {
+        content: {
+          "application/pdf": string;
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/pdf": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/pdf": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/pdf": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Send payment reminder
+   * @description Send a payment reminder email for an overdue invoice
+   */
+  sendReminder: {
+    parameters: {
+      path: {
+        /** @description Invoice ID */
+        id: number;
+      };
+    };
+    responses: {
+      /** @description Success message */
+      200: {
+        content: {
+          "application/json": {
+            [key: string]: unknown;
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Forbidden */
+      403: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Send invoice via email
+   * @description Send an invoice to the client via email
+   */
+  sendInvoiceEmail: {
+    parameters: {
+      path: {
+        /** @description Invoice ID */
+        id: number;
+      };
+    };
+    responses: {
+      /** @description Success message */
+      200: {
+        content: {
+          "application/json": {
+            [key: string]: unknown;
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Forbidden */
+      403: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Export invoice as XRechnung XML
+   * @description Generate and download XRechnung-compliant UBL XML for a finalized invoice to a government customer
+   */
+  exportXRechnung: {
+    parameters: {
+      path: {
+        /** @description Invoice ID */
+        id: number;
+      };
+    };
+    responses: {
+      /** @description XRechnung XML file */
+      200: {
+        content: {
+          "application/xml": string;
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/xml": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/xml": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/xml": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/xml": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
         };
       };
     };
@@ -7705,634 +8383,6 @@ export interface operations {
           "application/json": {
             [key: string]: string;
           };
-        };
-      };
-    };
-  };
-  /**
-   * Create a draft invoice
-   * @description Create a new draft invoice with sessions, extra efforts, and/or custom line items. Items are reserved with status 'invoice-draft'.
-   */
-  createDraftInvoice: {
-    /** @description Draft invoice information */
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["entities.CreateDraftInvoiceRequest"];
-      };
-    };
-    responses: {
-      /** @description Created */
-      201: {
-        content: {
-          "application/json": components["schemas"]["entities.InvoiceAPIResponse"];
-        };
-      };
-      /** @description Bad Request */
-      400: {
-        content: {
-          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
-        };
-      };
-      /** @description Unauthorized */
-      401: {
-        content: {
-          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
-        };
-      };
-      /** @description Internal Server Error */
-      500: {
-        content: {
-          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
-        };
-      };
-    };
-  };
-  /**
-   * Get available VAT categories
-   * @description Get list of available VAT categories with rates and exemption information
-   */
-  getVATCategories: {
-    responses: {
-      /** @description List of VAT categories with code, description, rate, is_exempt fields */
-      200: {
-        content: {
-          "application/json": {
-              [key: string]: unknown;
-            }[];
-        };
-      };
-      /** @description Unauthorized */
-      401: {
-        content: {
-          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
-        };
-      };
-    };
-  };
-  /**
-   * Update a draft invoice
-   * @description Edit a draft invoice by adding/removing items and recalculating totals
-   */
-  updateDraftInvoice: {
-    parameters: {
-      path: {
-        /** @description Invoice ID */
-        id: number;
-      };
-    };
-    /** @description Update request */
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["entities.UpdateDraftInvoiceRequest"];
-      };
-    };
-    responses: {
-      /** @description OK */
-      200: {
-        content: {
-          "application/json": components["schemas"]["entities.InvoiceAPIResponse"];
-        };
-      };
-      /** @description Bad Request */
-      400: {
-        content: {
-          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
-        };
-      };
-      /** @description Unauthorized */
-      401: {
-        content: {
-          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
-        };
-      };
-      /** @description Forbidden */
-      403: {
-        content: {
-          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
-        };
-      };
-      /** @description Not Found */
-      404: {
-        content: {
-          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
-        };
-      };
-      /** @description Internal Server Error */
-      500: {
-        content: {
-          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
-        };
-      };
-    };
-  };
-  /**
-   * Cancel a draft invoice
-   * @description Cancel a draft invoice and revert all item statuses
-   */
-  cancelDraftInvoice: {
-    parameters: {
-      path: {
-        /** @description Invoice ID */
-        id: number;
-      };
-    };
-    responses: {
-      /** @description Success message */
-      200: {
-        content: {
-          "application/json": {
-            [key: string]: unknown;
-          };
-        };
-      };
-      /** @description Bad Request */
-      400: {
-        content: {
-          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
-        };
-      };
-      /** @description Unauthorized */
-      401: {
-        content: {
-          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
-        };
-      };
-      /** @description Forbidden */
-      403: {
-        content: {
-          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
-        };
-      };
-      /** @description Not Found */
-      404: {
-        content: {
-          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
-        };
-      };
-      /** @description Internal Server Error */
-      500: {
-        content: {
-          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
-        };
-      };
-    };
-  };
-  /**
-   * Create a credit note
-   * @description Create a credit note for an existing invoice with selected line items
-   */
-  createCreditNote: {
-    parameters: {
-      path: {
-        /** @description Original Invoice ID */
-        id: number;
-      };
-    };
-    /** @description Credit note details */
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["entities.CreateCreditNoteRequest"];
-      };
-    };
-    responses: {
-      /** @description Created */
-      201: {
-        content: {
-          "application/json": components["schemas"]["entities.InvoiceAPIResponse"];
-        };
-      };
-      /** @description Bad Request */
-      400: {
-        content: {
-          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
-        };
-      };
-      /** @description Unauthorized */
-      401: {
-        content: {
-          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
-        };
-      };
-      /** @description Forbidden */
-      403: {
-        content: {
-          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
-        };
-      };
-      /** @description Not Found */
-      404: {
-        content: {
-          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
-        };
-      };
-      /** @description Unprocessable Entity */
-      422: {
-        content: {
-          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
-        };
-      };
-      /** @description Internal Server Error */
-      500: {
-        content: {
-          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
-        };
-      };
-    };
-  };
-  /**
-   * Finalize a draft invoice
-   * @description Finalize a draft invoice by generating invoice number and changing status to 'sent'
-   */
-  finalizeInvoice: {
-    parameters: {
-      path: {
-        /** @description Invoice ID */
-        id: number;
-      };
-    };
-    responses: {
-      /** @description OK */
-      200: {
-        content: {
-          "application/json": components["schemas"]["entities.InvoiceAPIResponse"];
-        };
-      };
-      /** @description Bad Request */
-      400: {
-        content: {
-          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
-        };
-      };
-      /** @description Unauthorized */
-      401: {
-        content: {
-          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
-        };
-      };
-      /** @description Forbidden */
-      403: {
-        content: {
-          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
-        };
-      };
-      /** @description Not Found */
-      404: {
-        content: {
-          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
-        };
-      };
-      /** @description Unprocessable Entity */
-      422: {
-        content: {
-          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
-        };
-      };
-      /** @description Internal Server Error */
-      500: {
-        content: {
-          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
-        };
-      };
-    };
-  };
-  /**
-   * Mark an invoice as overdue
-   * @description Mark an invoice as overdue if payment is past due date
-   */
-  markInvoiceAsOverdue: {
-    parameters: {
-      path: {
-        /** @description Invoice ID */
-        id: number;
-      };
-    };
-    responses: {
-      /** @description OK */
-      200: {
-        content: {
-          "application/json": components["schemas"]["entities.InvoiceAPIResponse"];
-        };
-      };
-      /** @description Bad Request */
-      400: {
-        content: {
-          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
-        };
-      };
-      /** @description Unauthorized */
-      401: {
-        content: {
-          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
-        };
-      };
-      /** @description Forbidden */
-      403: {
-        content: {
-          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
-        };
-      };
-      /** @description Not Found */
-      404: {
-        content: {
-          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
-        };
-      };
-      /** @description Unprocessable Entity */
-      422: {
-        content: {
-          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
-        };
-      };
-      /** @description Internal Server Error */
-      500: {
-        content: {
-          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
-        };
-      };
-    };
-  };
-  /**
-   * Mark an invoice as paid
-   * @description Mark an invoice as paid with optional payment date and reference
-   */
-  markInvoiceAsPaid: {
-    parameters: {
-      path: {
-        /** @description Invoice ID */
-        id: number;
-      };
-    };
-    /** @description Payment details */
-    requestBody?: {
-      content: {
-        "application/json": components["schemas"]["entities.MarkInvoiceAsPaidRequest"];
-      };
-    };
-    responses: {
-      /** @description OK */
-      200: {
-        content: {
-          "application/json": components["schemas"]["entities.InvoiceAPIResponse"];
-        };
-      };
-      /** @description Bad Request */
-      400: {
-        content: {
-          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
-        };
-      };
-      /** @description Unauthorized */
-      401: {
-        content: {
-          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
-        };
-      };
-      /** @description Forbidden */
-      403: {
-        content: {
-          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
-        };
-      };
-      /** @description Not Found */
-      404: {
-        content: {
-          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
-        };
-      };
-      /** @description Internal Server Error */
-      500: {
-        content: {
-          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
-        };
-      };
-    };
-  };
-  /**
-   * Download invoice PDF
-   * @description Download the PDF document for a finalized invoice
-   */
-  downloadInvoicePDF: {
-    parameters: {
-      path: {
-        /** @description Invoice ID */
-        id: number;
-      };
-    };
-    responses: {
-      /** @description PDF file */
-      200: {
-        content: {
-          "application/pdf": string;
-        };
-      };
-      /** @description Bad Request */
-      400: {
-        content: {
-          "application/pdf": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
-        };
-      };
-      /** @description Unauthorized */
-      401: {
-        content: {
-          "application/pdf": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
-        };
-      };
-      /** @description Not Found */
-      404: {
-        content: {
-          "application/pdf": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
-        };
-      };
-      /** @description Invoice not finalized */
-      422: {
-        content: {
-          "application/pdf": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
-        };
-      };
-    };
-  };
-  /**
-   * Preview invoice PDF
-   * @description Generate and display PDF for preview without download
-   */
-  previewInvoicePDF: {
-    parameters: {
-      path: {
-        /** @description Invoice ID */
-        id: number;
-      };
-    };
-    responses: {
-      /** @description PDF file for preview */
-      200: {
-        content: {
-          "application/pdf": string;
-        };
-      };
-      /** @description Bad Request */
-      400: {
-        content: {
-          "application/pdf": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
-        };
-      };
-      /** @description Unauthorized */
-      401: {
-        content: {
-          "application/pdf": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
-        };
-      };
-      /** @description Not Found */
-      404: {
-        content: {
-          "application/pdf": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
-        };
-      };
-    };
-  };
-  /**
-   * Send payment reminder
-   * @description Send a payment reminder email for an overdue invoice
-   */
-  sendReminder: {
-    parameters: {
-      path: {
-        /** @description Invoice ID */
-        id: number;
-      };
-    };
-    responses: {
-      /** @description Success message */
-      200: {
-        content: {
-          "application/json": {
-            [key: string]: unknown;
-          };
-        };
-      };
-      /** @description Bad Request */
-      400: {
-        content: {
-          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
-        };
-      };
-      /** @description Unauthorized */
-      401: {
-        content: {
-          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
-        };
-      };
-      /** @description Forbidden */
-      403: {
-        content: {
-          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
-        };
-      };
-      /** @description Not Found */
-      404: {
-        content: {
-          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
-        };
-      };
-      /** @description Internal Server Error */
-      500: {
-        content: {
-          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
-        };
-      };
-    };
-  };
-  /**
-   * Send invoice via email
-   * @description Send an invoice to the client via email
-   */
-  sendInvoiceEmail: {
-    parameters: {
-      path: {
-        /** @description Invoice ID */
-        id: number;
-      };
-    };
-    responses: {
-      /** @description Success message */
-      200: {
-        content: {
-          "application/json": {
-            [key: string]: unknown;
-          };
-        };
-      };
-      /** @description Bad Request */
-      400: {
-        content: {
-          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
-        };
-      };
-      /** @description Unauthorized */
-      401: {
-        content: {
-          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
-        };
-      };
-      /** @description Forbidden */
-      403: {
-        content: {
-          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
-        };
-      };
-      /** @description Not Found */
-      404: {
-        content: {
-          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
-        };
-      };
-      /** @description Internal Server Error */
-      500: {
-        content: {
-          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
-        };
-      };
-    };
-  };
-  /**
-   * Export invoice as XRechnung XML
-   * @description Generate and download XRechnung-compliant UBL XML for a finalized invoice to a government customer
-   */
-  exportXRechnung: {
-    parameters: {
-      path: {
-        /** @description Invoice ID */
-        id: number;
-      };
-    };
-    responses: {
-      /** @description XRechnung XML file */
-      200: {
-        content: {
-          "application/xml": string;
-        };
-      };
-      /** @description Bad Request */
-      400: {
-        content: {
-          "application/xml": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
-        };
-      };
-      /** @description Unauthorized */
-      401: {
-        content: {
-          "application/xml": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
-        };
-      };
-      /** @description Not Found */
-      404: {
-        content: {
-          "application/xml": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
-        };
-      };
-      /** @description Internal Server Error */
-      500: {
-        content: {
-          "application/xml": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
         };
       };
     };
@@ -10454,10 +10504,10 @@ export interface operations {
          */
         channel?: string;
         /**
-         * @description Template key (password_reset, invoice, etc.)
+         * @description Template type (password_reset, invoice, etc.)
          * @example "welcome_email"
          */
-        template_key: string;
+        template_type: string;
       };
     };
     responses: {
@@ -10471,7 +10521,7 @@ export interface operations {
       401: {
         content: {
           "application/json": {
-            [key: string]: unknown;
+            [key: string]: string;
           };
         };
       };
@@ -10479,7 +10529,7 @@ export interface operations {
       404: {
         content: {
           "application/json": {
-            [key: string]: unknown;
+            [key: string]: string;
           };
         };
       };
@@ -10487,7 +10537,7 @@ export interface operations {
       500: {
         content: {
           "application/json": {
-            [key: string]: unknown;
+            [key: string]: string;
           };
         };
       };
@@ -10518,7 +10568,7 @@ export interface operations {
       401: {
         content: {
           "application/json": {
-            [key: string]: unknown;
+            [key: string]: string;
           };
         };
       };
@@ -10526,7 +10576,7 @@ export interface operations {
       404: {
         content: {
           "application/json": {
-            [key: string]: unknown;
+            [key: string]: string;
           };
         };
       };
@@ -10534,7 +10584,7 @@ export interface operations {
       500: {
         content: {
           "application/json": {
-            [key: string]: unknown;
+            [key: string]: string;
           };
         };
       };
@@ -10571,7 +10621,7 @@ export interface operations {
       400: {
         content: {
           "application/json": {
-            [key: string]: unknown;
+            [key: string]: string;
           };
         };
       };
@@ -10579,7 +10629,7 @@ export interface operations {
       401: {
         content: {
           "application/json": {
-            [key: string]: unknown;
+            [key: string]: string;
           };
         };
       };
@@ -10587,7 +10637,7 @@ export interface operations {
       404: {
         content: {
           "application/json": {
-            [key: string]: unknown;
+            [key: string]: string;
           };
         };
       };
@@ -10595,7 +10645,7 @@ export interface operations {
       500: {
         content: {
           "application/json": {
-            [key: string]: unknown;
+            [key: string]: string;
           };
         };
       };
@@ -10618,15 +10668,13 @@ export interface operations {
     responses: {
       /** @description Template deleted successfully */
       204: {
-        content: {
-          "*/*": string;
-        };
+        content: never;
       };
       /** @description Unauthorized */
       401: {
         content: {
           "*/*": {
-            [key: string]: unknown;
+            [key: string]: string;
           };
         };
       };
@@ -10634,7 +10682,7 @@ export interface operations {
       404: {
         content: {
           "*/*": {
-            [key: string]: unknown;
+            [key: string]: string;
           };
         };
       };
@@ -10642,7 +10690,7 @@ export interface operations {
       500: {
         content: {
           "*/*": {
-            [key: string]: unknown;
+            [key: string]: string;
           };
         };
       };
@@ -10673,7 +10721,7 @@ export interface operations {
       401: {
         content: {
           "text/html": {
-            [key: string]: unknown;
+            [key: string]: string;
           };
         };
       };
@@ -10681,7 +10729,7 @@ export interface operations {
       404: {
         content: {
           "text/html": {
-            [key: string]: unknown;
+            [key: string]: string;
           };
         };
       };
@@ -10689,7 +10737,7 @@ export interface operations {
       500: {
         content: {
           "text/html": {
-            [key: string]: unknown;
+            [key: string]: string;
           };
         };
       };
@@ -10712,9 +10760,7 @@ export interface operations {
     /** @description Duplicate request with name */
     requestBody: {
       content: {
-        "application/json": {
-          [key: string]: unknown;
-        };
+        "application/json": components["schemas"]["entities.DuplicateTemplateRequest"];
       };
     };
     responses: {
@@ -10728,7 +10774,7 @@ export interface operations {
       400: {
         content: {
           "application/json": {
-            [key: string]: unknown;
+            [key: string]: string;
           };
         };
       };
@@ -10736,7 +10782,7 @@ export interface operations {
       401: {
         content: {
           "application/json": {
-            [key: string]: unknown;
+            [key: string]: string;
           };
         };
       };
@@ -10744,7 +10790,7 @@ export interface operations {
       404: {
         content: {
           "application/json": {
-            [key: string]: unknown;
+            [key: string]: string;
           };
         };
       };
@@ -10752,7 +10798,7 @@ export interface operations {
       500: {
         content: {
           "application/json": {
-            [key: string]: unknown;
+            [key: string]: string;
           };
         };
       };
@@ -10775,9 +10821,7 @@ export interface operations {
     /** @description Template data */
     requestBody: {
       content: {
-        "application/json": {
-          [key: string]: unknown;
-        };
+        "application/json": components["schemas"]["entities.RenderTemplateRequest"];
       };
     };
     responses: {
@@ -10791,7 +10835,7 @@ export interface operations {
       400: {
         content: {
           "text/html": {
-            [key: string]: unknown;
+            [key: string]: string;
           };
         };
       };
@@ -10799,7 +10843,7 @@ export interface operations {
       401: {
         content: {
           "text/html": {
-            [key: string]: unknown;
+            [key: string]: string;
           };
         };
       };
@@ -10807,7 +10851,7 @@ export interface operations {
       404: {
         content: {
           "text/html": {
-            [key: string]: unknown;
+            [key: string]: string;
           };
         };
       };
@@ -10815,7 +10859,7 @@ export interface operations {
       500: {
         content: {
           "text/html": {
-            [key: string]: unknown;
+            [key: string]: string;
           };
         };
       };

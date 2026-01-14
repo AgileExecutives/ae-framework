@@ -341,8 +341,18 @@ export class AESaasApiClient {
     return response;
   }
 
+  async createDraftInvoice(data: any) {
+    const response = await this.request<ApiResponse<any>>('POST', `/client-invoices/draft`, data);
+    return response;
+  }
+
   async getClientsWithUnbilledSessions() {
     const response = await this.request<any>('GET', `/client-invoices/unbilled-sessions`, undefined);
+    return response;
+  }
+
+  async getVATCategories() {
+    const response = await this.request<any>('GET', `/client-invoices/vat-categories`, undefined);
     return response;
   }
 
@@ -362,6 +372,60 @@ export class AESaasApiClient {
     if (!id) throw new Error('id is required');
     const response = await this.request<ApiResponse<any>>('DELETE', `/client-invoices/${id}`, undefined);
     return response || { success: true };
+  }
+
+  async createCreditNote(id: number, data: any) {
+    if (!id) throw new Error('id is required');
+    const response = await this.request<ApiResponse<any>>('POST', `/client-invoices/${id}/credit-note`, data);
+    return response;
+  }
+
+  async finalizeInvoice(id: number) {
+    if (!id) throw new Error('id is required');
+    const response = await this.request<ApiResponse<any>>('POST', `/client-invoices/${id}/finalize`, undefined);
+    return response;
+  }
+
+  async markInvoiceAsOverdue(id: number) {
+    if (!id) throw new Error('id is required');
+    const response = await this.request<ApiResponse<any>>('POST', `/client-invoices/${id}/mark-overdue`, undefined);
+    return response;
+  }
+
+  async markInvoiceAsPaid(id: number, data: any) {
+    if (!id) throw new Error('id is required');
+    const response = await this.request<ApiResponse<any>>('POST', `/client-invoices/${id}/mark-paid`, data);
+    return response;
+  }
+
+  async downloadInvoicePDF(id: number) {
+    if (!id) throw new Error('id is required');
+    const response = await this.request<ApiResponse<any>>('GET', `/client-invoices/${id}/pdf`, undefined);
+    return response;
+  }
+
+  async previewInvoicePDF(id: number) {
+    if (!id) throw new Error('id is required');
+    const response = await this.request<ApiResponse<any>>('GET', `/client-invoices/${id}/preview-pdf`, undefined);
+    return response;
+  }
+
+  async sendReminder(id: number) {
+    if (!id) throw new Error('id is required');
+    const response = await this.request<ApiResponse<any>>('POST', `/client-invoices/${id}/reminder`, undefined);
+    return response;
+  }
+
+  async sendInvoiceEmail(id: number) {
+    if (!id) throw new Error('id is required');
+    const response = await this.request<ApiResponse<any>>('POST', `/client-invoices/${id}/send-email`, undefined);
+    return response;
+  }
+
+  async exportXRechnung(id: number) {
+    if (!id) throw new Error('id is required');
+    const response = await this.request<ApiResponse<any>>('GET', `/client-invoices/${id}/xrechnung`, undefined);
+    return response;
   }
 
   async getClientByToken(token: string) {
@@ -641,82 +705,6 @@ export class AESaasApiClient {
 
   async voidInvoiceNumber(data: any) {
     const response = await this.request<ApiResponse<any>>('POST', `/invoice-numbers/void`, data);
-    return response;
-  }
-
-  async createDraftInvoice(data: any) {
-    const response = await this.request<ApiResponse<any>>('POST', `/invoices/draft`, data);
-    return response;
-  }
-
-  async getVATCategories() {
-    const response = await this.request<any>('GET', `/invoices/vat-categories`, undefined);
-    return response;
-  }
-
-  async updateDraftInvoice(id: number, data: any) {
-    if (!id) throw new Error('id is required');
-    const response = await this.request<ApiResponse<any>>('PUT', `/invoices/${id}`, data);
-    return response;
-  }
-
-  async cancelDraftInvoice(id: number) {
-    if (!id) throw new Error('id is required');
-    const response = await this.request<ApiResponse<any>>('DELETE', `/invoices/${id}`, undefined);
-    return response || { success: true };
-  }
-
-  async createCreditNote(id: number, data: any) {
-    if (!id) throw new Error('id is required');
-    const response = await this.request<ApiResponse<any>>('POST', `/invoices/${id}/credit-note`, data);
-    return response;
-  }
-
-  async finalizeInvoice(id: number) {
-    if (!id) throw new Error('id is required');
-    const response = await this.request<ApiResponse<any>>('POST', `/invoices/${id}/finalize`, undefined);
-    return response;
-  }
-
-  async markInvoiceAsOverdue(id: number) {
-    if (!id) throw new Error('id is required');
-    const response = await this.request<ApiResponse<any>>('POST', `/invoices/${id}/mark-overdue`, undefined);
-    return response;
-  }
-
-  async markInvoiceAsPaid(id: number, data: any) {
-    if (!id) throw new Error('id is required');
-    const response = await this.request<ApiResponse<any>>('POST', `/invoices/${id}/mark-paid`, data);
-    return response;
-  }
-
-  async downloadInvoicePDF(id: number) {
-    if (!id) throw new Error('id is required');
-    const response = await this.request<ApiResponse<any>>('GET', `/invoices/${id}/pdf`, undefined);
-    return response;
-  }
-
-  async previewInvoicePDF(id: number) {
-    if (!id) throw new Error('id is required');
-    const response = await this.request<ApiResponse<any>>('GET', `/invoices/${id}/preview-pdf`, undefined);
-    return response;
-  }
-
-  async sendReminder(id: number) {
-    if (!id) throw new Error('id is required');
-    const response = await this.request<ApiResponse<any>>('POST', `/invoices/${id}/reminder`, undefined);
-    return response;
-  }
-
-  async sendInvoiceEmail(id: number) {
-    if (!id) throw new Error('id is required');
-    const response = await this.request<ApiResponse<any>>('POST', `/invoices/${id}/send-email`, undefined);
-    return response;
-  }
-
-  async exportXRechnung(id: number) {
-    if (!id) throw new Error('id is required');
-    const response = await this.request<ApiResponse<any>>('GET', `/invoices/${id}/xrechnung`, undefined);
     return response;
   }
 
