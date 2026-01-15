@@ -398,6 +398,12 @@ export class AESaasApiClient {
     return response;
   }
 
+  async markInvoiceAsSent(id: number) {
+    if (!id) throw new Error('id is required');
+    const response = await this.request<ApiResponse<any>>('POST', `/client-invoices/${id}/mark-sent`, undefined);
+    return response;
+  }
+
   async downloadInvoicePDF(id: number) {
     if (!id) throw new Error('id is required');
     const response = await this.request<ApiResponse<any>>('GET', `/client-invoices/${id}/pdf`, undefined);
@@ -739,12 +745,6 @@ export class AESaasApiClient {
     if (!id) throw new Error('id is required');
     const response = await this.request<ApiResponse<any>>('DELETE', `/organizations/${id}`, undefined);
     return response || { success: true };
-  }
-
-  async updateOrganizationBillingConfig(id: number, data: any) {
-    if (!id) throw new Error('id is required');
-    const response = await this.request<ApiResponse<any>>('PUT', `/organizations/${id}/billing-config`, data);
-    return response;
   }
 
   async createPdf(data: any) {

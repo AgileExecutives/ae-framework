@@ -407,7 +407,7 @@ export interface paths {
   "/client-invoices/{id}/finalize": {
     /**
      * Finalize a draft invoice
-     * @description Finalize a draft invoice by generating invoice number and changing status to 'sent'
+     * @description Finalize a draft invoice by generating invoice number and changing status to 'finalized'
      */
     post: operations["finalizeInvoice"];
   };
@@ -424,6 +424,13 @@ export interface paths {
      * @description Mark an invoice as paid with optional payment date and reference
      */
     post: operations["markInvoiceAsPaid"];
+  };
+  "/client-invoices/{id}/mark-sent": {
+    /**
+     * Mark invoice as sent
+     * @description Mark a finalized invoice as sent (changes status from finalized to sent)
+     */
+    post: operations["markInvoiceAsSent"];
   };
   "/client-invoices/{id}/pdf": {
     /**
@@ -1165,13 +1172,6 @@ export interface paths {
      */
     delete: operations["deleteOrganization"];
   };
-  "/organizations/{id}/billing-config": {
-    /**
-     * Update organization billing configuration
-     * @description Update billing mode and configuration for extra efforts tracking
-     */
-    put: operations["updateOrganizationBillingConfig"];
-  };
   "/pdf/create": {
     /**
      * Generate PDF from template
@@ -1531,38 +1531,6 @@ export interface components {
     "api.ListResponse": {
       data?: unknown;
       pagination?: components["schemas"]["github_com_ae-base-server_internal_models.PaginationResponse"];
-    };
-    "api.OrganizationResponse": {
-      additional_payment_methods?: Record<string, never>;
-      amount_format?: string;
-      bankaccount_bank?: string;
-      bankaccount_bic?: string;
-      bankaccount_iban?: string;
-      bankaccount_owner?: string;
-      city?: string;
-      created_at?: string;
-      date_format?: string;
-      email?: string;
-      extra_efforts_billing_mode?: string;
-      extra_efforts_config?: Record<string, never>;
-      id?: number;
-      invoice_content?: Record<string, never>;
-      line_item_double_unit_text?: string;
-      line_item_single_unit_text?: string;
-      locale?: string;
-      name?: string;
-      owner_name?: string;
-      owner_title?: string;
-      phone?: string;
-      street_address?: string;
-      tax_id?: string;
-      tax_rate?: number;
-      tax_ustid?: string;
-      tenant_id?: number;
-      time_format?: string;
-      unit_price?: number;
-      updated_at?: string;
-      zip?: string;
     };
     /** @enum {string} */
     "entities.AuditAction": "invoice_draft_created" | "invoice_draft_updated" | "invoice_draft_cancelled" | "invoice_finalized" | "invoice_sent" | "invoice_marked_paid" | "invoice_marked_overdue" | "reminder_sent" | "credit_note_created" | "xrechnung_exported";
@@ -2439,33 +2407,32 @@ export interface components {
       updated_at?: string;
     };
     "entities.SettingRequest": {
-      /** @example company */
+      data: {
+        [key: string]: unknown;
+      };
+      /** @example organization */
       domain: string;
-      /** @example company_name */
+      /** @example locale */
       key: string;
-      /** @example string */
-      type: string;
-      value: unknown;
     };
     "entities.SettingResponse": {
       /** @example 2025-01-09T10:00:00Z */
       created_at?: string;
-      /** @example company */
+      data?: {
+        [key: string]: unknown;
+      };
+      /** @example organization */
       domain?: string;
       /** @example 123 */
       id?: number;
-      /** @example company_name */
+      /** @example locale */
       key?: string;
-      /** @example org-123 */
-      organization_id?: string;
       /** @example 1 */
       tenant_id?: number;
-      /** @example string */
-      type?: string;
       /** @example 2025-01-09T10:00:00Z */
       updated_at?: string;
-      /** @example My Company */
-      value?: string;
+      /** @example 1 */
+      version?: number;
     };
     "entities.SettingsResponse": {
       settings?: {
@@ -3077,7 +3044,7 @@ export interface components {
       user_id?: number;
     };
     /** @enum {string} */
-    "github_com_unburdy_invoice-module_entities.InvoiceStatus": "draft" | "sent" | "paid" | "overdue" | "cancelled";
+    "github_com_unburdy_invoice-module_entities.InvoiceStatus": "draft" | "finalized" | "sent" | "paid" | "overdue" | "cancelled";
     "github_com_unburdy_invoice-module_entities.UpdateInvoiceRequest": {
       customer_address?: string;
       customer_email?: string;
@@ -3150,7 +3117,7 @@ export interface components {
       latest_reminder?: string;
       num_reminders?: number;
       number_units?: number;
-      organization?: components["schemas"]["api.OrganizationResponse"];
+      organization?: Record<string, never>;
       organization_id?: number;
       payed_date?: string;
       status?: components["schemas"]["github_com_unburdy_unburdy-server-api_modules_client_management_entities.InvoiceStatus"];
@@ -3163,7 +3130,7 @@ export interface components {
       vat_breakdown?: components["schemas"]["entities.VATBreakdownResponse"];
     };
     /** @enum {string} */
-    "github_com_unburdy_unburdy-server-api_modules_client_management_entities.InvoiceStatus": "draft" | "sent" | "paid" | "overdue" | "cancelled";
+    "github_com_unburdy_unburdy-server-api_modules_client_management_entities.InvoiceStatus": "draft" | "finalized" | "sent" | "paid" | "overdue" | "cancelled";
     "github_com_unburdy_unburdy-server-api_modules_client_management_entities.UpdateInvoiceRequest": {
       /**
        * @example [
@@ -3444,8 +3411,6 @@ export interface components {
     };
     "models.CreateOrganizationRequest": {
       additional_payment_methods?: Record<string, never>;
-      /** @example de */
-      amount_format?: string;
       /** @example Deutsche Bank */
       bankaccount_bank?: string;
       /** @example DEUTDEFF */
@@ -3456,42 +3421,17 @@ export interface components {
       bankaccount_owner?: string;
       /** @example New York */
       city?: string;
-      /** @example 02.01.2006 */
-      date_format?: string;
-      /** @example false */
-      default_vat_exempt?: boolean;
-      /** @example 19 */
-      default_vat_rate?: number;
       /** @example info@acme.com */
       email?: string;
-      /** @example ignore */
-      extra_efforts_billing_mode?: string;
-      extra_efforts_config?: Record<string, never>;
-      /** @example 7 */
-      first_reminder_days?: number;
       invoice_content?: Record<string, never>;
-      /** @example sequential */
-      invoice_number_format?: string;
-      /** @example INV- */
-      invoice_number_prefix?: string;
-      /** @example Doppelstunde */
-      line_item_double_unit_text?: string;
-      /** @example Einzelstunde */
-      line_item_single_unit_text?: string;
-      /** @example de-DE */
-      locale?: string;
       /** @example Acme Corporation */
       name: string;
       /** @example John Doe */
       owner_name?: string;
       /** @example CEO */
       owner_title?: string;
-      /** @example 14 */
-      payment_due_days?: number;
       /** @example +1-555-0123 */
       phone?: string;
-      /** @example 14 */
-      second_reminder_days?: number;
       /** @example 123 Business St */
       street_address?: string;
       /** @example TAX123456 */
@@ -3500,8 +3440,6 @@ export interface components {
       tax_rate?: number;
       /** @example DE123456789 */
       tax_ustid?: string;
-      /** @example 15:04 */
-      time_format?: string;
       /** @example 150 */
       unit_price?: number;
       /** @example 12345 */
@@ -3599,15 +3537,6 @@ export interface components {
       price?: number;
       slug?: string;
     };
-    "models.UpdateBillingConfigRequest": {
-      /** @example bundle_double_units */
-      extra_efforts_billing_mode?: string;
-      extra_efforts_config?: Record<string, never>;
-      /** @example Therapie Doppelstunde */
-      line_item_double_unit_text?: string;
-      /** @example Therapiestunde */
-      line_item_single_unit_text?: string;
-    };
     "models.UpdateClientRequest": {
       /** @example 2025-01-01 */
       admission_date?: string;
@@ -3682,8 +3611,6 @@ export interface components {
     };
     "models.UpdateOrganizationRequest": {
       additional_payment_methods?: Record<string, never>;
-      /** @example de */
-      amount_format?: string;
       /** @example Deutsche Bank */
       bankaccount_bank?: string;
       /** @example DEUTDEFF */
@@ -3694,42 +3621,17 @@ export interface components {
       bankaccount_owner?: string;
       /** @example New York */
       city?: string;
-      /** @example 02.01.2006 */
-      date_format?: string;
-      /** @example false */
-      default_vat_exempt?: boolean;
-      /** @example 19 */
-      default_vat_rate?: number;
       /** @example info@acme.com */
       email?: string;
-      /** @example bundle_double_units */
-      extra_efforts_billing_mode?: string;
-      extra_efforts_config?: Record<string, never>;
-      /** @example 7 */
-      first_reminder_days?: number;
       invoice_content?: Record<string, never>;
-      /** @example sequential */
-      invoice_number_format?: string;
-      /** @example INV- */
-      invoice_number_prefix?: string;
-      /** @example Therapie Doppelstunde */
-      line_item_double_unit_text?: string;
-      /** @example Therapiestunde */
-      line_item_single_unit_text?: string;
-      /** @example de-DE */
-      locale?: string;
       /** @example Acme Corporation */
       name?: string;
       /** @example John Doe */
       owner_name?: string;
       /** @example CEO */
       owner_title?: string;
-      /** @example 14 */
-      payment_due_days?: number;
       /** @example +1-555-0123 */
       phone?: string;
-      /** @example 14 */
-      second_reminder_days?: number;
       /** @example 123 Business St */
       street_address?: string;
       /** @example TAX123456 */
@@ -3738,8 +3640,6 @@ export interface components {
       tax_rate?: number;
       /** @example DE123456789 */
       tax_ustid?: string;
-      /** @example 15:04 */
-      time_format?: string;
       /** @example 150 */
       unit_price?: number;
       /** @example 12345 */
@@ -5898,7 +5798,7 @@ export interface operations {
   };
   /**
    * Finalize a draft invoice
-   * @description Finalize a draft invoice by generating invoice number and changing status to 'sent'
+   * @description Finalize a draft invoice by generating invoice number and changing status to 'finalized'
    */
   finalizeInvoice: {
     parameters: {
@@ -6023,6 +5923,56 @@ export interface operations {
     requestBody?: {
       content: {
         "application/json": components["schemas"]["entities.MarkInvoiceAsPaidRequest"];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["entities.InvoiceAPIResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Forbidden */
+      403: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Mark invoice as sent
+   * @description Mark a finalized invoice as sent (changes status from finalized to sent)
+   */
+  markInvoiceAsSent: {
+    parameters: {
+      path: {
+        /** @description Invoice ID */
+        id: number;
       };
     };
     responses: {
@@ -8585,56 +8535,6 @@ export interface operations {
       200: {
         content: {
           "application/json": components["schemas"]["models.OrganizationDeleteResponse"];
-        };
-      };
-      /** @description Bad Request */
-      400: {
-        content: {
-          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
-        };
-      };
-      /** @description Unauthorized */
-      401: {
-        content: {
-          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
-        };
-      };
-      /** @description Not Found */
-      404: {
-        content: {
-          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
-        };
-      };
-      /** @description Internal Server Error */
-      500: {
-        content: {
-          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
-        };
-      };
-    };
-  };
-  /**
-   * Update organization billing configuration
-   * @description Update billing mode and configuration for extra efforts tracking
-   */
-  updateOrganizationBillingConfig: {
-    parameters: {
-      path: {
-        /** @description Organization ID */
-        id: number;
-      };
-    };
-    /** @description Billing configuration */
-    requestBody: {
-      content: {
-        "application/json": components["schemas"]["models.UpdateBillingConfigRequest"];
-      };
-    };
-    responses: {
-      /** @description OK */
-      200: {
-        content: {
-          "application/json": components["schemas"]["models.OrganizationAPIResponse"];
         };
       };
       /** @description Bad Request */
