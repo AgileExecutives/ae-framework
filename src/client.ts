@@ -374,15 +374,21 @@ export class AESaasApiClient {
     return response || { success: true };
   }
 
+  async cancelClientInvoice(id: number, data: any) {
+    if (!id) throw new Error('id is required');
+    const response = await this.request<ApiResponse<any>>('POST', `/client-invoices/${id}/cancel`, data);
+    return response;
+  }
+
   async createCreditNote(id: number, data: any) {
     if (!id) throw new Error('id is required');
     const response = await this.request<ApiResponse<any>>('POST', `/client-invoices/${id}/credit-note`, data);
     return response;
   }
 
-  async finalizeInvoice(id: number) {
+  async finalizeInvoice(id: number, data: any) {
     if (!id) throw new Error('id is required');
-    const response = await this.request<ApiResponse<any>>('POST', `/client-invoices/${id}/finalize`, undefined);
+    const response = await this.request<ApiResponse<any>>('POST', `/client-invoices/${id}/finalize`, data);
     return response;
   }
 
@@ -398,9 +404,9 @@ export class AESaasApiClient {
     return response;
   }
 
-  async markInvoiceAsSent(id: number) {
+  async markInvoiceAsSent(id: number, data: any) {
     if (!id) throw new Error('id is required');
-    const response = await this.request<ApiResponse<any>>('POST', `/client-invoices/${id}/mark-sent`, undefined);
+    const response = await this.request<ApiResponse<any>>('POST', `/client-invoices/${id}/mark-sent`, data);
     return response;
   }
 
@@ -711,6 +717,12 @@ export class AESaasApiClient {
 
   async voidInvoiceNumber(data: any) {
     const response = await this.request<ApiResponse<any>>('POST', `/invoice-numbers/void`, data);
+    return response;
+  }
+
+  async cancelInvoice(id: number, data: any) {
+    if (!id) throw new Error('id is required');
+    const response = await this.request<ApiResponse<any>>('POST', `/invoices/${id}/cancel`, data);
     return response;
   }
 

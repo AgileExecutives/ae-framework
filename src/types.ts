@@ -397,6 +397,13 @@ export interface paths {
      */
     delete: operations["deleteInvoice"];
   };
+  "/client-invoices/{id}/cancel": {
+    /**
+     * Cancel a client invoice (extended)
+     * @description Cancel a client invoice that has not been sent and revert all sessions to 'conducted' and extra efforts to 'unbilled' status
+     */
+    post: operations["cancelClientInvoice"];
+  };
   "/client-invoices/{id}/credit-note": {
     /**
      * Create a credit note
@@ -428,7 +435,7 @@ export interface paths {
   "/client-invoices/{id}/mark-sent": {
     /**
      * Mark invoice as sent
-     * @description Mark a finalized invoice as sent (changes status from finalized to sent)
+     * @description Mark a finalized invoice as sent (changes status from finalized to sent). Requires send_method to be specified.
      */
     post: operations["markInvoiceAsSent"];
   };
@@ -1080,6 +1087,125 @@ export interface paths {
       };
     };
   };
+  "/invoices/{id}/cancel": {
+    /**
+     * Cancel an invoice (basic)
+     * @description Cancel an invoice that has not been sent (sent_at IS NULL). Does not revert sessions/extra efforts.
+     */
+    post: operations["cancelInvoice"];
+  };
+  "/invoices/{id}/finalize": {
+    /**
+     * Finalize invoice
+     * @description Finalize a draft invoice by generating invoice number and changing status
+     */
+    post: {
+      parameters: {
+        path: {
+          /** @description Invoice ID */
+          id: number;
+        };
+      };
+      responses: {
+        /** @description OK */
+        200: {
+          content: {
+            "application/json": {
+              [key: string]: unknown;
+            };
+          };
+        };
+        /** @description Bad Request */
+        400: {
+          content: {
+            "application/json": {
+              [key: string]: string;
+            };
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          content: {
+            "application/json": {
+              [key: string]: string;
+            };
+          };
+        };
+        /** @description Unprocessable Entity */
+        422: {
+          content: {
+            "application/json": {
+              [key: string]: string;
+            };
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          content: {
+            "application/json": {
+              [key: string]: string;
+            };
+          };
+        };
+      };
+    };
+  };
+  "/invoices/{id}/generate-pdf": {
+    /**
+     * Generate invoice PDF
+     * @description Generate and store a PDF document for an invoice
+     */
+    post: {
+      parameters: {
+        path: {
+          /** @description Invoice ID */
+          id: number;
+        };
+      };
+      /** @description Optional template ID */
+      requestBody?: {
+        content: {
+          "application/json": {
+            template_id?: number;
+          };
+        };
+      };
+      responses: {
+        /** @description OK */
+        200: {
+          content: {
+            "application/json": {
+              [key: string]: unknown;
+            };
+          };
+        };
+        /** @description Bad Request */
+        400: {
+          content: {
+            "application/json": {
+              [key: string]: string;
+            };
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          content: {
+            "application/json": {
+              [key: string]: string;
+            };
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          content: {
+            "application/json": {
+              [key: string]: string;
+            };
+          };
+        };
+      };
+    };
+  };
   "/invoices/{id}/mark-paid": {
     /**
      * Mark invoice as paid
@@ -1119,6 +1245,183 @@ export interface paths {
         };
         /** @description Unauthorized */
         401: {
+          content: {
+            "application/json": {
+              [key: string]: string;
+            };
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          content: {
+            "application/json": {
+              [key: string]: string;
+            };
+          };
+        };
+      };
+    };
+  };
+  "/invoices/{id}/pay": {
+    /**
+     * Mark invoice as paid
+     * @description Record payment for an invoice
+     */
+    post: {
+      parameters: {
+        path: {
+          /** @description Invoice ID */
+          id: number;
+        };
+      };
+      /** @description Payment details */
+      requestBody: {
+        content: {
+          "application/json": {
+            payment_date?: string;
+            payment_method?: string;
+          };
+        };
+      };
+      responses: {
+        /** @description OK */
+        200: {
+          content: {
+            "application/json": {
+              [key: string]: unknown;
+            };
+          };
+        };
+        /** @description Bad Request */
+        400: {
+          content: {
+            "application/json": {
+              [key: string]: string;
+            };
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          content: {
+            "application/json": {
+              [key: string]: string;
+            };
+          };
+        };
+        /** @description Forbidden */
+        403: {
+          content: {
+            "application/json": {
+              [key: string]: string;
+            };
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          content: {
+            "application/json": {
+              [key: string]: string;
+            };
+          };
+        };
+      };
+    };
+  };
+  "/invoices/{id}/remind": {
+    /**
+     * Send payment reminder
+     * @description Send a payment reminder for an overdue or sent invoice
+     */
+    post: {
+      parameters: {
+        path: {
+          /** @description Invoice ID */
+          id: number;
+        };
+      };
+      responses: {
+        /** @description OK */
+        200: {
+          content: {
+            "application/json": {
+              [key: string]: unknown;
+            };
+          };
+        };
+        /** @description Bad Request */
+        400: {
+          content: {
+            "application/json": {
+              [key: string]: string;
+            };
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          content: {
+            "application/json": {
+              [key: string]: string;
+            };
+          };
+        };
+        /** @description Forbidden */
+        403: {
+          content: {
+            "application/json": {
+              [key: string]: string;
+            };
+          };
+        };
+        /** @description Internal Server Error */
+        500: {
+          content: {
+            "application/json": {
+              [key: string]: string;
+            };
+          };
+        };
+      };
+    };
+  };
+  "/invoices/{id}/send": {
+    /**
+     * Mark invoice as sent
+     * @description Mark a finalized invoice as sent (e.g., after emailing to customer)
+     */
+    post: {
+      parameters: {
+        path: {
+          /** @description Invoice ID */
+          id: number;
+        };
+      };
+      responses: {
+        /** @description OK */
+        200: {
+          content: {
+            "application/json": {
+              [key: string]: unknown;
+            };
+          };
+        };
+        /** @description Bad Request */
+        400: {
+          content: {
+            "application/json": {
+              [key: string]: string;
+            };
+          };
+        };
+        /** @description Unauthorized */
+        401: {
+          content: {
+            "application/json": {
+              [key: string]: string;
+            };
+          };
+        };
+        /** @description Forbidden */
+        403: {
           content: {
             "application/json": {
               [key: string]: string;
@@ -1745,6 +2048,10 @@ export interface components {
       entries?: components["schemas"]["entities.CalendarEntryResponse"][];
       series?: components["schemas"]["entities.CalendarSeriesResponse"];
     };
+    "entities.CancelInvoiceRequest": {
+      /** @example Fehlerhafte Positionen – Rechnung nicht versendet */
+      reason: string;
+    };
     "entities.ClientInvoiceResponse": {
       client?: components["schemas"]["entities.ClientResponse"];
       client_id?: number;
@@ -1772,6 +2079,7 @@ export interface components {
       gender?: string;
       id?: number;
       invoiced_individually?: boolean;
+      is_self_payer?: boolean;
       last_name?: string;
       notes?: string;
       phone?: string;
@@ -1816,6 +2124,7 @@ export interface components {
       gender?: string;
       id?: number;
       invoiced_individually?: boolean;
+      is_self_payer?: boolean;
       last_name?: string;
       notes?: string;
       phone?: string;
@@ -1993,6 +2302,8 @@ export interface components {
       gender?: string;
       /** @example false */
       invoiced_individually?: boolean;
+      /** @example false */
+      is_self_payer?: boolean;
       /** @example Doe */
       last_name: string;
       /** @example Additional notes about the client */
@@ -2059,6 +2370,24 @@ export interface components {
       /** @example 1 */
       client_id: number;
       custom_line_items?: components["schemas"]["entities.CustomLineItemRequest"][];
+      /** @example 456 Insurance Blvd */
+      customer_address?: string;
+      /** @example Suite 200 */
+      customer_address_ext?: string;
+      /** @example New York */
+      customer_city?: string;
+      /** @example Jane Smith */
+      customer_contact_person?: string;
+      /** @example USA */
+      customer_country?: string;
+      /** @example Mental Health Division */
+      customer_department?: string;
+      /** @example jane.smith@insurance.com */
+      customer_email?: string;
+      /** @example Health Insurance Corp */
+      customer_name?: string;
+      /** @example 12345 */
+      customer_zip?: string;
       /**
        * @example [
        *   5,
@@ -2259,6 +2588,26 @@ export interface components {
       id?: number;
       session_id?: number;
     };
+    "entities.FinalizeInvoiceRequest": {
+      /** @example 456 Insurance Blvd */
+      customer_address?: string;
+      /** @example Suite 200 */
+      customer_address_ext?: string;
+      /** @example New York */
+      customer_city?: string;
+      /** @example Jane Smith */
+      customer_contact_person?: string;
+      /** @example USA */
+      customer_country?: string;
+      /** @example Mental Health Division */
+      customer_department?: string;
+      /** @example jane.smith@insurance.com */
+      customer_email?: string;
+      /** @example Health Insurance Corp */
+      customer_name?: string;
+      /** @example 12345 */
+      customer_zip?: string;
+    };
     "entities.FreeSlotsResponse": {
       config?: components["schemas"]["entities.SlotConfiguration"];
       monthData?: components["schemas"]["entities.MonthData"];
@@ -2330,6 +2679,13 @@ export interface components {
       payment_date?: string;
       /** @example TRANSFER-123456 */
       payment_reference?: string;
+    };
+    "entities.MarkInvoiceAsSentRequest": {
+      /**
+       * @example email
+       * @enum {string}
+       */
+      send_method: "email" | "manual" | "xrechnung";
     };
     "entities.ModuleListResponse": {
       modules?: string[];
@@ -2634,6 +2990,8 @@ export interface components {
       gender?: string;
       /** @example false */
       invoiced_individually?: boolean;
+      /** @example false */
+      is_self_payer?: boolean;
       /** @example Doe */
       last_name?: string;
       /** @example Additional notes about the client */
@@ -2959,6 +3317,63 @@ export interface components {
       timestamp?: string;
       version?: string;
     };
+    "github_com_ae-base-server_modules_invoice_number_OLD_handlers.GenerateInvoiceNumberRequest": {
+      /** @example 12 */
+      month?: number;
+      /**
+       * @description "MM", "M", or ""
+       * @example MM
+       */
+      month_format?: string;
+      /**
+       * @description Optional - will use authenticated user's organization if not provided
+       * @example 10
+       */
+      organization_id?: number;
+      /**
+       * @description e.g., 4 for "0001"
+       * @example 4
+       */
+      padding?: number;
+      /** @example INV */
+      prefix?: string;
+      /**
+       * @description pointer to distinguish false from not set
+       * @example false
+       */
+      reset_monthly?: boolean;
+      /**
+       * @description e.g., "-"
+       * @example -
+       */
+      separator?: string;
+      /** @example 2025 */
+      year?: number;
+      /**
+       * @description "YYYY" or "YY"
+       * @example YYYY
+       */
+      year_format?: string;
+    };
+    "github_com_ae-base-server_modules_invoice_number_OLD_handlers.GenerateNextInvoiceNumberRequest": {
+      /**
+       * @description Optional - will use authenticated user's organization if not provided
+       * @example 10
+       */
+      organization_id?: number;
+    };
+    "github_com_ae-base-server_modules_invoice_number_OLD_handlers.InvoiceNumberResponse": {
+      /** @example INV-2025-0001 */
+      invoice_number?: string;
+      /** @example 12 */
+      month?: number;
+      /** @example 1 */
+      sequence?: number;
+      /** @example true */
+      success?: boolean;
+      /** @example 2025 */
+      year?: number;
+    };
     "github_com_ae-base-server_modules_pdf_handlers.ErrorResponse": {
       /** @example Additional error details */
       details?: string;
@@ -2991,21 +3406,37 @@ export interface components {
     "github_com_unburdy_invoice-module_entities.CreateInvoiceRequest": {
       currency?: string;
       customer_address?: string;
+      customer_address_ext?: string;
+      customer_city?: string;
+      customer_contact_person?: string;
+      customer_country?: string;
+      customer_department?: string;
       customer_email?: string;
       customer_name: string;
       customer_tax_id?: string;
+      customer_zip?: string;
+      delivery_date?: string;
+      discount_rate?: number;
+      discount_terms?: string;
       due_date?: string;
       internal_note?: string;
       invoice_date: string;
       invoice_number: string;
       items: components["schemas"]["entities.InvoiceItemData"][];
+      net_terms?: number;
       notes?: string;
       organization_id: number;
+      our_reference?: string;
       payment_method?: string;
       payment_terms?: string;
+      performance_period_end?: string;
+      performance_period_start?: string;
+      po_number?: string;
+      subject?: string;
       tax_rate?: number;
       /** @description HTML template for PDF generation */
       template_html?: string;
+      your_reference?: string;
     };
     "github_com_unburdy_invoice-module_entities.InvoiceItemResponse": {
       amount?: number;
@@ -3020,21 +3451,37 @@ export interface components {
       created_at?: string;
       currency?: string;
       customer_address?: string;
+      customer_address_ext?: string;
+      customer_city?: string;
+      customer_contact_person?: string;
+      customer_country?: string;
+      customer_department?: string;
       customer_email?: string;
       customer_name?: string;
       customer_tax_id?: string;
+      customer_zip?: string;
+      delivery_date?: string;
+      discount_rate?: number;
+      discount_terms?: string;
       document_id?: number;
       due_date?: string;
       id?: number;
       invoice_date?: string;
       invoice_number?: string;
       items?: components["schemas"]["github_com_unburdy_invoice-module_entities.InvoiceItemResponse"][];
+      net_terms?: number;
       notes?: string;
+      num_reminders?: number;
       organization_id?: number;
+      our_reference?: string;
       payment_date?: string;
       payment_method?: string;
       payment_terms?: string;
+      performance_period_end?: string;
+      performance_period_start?: string;
+      po_number?: string;
       status?: components["schemas"]["github_com_unburdy_invoice-module_entities.InvoiceStatus"];
+      subject?: string;
       subtotal_amount?: number;
       tax_amount?: number;
       tax_rate?: number;
@@ -3042,21 +3489,95 @@ export interface components {
       total_amount?: number;
       updated_at?: string;
       user_id?: number;
+      your_reference?: string;
     };
     /** @enum {string} */
     "github_com_unburdy_invoice-module_entities.InvoiceStatus": "draft" | "finalized" | "sent" | "paid" | "overdue" | "cancelled";
     "github_com_unburdy_invoice-module_entities.UpdateInvoiceRequest": {
       customer_address?: string;
+      customer_address_ext?: string;
+      customer_city?: string;
+      customer_contact_person?: string;
+      customer_country?: string;
+      customer_department?: string;
       customer_email?: string;
       customer_name?: string;
+      customer_zip?: string;
+      delivery_date?: string;
+      discount_rate?: number;
+      discount_terms?: string;
       due_date?: string;
       internal_note?: string;
       items?: components["schemas"]["entities.InvoiceItemData"][];
+      net_terms?: number;
       notes?: string;
+      our_reference?: string;
       payment_date?: string;
       payment_method?: string;
       payment_terms?: string;
+      performance_period_end?: string;
+      performance_period_start?: string;
+      po_number?: string;
       status?: components["schemas"]["github_com_unburdy_invoice-module_entities.InvoiceStatus"];
+      subject?: string;
+      your_reference?: string;
+    };
+    "github_com_unburdy_invoice-number-module_handlers.GenerateInvoiceNumberRequest": {
+      /** @example 12 */
+      month?: number;
+      /**
+       * @description "MM", "M", or ""
+       * @example MM
+       */
+      month_format?: string;
+      /**
+       * @description Optional - will use authenticated user's organization if not provided
+       * @example 10
+       */
+      organization_id?: number;
+      /**
+       * @description e.g., 4 for "0001"
+       * @example 4
+       */
+      padding?: number;
+      /** @example INV */
+      prefix?: string;
+      /**
+       * @description pointer to distinguish false from not set
+       * @example false
+       */
+      reset_monthly?: boolean;
+      /**
+       * @description e.g., "-"
+       * @example -
+       */
+      separator?: string;
+      /** @example 2025 */
+      year?: number;
+      /**
+       * @description "YYYY" or "YY"
+       * @example YYYY
+       */
+      year_format?: string;
+    };
+    "github_com_unburdy_invoice-number-module_handlers.GenerateNextInvoiceNumberRequest": {
+      /**
+       * @description Optional - will use authenticated user's organization if not provided
+       * @example 10
+       */
+      organization_id?: number;
+    };
+    "github_com_unburdy_invoice-number-module_handlers.InvoiceNumberResponse": {
+      /** @example INV-2025-0001 */
+      invoice_number?: string;
+      /** @example 12 */
+      month?: number;
+      /** @example 1 */
+      sequence?: number;
+      /** @example true */
+      success?: boolean;
+      /** @example 2025 */
+      year?: number;
     };
     "github_com_unburdy_unburdy-server-api_internal_models.APIResponse": {
       data?: unknown;
@@ -3106,10 +3627,22 @@ export interface components {
       updated_at?: string;
     };
     "github_com_unburdy_unburdy-server-api_modules_client_management_entities.InvoiceResponse": {
+      cancellation_reason?: string;
+      cancelled_at?: string;
       clients?: components["schemas"]["entities.ClientInvoiceResponse"][];
       created_at?: string;
+      customer_address?: string;
+      customer_address_ext?: string;
+      customer_city?: string;
+      customer_contact_person?: string;
+      customer_country?: string;
+      customer_department?: string;
+      customer_email?: string;
+      customer_name?: string;
+      customer_zip?: string;
       document_id?: number;
       document_url?: string;
+      finalized_at?: string;
       id?: number;
       invoice_date?: string;
       invoice_items?: components["schemas"]["github_com_unburdy_unburdy-server-api_modules_client_management_entities.InvoiceItemResponse"][];
@@ -3120,6 +3653,8 @@ export interface components {
       organization?: Record<string, never>;
       organization_id?: number;
       payed_date?: string;
+      send_method?: string;
+      sent_at?: string;
       status?: components["schemas"]["github_com_unburdy_unburdy-server-api_modules_client_management_entities.InvoiceStatus"];
       sum_amount?: number;
       tax_amount?: number;
@@ -3166,63 +3701,6 @@ export interface components {
       message?: string;
       /** @example true */
       success?: boolean;
-    };
-    "handlers.GenerateInvoiceNumberRequest": {
-      /** @example 12 */
-      month?: number;
-      /**
-       * @description "MM", "M", or ""
-       * @example MM
-       */
-      month_format?: string;
-      /**
-       * @description Optional - will use authenticated user's organization if not provided
-       * @example 10
-       */
-      organization_id?: number;
-      /**
-       * @description e.g., 4 for "0001"
-       * @example 4
-       */
-      padding?: number;
-      /** @example INV */
-      prefix?: string;
-      /**
-       * @description pointer to distinguish false from not set
-       * @example false
-       */
-      reset_monthly?: boolean;
-      /**
-       * @description e.g., "-"
-       * @example -
-       */
-      separator?: string;
-      /** @example 2025 */
-      year?: number;
-      /**
-       * @description "YYYY" or "YY"
-       * @example YYYY
-       */
-      year_format?: string;
-    };
-    "handlers.GenerateNextInvoiceNumberRequest": {
-      /**
-       * @description Optional - will use authenticated user's organization if not provided
-       * @example 10
-       */
-      organization_id?: number;
-    };
-    "handlers.InvoiceNumberResponse": {
-      /** @example INV-2025-0001 */
-      invoice_number?: string;
-      /** @example 12 */
-      month?: number;
-      /** @example 1 */
-      sequence?: number;
-      /** @example true */
-      success?: boolean;
-      /** @example 2025 */
-      year?: number;
     };
     "handlers.SuccessResponse": {
       /** @example Operation successful */
@@ -3739,6 +4217,12 @@ export interface components {
     createBookingTemplateAllowedStartMinutes?: {
       content: {
         "application/json": number[];
+      };
+    };
+    /** @description Cancellation reason */
+    "entities.CancelInvoiceRequest": {
+      content: {
+        "application/json": components["schemas"]["entities.CancelInvoiceRequest"];
       };
     };
   };
@@ -5735,6 +6219,51 @@ export interface operations {
     };
   };
   /**
+   * Cancel a client invoice (extended)
+   * @description Cancel a client invoice that has not been sent and revert all sessions to 'conducted' and extra efforts to 'unbilled' status
+   */
+  cancelClientInvoice: {
+    parameters: {
+      path: {
+        /** @description Invoice ID */
+        id: number;
+      };
+    };
+    requestBody: components["requestBodies"]["entities.CancelInvoiceRequest"];
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"];
+        };
+      };
+      /** @description Invoice already sent or invalid request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
    * Create a credit note
    * @description Create a credit note for an existing invoice with selected line items
    */
@@ -5805,6 +6334,12 @@ export interface operations {
       path: {
         /** @description Invoice ID */
         id: number;
+      };
+    };
+    /** @description Optional customer data to update */
+    requestBody?: {
+      content: {
+        "application/json": components["schemas"]["entities.FinalizeInvoiceRequest"];
       };
     };
     responses: {
@@ -5966,13 +6501,19 @@ export interface operations {
   };
   /**
    * Mark invoice as sent
-   * @description Mark a finalized invoice as sent (changes status from finalized to sent)
+   * @description Mark a finalized invoice as sent (changes status from finalized to sent). Requires send_method to be specified.
    */
   markInvoiceAsSent: {
     parameters: {
       path: {
         /** @description Invoice ID */
         id: number;
+      };
+    };
+    /** @description Send method (email, manual, xrechnung) */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["entities.MarkInvoiceAsSentRequest"];
       };
     };
     responses: {
@@ -8155,14 +8696,14 @@ export interface operations {
     /** @description Invoice number configuration */
     requestBody: {
       content: {
-        "application/json": components["schemas"]["handlers.GenerateInvoiceNumberRequest"];
+        "application/json": components["schemas"]["github_com_unburdy_invoice-number-module_handlers.GenerateInvoiceNumberRequest"];
       };
     };
     responses: {
       /** @description OK */
       200: {
         content: {
-          "application/json": components["schemas"]["handlers.InvoiceNumberResponse"];
+          "application/json": components["schemas"]["github_com_unburdy_invoice-number-module_handlers.InvoiceNumberResponse"];
         };
       };
       /** @description Bad Request */
@@ -8199,14 +8740,14 @@ export interface operations {
     /** @description Organization ID */
     requestBody: {
       content: {
-        "application/json": components["schemas"]["handlers.GenerateNextInvoiceNumberRequest"];
+        "application/json": components["schemas"]["github_com_unburdy_invoice-number-module_handlers.GenerateNextInvoiceNumberRequest"];
       };
     };
     responses: {
       /** @description OK */
       200: {
         content: {
-          "application/json": components["schemas"]["handlers.InvoiceNumberResponse"];
+          "application/json": components["schemas"]["github_com_unburdy_invoice-number-module_handlers.InvoiceNumberResponse"];
         };
       };
       /** @description Bad Request */
@@ -8333,6 +8874,51 @@ export interface operations {
           "application/json": {
             [key: string]: string;
           };
+        };
+      };
+    };
+  };
+  /**
+   * Cancel an invoice (basic)
+   * @description Cancel an invoice that has not been sent (sent_at IS NULL). Does not revert sessions/extra efforts.
+   */
+  cancelInvoice: {
+    parameters: {
+      path: {
+        /** @description Invoice ID */
+        id: number;
+      };
+    };
+    requestBody: components["requestBodies"]["entities.CancelInvoiceRequest"];
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"];
+        };
+      };
+      /** @description Invoice already sent or invalid request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
         };
       };
     };
