@@ -493,12 +493,54 @@ export interface paths {
      */
     post: operations["createClient"];
   };
+  "/clients/cost-providers/{token}": {
+    /**
+     * Get cost providers with registration token (public endpoint)
+     * @description Retrieve all cost providers for the organization associated with the registration token. No Bearer auth required.
+     */
+    get: operations["getCostProvidersWithToken"];
+  };
+  "/clients/emailverification/{token}": {
+    /**
+     * Verify client email
+     * @description Verify a client's email address using the verification token sent via email
+     */
+    post: operations["verifyClientEmail"];
+  };
+  "/clients/registration/{token}": {
+    /**
+     * Register new client
+     * @description Register a new client on the waiting list using a valid registration token
+     */
+    post: operations["registerClient"];
+  };
+  "/clients/registrationtoken": {
+    /**
+     * Generate registration token
+     * @description Generate a permanent token for client waiting list registration (admin only). Blacklists any existing tokens for the organization.
+     */
+    get: operations["generateRegistrationToken"];
+  };
   "/clients/search": {
     /**
      * Search clients
      * @description Search clients by first name or last name
      */
     get: operations["searchClients"];
+  };
+  "/clients/static/{token}": {
+    /**
+     * List available static JSON files (registration token auth)
+     * @description Get a list of all JSON files available in the statics/json directory, authenticated by registration token
+     */
+    get: operations["listStaticFilesWithToken"];
+  };
+  "/clients/static/{token}/{filename}": {
+    /**
+     * Serve static JSON files with registration token authentication
+     * @description Securely serve JSON data files from statics/json directory only. Authenticated by registration token. Prevents access to other directories or file types.
+     */
+    get: operations["getStaticFileWithToken"];
   };
   "/clients/{id}": {
     /**
@@ -1474,6 +1516,37 @@ export interface components {
       cost_provider_id?: number;
       sessions?: components["schemas"]["entities.SessionResponse"][];
     };
+    "entities.ClientRegistrationRequest": {
+      /** @example New York */
+      city?: string;
+      /** @example jane.smith@example.com */
+      contact_email?: string;
+      /** @example Jane */
+      contact_first_name?: string;
+      /** @example Smith */
+      contact_last_name?: string;
+      /** @example +1234567890 */
+      contact_phone?: string;
+      date_of_birth?: components["schemas"]["entities.NullableDate"];
+      /** @example john.doe@example.com */
+      email: string;
+      /** @example John */
+      first_name: string;
+      /** @example male */
+      gender?: string;
+      /** @example Doe */
+      last_name: string;
+      /** @example Referred by Dr. Smith */
+      notes?: string;
+      /** @example +1234567890 */
+      phone?: string;
+      /** @example 123 Main Street */
+      street_address?: string;
+      /** @example Europe/Berlin */
+      timezone?: string;
+      /** @example 12345 */
+      zip?: string;
+    };
     "entities.ClientResponse": {
       admission_date?: string;
       alternative_email?: string;
@@ -1490,6 +1563,7 @@ export interface components {
       created_at?: string;
       date_of_birth?: string;
       email?: string;
+      email_verified?: boolean;
       first_name?: string;
       gender?: string;
       id?: number;
@@ -1534,6 +1608,7 @@ export interface components {
       created_at?: string;
       date_of_birth?: string;
       email?: string;
+      email_verified?: boolean;
       extra_efforts?: components["schemas"]["entities.ExtraEffortResponse"][];
       first_name?: string;
       gender?: string;
@@ -2199,6 +2274,11 @@ export interface components {
       variable_schema?: {
         [key: string]: unknown;
       };
+    };
+    "entities.RegistrationTokenResponse": {
+      email?: string;
+      organization_id?: number;
+      token?: string;
     };
     "entities.RenderTemplateRequest": {
       /** @example alice.johnson@techinnovators.com */
@@ -6226,6 +6306,156 @@ export interface operations {
     };
   };
   /**
+   * Get cost providers with registration token (public endpoint)
+   * @description Retrieve all cost providers for the organization associated with the registration token. No Bearer auth required.
+   */
+  getCostProvidersWithToken: {
+    parameters: {
+      path: {
+        /** @description Registration token */
+        token: string;
+      };
+    };
+    responses: {
+      /** @description Cost providers retrieved successfully */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"] & {
+            data?: components["schemas"]["entities.CostProviderResponse"][];
+          };
+        };
+      };
+      /** @description Invalid token */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"];
+        };
+      };
+      /** @description Internal server error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Verify client email
+   * @description Verify a client's email address using the verification token sent via email
+   */
+  verifyClientEmail: {
+    parameters: {
+      path: {
+        /** @description Email verification token */
+        token: string;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"] & {
+            data?: components["schemas"]["entities.ClientResponse"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Register new client
+   * @description Register a new client on the waiting list using a valid registration token
+   */
+  registerClient: {
+    parameters: {
+      path: {
+        /** @description Registration token */
+        token: string;
+      };
+    };
+    /** @description Client registration data */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["entities.ClientRegistrationRequest"];
+      };
+    };
+    responses: {
+      /** @description Client registered successfully */
+      201: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"] & {
+            data?: components["schemas"]["entities.ClientResponse"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Generate registration token
+   * @description Generate a permanent token for client waiting list registration (admin only). Blacklists any existing tokens for the organization.
+   */
+  generateRegistrationToken: {
+    parameters: {
+      query: {
+        /** @description Optional email to associate with token */
+        email?: string;
+        /** @description Organization ID for the token */
+        organization_id: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"] & {
+            data?: components["schemas"]["entities.RegistrationTokenResponse"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
    * Search clients
    * @description Search clients by first name or last name
    */
@@ -6265,6 +6495,95 @@ export interface operations {
       500: {
         content: {
           "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * List available static JSON files (registration token auth)
+   * @description Get a list of all JSON files available in the statics/json directory, authenticated by registration token
+   */
+  listStaticFilesWithToken: {
+    parameters: {
+      path: {
+        /** @description Registration token */
+        token: string;
+      };
+    };
+    responses: {
+      /** @description List of available JSON files */
+      200: {
+        content: {
+          "*/*": {
+            [key: string]: unknown;
+          };
+        };
+      };
+      /** @description Invalid token */
+      400: {
+        content: {
+          "*/*": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Failed to read directory */
+      500: {
+        content: {
+          "*/*": {
+            [key: string]: string;
+          };
+        };
+      };
+    };
+  };
+  /**
+   * Serve static JSON files with registration token authentication
+   * @description Securely serve JSON data files from statics/json directory only. Authenticated by registration token. Prevents access to other directories or file types.
+   */
+  getStaticFileWithToken: {
+    parameters: {
+      path: {
+        /** @description Registration token */
+        token: string;
+        /**
+         * @description JSON filename (without .json extension)
+         * @example "bundeslaender"
+         */
+        filename: string;
+      };
+    };
+    responses: {
+      /** @description JSON file content */
+      200: {
+        content: {
+          "*/*": {
+            [key: string]: unknown;
+          };
+        };
+      };
+      /** @description Invalid file name or token */
+      400: {
+        content: {
+          "*/*": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description File not found */
+      404: {
+        content: {
+          "*/*": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Failed to read file */
+      500: {
+        content: {
+          "*/*": {
+            [key: string]: string;
+          };
         };
       };
     };
@@ -6448,7 +6767,7 @@ export interface operations {
       /** @description OK */
       200: {
         content: {
-          "application/json": components["schemas"]["api.ListResponse"] & {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ListResponse"] & {
             data?: components["schemas"]["entities.SessionResponse"][];
           };
         };
@@ -6456,19 +6775,19 @@ export interface operations {
       /** @description Bad Request */
       400: {
         content: {
-          "application/json": components["schemas"]["api.APIResponse"];
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"];
         };
       };
       /** @description Unauthorized */
       401: {
         content: {
-          "application/json": components["schemas"]["api.APIResponse"];
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"];
         };
       };
       /** @description Internal Server Error */
       500: {
         content: {
-          "application/json": components["schemas"]["api.APIResponse"];
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"];
         };
       };
     };
@@ -8812,7 +9131,7 @@ export interface operations {
       /** @description OK */
       200: {
         content: {
-          "application/json": components["schemas"]["api.ListResponse"] & {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ListResponse"] & {
             data?: components["schemas"]["entities.SessionResponse"][];
           };
         };
@@ -8820,19 +9139,19 @@ export interface operations {
       /** @description Bad Request */
       400: {
         content: {
-          "application/json": components["schemas"]["api.APIResponse"];
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"];
         };
       };
       /** @description Unauthorized */
       401: {
         content: {
-          "application/json": components["schemas"]["api.APIResponse"];
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"];
         };
       };
       /** @description Internal Server Error */
       500: {
         content: {
-          "application/json": components["schemas"]["api.APIResponse"];
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"];
         };
       };
     };
@@ -8852,7 +9171,7 @@ export interface operations {
       /** @description Created */
       201: {
         content: {
-          "application/json": components["schemas"]["api.APIResponse"] & {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"] & {
             data?: components["schemas"]["entities.SessionResponse"];
           };
         };
@@ -8860,19 +9179,19 @@ export interface operations {
       /** @description Bad Request */
       400: {
         content: {
-          "application/json": components["schemas"]["api.APIResponse"];
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"];
         };
       };
       /** @description Unauthorized */
       401: {
         content: {
-          "application/json": components["schemas"]["api.APIResponse"];
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"];
         };
       };
       /** @description Internal Server Error */
       500: {
         content: {
-          "application/json": components["schemas"]["api.APIResponse"];
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"];
         };
       };
     };
@@ -8892,7 +9211,7 @@ export interface operations {
       /** @description Created */
       201: {
         content: {
-          "application/json": components["schemas"]["api.APIResponse"] & {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"] & {
             data?: components["schemas"]["entities.BookSessionsResponse"];
           };
         };
@@ -8900,19 +9219,19 @@ export interface operations {
       /** @description Bad Request */
       400: {
         content: {
-          "application/json": components["schemas"]["api.APIResponse"];
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"];
         };
       };
       /** @description Unauthorized */
       401: {
         content: {
-          "application/json": components["schemas"]["api.APIResponse"];
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"];
         };
       };
       /** @description Internal Server Error */
       500: {
         content: {
-          "application/json": components["schemas"]["api.APIResponse"];
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"];
         };
       };
     };
@@ -8938,7 +9257,7 @@ export interface operations {
       /** @description Created */
       201: {
         content: {
-          "application/json": components["schemas"]["api.APIResponse"] & {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"] & {
             data?: components["schemas"]["entities.BookSessionsResponse"];
           };
         };
@@ -8946,19 +9265,19 @@ export interface operations {
       /** @description Bad Request */
       400: {
         content: {
-          "application/json": components["schemas"]["api.APIResponse"];
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"];
         };
       };
       /** @description Invalid or expired token */
       404: {
         content: {
-          "application/json": components["schemas"]["api.APIResponse"];
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"];
         };
       };
       /** @description Internal Server Error */
       500: {
         content: {
-          "application/json": components["schemas"]["api.APIResponse"];
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"];
         };
       };
     };
@@ -8978,7 +9297,7 @@ export interface operations {
       /** @description OK */
       200: {
         content: {
-          "application/json": components["schemas"]["api.APIResponse"] & {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"] & {
             data?: components["schemas"]["entities.SessionResponse"];
           };
         };
@@ -8986,25 +9305,25 @@ export interface operations {
       /** @description Bad Request */
       400: {
         content: {
-          "application/json": components["schemas"]["api.APIResponse"];
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"];
         };
       };
       /** @description Unauthorized */
       401: {
         content: {
-          "application/json": components["schemas"]["api.APIResponse"];
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"];
         };
       };
       /** @description Not Found */
       404: {
         content: {
-          "application/json": components["schemas"]["api.APIResponse"];
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"];
         };
       };
       /** @description Internal Server Error */
       500: {
         content: {
-          "application/json": components["schemas"]["api.APIResponse"];
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"];
         };
       };
     };
@@ -9024,7 +9343,7 @@ export interface operations {
       /** @description OK */
       200: {
         content: {
-          "application/json": components["schemas"]["api.APIResponse"] & {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"] & {
             data?: components["schemas"]["entities.SessionDetailResponse"][];
           };
         };
@@ -9032,19 +9351,19 @@ export interface operations {
       /** @description Bad Request */
       400: {
         content: {
-          "application/json": components["schemas"]["api.APIResponse"];
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"];
         };
       };
       /** @description Unauthorized */
       401: {
         content: {
-          "application/json": components["schemas"]["api.APIResponse"];
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"];
         };
       };
       /** @description Internal Server Error */
       500: {
         content: {
-          "application/json": components["schemas"]["api.APIResponse"];
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"];
         };
       };
     };
@@ -9064,7 +9383,7 @@ export interface operations {
       /** @description OK */
       200: {
         content: {
-          "application/json": components["schemas"]["api.APIResponse"] & {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"] & {
             data?: components["schemas"]["entities.SessionResponse"];
           };
         };
@@ -9072,19 +9391,19 @@ export interface operations {
       /** @description Bad Request */
       400: {
         content: {
-          "application/json": components["schemas"]["api.APIResponse"];
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"];
         };
       };
       /** @description Unauthorized */
       401: {
         content: {
-          "application/json": components["schemas"]["api.APIResponse"];
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"];
         };
       };
       /** @description Not Found */
       404: {
         content: {
-          "application/json": components["schemas"]["api.APIResponse"];
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"];
         };
       };
     };
@@ -9110,7 +9429,7 @@ export interface operations {
       /** @description OK */
       200: {
         content: {
-          "application/json": components["schemas"]["api.APIResponse"] & {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"] & {
             data?: components["schemas"]["entities.SessionResponse"];
           };
         };
@@ -9118,25 +9437,25 @@ export interface operations {
       /** @description Bad Request */
       400: {
         content: {
-          "application/json": components["schemas"]["api.APIResponse"];
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"];
         };
       };
       /** @description Unauthorized */
       401: {
         content: {
-          "application/json": components["schemas"]["api.APIResponse"];
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"];
         };
       };
       /** @description Not Found */
       404: {
         content: {
-          "application/json": components["schemas"]["api.APIResponse"];
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"];
         };
       };
       /** @description Internal Server Error */
       500: {
         content: {
-          "application/json": components["schemas"]["api.APIResponse"];
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"];
         };
       };
     };
@@ -9156,31 +9475,31 @@ export interface operations {
       /** @description OK */
       200: {
         content: {
-          "application/json": components["schemas"]["api.APIResponse"];
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"];
         };
       };
       /** @description Bad Request */
       400: {
         content: {
-          "application/json": components["schemas"]["api.APIResponse"];
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"];
         };
       };
       /** @description Unauthorized */
       401: {
         content: {
-          "application/json": components["schemas"]["api.APIResponse"];
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"];
         };
       };
       /** @description Not Found */
       404: {
         content: {
-          "application/json": components["schemas"]["api.APIResponse"];
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"];
         };
       };
       /** @description Internal Server Error */
       500: {
         content: {
-          "application/json": components["schemas"]["api.APIResponse"];
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"];
         };
       };
     };

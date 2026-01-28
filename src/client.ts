@@ -456,8 +456,44 @@ export class AESaasApiClient {
     return response;
   }
 
+  async getCostProvidersWithToken(token: string) {
+    if (!token) throw new Error('token is required');
+    const response = await this.request<any>('GET', `/clients/cost-providers/${token}`, undefined);
+    return response;
+  }
+
+  async verifyClientEmail(token: string) {
+    if (!token) throw new Error('token is required');
+    const response = await this.request<ApiResponse<any>>('POST', `/clients/emailverification/${token}`, undefined);
+    return response;
+  }
+
+  async registerClient(token: string, data: any) {
+    if (!token) throw new Error('token is required');
+    const response = await this.request<ApiResponse<any>>('POST', `/clients/registration/${token}`, data);
+    return response;
+  }
+
+  async generateRegistrationToken(params?: Record<string, any>) {
+    const response = await this.request<ApiResponse<any>>('GET', `/clients/registrationtoken`, undefined, params);
+    return response;
+  }
+
   async searchClients(params?: Record<string, any>) {
     const response = await this.request<ApiResponse<any>>('GET', `/clients/search`, undefined, params);
+    return response;
+  }
+
+  async listStaticFilesWithToken(token: string) {
+    if (!token) throw new Error('token is required');
+    const response = await this.request<ApiResponse<any>>('GET', `/clients/static/${token}`, undefined);
+    return response;
+  }
+
+  async getStaticFileWithToken(token: string, filename: string) {
+    if (!token) throw new Error('token is required');
+    if (!filename) throw new Error('filename is required');
+    const response = await this.request<ApiResponse<any>>('GET', `/clients/static/${token}/${filename}`, undefined);
     return response;
   }
 
