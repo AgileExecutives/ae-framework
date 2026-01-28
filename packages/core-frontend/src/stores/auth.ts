@@ -189,7 +189,7 @@ export const useAuthStore = defineStore('auth', () => {
       setError(null)
 
       const client = getApiClient()
-      await client.forgotPassword({ email })
+      await client.forgotPassword(email)
 
       console.log('✅ Auth Store: Password reset email sent')
     } catch (err: any) {
@@ -213,7 +213,7 @@ export const useAuthStore = defineStore('auth', () => {
       setError(null)
 
       const client = getApiClient()
-      await client.resetPassword(token, { new_password: newPassword })
+      await client.resetPassword(token, newPassword)
 
       console.log('✅ Auth Store: Password reset successful')
     } catch (err: any) {
