@@ -10,8 +10,11 @@ import type { RouteRecordRaw } from 'vue-router'
 // Import language files
 import en from './locales/en'
 import de from './locales/de'
-import router from './router/index.ts'
+import routerInstance from './router/index.ts'
 import { createPinia } from 'pinia'
+
+// Export router for app-level access
+export const router = routerInstance
 
 // Create base routes function (re-exported for compatibility)
 export { createBaseRoutes } from './router/shared-routes.ts'
@@ -48,24 +51,24 @@ export function createBaseApp(AppComponent: any, options?: CreateBaseAppOptions)
     
     // Remove the default root route if overrideRoot is true
     if (options?.overrideRoot) {
-        router.removeRoute('AuthRestrictedView')
+        routerInstance.removeRoute('AuthRestrictedView')
     }
     
     // Add additional routes if provided
     if (options?.routes) {
         options.routes.forEach(route => {
-            router.addRoute(route)
+            routerInstance.addRoute(route)
         })
     }
     
     // Add catch-all route
-    addCatchAllRoute(router)
+    addCatchAllRoute(routerInstance)
 
-    app.use(router)
+    app.use(routerInstance)
     app.use(i18n)
     
     // Add middleware AFTER Pinia is registered
-    addMiddleware(router)
+    addMiddleware(routerInstance)
 
     return app
 }
