@@ -48,7 +48,7 @@ test.describe('Authentication E2E Tests', () => {
     console.log('⏳ Waiting for password requirements to load...');
     await page.waitForSelector('[data-testid="register-password"]', { state: 'visible' });
     // Wait for the loading state to disappear (if there's a loading indicator)
-    await page.waitForTimeout(1000); // Give time for password requirements API call
+    await page.waitForTimeout(500); // Give time for password requirements API call
     
     // Verify form elements are present
     await expect(page.locator('[data-testid="register-firstname"]')).toBeVisible();
@@ -323,7 +323,7 @@ test.describe('Authentication E2E Tests', () => {
       console.log('✅ Logout button clicked successfully');
       
       // Should redirect to login after logout
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(500);
       const currentUrl = page.url();
       console.log('Current URL after logout:', currentUrl);
     } else {

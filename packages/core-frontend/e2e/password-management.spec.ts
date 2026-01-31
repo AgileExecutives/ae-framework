@@ -137,7 +137,7 @@ test.describe('Password Management E2E Tests', () => {
     await page.locator('[data-testid="forgot-submit"]').click();
     
     // Wait a bit for validation to trigger
-    await page.waitForTimeout(1000);
+    await page.waitForTimeout(500);
     
     // Check if validation prevents submission or shows error
     // Some implementations might prevent submission entirely rather than showing error messages
@@ -206,7 +206,7 @@ test.describe('Password Management E2E Tests', () => {
     // Wait for password requirements to load
     console.log('⏳ Waiting for password requirements to load...');
     await page.waitForSelector('[data-testid="reset-password"]', { state: 'visible' });
-    await page.waitForTimeout(1000); // Give time for password requirements API call
+    await page.waitForTimeout(500); // Give time for password requirements API call
     
     // Verify form elements using testids
     await expect(page.getByRole('heading', { name: /passwort zurücksetzen/i })).toBeVisible();
@@ -245,7 +245,7 @@ test.describe('Password Management E2E Tests', () => {
     // Wait for password requirements to load
     console.log('⏳ Waiting for password requirements to load...');
     await page.waitForSelector('[data-testid="reset-password"]', { state: 'visible' });
-    await page.waitForTimeout(1000); // Give time for password requirements API call
+    await page.waitForTimeout(500); // Give time for password requirements API call
     
     // Check for password requirements description (optional - might not be visible)
     try {
@@ -304,7 +304,7 @@ test.describe('Password Management E2E Tests', () => {
     // Wait for password requirements to load
     console.log('⏳ Waiting for password requirements to load...');
     await page.waitForSelector('[data-testid="reset-password"]', { state: 'visible' });
-    await page.waitForTimeout(1000); // Give time for password requirements API call
+    await page.waitForTimeout(500); // Give time for password requirements API call
     
     // Fill passwords that don't match using testids
     await page.locator('[data-testid="reset-password"]').fill('ValidPass123!');
@@ -342,7 +342,7 @@ test.describe('Password Management E2E Tests', () => {
       // Wait for password requirements to load
       console.log('⏳ Waiting for password requirements to load...');
       await page.waitForSelector('[data-testid="change-new-password"]', { state: 'visible' });
-      await page.waitForTimeout(1000); // Give time for password requirements API call
+      await page.waitForTimeout(500); // Give time for password requirements API call
     
       // Verify form elements using testids
       await expect(page.getByRole('heading', { name: /passwort ändern/i })).toBeVisible();
@@ -400,7 +400,7 @@ test.describe('Password Management E2E Tests', () => {
       // Wait for password requirements to load
       console.log('⏳ Waiting for password requirements to load...');
       await page.waitForSelector('[data-testid="change-new-password"]', { state: 'visible' });
-      await page.waitForTimeout(1000); // Give time for password requirements API call
+      await page.waitForTimeout(500); // Give time for password requirements API call
       
       // Enter wrong current password using testids
       await page.locator('[data-testid="change-current-password"]').fill('WrongPassword123!');
@@ -450,7 +450,7 @@ test.describe('Password Management E2E Tests', () => {
       // Wait for password requirements to load
       console.log('⏳ Waiting for password requirements to load...');
       await page.waitForSelector('[data-testid="change-new-password"]', { state: 'visible' });
-      await page.waitForTimeout(1000); // Give time for password requirements API call
+      await page.waitForTimeout(500); // Give time for password requirements API call
       
       // Enter correct current password and new password using testids
       await page.locator('[data-testid="change-current-password"]').fill(user.password);
@@ -501,7 +501,7 @@ test.describe('Password Management E2E Tests', () => {
       await page.waitForLoadState('networkidle');
       
       // Wait for requirements to load
-      await page.waitForTimeout(1000);
+      await page.waitForTimeout(500);
       
       // Try with weak new password using testids
       await page.locator('[data-testid="change-current-password"]').fill(user.password);

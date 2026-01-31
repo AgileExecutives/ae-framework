@@ -12,8 +12,6 @@ import { test, expect } from '@playwright/test';
  * - Basic smoke tests
  */
 
-const BASE_URL = 'http://localhost';
-
 test.describe('Application Navigation', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/');
@@ -26,7 +24,7 @@ test.describe('Application Navigation', () => {
     await page.waitForLoadState('networkidle');
     
     // Verify page loaded
-    expect(page.url()).toContain(BASE_URL);
+    expect(page.url()).toContain('localhost');
     
     // Verify no console errors (basic smoke test)
     const errors: string[] = [];
@@ -36,7 +34,7 @@ test.describe('Application Navigation', () => {
       }
     });
     
-    await page.waitForTimeout(1000);
+    await page.waitForTimeout(500);
     
     console.log('✅ Homepage loaded successfully');
   });
@@ -77,7 +75,7 @@ test.describe('Application Navigation', () => {
     expect(page.getByText('Seite nicht gefunden')).toBeVisible();
 
     // For now, just verify navigation doesn't crash
-    await page.waitForTimeout(1000);
+    await page.waitForTimeout(500);
     
     console.log('✅ 404 handling test completed');
   });
@@ -91,7 +89,7 @@ test.describe('Application Navigation', () => {
     expect(page.getByText('Seite nicht gefunden')).toBeVisible();
 
     // Should handle gracefully
-    await page.waitForTimeout(1000);
+    await page.waitForTimeout(500);
     
     console.log('✅ Deep route 404 handling completed');
   });
@@ -103,7 +101,7 @@ test.describe('Application Navigation', () => {
        
     // Try to access dashboard (should be protected)
     await page.goto('/dashboard');
-    await page.waitForTimeout(1000);
+    await page.waitForTimeout(500);
     
     const currentUrl = page.url();
     expect(currentUrl).toContain('/login?redirect=/dashboard');

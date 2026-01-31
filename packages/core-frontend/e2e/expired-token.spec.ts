@@ -20,7 +20,7 @@ test.describe('Expired Token Handling', () => {
     
     // Wait for navigation to complete
     await page.waitForLoadState('networkidle');
-    await page.waitForTimeout(1000); // Give time for auth check
+    await page.waitForTimeout(500); // Give time for auth check
     
     console.log('📍 Current URL:', page.url());
     
