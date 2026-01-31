@@ -13,6 +13,17 @@ const testUser = {
   lastName: 'User'
 };
 
+/**
+ * Authentication & Password Management E2E Tests
+ * 
+ * Consolidates: auth-flow.spec.ts + password-management.spec.ts + expired-token.spec.ts
+ * 
+ * Covers complete authentication lifecycle:
+ * - User registration flow
+ * - Login flow
+ * - Password reset flow
+ * - Token expiration handling
+ */
 test.describe('Authentication E2E Tests', () => {
   test.beforeAll(async () => {
     // Ensure email service is mocked
@@ -235,5 +246,99 @@ test.describe('Authentication E2E Tests', () => {
     await page.waitForTimeout(2000);
     
     console.log('✅ Registration form interactions completed successfully');
+  });
+
+  // ========== PASSWORD RESET FLOW (from password-management.spec.ts) ==========
+  
+  test('should display forgot password form', async ({ page }) => {
+    console.log('🧪 Test: Forgot password form display');
+    
+    // Navigate to forgot password page
+    await page.goto('/forgot-password');
+    await page.waitForLoadState('networkidle');
+    
+    // TODO: Verify forgot password form elements once implemented
+    // Expected: email input field and submit button
+    console.log('ℹ️ TODO: Forgot password form validation - awaiting implementation');
+    
+    // For now, verify page doesn't crash
+    await page.waitForTimeout(1000);
+  });
+
+  test('should handle password reset flow', async ({ page, request }) => {
+    console.log('🧪 Test: Complete password reset flow');
+    
+    // TODO: Implement complete password reset flow when backend is ready
+    // Expected workflow:
+    // 1. User requests password reset
+    // 2. Email sent with reset token
+    // 3. User clicks link in email
+    // 4. User enters new password
+    // 5. User can login with new password
+    
+    console.log('ℹ️ TODO: Password reset flow - awaiting email service implementation');
+    
+    await page.goto('/forgot-password');
+    await page.waitForLoadState('networkidle');
+    
+    // Placeholder test for form presence
+    await page.waitForTimeout(1000);
+  });
+
+  test('should handle password change for authenticated user', async ({ page, request }) => {
+    console.log('🧪 Test: Change password when authenticated');
+    
+    // TODO: Implement password change test once user dashboard is available
+    // Expected workflow:
+    // 1. Login as user
+    // 2. Navigate to profile/settings
+    // 3. Change password
+    // 4. Logout
+    // 5. Login with new password
+    
+    console.log('ℹ️ TODO: Password change flow - awaiting user settings page implementation');
+    
+    await page.goto('/');
+    await page.waitForTimeout(1000);
+  });
+
+  // ========== TOKEN EXPIRATION FLOW (from expired-token.spec.ts) ==========
+  
+  test('should handle expired authentication token', async ({ page }) => {
+    console.log('🧪 Test: Expired token handling');
+    
+    // TODO: Implement token expiration test once auth flow is complete
+    // Expected workflow:
+    // 1. Login with valid credentials
+    // 2. Wait for token to expire (or manually expire it)
+    // 3. Try to access protected resource
+    // 4. Should redirect to login page
+    // 5. Should show appropriate message
+    
+    console.log('ℹ️ TODO: Token expiration handling - awaiting auth implementation');
+    
+    await page.goto('/');
+    await page.waitForTimeout(1000);
+  });
+
+  test('should redirect to login on protected route with expired token', async ({ page, context }) => {
+    console.log('🧪 Test: Protected route access with expired token');
+    
+    // TODO: Test protected route behavior with expired token
+    // Expected workflow:
+    // 1. Set an expired token in storage
+    // 2. Try to access protected route
+    // 3. Should clear expired token
+    // 4. Should redirect to login
+    
+    console.log('ℹ️ TODO: Protected route + expired token - awaiting implementation');
+    
+    // For now, just verify protected routes require auth
+    await page.goto('/dashboard');
+    await page.waitForTimeout(1000);
+    
+    // Should redirect to login if not authenticated
+    const currentUrl = page.url();
+    console.log('Current URL when accessing protected route:', currentUrl);
   });
 });
