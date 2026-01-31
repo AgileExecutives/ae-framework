@@ -9,8 +9,8 @@ const testUser = {
   username: `testuser_${Date.now()}`,
   email: `test_${Date.now()}@example.com`,
   password: 'TestPass123!',
-  firstName: 'Test',
-  lastName: 'User'
+  firstName: `Test_${Date.now()}`,
+  lastName: `User_${Date.now()}`
 };
 
 /**
@@ -36,12 +36,19 @@ test.describe('Authentication E2E Tests', () => {
     await page.goto('/');
   });
 
-  test('should complete full registration flow', async ({ page }) => {
-    console.log('🧪 Testing registration form UI...');
+  test('should complete full registration flow with email verification', async ({ page, request }) => {
+    console.log('🧪 Testing complete registration flow with email verification...');
     
-    // Navigate to registration page
+    // Step 1: Navigate to registration page
+    console.log('📝 Step 1: Filling registration form');
     await page.goto('/register');
     await page.waitForLoadState('networkidle');
+    
+    // Wait for password requirements to load
+    console.log('⏳ Waiting for password requirements to load...');
+    await page.waitForSelector('[data-testid="register-password"]', { state: 'visible' });
+    // Wait for the loading state to disappear (if there's a loading indicator)
+    await page.waitForTimeout(1000); // Give time for password requirements API call
     
     // Verify form elements are present
     await expect(page.locator('[data-testid="register-firstname"]')).toBeVisible();
@@ -56,13 +63,138 @@ test.describe('Authentication E2E Tests', () => {
     await page.fill('[data-testid="register-email"]', testUser.email);
     await page.fill('[data-testid="register-password"]', testUser.password);
     
-    // Submit registration (form is incomplete in current implementation)
+    // Fill password repeat field - find by placeholder or nearby label
+    const passwordRepeatInput = page.locator('input[type="password"]').nth(1); // Second password field
+    await passwordRepeatInput.fill(testUser.password);
+    
+    // Wait a bit for validation
+    await page.waitForTimeout(500);
+    
+    // Check if there are any validation errors before submitting
+    const hasErrors = await page.locator('.input-error, .text-error, [class*="error"]').count();
+    if (hasErrors > 0) {
+      console.log(`⚠️ Found ${hasErrors} validation error(s) on form`);
+      const errorTexts = await page.locator('.text-error, [class*="error"]:visible').allTextContents();
+      errorTexts.forEach((text, i) => console.log(`   Error ${i + 1}: ${text}`));
+    }
+    
+    // Accept terms and conditions (required)
+    await page.check('[data-testid="register-accept-terms"]');
+    
+    // Wait for any reactive validation
+    await page.waitForTimeout(500);
+    
+    // Check if submit button is enabled
+    const submitButton = page.locator('[data-testid="register-submit"]');
+    const isDisabled = await submitButton.isDisabled();
+    console.log(`🔘 Submit button disabled: ${isDisabled}`);
+    
+    if (isDisabled) {
+      console.log('⚠️ Submit button is disabled, checking for validation errors...');
+      const errors = await page.locator('.text-error, [class*="error-message"]').allTextContents();
+      errors.forEach((err, i) => console.log(`   Error ${i + 1}: ${err}`));
+    }
+    
+    // Submit registration
     await page.click('[data-testid="register-submit"]');
     
-    // Since form implementation is incomplete, just verify submission doesn't crash
+    // Wait a bit for the form to process
     await page.waitForTimeout(2000);
     
-    console.log('✅ Registration form UI test completed successfully');
+    // Check current URL to see if redirect happened
+    const currentUrl = page.url();
+    console.log(`📍 Current URL after submit: ${currentUrl}`);
+    
+    // Should redirect to success page
+    await page.waitForURL('**/success**', { timeout: 3000 });
+    const successUrl = page.url();
+    expect(successUrl).toContain('/success');
+    expect(successUrl).toContain('registration');
+    
+    console.log('✅ Registration successful, redirected to success page');
+    
+    // Step 2: Fetch verification email
+    console.log('📬 Step 2: Fetching verification email');
+    await page.waitForTimeout(2000);
+    
+    const emailsResponse = await request.get(`${API_BASE_URL}/emails/latest-emails`);
+    console.log(`📬 Emails endpoint status: ${emailsResponse.status()}`);
+    
+    if (!emailsResponse.ok()) {
+      const errorBody = await emailsResponse.text();
+      console.log(`❌ Emails endpoint error: ${errorBody}`);
+    }
+    
+    expect(emailsResponse.ok()).toBeTruthy();
+    
+    const emailData = await emailsResponse.json();
+    expect(emailData.success).toBeTruthy();
+    
+    const emails = emailData.data || [];
+    console.log(`📨 Retrieved ${emails.length} total emails from endpoint`);
+    
+    console.log(`🔍 Looking for verification email to: ${testUser.email}`);
+    
+    // Find all verification emails for our test user
+    const verifyEmails = emails.filter((email: any) => 
+      email.to === testUser.email && 
+      email.subject.toLowerCase().includes('verif')
+    );
+    
+    console.log(`📧 Found ${verifyEmails.length} verification emails for test user`);
+    
+    if (verifyEmails.length === 0 && emails.length > 0) {
+      console.log('⚠️ No emails found for test user. Recent emails:');
+      emails.slice(0, 3).forEach((email: any, index: number) => {
+        console.log(`  ${index + 1}. to="${email.to}", subject="${email.subject}"`);
+      });
+    }
+    
+    // Get the most recent one (emails should be sorted by time, newest first)
+    const verifyEmail = verifyEmails[0];
+    
+    expect(verifyEmail).toBeDefined();
+    console.log(`✅ Found verification email: "${verifyEmail.subject}"`);
+    
+    // Step 3: Extract verification token
+    console.log('🔑 Step 3: Extracting verification token');
+    const tokenMatch = verifyEmail.html.match(/token=([a-zA-Z0-9-_\.]+)/);
+    expect(tokenMatch).toBeTruthy();
+    
+    const verifyToken = tokenMatch![1];
+    console.log(`✅ Extracted token: ${verifyToken.substring(0, 20)}...`);
+    
+    // Step 4: Verify email by visiting the link
+    console.log('✉️ Step 4: Verifying email');
+    await page.goto(`/verify-email?token=${verifyToken}`);
+    await page.waitForTimeout(2000);
+    
+    // Should redirect to success page
+    await page.waitForURL('**/success**', { timeout: 5000 });
+    const verifySuccessUrl = page.url();
+    expect(verifySuccessUrl).toContain('/success');
+    expect(verifySuccessUrl).toContain('type=email-verified');
+    
+    console.log('✅ Email verified and redirected to success page');
+    
+    // Step 5: Navigate to login from success page
+    console.log('🔐 Step 5: Going to login page');
+    await page.click('[data-testid="success-login-link"]');
+    await page.waitForLoadState('networkidle');
+    
+    // Fill login form
+    await page.fill('[data-testid="login-email"]', testUser.email);
+    await page.fill('[data-testid="login-password"]', testUser.password);
+    await page.click('[data-testid="login-submit"]');
+    
+    await page.waitForTimeout(2000);
+    
+    // Should redirect away from login page after successful login
+    const loginSuccessUrl = page.url();
+    console.log(`📍 Current URL: ${loginSuccessUrl}`);
+    expect(loginSuccessUrl).not.toContain('/login');
+    
+    console.log('✅ Registration flow with email verification completed successfully');
   });
 
   test('should complete login flow', async ({ page }) => {
@@ -89,11 +221,9 @@ test.describe('Authentication E2E Tests', () => {
     const currentUrl = page.url();
     console.log('Current URL after login:', currentUrl);
     
-    // Should stay on login page because email is not verified
-    // This is expected behavior with the new email verification system
-    expect(currentUrl).toContain('/login');
+    expect(currentUrl).toContain('/dashboard')
     
-    console.log('✅ Login form test completed - correctly stays on login page (email not verified)');
+    console.log('✅ Login form test completed');
   });
 
   test('should access user profile (me endpoint)', async ({ page }) => {
@@ -248,97 +378,4 @@ test.describe('Authentication E2E Tests', () => {
     console.log('✅ Registration form interactions completed successfully');
   });
 
-  // ========== PASSWORD RESET FLOW (from password-management.spec.ts) ==========
-  
-  test('should display forgot password form', async ({ page }) => {
-    console.log('🧪 Test: Forgot password form display');
-    
-    // Navigate to forgot password page
-    await page.goto('/forgot-password');
-    await page.waitForLoadState('networkidle');
-    
-    // TODO: Verify forgot password form elements once implemented
-    // Expected: email input field and submit button
-    console.log('ℹ️ TODO: Forgot password form validation - awaiting implementation');
-    
-    // For now, verify page doesn't crash
-    await page.waitForTimeout(1000);
-  });
-
-  test('should handle password reset flow', async ({ page, request }) => {
-    console.log('🧪 Test: Complete password reset flow');
-    
-    // TODO: Implement complete password reset flow when backend is ready
-    // Expected workflow:
-    // 1. User requests password reset
-    // 2. Email sent with reset token
-    // 3. User clicks link in email
-    // 4. User enters new password
-    // 5. User can login with new password
-    
-    console.log('ℹ️ TODO: Password reset flow - awaiting email service implementation');
-    
-    await page.goto('/forgot-password');
-    await page.waitForLoadState('networkidle');
-    
-    // Placeholder test for form presence
-    await page.waitForTimeout(1000);
-  });
-
-  test('should handle password change for authenticated user', async ({ page, request }) => {
-    console.log('🧪 Test: Change password when authenticated');
-    
-    // TODO: Implement password change test once user dashboard is available
-    // Expected workflow:
-    // 1. Login as user
-    // 2. Navigate to profile/settings
-    // 3. Change password
-    // 4. Logout
-    // 5. Login with new password
-    
-    console.log('ℹ️ TODO: Password change flow - awaiting user settings page implementation');
-    
-    await page.goto('/');
-    await page.waitForTimeout(1000);
-  });
-
-  // ========== TOKEN EXPIRATION FLOW (from expired-token.spec.ts) ==========
-  
-  test('should handle expired authentication token', async ({ page }) => {
-    console.log('🧪 Test: Expired token handling');
-    
-    // TODO: Implement token expiration test once auth flow is complete
-    // Expected workflow:
-    // 1. Login with valid credentials
-    // 2. Wait for token to expire (or manually expire it)
-    // 3. Try to access protected resource
-    // 4. Should redirect to login page
-    // 5. Should show appropriate message
-    
-    console.log('ℹ️ TODO: Token expiration handling - awaiting auth implementation');
-    
-    await page.goto('/');
-    await page.waitForTimeout(1000);
-  });
-
-  test('should redirect to login on protected route with expired token', async ({ page, context }) => {
-    console.log('🧪 Test: Protected route access with expired token');
-    
-    // TODO: Test protected route behavior with expired token
-    // Expected workflow:
-    // 1. Set an expired token in storage
-    // 2. Try to access protected route
-    // 3. Should clear expired token
-    // 4. Should redirect to login
-    
-    console.log('ℹ️ TODO: Protected route + expired token - awaiting implementation');
-    
-    // For now, just verify protected routes require auth
-    await page.goto('/dashboard');
-    await page.waitForTimeout(1000);
-    
-    // Should redirect to login if not authenticated
-    const currentUrl = page.url();
-    console.log('Current URL when accessing protected route:', currentUrl);
-  });
 });

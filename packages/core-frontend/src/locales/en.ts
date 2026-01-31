@@ -57,6 +57,7 @@ export default {
     email: 'Email',
     sendLink: 'Send Reset Link',
     sending: 'Sending...',
+    successTitle: 'Check Your Email',
     successMessage: 'If the email exists, a password reset link has been sent to your email.',
     errorMessage: 'Failed to send reset email. Please try again.'
   },
@@ -91,8 +92,11 @@ export default {
     passwordRequirements: 'Password Requirements',
     resetButton: 'Reset Password',
     resetting: 'Resetting...',
+    validatingToken: 'Validating reset link...',
     successMessage: 'Password has been reset successfully. Redirecting to login...',
-    errorMessage: 'Failed to reset password. The link may be invalid or expired.'
+    errorMessage: 'Failed to reset password. The link may be invalid or expired.',
+    invalidTokenTitle: 'Invalid Reset Link',
+    invalidTokenMessage: 'This password reset link is invalid or has expired. Please request a new one.'
   },
 
   change: {
@@ -192,5 +196,38 @@ export default {
     inactive: 'Inactive',
     email: 'Email',
     loadError: 'Error loading dashboard data'
+  },
+
+  success: {
+    goToLogin: 'Go to Login',
+    registration: {
+      title: 'Registration Successful!',
+      message: 'Your account has been created. Please check your email to verify your account before logging in.'
+    },
+    passwordReset: {
+      title: 'Password Reset Successful!',
+      message: 'Your password has been reset. You can now log in with your new password.'
+    },
+    passwordChange: {
+      title: 'Password Changed!',
+      message: 'Your password has been changed successfully.'
+    },
+    emailVerified: {
+      title: 'Email Verified!',
+      message: 'Your email address has been successfully verified. You can now log in.'
+    },
+    default: {
+      title: 'Success!',
+      message: 'Operation completed successfully.'
+    }
+  },
+
+  error: {
+    goBack: 'Go Back',
+    goHome: 'Go to Home',
+    default: {
+      title: 'Something went wrong',
+      message: 'An error occurred. Please try again or contact support if the problem persists.'
+    }
   }
 }

@@ -4,18 +4,53 @@ import SingleFormCard from "./SingleFormCard.vue"
 import PasswordField from "./PasswordField.vue"
 import { useAuthStore } from "../stores/auth"
 import { useRouter } from "vue-router"
-import { ref, reactive } from "vue"
+import { ref, reactive, onMounted } from "vue"
 import { useI18n } from 'vue-i18n'
 import { usePasswordRequirements } from '../composables/usePasswordRequirements'
+import { getApiClient } from '@/config/api-config'
 
 const { t } = useI18n()
 const authStore = useAuthStore()
 const router = useRouter()
 const { validatePassword, requirements } = usePasswordRequirements()
 
-const token = router.currentRoute.value.query.token as string
+const token = ref<string>('')
 const successMessage = ref<string | null>(null)
 const errorMessage = ref<string | null>(null)
+const isValidatingToken = ref(false)
+
+// Validate token on mount
+onMounted(async () => {
+  // Get token from query params
+  const queryToken = router.currentRoute.value.query.token as string
+  if (!queryToken) {
+    router.push('/forgot-password')
+    return
+  }
+  
+  token.value = queryToken
+  console.log('🔑 Validating reset token:', token)
+
+  // Validate the token with the backend
+  try {
+    isValidatingToken.value = true
+    const apiClient = getApiClient()
+    const data = await apiClient.checkResetToken(token.value)
+    console.log('✅ Reset token is valid' + JSON.stringify(data) )
+  } catch (error: any) {
+    console.error('❌ Reset token validation failed:', error)
+    // Redirect to error page with message
+    router.push({
+      path: '/error',
+      query: {
+        title: t('reset.invalidTokenTitle'),
+        message: t('reset.invalidTokenMessage')
+      }
+    })
+  } finally {
+    isValidatingToken.value = false
+  }
+})
 const isSubmitting = ref(false)
 const formErrors = reactive<Record<string, string>>({})
 const hasAttemptedSubmit = ref(false)
@@ -101,21 +136,14 @@ const onSubmit = async (event: Event) => {
     successMessage.value = null
     errorMessage.value = null
     
-    await authStore.resetPassword(token, formData.newPassword)
+    console.log('🔐 Resetting password with token:', token.value.substring(0, 10) + '...')
+    await authStore.resetPassword(token.value, formData.newPassword)
     
-    successMessage.value = t('reset.successMessage')
-    
-    // Reset form
-    Object.assign(formData, {
-      newPassword: '',
-      confirmPassword: ''
+    // Redirect to success page
+    router.push({ 
+      path: '/success', 
+      query: { type: 'password-reset' } 
     })
-    Object.keys(formErrors).forEach(key => delete formErrors[key])
-    
-    // Redirect to login after 2 seconds
-    setTimeout(() => {
-      router.push('/login')
-    }, 2000)
   } catch (error: any) {
     errorMessage.value = error.message || t('reset.errorMessage')
   } finally {
@@ -126,6 +154,16 @@ const onSubmit = async (event: Event) => {
 
 <template>
   <SingleFormCard :title="$t('reset.title')" :subtitle="$t('reset.subtitle')">
+    <!-- Token validation loading state -->
+    <div 
+      v-if="isValidatingToken" 
+      class="alert alert-info mb-4"
+      data-testid="reset-validating-token"
+    >
+      <span class="loading loading-spinner"></span>
+      <span>{{ $t('reset.validatingToken') }}</span>
+    </div>
+    
     <div 
       v-if="successMessage" 
       class="alert alert-success mb-4"
@@ -142,7 +180,7 @@ const onSubmit = async (event: Event) => {
       <span class="break-words">{{ errorMessage }}</span>
     </div>
     
-    <form @submit="onSubmit" autocomplete="off" class="space-y-6">
+    <form @submit="onSubmit" autocomplete="off" class="space-y-6" v-if="!isValidatingToken">
       <!-- New Password Setup -->
       <fieldset class="space-y-4">
         <legend class="text-base font-semibold text-base-content mb-4 break-words text-wrap">New Password Setup</legend>
@@ -158,7 +196,7 @@ const onSubmit = async (event: Event) => {
           @blur="onFieldBlur('newPassword', formData.newPassword)"
           @input="onFieldInput('confirmPassword', formData.confirmPassword)"
           @requirements-changed="onNewPasswordRequirementsChanged"
-          test-id="reset-new-password"
+          test-id="reset-password"
           required
         />
         
@@ -170,7 +208,7 @@ const onSubmit = async (event: Event) => {
           :error="formErrors.confirmPassword"
           :min-length="requirements.minLength"
           @blur="onFieldBlur('confirmPassword', formData.confirmPassword)"
-          test-id="reset-confirm-password"
+          test-id="reset-password-repeat"
           required
         />
       </fieldset>

@@ -109,15 +109,11 @@ const onSubmit = async (event: Event) => {
       new_password: formData.newPassword
     })
 
-    successMessage.value = t('change.successMessage')
-    
-    // Reset form
-    Object.assign(formData, {
-      currentPassword: '',
-      newPassword: '',
-      confirmPassword: ''
+    // Redirect to success page
+    router.push({ 
+      path: '/success', 
+      query: { type: 'password-change' } 
     })
-    Object.keys(formErrors).forEach(key => delete formErrors[key])
     
   } catch (error: any) {
     errorMessage.value = error.message || t('change.errorMessage')

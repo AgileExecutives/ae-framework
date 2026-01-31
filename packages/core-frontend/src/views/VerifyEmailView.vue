@@ -69,6 +69,11 @@ const verifyEmail = async () => {
     const apiClient = getApiClient()
     await apiClient.verifyEmail(token)
     verified.value = true
+    // Redirect to success page
+    router.push({ 
+      path: '/success', 
+      query: { type: 'email-verified' } 
+    })
   } catch (err: any) {
     error.value = true
     errorMessage.value = err.message || t('verifyEmail.defaultError')

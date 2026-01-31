@@ -39,6 +39,18 @@ export function createBaseRoutes() {
       name: 'ChangePassword',
       component: () => import('../views/ChangePasswordView.vue'),
       meta: { requiresAuth: true },
+    },
+    {
+      path: '/success',
+      name: 'Success',
+      component: () => import('../views/SuccessPage.vue'),
+      meta: { requiresAuth: false },
+    },
+    {
+      path: '/error',
+      name: 'Error',
+      component: () => import('../views/ErrorPage.vue'),
+      meta: { requiresAuth: false },
     }
   ]
 }

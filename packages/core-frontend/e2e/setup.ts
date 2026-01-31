@@ -72,12 +72,13 @@ export default async function globalSetup() {
     // Try a simple registration to test email service indirectly
     const testResponse = await apiContext.post(`${API_BASE_URL}/auth/register`, {
       data: {
-        username: `test_setup_${Date.now()}`,
         email: `setup_test_${Date.now()}@example.com`,
         password: 'TestPass123!',
         first_name: 'Setup',
         last_name: 'Test',
-        tenant_id: 1
+        company_name: 'Test Company',
+        accept_terms: true,
+        newsletter_opt_in: false
       }
     });
     
@@ -85,11 +86,13 @@ export default async function globalSetup() {
     if ([200, 201, 409].includes(testResponse.status())) {
       console.log('✅ Email service is properly configured (likely mocked)');
     } else {
-      console.warn(`⚠️ Registration returned status ${testResponse.status()}, continuing tests...`);
+      // Don't fail setup on registration errors - just log and continue
+      console.log(`ℹ️  Setup registration test returned status ${testResponse.status()}`);
     }
     
   } catch (error) {
-    console.warn('⚠️ Could not verify email service mocking, but continuing tests...');
+    // Don't fail setup on email service verification errors
+    console.log('ℹ️  Email service verification skipped');
   }
   
   // Dispose of the request context

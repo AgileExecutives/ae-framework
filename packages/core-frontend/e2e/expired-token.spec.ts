@@ -1,5 +1,8 @@
 import { test, expect } from '@playwright/test';
 
+// an old token
+// eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InJlc2V0X3Rlc3RfMTc2OTg4ODQyNDIwMEBleGFtcGxlLmNvbSIsImV4cCI6MTc2OTg5NTYyNiwibmJmIjoxNzY5ODg4NDI2LCJpYXQiOjE3Njk4ODg0MjYsImp0aSI6InJlc2V0X3Jlc2V0X3Rlc3RfMTc2OTg4ODQyNDIwMEBleGFtcGxlLmNvbV8xNzY5ODg4NDI2In0.YKhu90ywG_d_8bMQ2d_2nQoK4Ug019Qf4WyawGw1QrY
+
 test.describe('Expired Token Handling', () => {
   test('should properly redirect to login when token expires', async ({ page }) => {
     console.log('🧪 Testing expired token redirect behavior');

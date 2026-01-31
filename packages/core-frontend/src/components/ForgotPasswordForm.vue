@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import SingleFormCard from "./SingleFormCard.vue"
 import { useAuthStore } from "../stores/auth"
+import { useRouter } from "vue-router"
 import { ref, reactive } from "vue"
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
 const authStore = useAuthStore()
+const router = useRouter()
 const successMessage = ref<string | null>(null)
 const errorMessage = ref<string | null>(null)
 const isSubmitting = ref(false)
@@ -70,11 +72,15 @@ const onSubmit = async (event: Event) => {
     
     await authStore.forgotPassword(formData.email)
     
-    successMessage.value = t('forgot.successMessage')
-    
-    // Reset form
-    Object.assign(formData, { email: '' })
-    Object.keys(formErrors).forEach(key => delete formErrors[key])
+    // Redirect to success page
+    router.push({ 
+      path: '/success', 
+      query: { 
+        type: 'password-reset',
+        title: t('forgot.successTitle'),
+        message: t('forgot.successMessage')
+      } 
+    })
     
   } catch (error: any) {
     errorMessage.value = error.message || t('forgot.errorMessage')

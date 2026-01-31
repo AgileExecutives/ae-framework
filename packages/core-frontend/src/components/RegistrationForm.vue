@@ -157,20 +157,11 @@ const onSubmit = async (event: Event) => {
       newsletter_opt_in: formData.newsletterOptIn
     })
 
-    successMessage.value = t('register.successMessage')
-    
-    // Check if user was auto-logged in after registration
-    if (authStore.isAuthenticated) {
-      // Auto-login successful, redirect to home page
-      setTimeout(() => {
-        router.push('/')
-      }, 1500)
-    } else {
-      // Registration successful but no auto-login, redirect to login page
-      setTimeout(() => {
-        router.push('/login')
-      }, 2000)
-    }
+    // Redirect to success page
+    router.push({ 
+      path: '/success', 
+      query: { type: 'registration' } 
+    })
 
   } catch (error: any) {
     console.error('❌ Registration failed:', error)

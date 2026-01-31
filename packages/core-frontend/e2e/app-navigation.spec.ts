@@ -119,12 +119,11 @@ test.describe('Application Navigation', () => {
     
     await page.goto('/');
     
-    // TODO: Verify actual page title once it's set
     const title = await page.title();
     console.log('Page title:', title);
     
     // Verify title is not empty
-    expect(title.length).toBeGreaterThan(0);
+    expect(title).toContain('App'); // Adjust as per actual title
     
     console.log('✅ Page title test completed');
   });
