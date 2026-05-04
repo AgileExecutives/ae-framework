@@ -5,6 +5,34 @@
 
 
 export interface paths {
+  "/audit/entity/{entity_type}/{entity_id}": {
+    /**
+     * Get audit logs for a specific entity
+     * @description Retrieve complete audit trail for a specific entity (e.g., all changes to an invoice)
+     */
+    get: operations["getEntityAuditLogs"];
+  };
+  "/audit/export": {
+    /**
+     * Export audit logs to CSV
+     * @description Export audit logs in CSV format for tax authority compliance (GoBD). Supports same filtering options as GET /audit/logs.
+     */
+    get: operations["exportAuditLogs"];
+  };
+  "/audit/logs": {
+    /**
+     * Get audit logs
+     * @description Retrieve audit logs with optional filtering by user, entity, action, and date range. Supports pagination.
+     */
+    get: operations["getAuditLogs"];
+  };
+  "/audit/statistics": {
+    /**
+     * Get audit statistics
+     * @description Retrieve aggregated statistics for audit logs (action counts, user activity, entity type distribution). Returns statistics including total logs, action counts, user activity, and entity type distribution.
+     */
+    get: operations["getAuditStatistics"];
+  };
   "/auth/change-password": {
     /**
      * Change password
@@ -493,6 +521,13 @@ export interface paths {
      */
     post: operations["verifyClientEmail"];
   };
+  "/clients/registration-settings/{token}": {
+    /**
+     * Get registration settings with token
+     * @description Retrieve registration page settings for the tenant associated with the registration token. No Bearer auth required.
+     */
+    get: operations["getRegistrationSettingsWithToken"];
+  };
   "/clients/registration/{token}": {
     /**
      * Register new client
@@ -847,245 +882,40 @@ export interface paths {
      */
     get: operations["healthCheck"];
   };
-  "/invoices": {
+  "/invoice-numbers/current": {
     /**
-     * List invoices
-     * @description Get a paginated list of invoices with optional filters
+     * Get current sequence
+     * @description Get the current invoice number sequence for an organization
      */
-    get: {
-      parameters: {
-        query?: {
-          /** @description Filter by organization ID */
-          organization_id?: number;
-          /** @description Filter by status */
-          status?: "draft" | "sent" | "paid" | "overdue" | "cancelled";
-          /** @description Page number */
-          page?: number;
-          /** @description Page size */
-          page_size?: number;
-        };
-      };
-      responses: {
-        /** @description OK */
-        200: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-        /** @description Bad Request */
-        400: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-        /** @description Unauthorized */
-        401: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-        /** @description Internal Server Error */
-        500: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-      };
-    };
-    /**
-     * Create a new invoice
-     * @description Create a new invoice with line items
-     */
-    post: {
-      /** @description Invoice data */
-      requestBody: {
-        content: {
-          "application/json": components["schemas"]["github_com_unburdy_invoice-module_entities.CreateInvoiceRequest"];
-        };
-      };
-      responses: {
-        /** @description Created */
-        201: {
-          content: {
-            "application/json": components["schemas"]["github_com_unburdy_invoice-module_entities.InvoiceResponse"];
-          };
-        };
-        /** @description Bad Request */
-        400: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-        /** @description Unauthorized */
-        401: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-        /** @description Internal Server Error */
-        500: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-      };
-    };
+    get: operations["getCurrentInvoiceSequence"];
   };
-  "/invoices/{id}": {
+  "/invoice-numbers/generate": {
     /**
-     * Get invoice by ID
-     * @description Retrieve a single invoice by its ID
+     * Generate next invoice number
+     * @description Generate the next sequential invoice number for an organization
      */
-    get: {
-      parameters: {
-        path: {
-          /** @description Invoice ID */
-          id: number;
-        };
-      };
-      responses: {
-        /** @description OK */
-        200: {
-          content: {
-            "application/json": components["schemas"]["github_com_unburdy_invoice-module_entities.InvoiceResponse"];
-          };
-        };
-        /** @description Bad Request */
-        400: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-        /** @description Unauthorized */
-        401: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-        /** @description Not Found */
-        404: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-      };
-    };
+    post: operations["generateInvoiceNumber"];
+  };
+  "/invoice-numbers/generate/next": {
     /**
-     * Update invoice
-     * @description Update an existing invoice's details
+     * Generate next invoice number from settings
+     * @description Generate the next sequential invoice number using organization settings (prefix, next number)
      */
-    put: {
-      parameters: {
-        path: {
-          /** @description Invoice ID */
-          id: number;
-        };
-      };
-      /** @description Updated invoice data */
-      requestBody: {
-        content: {
-          "application/json": components["schemas"]["github_com_unburdy_invoice-module_entities.UpdateInvoiceRequest"];
-        };
-      };
-      responses: {
-        /** @description OK */
-        200: {
-          content: {
-            "application/json": components["schemas"]["github_com_unburdy_invoice-module_entities.InvoiceResponse"];
-          };
-        };
-        /** @description Bad Request */
-        400: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-        /** @description Unauthorized */
-        401: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-        /** @description Internal Server Error */
-        500: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-      };
-    };
+    post: operations["generateNextInvoiceNumber"];
+  };
+  "/invoice-numbers/history": {
     /**
-     * Delete invoice
-     * @description Soft delete an invoice by ID
+     * Get invoice number history
+     * @description Retrieve the history of generated invoice numbers
      */
-    delete: {
-      parameters: {
-        path: {
-          /** @description Invoice ID */
-          id: number;
-        };
-      };
-      responses: {
-        /** @description OK */
-        200: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-        /** @description Bad Request */
-        400: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-        /** @description Unauthorized */
-        401: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-        /** @description Internal Server Error */
-        500: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-      };
-    };
+    get: operations["getInvoiceNumberHistory"];
+  };
+  "/invoice-numbers/void": {
+    /**
+     * Void invoice number
+     * @description Mark an invoice number as voided in the audit log
+     */
+    post: operations["voidInvoiceNumber"];
   };
   "/invoices/{id}/cancel": {
     /**
@@ -1094,350 +924,53 @@ export interface paths {
      */
     post: operations["cancelInvoice"];
   };
-  "/invoices/{id}/finalize": {
+  "/organization/settings/registration": {
     /**
-     * Finalize invoice
-     * @description Finalize a draft invoice by generating invoice number and changing status
+     * Get registration settings
+     * @description Retrieve registration page settings for the authenticated tenant.
      */
-    post: {
-      parameters: {
-        path: {
-          /** @description Invoice ID */
-          id: number;
-        };
-      };
-      responses: {
-        /** @description OK */
-        200: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-        /** @description Bad Request */
-        400: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-        /** @description Unauthorized */
-        401: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-        /** @description Unprocessable Entity */
-        422: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-        /** @description Internal Server Error */
-        500: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-      };
-    };
+    get: operations["getRegistrationSettings"];
+    /**
+     * Update registration settings
+     * @description Update registration page settings for the authenticated tenant.
+     */
+    put: operations["updateRegistrationSettings"];
   };
-  "/invoices/{id}/generate-pdf": {
+  "/organizations": {
     /**
-     * Generate invoice PDF
-     * @description Generate and store a PDF document for an invoice
+     * Get all organizations
+     * @description Retrieve all organizations for the authenticated user with pagination
      */
-    post: {
-      parameters: {
-        path: {
-          /** @description Invoice ID */
-          id: number;
-        };
-      };
-      /** @description Optional template ID */
-      requestBody?: {
-        content: {
-          "application/json": {
-            template_id?: number;
-          };
-        };
-      };
-      responses: {
-        /** @description OK */
-        200: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-        /** @description Bad Request */
-        400: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-        /** @description Unauthorized */
-        401: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-        /** @description Internal Server Error */
-        500: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-      };
-    };
+    get: operations["getOrganizations"];
+    /**
+     * Create a new organization
+     * @description Create a new organization with the provided information
+     */
+    post: operations["createOrganization"];
   };
-  "/invoices/{id}/mark-paid": {
+  "/organizations/supported-formats": {
     /**
-     * Mark invoice as paid
-     * @description Mark an invoice as paid with payment date
+     * Get supported formats
+     * @description Get all supported date, time, and amount formats with examples
      */
-    post: {
-      parameters: {
-        path: {
-          /** @description Invoice ID */
-          id: number;
-        };
-      };
-      /** @description Payment date (RFC3339 format) */
-      requestBody: {
-        content: {
-          "application/json": {
-            [key: string]: string;
-          };
-        };
-      };
-      responses: {
-        /** @description OK */
-        200: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-        /** @description Bad Request */
-        400: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-        /** @description Unauthorized */
-        401: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-        /** @description Internal Server Error */
-        500: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-      };
-    };
+    get: operations["getSupportedFormats"];
   };
-  "/invoices/{id}/pay": {
+  "/organizations/{id}": {
     /**
-     * Mark invoice as paid
-     * @description Record payment for an invoice
+     * Get an organization by ID
+     * @description Retrieve a specific organization by ID
      */
-    post: {
-      parameters: {
-        path: {
-          /** @description Invoice ID */
-          id: number;
-        };
-      };
-      /** @description Payment details */
-      requestBody: {
-        content: {
-          "application/json": {
-            payment_date?: string;
-            payment_method?: string;
-          };
-        };
-      };
-      responses: {
-        /** @description OK */
-        200: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-        /** @description Bad Request */
-        400: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-        /** @description Unauthorized */
-        401: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-        /** @description Forbidden */
-        403: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-        /** @description Internal Server Error */
-        500: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-      };
-    };
-  };
-  "/invoices/{id}/remind": {
+    get: operations["getOrganizationById"];
     /**
-     * Send payment reminder
-     * @description Send a payment reminder for an overdue or sent invoice
+     * Update an organization
+     * @description Update an organization's information
      */
-    post: {
-      parameters: {
-        path: {
-          /** @description Invoice ID */
-          id: number;
-        };
-      };
-      responses: {
-        /** @description OK */
-        200: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-        /** @description Bad Request */
-        400: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-        /** @description Unauthorized */
-        401: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-        /** @description Forbidden */
-        403: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-        /** @description Internal Server Error */
-        500: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-      };
-    };
-  };
-  "/invoices/{id}/send": {
+    put: operations["updateOrganization"];
     /**
-     * Mark invoice as sent
-     * @description Mark a finalized invoice as sent (e.g., after emailing to customer)
+     * Delete an organization
+     * @description Delete an organization by ID
      */
-    post: {
-      parameters: {
-        path: {
-          /** @description Invoice ID */
-          id: number;
-        };
-      };
-      responses: {
-        /** @description OK */
-        200: {
-          content: {
-            "application/json": {
-              [key: string]: unknown;
-            };
-          };
-        };
-        /** @description Bad Request */
-        400: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-        /** @description Unauthorized */
-        401: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-        /** @description Forbidden */
-        403: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-        /** @description Internal Server Error */
-        500: {
-          content: {
-            "application/json": {
-              [key: string]: string;
-            };
-          };
-        };
-      };
-    };
+    delete: operations["deleteOrganization"];
   };
   "/pdf/create": {
     /**
@@ -1559,6 +1092,137 @@ export interface paths {
      * @description Delete a session by ID
      */
     delete: operations["deleteSession"];
+  };
+  "/settings/health": {
+    /**
+     * Settings system health check
+     * @description Check the health status of the settings system
+     */
+    get: operations["settingsHealthCheck"];
+  };
+  "/settings/modules": {
+    /**
+     * Get registered settings modules
+     * @description Get list of all registered settings modules
+     */
+    get: operations["getRegisteredModules"];
+  };
+  "/settings/organizations/{organization_id}": {
+    /**
+     * Get organization settings
+     * @description Get all settings for an organization grouped by domain
+     */
+    get: operations["getOrganizationSettings"];
+    /**
+     * Set organization setting
+     * @description Set a single setting for an organization
+     */
+    post: operations["setOrganizationSetting"];
+  };
+  "/settings/organizations/{organization_id}/bulk": {
+    /**
+     * Bulk set organization settings
+     * @description Set multiple settings for an organization
+     */
+    post: operations["bulkSetOrganizationSettings"];
+  };
+  "/settings/organizations/{organization_id}/domains": {
+    /**
+     * Get organization domains
+     * @description Get list of available settings domains for an organization
+     */
+    get: operations["getOrganizationDomains"];
+  };
+  "/settings/organizations/{organization_id}/domains/{domain}": {
+    /**
+     * Get domain settings
+     * @description Get all settings for a specific domain
+     */
+    get: operations["getOrganizationDomainSettings"];
+    /**
+     * Set domain settings
+     * @description Set multiple settings for a specific domain
+     */
+    post: operations["setOrganizationDomainSettings"];
+    /**
+     * Delete domain settings
+     * @description Delete all settings for a specific domain
+     */
+    delete: operations["deleteOrganizationDomainSettings"];
+  };
+  "/settings/organizations/{organization_id}/export": {
+    /**
+     * Export organization settings
+     * @description Export all settings for an organization
+     */
+    get: operations["exportOrganizationSettings"];
+  };
+  "/settings/organizations/{organization_id}/import": {
+    /**
+     * Import organization settings
+     * @description Import settings for an organization
+     */
+    post: operations["importOrganizationSettings"];
+  };
+  "/settings/organizations/{organization_id}/validate": {
+    /**
+     * Validate settings
+     * @description Validate settings against their schema definitions
+     */
+    post: operations["validateOrganizationSettings"];
+  };
+  "/settings/organizations/{organization_id}/{domain}/{key}": {
+    /**
+     * Update organization setting
+     * @description Update a specific setting for an organization
+     */
+    put: operations["updateOrganizationSetting"];
+    /**
+     * Delete organization setting
+     * @description Delete a specific setting for an organization
+     */
+    delete: operations["deleteOrganizationSetting"];
+  };
+  "/settings/organizations/{tenant_id}/domains/{domain}": {
+    /**
+     * Get domain settings
+     * @description Get all settings for a domain for a tenant
+     */
+    get: operations["getDomainSettings"];
+    /**
+     * Update domain settings
+     * @description Create or update multiple settings for a domain for a tenant (payload is an arbitrary JSON object of key->value)
+     */
+    put: operations["updateDomainSettings"];
+    /**
+     * Update domain settings
+     * @description Create or update multiple settings for a domain for a tenant (payload is an arbitrary JSON object of key->value)
+     */
+    post: operations["updateDomainSettings"];
+  };
+  "/settings/organizations/{tenant_id}/domains/{domain}/{key}": {
+    /**
+     * Get a setting
+     * @description Get a specific setting for a tenant, domain and key
+     */
+    get: operations["getSetting"];
+    /**
+     * Update a setting
+     * @description Create or update a specific setting for a tenant (value is an arbitrary JSON object)
+     */
+    put: operations["updateSetting"];
+    /**
+     * Update a setting
+     * @description Create or update a specific setting for a tenant (value is an arbitrary JSON object)
+     */
+    post: operations["updateSetting"];
+  };
+  "/settings/version": {
+    /**
+     * Get settings system version
+     * @description Get settings system version information
+     */
+    get: operations["getSettingsVersion"];
   };
   "/static": {
     /**
@@ -1698,9 +1362,38 @@ export interface components {
       message?: string;
       success?: boolean;
     };
+    "api.ErrorResponse": {
+      code?: number;
+      details?: string;
+      error?: string;
+    };
     "api.ListResponse": {
       data?: unknown;
       pagination?: components["schemas"]["github_com_ae-base-server_internal_models.PaginationResponse"];
+    };
+    /** @enum {string} */
+    "entities.AuditAction": "invoice_draft_created" | "invoice_draft_updated" | "invoice_draft_cancelled" | "invoice_finalized" | "invoice_sent" | "invoice_marked_paid" | "invoice_marked_overdue" | "reminder_sent" | "credit_note_created" | "xrechnung_exported";
+    "entities.AuditLogListResponse": {
+      data?: components["schemas"]["entities.AuditLogResponse"][];
+      limit?: number;
+      message?: string;
+      page?: number;
+      success?: boolean;
+      total?: number;
+    };
+    "entities.AuditLogResponse": {
+      action?: components["schemas"]["entities.AuditAction"];
+      created_at?: string;
+      entity_id?: number;
+      entity_type?: components["schemas"]["entities.EntityType"];
+      id?: number;
+      ip_address?: string;
+      metadata?: {
+        [key: string]: unknown;
+      };
+      tenant_id?: number;
+      user_agent?: string;
+      user_id?: number;
     };
     "entities.BookSessionsRequest": {
       /** @example 1 */
@@ -1825,6 +1518,9 @@ export interface components {
       updated_at?: string;
       user_id?: number;
       weekly_availability?: components["schemas"]["entities.WeeklyAvailability"];
+    };
+    "entities.BulkSettingRequest": {
+      settings: components["schemas"]["entities.SettingRequest"][];
     };
     "entities.CalendarEntryResponse": {
       calendar_id?: number;
@@ -2319,6 +2015,18 @@ export interface components {
       /** @example 5 */
       session_id?: number;
     };
+    "entities.CreateInvoiceRequest": {
+      /** @example 1 */
+      client_id: number;
+      /**
+       * @example [
+       *   1,
+       *   2,
+       *   3
+       * ]
+       */
+      session_ids: number[];
+    };
     "entities.CreateSessionRequest": {
       /** @example 1 */
       calendar_entry_id: number;
@@ -2411,10 +2119,20 @@ export interface components {
       tenant_id?: number;
       updated_at?: string;
     };
+    "entities.DomainResponse": {
+      domains?: string[];
+    };
+    "entities.DomainSettingsRequest": {
+      settings: {
+        [key: string]: unknown;
+      };
+    };
     "entities.DuplicateTemplateRequest": {
       /** @example Copy of Welcome Email Template */
       name: string;
     };
+    /** @enum {string} */
+    "entities.EntityType": "invoice" | "invoice_item" | "session" | "extra_effort";
     "entities.ExternalCalendarResponse": {
       calendar_id?: number;
       calendar_uuid?: string;
@@ -2489,6 +2207,16 @@ export interface components {
       slots?: components["schemas"]["entities.TimeSlot"][];
       template?: components["schemas"]["entities.BookingTemplateResponse"];
     };
+    "entities.HealthResponse": {
+      /** @example connected */
+      database?: string;
+      /** @example 7 */
+      modules?: number;
+      /** @example ok */
+      status?: string;
+      /** @example 1.0.0 */
+      version?: string;
+    };
     "entities.HolidayImportResult": {
       errors?: string[];
       imported_years?: string[];
@@ -2508,7 +2236,7 @@ export interface components {
     /** @enum {string} */
     "entities.IntervalType": "none" | "weekly" | "monthly-date" | "monthly-day" | "yearly";
     "entities.InvoiceAPIResponse": {
-      data?: components["schemas"]["github_com_unburdy_unburdy-server-api_modules_client_management_entities.InvoiceResponse"];
+      data?: components["schemas"]["entities.InvoiceResponse"];
       /** @example Invoice retrieved successfully */
       message?: string;
       /** @example true */
@@ -2520,14 +2248,22 @@ export interface components {
       /** @example true */
       success?: boolean;
     };
-    "entities.InvoiceItemData": {
-      description: string;
-      quantity: number;
-      tax_rate?: number;
-      unit_price: number;
+    "entities.InvoiceItemResponse": {
+      created_at?: string;
+      description?: string;
+      id?: number;
+      invoice_id?: number;
+      is_editable?: boolean;
+      item_type?: string;
+      number_units?: number;
+      source_effort_id?: number;
+      total_amount?: number;
+      unit_duration_min?: number;
+      unit_price?: number;
+      updated_at?: string;
     };
     "entities.InvoiceListAPIResponse": {
-      data?: components["schemas"]["github_com_unburdy_unburdy-server-api_modules_client_management_entities.InvoiceResponse"][];
+      data?: components["schemas"]["entities.InvoiceResponse"][];
       /** @example 10 */
       limit?: number;
       /** @example Invoices retrieved successfully */
@@ -2539,6 +2275,46 @@ export interface components {
       /** @example 100 */
       total?: number;
     };
+    "entities.InvoiceResponse": {
+      cancellation_reason?: string;
+      cancelled_at?: string;
+      clients?: components["schemas"]["entities.ClientInvoiceResponse"][];
+      created_at?: string;
+      customer_address?: string;
+      customer_address_ext?: string;
+      customer_city?: string;
+      customer_contact_person?: string;
+      customer_country?: string;
+      customer_department?: string;
+      customer_email?: string;
+      customer_name?: string;
+      customer_zip?: string;
+      document_id?: number;
+      document_url?: string;
+      finalized_at?: string;
+      id?: number;
+      invoice_date?: string;
+      invoice_items?: components["schemas"]["entities.InvoiceItemResponse"][];
+      invoice_number?: string;
+      latest_reminder?: string;
+      num_reminders?: number;
+      number_units?: number;
+      organization?: Record<string, never>;
+      organization_id?: number;
+      payed_date?: string;
+      send_method?: string;
+      sent_at?: string;
+      status?: components["schemas"]["entities.InvoiceStatus"];
+      sum_amount?: number;
+      tax_amount?: number;
+      tenant_id?: number;
+      total_amount?: number;
+      updated_at?: string;
+      user_id?: number;
+      vat_breakdown?: components["schemas"]["entities.VATBreakdownResponse"];
+    };
+    /** @enum {string} */
+    "entities.InvoiceStatus": "draft" | "finalized" | "sent" | "paid" | "overdue" | "cancelled";
     "entities.MarkInvoiceAsPaidRequest": {
       /** @example 2026-01-08T00:00:00Z */
       payment_date?: string;
@@ -2551,6 +2327,9 @@ export interface components {
        * @enum {string}
        */
       send_method: "email" | "manual" | "xrechnung";
+    };
+    "entities.ModuleListResponse": {
+      modules?: string[];
     };
     "entities.MonthData": {
       /** @description Array of all days in month */
@@ -2628,6 +2407,41 @@ export interface components {
       tenant_id?: number;
       type?: string;
       updated_at?: string;
+    };
+    "entities.SettingRequest": {
+      data: {
+        [key: string]: unknown;
+      };
+      /** @example organization */
+      domain: string;
+      /** @example locale */
+      key: string;
+    };
+    "entities.SettingResponse": {
+      /** @example 2025-01-09T10:00:00Z */
+      created_at?: string;
+      data?: {
+        [key: string]: unknown;
+      };
+      /** @example organization */
+      domain?: string;
+      /** @example 123 */
+      id?: number;
+      /** @example locale */
+      key?: string;
+      /** @example 1 */
+      tenant_id?: number;
+      /** @example 2025-01-09T10:00:00Z */
+      updated_at?: string;
+      /** @example 1 */
+      version?: number;
+    };
+    "entities.SettingsResponse": {
+      settings?: {
+        [key: string]: {
+          [key: string]: unknown;
+        };
+      };
     };
     "entities.SlotConfiguration": {
       /** @description Buffer between slots in minutes */
@@ -2942,6 +2756,18 @@ export interface components {
        */
       effort_type?: "preparation" | "consultation" | "parent_meeting" | "documentation" | "other";
     };
+    "entities.UpdateInvoiceRequest": {
+      /**
+       * @example [
+       *   1,
+       *   2,
+       *   3
+       * ]
+       */
+      session_ids?: number[];
+      /** @example sent */
+      status?: components["schemas"]["entities.InvoiceStatus"];
+    };
     "entities.UpdateSessionRequest": {
       /** @example Updated session notes */
       documentation?: string;
@@ -2968,6 +2794,18 @@ export interface components {
       items?: components["schemas"]["entities.VATBreakdownItemResponse"][];
       subtotal?: number;
       total_tax?: number;
+    };
+    "entities.ValidationRequest": {
+      /** @example company */
+      domain: string;
+      settings: {
+        [key: string]: unknown;
+      };
+    };
+    "entities.ValidationResponse": {
+      errors?: string[];
+      /** @example true */
+      valid?: boolean;
     };
     "entities.WeeklyAvailability": {
       friday?: components["schemas"]["entities.TimeRange"][];
@@ -3168,130 +3006,15 @@ export interface components {
       /** @example true */
       success?: boolean;
     };
+    "github_com_ae-base-server_modules_settings_api_handlers.ErrorResponse": {
+      /** @example Invalid tenant ID */
+      error?: string;
+    };
     "github_com_unburdy_documents-module_handlers.ErrorResponse": {
       /** @example Error message */
       error?: string;
       /** @example false */
       success?: boolean;
-    };
-    "github_com_unburdy_invoice-module_entities.CreateInvoiceRequest": {
-      currency?: string;
-      customer_address?: string;
-      customer_address_ext?: string;
-      customer_city?: string;
-      customer_contact_person?: string;
-      customer_country?: string;
-      customer_department?: string;
-      customer_email?: string;
-      customer_name: string;
-      customer_tax_id?: string;
-      customer_zip?: string;
-      delivery_date?: string;
-      discount_rate?: number;
-      discount_terms?: string;
-      due_date?: string;
-      internal_note?: string;
-      invoice_date: string;
-      invoice_number: string;
-      items: components["schemas"]["entities.InvoiceItemData"][];
-      net_terms?: number;
-      notes?: string;
-      organization_id: number;
-      our_reference?: string;
-      payment_method?: string;
-      payment_terms?: string;
-      performance_period_end?: string;
-      performance_period_start?: string;
-      po_number?: string;
-      subject?: string;
-      tax_rate?: number;
-      /** @description HTML template for PDF generation */
-      template_html?: string;
-      your_reference?: string;
-    };
-    "github_com_unburdy_invoice-module_entities.InvoiceItemResponse": {
-      amount?: number;
-      description?: string;
-      id?: number;
-      position?: number;
-      quantity?: number;
-      tax_rate?: number;
-      unit_price?: number;
-    };
-    "github_com_unburdy_invoice-module_entities.InvoiceResponse": {
-      created_at?: string;
-      currency?: string;
-      customer_address?: string;
-      customer_address_ext?: string;
-      customer_city?: string;
-      customer_contact_person?: string;
-      customer_country?: string;
-      customer_department?: string;
-      customer_email?: string;
-      customer_name?: string;
-      customer_tax_id?: string;
-      customer_zip?: string;
-      delivery_date?: string;
-      discount_rate?: number;
-      discount_terms?: string;
-      document_id?: number;
-      due_date?: string;
-      id?: number;
-      invoice_date?: string;
-      invoice_number?: string;
-      items?: components["schemas"]["github_com_unburdy_invoice-module_entities.InvoiceItemResponse"][];
-      net_terms?: number;
-      notes?: string;
-      num_reminders?: number;
-      organization_id?: number;
-      our_reference?: string;
-      payment_date?: string;
-      payment_method?: string;
-      payment_terms?: string;
-      performance_period_end?: string;
-      performance_period_start?: string;
-      po_number?: string;
-      status?: components["schemas"]["github_com_unburdy_invoice-module_entities.InvoiceStatus"];
-      subject?: string;
-      subtotal_amount?: number;
-      tax_amount?: number;
-      tax_rate?: number;
-      tenant_id?: number;
-      total_amount?: number;
-      updated_at?: string;
-      user_id?: number;
-      your_reference?: string;
-    };
-    /** @enum {string} */
-    "github_com_unburdy_invoice-module_entities.InvoiceStatus": "draft" | "finalized" | "sent" | "paid" | "overdue" | "cancelled";
-    "github_com_unburdy_invoice-module_entities.UpdateInvoiceRequest": {
-      customer_address?: string;
-      customer_address_ext?: string;
-      customer_city?: string;
-      customer_contact_person?: string;
-      customer_country?: string;
-      customer_department?: string;
-      customer_email?: string;
-      customer_name?: string;
-      customer_zip?: string;
-      delivery_date?: string;
-      discount_rate?: number;
-      discount_terms?: string;
-      due_date?: string;
-      internal_note?: string;
-      items?: components["schemas"]["entities.InvoiceItemData"][];
-      net_terms?: number;
-      notes?: string;
-      our_reference?: string;
-      payment_date?: string;
-      payment_method?: string;
-      payment_terms?: string;
-      performance_period_end?: string;
-      performance_period_start?: string;
-      po_number?: string;
-      status?: components["schemas"]["github_com_unburdy_invoice-module_entities.InvoiceStatus"];
-      subject?: string;
-      your_reference?: string;
     };
     "github_com_unburdy_unburdy-server-api_internal_models.APIResponse": {
       data?: unknown;
@@ -3314,84 +3037,6 @@ export interface components {
       total?: number;
       total_pages?: number;
     };
-    "github_com_unburdy_unburdy-server-api_modules_client_management_entities.CreateInvoiceRequest": {
-      /** @example 1 */
-      client_id: number;
-      /**
-       * @example [
-       *   1,
-       *   2,
-       *   3
-       * ]
-       */
-      session_ids: number[];
-    };
-    "github_com_unburdy_unburdy-server-api_modules_client_management_entities.InvoiceItemResponse": {
-      created_at?: string;
-      description?: string;
-      id?: number;
-      invoice_id?: number;
-      is_editable?: boolean;
-      item_type?: string;
-      number_units?: number;
-      source_effort_id?: number;
-      total_amount?: number;
-      unit_duration_min?: number;
-      unit_price?: number;
-      updated_at?: string;
-    };
-    "github_com_unburdy_unburdy-server-api_modules_client_management_entities.InvoiceResponse": {
-      cancellation_reason?: string;
-      cancelled_at?: string;
-      clients?: components["schemas"]["entities.ClientInvoiceResponse"][];
-      created_at?: string;
-      customer_address?: string;
-      customer_address_ext?: string;
-      customer_city?: string;
-      customer_contact_person?: string;
-      customer_country?: string;
-      customer_department?: string;
-      customer_email?: string;
-      customer_name?: string;
-      customer_zip?: string;
-      document_id?: number;
-      document_url?: string;
-      finalized_at?: string;
-      id?: number;
-      invoice_date?: string;
-      invoice_items?: components["schemas"]["github_com_unburdy_unburdy-server-api_modules_client_management_entities.InvoiceItemResponse"][];
-      invoice_number?: string;
-      latest_reminder?: string;
-      num_reminders?: number;
-      number_units?: number;
-      organization?: Record<string, never>;
-      organization_id?: number;
-      payed_date?: string;
-      send_method?: string;
-      sent_at?: string;
-      status?: components["schemas"]["github_com_unburdy_unburdy-server-api_modules_client_management_entities.InvoiceStatus"];
-      sum_amount?: number;
-      tax_amount?: number;
-      tenant_id?: number;
-      total_amount?: number;
-      updated_at?: string;
-      user_id?: number;
-      vat_breakdown?: components["schemas"]["entities.VATBreakdownResponse"];
-    };
-    /** @enum {string} */
-    "github_com_unburdy_unburdy-server-api_modules_client_management_entities.InvoiceStatus": "draft" | "finalized" | "sent" | "paid" | "overdue" | "cancelled";
-    "github_com_unburdy_unburdy-server-api_modules_client_management_entities.UpdateInvoiceRequest": {
-      /**
-       * @example [
-       *   1,
-       *   2,
-       *   3
-       * ]
-       */
-      session_ids?: number[];
-      /** @example sent */
-      status?: components["schemas"]["github_com_unburdy_unburdy-server-api_modules_client_management_entities.InvoiceStatus"];
-    };
     "handlers.CreateInvoiceFromSessionsRequest": {
       client: components["schemas"]["entities.ClientWithUnbilledSessionsResponse"];
       /** @description RFC3339 format */
@@ -3401,6 +3046,11 @@ export interface components {
       invoice_number: string;
       organization_id: number;
       template_id?: number;
+    };
+    "handlers.DomainSettingsResponse": {
+      /** @example invoice */
+      domain?: string;
+      settings?: Record<string, never>;
     };
     "handlers.DownloadURLResponse": {
       /** @example 1 */
@@ -3416,46 +3066,111 @@ export interface components {
       /** @example true */
       success?: boolean;
     };
+    "handlers.GenerateInvoiceNumberRequest": {
+      /** @example 12 */
+      month?: number;
+      /**
+       * @description "MM", "M", or ""
+       * @example MM
+       */
+      month_format?: string;
+      /**
+       * @description Optional - will use authenticated user's organization if not provided
+       * @example 10
+       */
+      organization_id?: number;
+      /**
+       * @description e.g., 4 for "0001"
+       * @example 4
+       */
+      padding?: number;
+      /** @example INV */
+      prefix?: string;
+      /**
+       * @description pointer to distinguish false from not set
+       * @example false
+       */
+      reset_monthly?: boolean;
+      /**
+       * @description e.g., "-"
+       * @example -
+       */
+      separator?: string;
+      /** @example 2025 */
+      year?: number;
+      /**
+       * @description "YYYY" or "YY"
+       * @example YYYY
+       */
+      year_format?: string;
+    };
+    "handlers.GenerateNextInvoiceNumberRequest": {
+      /**
+       * @description Optional - will use authenticated user's organization if not provided
+       * @example 10
+       */
+      organization_id?: number;
+    };
+    "handlers.InvoiceNumberResponse": {
+      /** @example INV-2025-0001 */
+      invoice_number?: string;
+      /** @example 12 */
+      month?: number;
+      /** @example 1 */
+      sequence?: number;
+      /** @example true */
+      success?: boolean;
+      /** @example 2025 */
+      year?: number;
+    };
+    "handlers.RegistrationSettingsData": {
+      cost_providers_enabled?: boolean;
+      email_verification_enabled?: boolean;
+      optional_fields?: string[];
+      registration_headline?: string;
+      registration_intro_text?: string;
+      required_fields?: string[];
+    };
+    "handlers.RegistrationSettingsEnvelope": {
+      domain?: string;
+      settings?: components["schemas"]["handlers.RegistrationSettingsData"];
+    };
+    "handlers.SettingResponse": {
+      data?: Record<string, never>;
+      /** @example invoice */
+      domain?: string;
+      /** @example invoice_prefix */
+      key?: string;
+    };
+    "handlers.SimpleMessageResponse": {
+      /** @example invoice */
+      domain?: string;
+      /** @example invoice_prefix */
+      key?: string;
+      /** @example Setting updated successfully */
+      message?: string;
+    };
     "handlers.SuccessResponse": {
       /** @example Operation successful */
       message?: string;
       /** @example true */
       success?: boolean;
     };
-    "models.ClientResponse": {
-      admission_date?: string;
-      alternative_email?: string;
-      alternative_first_name?: string;
-      alternative_last_name?: string;
-      alternative_phone?: string;
-      city?: string;
-      contact_email?: string;
-      contact_first_name?: string;
-      contact_last_name?: string;
-      contact_phone?: string;
-      cost_provider?: components["schemas"]["models.CostProviderResponse"];
-      cost_provider_id?: number;
-      created_at?: string;
-      date_of_birth?: string;
-      email?: string;
-      first_name?: string;
-      gender?: string;
-      id?: number;
-      invoiced_individually?: boolean;
-      last_name?: string;
-      notes?: string;
-      phone?: string;
-      primary_language?: string;
-      provider_approval_code?: string;
-      provider_approval_date?: string;
-      referral_source?: string;
-      status?: string;
-      street_address?: string;
-      tenant_id?: number;
-      therapy_title?: string;
-      unit_price?: number;
-      updated_at?: string;
-      zip?: string;
+    "handlers.UpdateKeysResponse": {
+      /** @example invoice */
+      domain?: string;
+      /** @example Settings updated successfully */
+      message?: string;
+      /**
+       * @example [
+       *   "invoice_prefix",
+       *   "next_invoice_number"
+       * ]
+       */
+      updated_keys?: string[];
+    };
+    "handlers.UpdateRegistrationSettingsRequest": {
+      settings?: components["schemas"]["handlers.RegistrationSettingsData"];
     };
     "models.Contact": {
       active?: boolean;
@@ -3517,87 +3232,39 @@ export interface components {
       type?: string;
       zip?: string;
     };
-    "models.CostProviderResponse": {
-      city?: string;
-      contact_name?: string;
-      created_at?: string;
-      department?: string;
-      id?: number;
-      organization?: string;
-      street_address?: string;
-      tenant_id?: number;
-      updated_at?: string;
-      zip?: string;
-    };
-    "models.CreateClientRequest": {
-      /** @example 2025-01-01 */
-      admission_date?: string;
-      /** @example johnny.d@example.com */
-      alternative_email?: string;
-      /** @example Johnny */
-      alternative_first_name?: string;
-      /** @example D */
-      alternative_last_name?: string;
-      /** @example +0987654321 */
-      alternative_phone?: string;
+    "models.CreateOrganizationRequest": {
+      additional_payment_methods?: Record<string, never>;
+      /** @example Deutsche Bank */
+      bankaccount_bank?: string;
+      /** @example DEUTDEFF */
+      bankaccount_bic?: string;
+      /** @example DE89370400440532013000 */
+      bankaccount_iban?: string;
+      /** @example Acme Corporation */
+      bankaccount_owner?: string;
       /** @example New York */
       city?: string;
-      /** @example jane.smith@example.com */
-      contact_email?: string;
-      /** @example Jane */
-      contact_first_name?: string;
-      /** @example Smith */
-      contact_last_name?: string;
-      /** @example +1234567890 */
-      contact_phone?: string;
-      /** @example 1 */
-      cost_provider_id?: number;
-      /** @example 1990-01-15 */
-      date_of_birth?: string;
-      /** @example john.doe@example.com */
+      /** @example info@acme.com */
       email?: string;
-      /** @example John */
-      first_name: string;
-      /** @example male */
-      gender?: string;
-      /** @example false */
-      invoiced_individually?: boolean;
-      /** @example Doe */
-      last_name: string;
-      /** @example Additional notes about the client */
-      notes?: string;
-      /** @example +1234567890 */
+      invoice_content?: Record<string, never>;
+      /** @example Acme Corporation */
+      name: string;
+      /** @example John Doe */
+      owner_name?: string;
+      /** @example CEO */
+      owner_title?: string;
+      /** @example +1-555-0123 */
       phone?: string;
-      /** @example English */
-      primary_language?: string;
-      /** @example PROV123456 */
-      provider_approval_code?: string;
-      /** @example 2025-01-15 */
-      provider_approval_date?: string;
-      /** @example Doctor Smith */
-      referral_source?: string;
-      /** @example waiting */
-      status?: string;
-      /** @example 123 Main Street */
+      /** @example 123 Business St */
       street_address?: string;
-      /** @example Cognitive Behavioral Therapy */
-      therapy_title?: string;
+      /** @example TAX123456 */
+      tax_id?: string;
+      /** @example 19 */
+      tax_rate?: number;
+      /** @example DE123456789 */
+      tax_ustid?: string;
       /** @example 150 */
       unit_price?: number;
-      /** @example 12345 */
-      zip?: string;
-    };
-    "models.CreateCostProviderRequest": {
-      /** @example New York */
-      city?: string;
-      /** @example Jane Smith */
-      contact_name?: string;
-      /** @example Mental Health Division */
-      department?: string;
-      /** @example Health Insurance Corp */
-      organization: string;
-      /** @example 456 Insurance Blvd */
-      street_address?: string;
       /** @example 12345 */
       zip?: string;
     };
@@ -3610,6 +3277,64 @@ export interface components {
       name: string;
       /** @example +1-555-123-4567 */
       phone?: string;
+    };
+    "models.OrganizationAPIResponse": {
+      data?: components["schemas"]["models.OrganizationResponse"];
+      /** @example Organization retrieved successfully */
+      message?: string;
+      /** @example true */
+      success?: boolean;
+    };
+    "models.OrganizationDeleteResponse": {
+      /** @example Organization deleted successfully */
+      message?: string;
+      /** @example true */
+      success?: boolean;
+    };
+    "models.OrganizationListAPIResponse": {
+      data?: components["schemas"]["models.OrganizationResponse"][];
+      /** @example 10 */
+      limit?: number;
+      /** @example Organizations retrieved successfully */
+      message?: string;
+      /** @example 1 */
+      page?: number;
+      /** @example true */
+      success?: boolean;
+      /** @example 100 */
+      total?: number;
+    };
+    "models.OrganizationResponse": {
+      additional_payment_methods?: Record<string, never>;
+      amount_format?: string;
+      bankaccount_bank?: string;
+      bankaccount_bic?: string;
+      bankaccount_iban?: string;
+      bankaccount_owner?: string;
+      city?: string;
+      created_at?: string;
+      date_format?: string;
+      email?: string;
+      extra_efforts_billing_mode?: string;
+      extra_efforts_config?: Record<string, never>;
+      id?: number;
+      invoice_content?: Record<string, never>;
+      line_item_double_unit_text?: string;
+      line_item_single_unit_text?: string;
+      locale?: string;
+      name?: string;
+      owner_name?: string;
+      owner_title?: string;
+      phone?: string;
+      street_address?: string;
+      tax_id?: string;
+      tax_rate?: number;
+      tax_ustid?: string;
+      tenant_id?: number;
+      time_format?: string;
+      unit_price?: number;
+      updated_at?: string;
+      zip?: string;
     };
     "models.PlanRequest": {
       /** @example USD */
@@ -3635,75 +3360,39 @@ export interface components {
       price?: number;
       slug?: string;
     };
-    "models.UpdateClientRequest": {
-      /** @example 2025-01-01 */
-      admission_date?: string;
-      /** @example johnny.d@example.com */
-      alternative_email?: string;
-      /** @example Johnny */
-      alternative_first_name?: string;
-      /** @example D */
-      alternative_last_name?: string;
-      /** @example +0987654321 */
-      alternative_phone?: string;
+    "models.UpdateOrganizationRequest": {
+      additional_payment_methods?: Record<string, never>;
+      /** @example Deutsche Bank */
+      bankaccount_bank?: string;
+      /** @example DEUTDEFF */
+      bankaccount_bic?: string;
+      /** @example DE89370400440532013000 */
+      bankaccount_iban?: string;
+      /** @example Acme Corporation */
+      bankaccount_owner?: string;
       /** @example New York */
       city?: string;
-      /** @example jane.smith@example.com */
-      contact_email?: string;
-      /** @example Jane */
-      contact_first_name?: string;
-      /** @example Smith */
-      contact_last_name?: string;
-      /** @example +1234567890 */
-      contact_phone?: string;
-      /** @example 1 */
-      cost_provider_id?: number;
-      /** @example 1990-01-15 */
-      date_of_birth?: string;
-      /** @example john.doe@example.com */
+      /** @example info@acme.com */
       email?: string;
-      /** @example John */
-      first_name?: string;
-      /** @example male */
-      gender?: string;
-      /** @example false */
-      invoiced_individually?: boolean;
-      /** @example Doe */
-      last_name?: string;
-      /** @example Additional notes about the client */
-      notes?: string;
-      /** @example +1234567890 */
+      invoice_content?: Record<string, never>;
+      /** @example Acme Corporation */
+      name?: string;
+      /** @example John Doe */
+      owner_name?: string;
+      /** @example CEO */
+      owner_title?: string;
+      /** @example +1-555-0123 */
       phone?: string;
-      /** @example English */
-      primary_language?: string;
-      /** @example PROV123456 */
-      provider_approval_code?: string;
-      /** @example 2025-01-15 */
-      provider_approval_date?: string;
-      /** @example Doctor Smith */
-      referral_source?: string;
-      /** @example active */
-      status?: string;
-      /** @example 123 Main Street */
+      /** @example 123 Business St */
       street_address?: string;
-      /** @example Cognitive Behavioral Therapy */
-      therapy_title?: string;
+      /** @example TAX123456 */
+      tax_id?: string;
+      /** @example 19 */
+      tax_rate?: number;
+      /** @example DE123456789 */
+      tax_ustid?: string;
       /** @example 150 */
       unit_price?: number;
-      /** @example 12345 */
-      zip?: string;
-    };
-    "models.UpdateCostProviderRequest": {
-      /** @example New York */
-      city?: string;
-      /** @example Jane Smith */
-      contact_name?: string;
-      /** @example Mental Health Division */
-      department?: string;
-      /** @example Health Insurance Corp */
-      organization?: string;
-      /** @example 456 Insurance Blvd */
-      street_address?: string;
       /** @example 12345 */
       zip?: string;
     };
@@ -3816,6 +3505,18 @@ export interface components {
         "application/json": components["schemas"]["entities.CancelInvoiceRequest"];
       };
     };
+    /** @description Domain payload (arbitrary JSON of key->value) */
+    updateDomainSettingsRequest: {
+      content: {
+        "application/json": Record<string, never>;
+      };
+    };
+    /** @description Setting payload (arbitrary JSON) */
+    updateSettingRequest: {
+      content: {
+        "application/json": Record<string, never>;
+      };
+    };
   };
   headers: never;
   pathItems: never;
@@ -3827,6 +3528,224 @@ export type external = Record<string, never>;
 
 export interface operations {
 
+  /**
+   * Get audit logs for a specific entity
+   * @description Retrieve complete audit trail for a specific entity (e.g., all changes to an invoice)
+   */
+  getEntityAuditLogs: {
+    parameters: {
+      path: {
+        /**
+         * @description Entity type
+         * @example invoice
+         */
+        entity_type: "invoice" | "invoice_item" | "session" | "extra_effort";
+        /**
+         * @description Entity ID
+         * @example 123
+         */
+        entity_id: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["entities.AuditLogListResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["api.ErrorResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["api.ErrorResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["api.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Export audit logs to CSV
+   * @description Export audit logs in CSV format for tax authority compliance (GoBD). Supports same filtering options as GET /audit/logs.
+   */
+  exportAuditLogs: {
+    parameters: {
+      query?: {
+        /**
+         * @description Filter by user ID
+         * @example 1
+         */
+        user_id?: number;
+        /**
+         * @description Filter by entity type
+         * @example invoice
+         */
+        entity_type?: "invoice" | "invoice_item" | "session" | "extra_effort";
+        /**
+         * @description Filter by entity ID
+         * @example 123
+         */
+        entity_id?: number;
+        /**
+         * @description Filter by action
+         * @example invoice_finalized
+         */
+        action?: string;
+        /**
+         * @description Filter by start date (RFC3339)
+         * @example 2026-01-01T00:00:00Z
+         */
+        start_date?: string;
+        /**
+         * @description Filter by end date (RFC3339)
+         * @example 2026-12-31T23:59:59Z
+         */
+        end_date?: string;
+      };
+    };
+    responses: {
+      /** @description CSV file download */
+      200: {
+        content: {
+          "text/csv": string;
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "text/csv": components["schemas"]["api.ErrorResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "text/csv": components["schemas"]["api.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Get audit logs
+   * @description Retrieve audit logs with optional filtering by user, entity, action, and date range. Supports pagination.
+   */
+  getAuditLogs: {
+    parameters: {
+      query?: {
+        /**
+         * @description Filter by user ID
+         * @example 1
+         */
+        user_id?: number;
+        /**
+         * @description Filter by entity type
+         * @example invoice
+         */
+        entity_type?: "invoice" | "invoice_item" | "session" | "extra_effort";
+        /**
+         * @description Filter by entity ID
+         * @example 123
+         */
+        entity_id?: number;
+        /**
+         * @description Filter by action
+         * @example invoice_finalized
+         */
+        action?: "invoice_draft_created" | "invoice_draft_updated" | "invoice_draft_cancelled" | "invoice_finalized" | "invoice_sent" | "invoice_marked_paid" | "invoice_marked_overdue" | "reminder_sent" | "credit_note_created" | "xrechnung_exported";
+        /**
+         * @description Filter by start date (RFC3339)
+         * @example 2026-01-01T00:00:00Z
+         */
+        start_date?: string;
+        /**
+         * @description Filter by end date (RFC3339)
+         * @example 2026-12-31T23:59:59Z
+         */
+        end_date?: string;
+        /**
+         * @description Page number (default: 1)
+         * @example 1
+         */
+        page?: number;
+        /**
+         * @description Items per page (default: 50, max: 100)
+         * @example 50
+         */
+        limit?: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["entities.AuditLogListResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["api.ErrorResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["api.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Get audit statistics
+   * @description Retrieve aggregated statistics for audit logs (action counts, user activity, entity type distribution). Returns statistics including total logs, action counts, user activity, and entity type distribution.
+   */
+  getAuditStatistics: {
+    parameters: {
+      query?: {
+        /**
+         * @description Statistics start date (RFC3339)
+         * @example 2026-01-01T00:00:00Z
+         */
+        start_date?: string;
+        /**
+         * @description Statistics end date (RFC3339)
+         * @example 2026-12-31T23:59:59Z
+         */
+        end_date?: string;
+      };
+    };
+    responses: {
+      /** @description Audit statistics with action_counts, user_activity, entity_type_counts, total_logs, date_range */
+      200: {
+        content: {
+          "application/json": {
+            [key: string]: unknown;
+          };
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["api.ErrorResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["api.ErrorResponse"];
+        };
+      };
+    };
+  };
   /**
    * Change password
    * @description Change password for authenticated user
@@ -5400,7 +5319,7 @@ export interface operations {
     /** @description Invoice information with client ID and session IDs */
     requestBody: {
       content: {
-        "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_modules_client_management_entities.CreateInvoiceRequest"];
+        "application/json": components["schemas"]["entities.CreateInvoiceRequest"];
       };
     };
     responses: {
@@ -5574,7 +5493,7 @@ export interface operations {
     /** @description Updated invoice information (status OR session_ids) */
     requestBody: {
       content: {
-        "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_modules_client_management_entities.UpdateInvoiceRequest"];
+        "application/json": components["schemas"]["entities.UpdateInvoiceRequest"];
       };
     };
     responses: {
@@ -6413,6 +6332,40 @@ export interface operations {
       };
       /** @description Not Found */
       404: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Get registration settings with token
+   * @description Retrieve registration page settings for the tenant associated with the registration token. No Bearer auth required.
+   */
+  getRegistrationSettingsWithToken: {
+    parameters: {
+      path: {
+        /** @description Registration token */
+        token: string;
+      };
+    };
+    responses: {
+      /** @description Registration settings retrieved successfully */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"] & {
+            data?: components["schemas"]["handlers.RegistrationSettingsData"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
         content: {
           "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
         };
@@ -8342,6 +8295,246 @@ export interface operations {
     };
   };
   /**
+   * Get current sequence
+   * @description Get the current invoice number sequence for an organization
+   */
+  getCurrentInvoiceSequence: {
+    parameters: {
+      query: {
+        /** @description Organization ID */
+        organization_id: number;
+        /** @description Year (defaults to current year) */
+        year?: number;
+        /** @description Month (defaults to current month) */
+        month?: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": {
+            [key: string]: unknown;
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+    };
+  };
+  /**
+   * Generate next invoice number
+   * @description Generate the next sequential invoice number for an organization
+   */
+  generateInvoiceNumber: {
+    /** @description Invoice number configuration */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["handlers.GenerateInvoiceNumberRequest"];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["handlers.InvoiceNumberResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+    };
+  };
+  /**
+   * Generate next invoice number from settings
+   * @description Generate the next sequential invoice number using organization settings (prefix, next number)
+   */
+  generateNextInvoiceNumber: {
+    /** @description Organization ID */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["handlers.GenerateNextInvoiceNumberRequest"];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["handlers.InvoiceNumberResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+    };
+  };
+  /**
+   * Get invoice number history
+   * @description Retrieve the history of generated invoice numbers
+   */
+  getInvoiceNumberHistory: {
+    parameters: {
+      query: {
+        /** @description Organization ID */
+        organization_id: number;
+        /** @description Filter by year */
+        year?: number;
+        /** @description Filter by month */
+        month?: number;
+        /** @description Page number (default 1) */
+        page?: number;
+        /** @description Page size (default 20) */
+        page_size?: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": {
+            [key: string]: unknown;
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+    };
+  };
+  /**
+   * Void invoice number
+   * @description Mark an invoice number as voided in the audit log
+   */
+  voidInvoiceNumber: {
+    /** @description Invoice number to void */
+    requestBody: {
+      content: {
+        "application/json": {
+          [key: string]: string;
+        };
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": {
+            [key: string]: unknown;
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+    };
+  };
+  /**
    * Cancel an invoice (basic)
    * @description Cancel an invoice that has not been sent (sent_at IS NULL). Does not revert sessions/extra efforts.
    */
@@ -8382,6 +8575,300 @@ export interface operations {
       500: {
         content: {
           "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Get registration settings
+   * @description Retrieve registration page settings for the authenticated tenant.
+   */
+  getRegistrationSettings: {
+    responses: {
+      /** @description Registration settings retrieved successfully */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"] & {
+            data?: components["schemas"]["handlers.RegistrationSettingsEnvelope"];
+          };
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Update registration settings
+   * @description Update registration page settings for the authenticated tenant.
+   */
+  updateRegistrationSettings: {
+    /** @description Registration settings payload */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["handlers.UpdateRegistrationSettingsRequest"];
+      };
+    };
+    responses: {
+      /** @description Registration settings updated successfully */
+      200: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"] & {
+            data?: components["schemas"]["handlers.RegistrationSettingsEnvelope"];
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Get all organizations
+   * @description Retrieve all organizations for the authenticated user with pagination
+   */
+  getOrganizations: {
+    parameters: {
+      query?: {
+        /** @description Page number */
+        page?: number;
+        /** @description Number of items per page */
+        limit?: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["models.OrganizationListAPIResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Create a new organization
+   * @description Create a new organization with the provided information
+   */
+  createOrganization: {
+    /** @description Organization information */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["models.CreateOrganizationRequest"];
+      };
+    };
+    responses: {
+      /** @description Created */
+      201: {
+        content: {
+          "application/json": components["schemas"]["models.OrganizationAPIResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Get supported formats
+   * @description Get all supported date, time, and amount formats with examples
+   */
+  getSupportedFormats: {
+    responses: {
+      /** @description Supported formats with examples */
+      200: {
+        content: {
+          "application/json": {
+            [key: string]: unknown;
+          };
+        };
+      };
+    };
+  };
+  /**
+   * Get an organization by ID
+   * @description Retrieve a specific organization by ID
+   */
+  getOrganizationById: {
+    parameters: {
+      path: {
+        /** @description Organization ID */
+        id: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["models.OrganizationAPIResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Update an organization
+   * @description Update an organization's information
+   */
+  updateOrganization: {
+    parameters: {
+      path: {
+        /** @description Organization ID */
+        id: number;
+      };
+    };
+    /** @description Updated organization information */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["models.UpdateOrganizationRequest"];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["models.OrganizationAPIResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Delete an organization
+   * @description Delete an organization by ID
+   */
+  deleteOrganization: {
+    parameters: {
+      path: {
+        /** @description Organization ID */
+        id: number;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["models.OrganizationDeleteResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_internal_models.ErrorResponse"];
         };
       };
     };
@@ -9108,6 +9595,840 @@ export interface operations {
       500: {
         content: {
           "application/json": components["schemas"]["github_com_unburdy_unburdy-server-api_internal_models.APIResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Settings system health check
+   * @description Check the health status of the settings system
+   */
+  settingsHealthCheck: {
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["entities.HealthResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+    };
+  };
+  /**
+   * Get registered settings modules
+   * @description Get list of all registered settings modules
+   */
+  getRegisteredModules: {
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["entities.ModuleListResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+    };
+  };
+  /**
+   * Get organization settings
+   * @description Get all settings for an organization grouped by domain
+   */
+  getOrganizationSettings: {
+    parameters: {
+      path: {
+        /** @description Organization ID */
+        organization_id: string;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["entities.SettingsResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+    };
+  };
+  /**
+   * Set organization setting
+   * @description Set a single setting for an organization
+   */
+  setOrganizationSetting: {
+    parameters: {
+      path: {
+        /** @description Organization ID */
+        organization_id: string;
+      };
+    };
+    /** @description Setting data */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["entities.SettingRequest"];
+      };
+    };
+    responses: {
+      /** @description Created */
+      201: {
+        content: {
+          "application/json": components["schemas"]["entities.SettingResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+    };
+  };
+  /**
+   * Bulk set organization settings
+   * @description Set multiple settings for an organization
+   */
+  bulkSetOrganizationSettings: {
+    parameters: {
+      path: {
+        /** @description Organization ID */
+        organization_id: string;
+      };
+    };
+    /** @description Multiple settings data */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["entities.BulkSettingRequest"];
+      };
+    };
+    responses: {
+      /** @description Created */
+      201: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+    };
+  };
+  /**
+   * Get organization domains
+   * @description Get list of available settings domains for an organization
+   */
+  getOrganizationDomains: {
+    parameters: {
+      path: {
+        /** @description Organization ID */
+        organization_id: string;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["entities.DomainResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+    };
+  };
+  /**
+   * Get domain settings
+   * @description Get all settings for a specific domain
+   */
+  getOrganizationDomainSettings: {
+    parameters: {
+      path: {
+        /** @description Organization ID */
+        organization_id: string;
+        /** @description Settings domain */
+        domain: string;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+    };
+  };
+  /**
+   * Set domain settings
+   * @description Set multiple settings for a specific domain
+   */
+  setOrganizationDomainSettings: {
+    parameters: {
+      path: {
+        /** @description Organization ID */
+        organization_id: string;
+        /** @description Settings domain */
+        domain: string;
+      };
+    };
+    /** @description Domain settings */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["entities.DomainSettingsRequest"];
+      };
+    };
+    responses: {
+      /** @description Created */
+      201: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+    };
+  };
+  /**
+   * Delete domain settings
+   * @description Delete all settings for a specific domain
+   */
+  deleteOrganizationDomainSettings: {
+    parameters: {
+      path: {
+        /** @description Organization ID */
+        organization_id: string;
+        /** @description Settings domain */
+        domain: string;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+    };
+  };
+  /**
+   * Export organization settings
+   * @description Export all settings for an organization
+   */
+  exportOrganizationSettings: {
+    parameters: {
+      query?: {
+        /** @description Export format */
+        format?: "json" | "yaml";
+      };
+      path: {
+        /** @description Organization ID */
+        organization_id: string;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+    };
+  };
+  /**
+   * Import organization settings
+   * @description Import settings for an organization
+   */
+  importOrganizationSettings: {
+    parameters: {
+      path: {
+        /** @description Organization ID */
+        organization_id: string;
+      };
+    };
+    /** @description Settings to import */
+    requestBody: {
+      content: {
+        "application/json": {
+          [key: string]: unknown;
+        };
+      };
+    };
+    responses: {
+      /** @description Created */
+      201: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+    };
+  };
+  /**
+   * Validate settings
+   * @description Validate settings against their schema definitions
+   */
+  validateOrganizationSettings: {
+    parameters: {
+      path: {
+        /** @description Organization ID */
+        organization_id: string;
+      };
+    };
+    /** @description Settings to validate */
+    requestBody: {
+      content: {
+        "application/json": components["schemas"]["entities.ValidationRequest"];
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["entities.ValidationResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["entities.ValidationResponse"];
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+    };
+  };
+  /**
+   * Update organization setting
+   * @description Update a specific setting for an organization
+   */
+  updateOrganizationSetting: {
+    parameters: {
+      path: {
+        /** @description Organization ID */
+        organization_id: string;
+        /** @description Settings domain */
+        domain: string;
+        /** @description Setting key */
+        key: string;
+      };
+    };
+    /** @description Updated setting data */
+    requestBody: {
+      content: {
+        "application/json": {
+          [key: string]: unknown;
+        };
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["entities.SettingResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+    };
+  };
+  /**
+   * Delete organization setting
+   * @description Delete a specific setting for an organization
+   */
+  deleteOrganizationSetting: {
+    parameters: {
+      path: {
+        /** @description Organization ID */
+        organization_id: string;
+        /** @description Settings domain */
+        domain: string;
+        /** @description Setting key */
+        key: string;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Unauthorized */
+      401: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
+        };
+      };
+    };
+  };
+  /**
+   * Get domain settings
+   * @description Get all settings for a domain for a tenant
+   */
+  getDomainSettings: {
+    parameters: {
+      path: {
+        /** @description Tenant ID */
+        tenant_id: number;
+        /** @description Domain */
+        domain: string;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["handlers.DomainSettingsResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_modules_settings_api_handlers.ErrorResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_modules_settings_api_handlers.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Update domain settings
+   * @description Create or update multiple settings for a domain for a tenant (payload is an arbitrary JSON object of key->value)
+   */
+  updateDomainSettings: {
+    parameters: {
+      path: {
+        /** @description Tenant ID */
+        tenant_id: number;
+        /** @description Domain */
+        domain: string;
+      };
+    };
+    requestBody: components["requestBodies"]["updateDomainSettingsRequest"];
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["handlers.UpdateKeysResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_modules_settings_api_handlers.ErrorResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_modules_settings_api_handlers.ErrorResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_modules_settings_api_handlers.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Get a setting
+   * @description Get a specific setting for a tenant, domain and key
+   */
+  getSetting: {
+    parameters: {
+      path: {
+        /** @description Tenant ID */
+        tenant_id: number;
+        /** @description Domain */
+        domain: string;
+        /** @description Key */
+        key: string;
+      };
+    };
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["handlers.SettingResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_modules_settings_api_handlers.ErrorResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_modules_settings_api_handlers.ErrorResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_modules_settings_api_handlers.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Update a setting
+   * @description Create or update a specific setting for a tenant (value is an arbitrary JSON object)
+   */
+  updateSetting: {
+    parameters: {
+      path: {
+        /** @description Tenant ID */
+        tenant_id: number;
+        /** @description Domain */
+        domain: string;
+        /** @description Key */
+        key: string;
+      };
+    };
+    requestBody: components["requestBodies"]["updateSettingRequest"];
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": components["schemas"]["handlers.SimpleMessageResponse"];
+        };
+      };
+      /** @description Bad Request */
+      400: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_modules_settings_api_handlers.ErrorResponse"];
+        };
+      };
+      /** @description Not Found */
+      404: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_modules_settings_api_handlers.ErrorResponse"];
+        };
+      };
+      /** @description Internal Server Error */
+      500: {
+        content: {
+          "application/json": components["schemas"]["github_com_ae-base-server_modules_settings_api_handlers.ErrorResponse"];
+        };
+      };
+    };
+  };
+  /**
+   * Get settings system version
+   * @description Get settings system version information
+   */
+  getSettingsVersion: {
+    responses: {
+      /** @description OK */
+      200: {
+        content: {
+          "application/json": {
+            [key: string]: string;
+          };
         };
       };
     };

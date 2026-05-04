@@ -108,6 +108,28 @@ export class AESaasApiClient {
   }
 
   // Dynamically generated methods from OpenAPI spec
+  async getEntityAuditLogs(entity_type: string, entity_id: number) {
+    if (!entity_type) throw new Error('entity_type is required');
+    if (!entity_id) throw new Error('entity_id is required');
+    const response = await this.request<any>('GET', `/audit/entity/${entity_type}/${entity_id}`, undefined);
+    return response;
+  }
+
+  async exportAuditLogs(params?: Record<string, any>) {
+    const response = await this.request<ApiResponse<any>>('GET', `/audit/export`, undefined, params);
+    return response;
+  }
+
+  async getAuditLogs(params?: Record<string, any>) {
+    const response = await this.request<any>('GET', `/audit/logs`, undefined, params);
+    return response;
+  }
+
+  async getAuditStatistics(params?: Record<string, any>) {
+    const response = await this.request<any>('GET', `/audit/statistics`, undefined, params);
+    return response;
+  }
+
   async changePassword(data: any) {
     const response = await this.request<ApiResponse<any>>('POST', `/auth/change-password`, data);
     return response;
@@ -458,6 +480,12 @@ export class AESaasApiClient {
     return response;
   }
 
+  async getRegistrationSettingsWithToken(token: string) {
+    if (!token) throw new Error('token is required');
+    const response = await this.request<any>('GET', `/clients/registration-settings/${token}`, undefined);
+    return response;
+  }
+
   async registerClient(token: string, data: any) {
     if (!token) throw new Error('token is required');
     const response = await this.request<ApiResponse<any>>('POST', `/clients/registration/${token}`, data);
@@ -726,10 +754,78 @@ export class AESaasApiClient {
     return response;
   }
 
+  async getCurrentInvoiceSequence(params?: Record<string, any>) {
+    const response = await this.request<ApiResponse<any>>('GET', `/invoice-numbers/current`, undefined, params);
+    return response;
+  }
+
+  async generateInvoiceNumber(data: any) {
+    const response = await this.request<ApiResponse<any>>('POST', `/invoice-numbers/generate`, data);
+    return response;
+  }
+
+  async generateNextInvoiceNumber(data: any) {
+    const response = await this.request<ApiResponse<any>>('POST', `/invoice-numbers/generate/next`, data);
+    return response;
+  }
+
+  async getInvoiceNumberHistory(params?: Record<string, any>) {
+    const response = await this.request<any>('GET', `/invoice-numbers/history`, undefined, params);
+    return response;
+  }
+
+  async voidInvoiceNumber(data: any) {
+    const response = await this.request<ApiResponse<any>>('POST', `/invoice-numbers/void`, data);
+    return response;
+  }
+
   async cancelInvoice(id: number, data: any) {
     if (!id) throw new Error('id is required');
     const response = await this.request<ApiResponse<any>>('POST', `/invoices/${id}/cancel`, data);
     return response;
+  }
+
+  async getRegistrationSettings() {
+    const response = await this.request<any>('GET', `/organization/settings/registration`, undefined);
+    return response;
+  }
+
+  async updateRegistrationSettings(data: any) {
+    const response = await this.request<ApiResponse<any>>('PUT', `/organization/settings/registration`, data);
+    return response;
+  }
+
+  async getOrganizations(params?: Record<string, any>) {
+    const response = await this.request<any>('GET', `/organizations`, undefined, params);
+    return response;
+  }
+
+  async createOrganization(data: any) {
+    const response = await this.request<ApiResponse<any>>('POST', `/organizations`, data);
+    return response;
+  }
+
+  async getSupportedFormats() {
+    const response = await this.request<any>('GET', `/organizations/supported-formats`, undefined);
+    return response;
+  }
+
+  async getOrganizationById(id: number) {
+    if (!id) throw new Error('id is required');
+    const response = await this.request<ApiResponse<any>>('GET', `/organizations/${id}`, undefined);
+    return response;
+  }
+
+  async updateOrganization(id: number, data: any) {
+    if (!id) throw new Error('id is required');
+    const response = await this.request<ApiResponse<any>>('PUT', `/organizations/${id}`, data);
+    return response;
+  }
+
+  async deleteOrganization(id: number) {
+    if (!id) throw new Error('id is required');
+    const response = await this.request<ApiResponse<any>>('DELETE', `/organizations/${id}`, undefined);
+    return response || { success: true };
   }
 
   async createPdf(data: any) {
@@ -836,6 +932,130 @@ export class AESaasApiClient {
     if (!id) throw new Error('id is required');
     const response = await this.request<ApiResponse<any>>('DELETE', `/sessions/${id}`, undefined);
     return response || { success: true };
+  }
+
+  async settingsHealthCheck() {
+    const response = await this.request<ApiResponse<any>>('GET', `/settings/health`, undefined);
+    return response;
+  }
+
+  async getRegisteredModules() {
+    const response = await this.request<any>('GET', `/settings/modules`, undefined);
+    return response;
+  }
+
+  async getOrganizationSettings(organization_id: string) {
+    if (!organization_id) throw new Error('organization_id is required');
+    const response = await this.request<any>('GET', `/settings/organizations/${organization_id}`, undefined);
+    return response;
+  }
+
+  async setOrganizationSetting(organization_id: string, data: any) {
+    if (!organization_id) throw new Error('organization_id is required');
+    const response = await this.request<ApiResponse<any>>('POST', `/settings/organizations/${organization_id}`, data);
+    return response;
+  }
+
+  async bulkSetOrganizationSettings(organization_id: string, data: any) {
+    if (!organization_id) throw new Error('organization_id is required');
+    const response = await this.request<ApiResponse<any>>('POST', `/settings/organizations/${organization_id}/bulk`, data);
+    return response;
+  }
+
+  async getOrganizationDomains(organization_id: string) {
+    if (!organization_id) throw new Error('organization_id is required');
+    const response = await this.request<any>('GET', `/settings/organizations/${organization_id}/domains`, undefined);
+    return response;
+  }
+
+  async getOrganizationDomainSettings(organization_id: string, domain: string) {
+    if (!organization_id) throw new Error('organization_id is required');
+    if (!domain) throw new Error('domain is required');
+    const response = await this.request<any>('GET', `/settings/organizations/${organization_id}/domains/${domain}`, undefined);
+    return response;
+  }
+
+  async setOrganizationDomainSettings(organization_id: string, domain: string, data: any) {
+    if (!organization_id) throw new Error('organization_id is required');
+    if (!domain) throw new Error('domain is required');
+    const response = await this.request<ApiResponse<any>>('POST', `/settings/organizations/${organization_id}/domains/${domain}`, data);
+    return response;
+  }
+
+  async deleteOrganizationDomainSettings(organization_id: string, domain: string) {
+    if (!organization_id) throw new Error('organization_id is required');
+    if (!domain) throw new Error('domain is required');
+    const response = await this.request<ApiResponse<any>>('DELETE', `/settings/organizations/${organization_id}/domains/${domain}`, undefined);
+    return response || { success: true };
+  }
+
+  async exportOrganizationSettings(organization_id: string, params?: Record<string, any>) {
+    if (!organization_id) throw new Error('organization_id is required');
+    const response = await this.request<ApiResponse<any>>('GET', `/settings/organizations/${organization_id}/export`, undefined, params);
+    return response;
+  }
+
+  async importOrganizationSettings(organization_id: string, data: any) {
+    if (!organization_id) throw new Error('organization_id is required');
+    const response = await this.request<ApiResponse<any>>('POST', `/settings/organizations/${organization_id}/import`, data);
+    return response;
+  }
+
+  async validateOrganizationSettings(organization_id: string, data: any) {
+    if (!organization_id) throw new Error('organization_id is required');
+    const response = await this.request<ApiResponse<any>>('POST', `/settings/organizations/${organization_id}/validate`, data);
+    return response;
+  }
+
+  async updateOrganizationSetting(organization_id: string, domain: string, key: string, data: any) {
+    if (!organization_id) throw new Error('organization_id is required');
+    if (!domain) throw new Error('domain is required');
+    if (!key) throw new Error('key is required');
+    const response = await this.request<ApiResponse<any>>('PUT', `/settings/organizations/${organization_id}/${domain}/${key}`, data);
+    return response;
+  }
+
+  async deleteOrganizationSetting(organization_id: string, domain: string, key: string) {
+    if (!organization_id) throw new Error('organization_id is required');
+    if (!domain) throw new Error('domain is required');
+    if (!key) throw new Error('key is required');
+    const response = await this.request<ApiResponse<any>>('DELETE', `/settings/organizations/${organization_id}/${domain}/${key}`, undefined);
+    return response || { success: true };
+  }
+
+  async getDomainSettings(tenant_id: number, domain: string) {
+    if (!tenant_id) throw new Error('tenant_id is required');
+    if (!domain) throw new Error('domain is required');
+    const response = await this.request<any>('GET', `/settings/organizations/${tenant_id}/domains/${domain}`, undefined);
+    return response;
+  }
+
+  async updateDomainSettings(tenant_id: number, domain: string, data: any) {
+    if (!tenant_id) throw new Error('tenant_id is required');
+    if (!domain) throw new Error('domain is required');
+    const response = await this.request<ApiResponse<any>>('PUT', `/settings/organizations/${tenant_id}/domains/${domain}`, data);
+    return response;
+  }
+
+  async getSetting(tenant_id: number, domain: string, key: string) {
+    if (!tenant_id) throw new Error('tenant_id is required');
+    if (!domain) throw new Error('domain is required');
+    if (!key) throw new Error('key is required');
+    const response = await this.request<ApiResponse<any>>('GET', `/settings/organizations/${tenant_id}/domains/${domain}/${key}`, undefined);
+    return response;
+  }
+
+  async updateSetting(tenant_id: number, domain: string, key: string, data: any) {
+    if (!tenant_id) throw new Error('tenant_id is required');
+    if (!domain) throw new Error('domain is required');
+    if (!key) throw new Error('key is required');
+    const response = await this.request<ApiResponse<any>>('PUT', `/settings/organizations/${tenant_id}/domains/${domain}/${key}`, data);
+    return response;
+  }
+
+  async getSettingsVersion() {
+    const response = await this.request<any>('GET', `/settings/version`, undefined);
+    return response;
   }
 
   async listStaticFiles() {

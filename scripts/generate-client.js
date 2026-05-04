@@ -107,12 +107,19 @@ function generateApiClient(openApiSpec) {
   // Generate methods dynamically from endpoints
   const generateMethods = () => {
     const methods = [];
+    const seenMethodNames = new Set();
     
     endpoints.forEach((endpoint, index) => {
       if (!endpoint.operationId) {
         console.log(`❌ Skipping endpoint ${index + 1}: ${endpoint.method} ${endpoint.path} - missing operationId`);
         return;
       }
+      
+      if (seenMethodNames.has(endpoint.operationId)) {
+        console.log(`⚠️  Skipping duplicate operationId "${endpoint.operationId}" for ${endpoint.method} ${endpoint.path}`);
+        return;
+      }
+      seenMethodNames.add(endpoint.operationId);
       
       console.log(`✅ Processing endpoint ${index + 1}: ${endpoint.method} ${endpoint.path} - operationId: ${endpoint.operationId}`);
       

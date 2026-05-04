@@ -99,7 +99,7 @@ export interface RenderTemplateResponse {
 }
 
 // Export Client type from generated types
-export type Client = components['schemas']['models.ClientResponse'];
+export type Client = components['schemas']['entities.ClientResponse'];
 
 // Additional request types that may not be in generated types yet
 export interface CreateClientRequest {
