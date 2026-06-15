@@ -1,0 +1,11 @@
+go 1.24.5
+
+use (
+	./audit
+	./booking
+	./calendar
+	./documents
+	./invoice
+	./invoice_number
+	../base-server
+)

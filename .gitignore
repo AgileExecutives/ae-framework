@@ -1,0 +1,4 @@
+go.work.sum
+*.log
+tmp/
+bin/
