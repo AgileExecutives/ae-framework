@@ -1,5 +1,4 @@
 package services
-package services
 
 import (
 	"github.com/ae/base-server/pkg/core"

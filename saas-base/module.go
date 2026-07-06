@@ -1,7 +1,7 @@
 package saasbase
+
 // Package saasbase provides shared SaaS building blocks: customer management,
 // subscription plans, and newsletter subscriptions.
-package saasbase
 
 import (
 	"github.com/ae/shared-modules/saas-base/entities"
@@ -13,10 +13,10 @@ import (
 
 // Module is the top-level entry point for direct usage.
 type Module struct {
-	db                  *gorm.DB
-	customerHandlers    *handlers.CustomerHandlers
-	planHandlers        *handlers.PlanHandlers
-	newsletterHandlers  *handlers.NewsletterHandlers
+	db                 *gorm.DB
+	customerHandlers   *handlers.CustomerHandlers
+	planHandlers       *handlers.PlanHandlers
+	newsletterHandlers *handlers.NewsletterHandlers
 }
 
 // NewModule creates a new saas-base Module.
