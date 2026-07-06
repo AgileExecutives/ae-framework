@@ -1,0 +1,284 @@
+package handlers
+
+import (
+	"net/http"
+
+	baseAPI "github.com/ae/base-server/api"
+	"github.com/ae/base-server/pkg/utils"
+	"github.com/ae/shared-modules/saas-base/models"
+	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
+)
+
+// PlanHandlers provides subscription plan management handlers.
+type PlanHandlers struct {
+	db *gorm.DB
+}
+
+// NewPlanHandlers creates new plan handlers.
+func NewPlanHandlers(db *gorm.DB) *PlanHandlers {
+	return &PlanHandlers{db: db}
+}
+
+// GetPlans retrieves all available plans with pagination.
+// @Summary Get all plans
+// @ID getPlans
+// @Description Get a paginated list of all subscription plans
+// @Tags plans
+// @Produce json
+// @Param page query int false "Page number" default(1)
+// @Param limit query int false "Items per page" default(10)
+// @Param active query bool false "Filter by active status"
+// @Success 200 {object} baseAPI.APIResponse{data=baseAPI.ListResponse}
+// @Failure 500 {object} baseAPI.ErrorResponse
+// @Router /plans [get]
+func (h *PlanHandlers) GetPlans(c *gin.Context) {
+	page, limit := utils.GetPaginationParams(c)
+	offset := utils.GetOffset(page, limit)
+
+	var plans []models.Plan
+	var total int64
+
+	query := h.db.Model(&models.Plan{})
+
+	if activeStr := c.Query("active"); activeStr != "" {
+		if activeStr == "true" {
+			query = query.Where("active = ?", true)
+		} else if activeStr == "false" {
+			query = query.Where("active = ?", false)
+		}
+	}
+
+	if err := query.Count(&total).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, baseAPI.ErrorResponseFunc("Failed to count plans", err.Error()))
+		return
+	}
+
+	if err := query.Offset(offset).Limit(limit).Order("created_at DESC").Find(&plans).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, baseAPI.ErrorResponseFunc("Failed to retrieve plans", err.Error()))
+		return
+	}
+
+	var responses []models.PlanResponse
+	for _, plan := range plans {
+		responses = append(responses, plan.ToResponse())
+	}
+
+	response := baseAPI.ListResponse{
+		Data: responses,
+		Pagination: baseAPI.PaginationResponse{
+			Page:       page,
+			Limit:      limit,
+			Total:      int(total),
+			TotalPages: utils.CalculateTotalPages(int(total), limit),
+		},
+	}
+
+	c.JSON(http.StatusOK, baseAPI.SuccessResponse("Plans retrieved successfully", response))
+}
+
+// GetPlan retrieves a specific plan by ID.
+// @Summary Get plan by ID
+// @ID getPlanById
+// @Description Get a specific subscription plan by its ID
+// @Tags plans
+// @Produce json
+// @Param id path int true "Plan ID"
+// @Success 200 {object} baseAPI.APIResponse{data=models.PlanResponse}
+// @Failure 400 {object} baseAPI.ErrorResponse
+// @Failure 404 {object} baseAPI.ErrorResponse
+// @Router /plans/{id} [get]
+func (h *PlanHandlers) GetPlan(c *gin.Context) {
+	id, err := utils.ValidateID(c, "id")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, baseAPI.ErrorResponseFunc("Invalid plan ID", err.Error()))
+		return
+	}
+
+	var plan models.Plan
+	if err := h.db.First(&plan, id).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusNotFound, baseAPI.ErrorResponseFunc("Plan not found", "Plan with specified ID does not exist"))
+			return
+		}
+		c.JSON(http.StatusInternalServerError, baseAPI.ErrorResponseFunc("Failed to retrieve plan", err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, baseAPI.SuccessResponse("Plan retrieved successfully", plan.ToResponse()))
+}
+
+// CreatePlan creates a new subscription plan.
+// @Summary Create a new plan
+// @ID createPlan
+// @Description Create a new subscription plan (admin only)
+// @Tags plans
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param plan body models.PlanRequest true "Plan data"
+// @Success 201 {object} baseAPI.APIResponse{data=models.PlanResponse}
+// @Failure 400 {object} baseAPI.ErrorResponse
+// @Failure 409 {object} baseAPI.ErrorResponse
+// @Router /plans [post]
+func (h *PlanHandlers) CreatePlan(c *gin.Context) {
+	var req models.PlanCreateRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, baseAPI.ErrorResponseFunc("Invalid request", err.Error()))
+		return
+	}
+
+	var existingPlan models.Plan
+	if err := h.db.Where("slug = ?", req.Slug).First(&existingPlan).Error; err == nil {
+		c.JSON(http.StatusConflict, baseAPI.ErrorResponseFunc("Plan already exists", "Plan with this slug already exists"))
+		return
+	}
+
+	if req.Currency == "" {
+		req.Currency = "EUR"
+	}
+	if req.InvoicePeriod == "" {
+		req.InvoicePeriod = "monthly"
+	}
+	if req.MaxUsers == 0 {
+		req.MaxUsers = 10
+	}
+	if req.MaxClients == 0 {
+		req.MaxClients = 100
+	}
+
+	active := true
+	if req.Active != nil {
+		active = *req.Active
+	}
+
+	plan := models.Plan{
+		Name:          req.Name,
+		Slug:          req.Slug,
+		Description:   req.Description,
+		Price:         req.Price,
+		Currency:      req.Currency,
+		InvoicePeriod: req.InvoicePeriod,
+		MaxUsers:      req.MaxUsers,
+		MaxClients:    req.MaxClients,
+		Features:      req.Features,
+		Active:        active,
+	}
+
+	if err := h.db.Create(&plan).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, baseAPI.ErrorResponseFunc("Failed to create plan", err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusCreated, baseAPI.SuccessResponse("Plan created successfully", plan.ToResponse()))
+}
+
+// UpdatePlan updates an existing subscription plan.
+// @Summary Update a plan
+// @ID updatePlan
+// @Description Update an existing subscription plan (admin only)
+// @Tags plans
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param id path int true "Plan ID"
+// @Param plan body models.PlanRequest true "Updated plan data"
+// @Success 200 {object} baseAPI.APIResponse{data=models.PlanResponse}
+// @Failure 400 {object} baseAPI.ErrorResponse
+// @Failure 404 {object} baseAPI.ErrorResponse
+// @Router /plans/{id} [put]
+func (h *PlanHandlers) UpdatePlan(c *gin.Context) {
+	id, err := utils.ValidateID(c, "id")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, baseAPI.ErrorResponseFunc("Invalid plan ID", err.Error()))
+		return
+	}
+
+	var req models.PlanUpdateRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, baseAPI.ErrorResponseFunc("Invalid request", err.Error()))
+		return
+	}
+
+	var plan models.Plan
+	if err := h.db.First(&plan, id).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusNotFound, baseAPI.ErrorResponseFunc("Plan not found", "Plan with specified ID does not exist"))
+			return
+		}
+		c.JSON(http.StatusInternalServerError, baseAPI.ErrorResponseFunc("Failed to retrieve plan", err.Error()))
+		return
+	}
+
+	if req.Name != "" {
+		plan.Name = req.Name
+	}
+	if req.Description != "" {
+		plan.Description = req.Description
+	}
+	if req.Price != nil {
+		plan.Price = *req.Price
+	}
+	if req.Currency != "" {
+		plan.Currency = req.Currency
+	}
+	if req.InvoicePeriod != "" {
+		plan.InvoicePeriod = req.InvoicePeriod
+	}
+	if req.MaxUsers != nil {
+		plan.MaxUsers = *req.MaxUsers
+	}
+	if req.MaxClients != nil {
+		plan.MaxClients = *req.MaxClients
+	}
+	if req.Features != "" {
+		plan.Features = req.Features
+	}
+	if req.Active != nil {
+		plan.Active = *req.Active
+	}
+
+	if err := h.db.Save(&plan).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, baseAPI.ErrorResponseFunc("Failed to update plan", err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, baseAPI.SuccessResponse("Plan updated successfully", plan.ToResponse()))
+}
+
+// DeletePlan soft-deletes a subscription plan.
+// @Summary Delete a plan
+// @ID deletePlan
+// @Description Delete a subscription plan (admin only)
+// @Tags plans
+// @Produce json
+// @Security BearerAuth
+// @Param id path int true "Plan ID"
+// @Success 200 {object} baseAPI.APIResponse
+// @Failure 400 {object} baseAPI.ErrorResponse
+// @Failure 404 {object} baseAPI.ErrorResponse
+// @Router /plans/{id} [delete]
+func (h *PlanHandlers) DeletePlan(c *gin.Context) {
+	id, err := utils.ValidateID(c, "id")
+	if err != nil {
+		c.JSON(http.StatusBadRequest, baseAPI.ErrorResponseFunc("Invalid plan ID", err.Error()))
+		return
+	}
+
+	var plan models.Plan
+	if err := h.db.First(&plan, id).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusNotFound, baseAPI.ErrorResponseFunc("Plan not found", "Plan with specified ID does not exist"))
+			return
+		}
+		c.JSON(http.StatusInternalServerError, baseAPI.ErrorResponseFunc("Failed to retrieve plan", err.Error()))
+		return
+	}
+
+	if err := h.db.Delete(&plan).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, baseAPI.ErrorResponseFunc("Failed to delete plan", err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, baseAPI.SuccessResponse("Plan deleted successfully", nil))
+}

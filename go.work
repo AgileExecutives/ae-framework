@@ -7,5 +7,6 @@ use (
 	./documents
 	./invoice
 	./invoice_number
+	./saas-base
 	../base-server
 )
