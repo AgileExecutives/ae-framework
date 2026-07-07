@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/ae/shared-modules/booking/entities"
+	"github.com/AgileExecutives/shared-modules/booking/entities"
 	"gorm.io/gorm"
 )
 

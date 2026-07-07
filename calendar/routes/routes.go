@@ -1,11 +1,11 @@
 package routes
 
 import (
-	"github.com/ae/base-server/pkg/middleware"
+	"github.com/AgileExecutives/serverbase/pkg/middleware"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 
-	"github.com/ae/shared-modules/calendar/handlers"
+	"github.com/AgileExecutives/shared-modules/calendar/handlers"
 )
 
 // RouteProvider provides routing functionality for calendar management

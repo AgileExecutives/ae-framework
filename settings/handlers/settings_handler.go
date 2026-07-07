@@ -1,13 +1,12 @@
 package handlers
-package handlers
 
 import (
     "encoding/json"
     "net/http"
     "strconv"
 
-    "github.com/ae/base-server/pkg/settings/entities"
-    "github.com/ae/base-server/pkg/settings/repository"
+    "github.com/AgileExecutives/serverbase/pkg/settings/entities"
+    "github.com/AgileExecutives/serverbase/pkg/settings/repository"
     "github.com/gin-gonic/gin"
     "gorm.io/gorm"
 )

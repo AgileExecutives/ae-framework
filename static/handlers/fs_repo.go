@@ -13,6 +13,10 @@ func (r *FSStaticRepo) ListFiles(ctx context.Context) ([]string, error) {
 	var out []string
 	entries, err := os.ReadDir(r.basePath)
 	if err != nil {
+		// If the statics directory doesn't exist, treat as empty list instead
+		if os.IsNotExist(err) {
+			return out, nil
+		}
 		return nil, err
 	}
 	for _, e := range entries {

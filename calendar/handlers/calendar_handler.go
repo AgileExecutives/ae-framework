@@ -7,9 +7,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	baseAPI "github.com/ae/base-server/api"
-	"github.com/ae/shared-modules/calendar/entities"
-	"github.com/ae/shared-modules/calendar/services"
+	baseAPI "github.com/AgileExecutives/serverbase/api"
+	"github.com/AgileExecutives/shared-modules/calendar/entities"
+	"github.com/AgileExecutives/shared-modules/calendar/services"
 )
 
 // CalendarHandler handles calendar-related HTTP requests

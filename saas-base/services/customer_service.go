@@ -1,8 +1,8 @@
 package services
 
 import (
-	"github.com/ae/base-server/pkg/core"
-	"github.com/ae/shared-modules/saas-base/models"
+	"github.com/AgileExecutives/serverbase/pkg/core"
+	"github.com/AgileExecutives/shared-modules/saas-base/models"
 	"gorm.io/gorm"
 )
 

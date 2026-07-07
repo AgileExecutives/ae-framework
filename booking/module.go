@@ -3,16 +3,16 @@ package booking
 import (
 	"context"
 
-	"github.com/ae/base-server/pkg/core"
+	"github.com/AgileExecutives/serverbase/pkg/core"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	"gorm.io/gorm"
 
-	"github.com/ae/shared-modules/booking/entities"
-	"github.com/ae/shared-modules/booking/handlers"
-	"github.com/ae/shared-modules/booking/middleware"
-	"github.com/ae/shared-modules/booking/routes"
-	"github.com/ae/shared-modules/booking/services"
+	"github.com/AgileExecutives/shared-modules/booking/entities"
+	"github.com/AgileExecutives/shared-modules/booking/handlers"
+	"github.com/AgileExecutives/shared-modules/booking/middleware"
+	"github.com/AgileExecutives/shared-modules/booking/routes"
+	"github.com/AgileExecutives/shared-modules/booking/services"
 )
 
 // Module implements the complete core.Module interface for auto-migration support

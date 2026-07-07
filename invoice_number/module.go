@@ -3,10 +3,10 @@ package invoicenumber
 import (
 	"context"
 
-	"github.com/ae/shared-modules/invoice_number/entities"
-	"github.com/ae/shared-modules/invoice_number/routes"
-	"github.com/ae/shared-modules/invoice_number/services"
-	"github.com/ae/base-server/pkg/core"
+	"github.com/AgileExecutives/shared-modules/invoice_number/entities"
+	"github.com/AgileExecutives/shared-modules/invoice_number/routes"
+	"github.com/AgileExecutives/shared-modules/invoice_number/services"
+	"github.com/AgileExecutives/serverbase/pkg/core"
 )
 
 // InvoiceNumberModule represents the invoice number generation module

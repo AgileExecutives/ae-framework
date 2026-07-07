@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/ae/shared-modules/calendar/entities"
+	"github.com/AgileExecutives/shared-modules/calendar/entities"
 	"gorm.io/gorm"
 )
 

@@ -3,7 +3,7 @@ package services
 import (
 	"context"
 
-	"github.com/ae/shared-modules/invoice/entities"
+	"github.com/AgileExecutives/shared-modules/invoice/entities"
 )
 
 // PDFService defines the interface for PDF generation

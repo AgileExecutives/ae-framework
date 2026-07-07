@@ -8,8 +8,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/ae/shared-modules/invoice_number/entities"
-	// "github.com/ae/base-server/pkg/settings/manager"
+	"github.com/AgileExecutives/shared-modules/invoice_number/entities"
+	// "github.com/AgileExecutives/serverbase/pkg/settings/manager"
 	"gorm.io/gorm"
 )
 

@@ -7,10 +7,10 @@ import (
 	"html/template"
 	"time"
 
-	baseAPI "github.com/ae/base-server/api"
-	pdfServices "github.com/ae/base-server/modules/pdf/services"
-	templateServices "github.com/ae/base-server/modules/templates/services"
-	"github.com/ae/shared-modules/invoice/entities"
+	templateServices "github.com/AgileExecutives/serverbase/modules/templates/services"
+	models "github.com/AgileExecutives/serverbase/pkg/models"
+	"github.com/AgileExecutives/shared-modules/invoice/entities"
+	pdfgen "github.com/AgileExecutives/shared-modules/pdf/services"
 	"gorm.io/gorm"
 )
 
@@ -18,13 +18,13 @@ import (
 type DefaultPDFService struct {
 	db               *gorm.DB
 	templateService  *templateServices.TemplateService
-	pdfGenerator     *pdfServices.PDFGenerator
+	pdfGenerator     *pdfgen.PDFGenerator
 	documentService  interface{} // Document storage service
 	fallbackTemplate string
 }
 
 // NewDefaultPDFService creates a new default PDF service
-func NewDefaultPDFService(db *gorm.DB, templateService *templateServices.TemplateService, pdfGenerator *pdfServices.PDFGenerator) *DefaultPDFService {
+func NewDefaultPDFService(db *gorm.DB, templateService *templateServices.TemplateService, pdfGenerator *pdfgen.PDFGenerator) *DefaultPDFService {
 	return &DefaultPDFService{
 		db:               db,
 		templateService:  templateService,
@@ -43,33 +43,16 @@ func (s *DefaultPDFService) GeneratePDF(ctx context.Context, invoice *entities.I
 	// Prepare contract data
 	contractData := s.convertToContractFormat(invoice)
 
-	var html string
-
-	// Try to use specific template if provided, otherwise use default std_invoice template
+	// Choose template name (template service may manage templates; here we pick a sensible default)
+	var templateName string
 	if templateID != nil {
-		html, err = s.templateService.RenderTemplate(ctx, invoice.TenantID, *templateID, contractData)
-		if err != nil {
-			return 0, fmt.Errorf("failed to render template %d: %w", *templateID, err)
-		}
+		templateName = fmt.Sprintf("template_%d", *templateID)
 	} else {
-		// Get the std_invoice template
-		templates, count, err := s.templateService.ListTemplates(ctx, invoice.TenantID, nil, "DOCUMENT", "std_invoice", nil, 1, 1)
-		if err == nil && count > 0 {
-			html, err = s.templateService.RenderTemplate(ctx, invoice.TenantID, templates[0].ID, contractData)
-			if err != nil {
-				return 0, fmt.Errorf("failed to render std_invoice template: %w", err)
-			}
-		} else {
-			// Fallback to file-based template if no std_invoice template found
-			html, err = s.renderFallbackTemplate(contractData)
-			if err != nil {
-				return 0, fmt.Errorf("failed to render fallback template: %w", err)
-			}
-		}
+		templateName = "std_invoice"
 	}
 
-	// Convert HTML to PDF using PDF generator service
-	_, err = s.pdfGenerator.ConvertHtmlStringToPDF(ctx, html)
+	// Convert data to PDF using PDF generator service
+	_, err = s.pdfGenerator.GeneratePDF(contractData, templateName, invoice.InvoiceNumber)
 	if err != nil {
 		return 0, fmt.Errorf("failed to convert HTML to PDF: %w", err)
 	}
@@ -98,9 +81,9 @@ func (s *DefaultPDFService) GetPDFURL(ctx context.Context, documentID uint) (str
 // convertToContractFormat converts Invoice entity to std_invoice contract format
 func (s *DefaultPDFService) convertToContractFormat(invoice *entities.Invoice) map[string]interface{} {
 	// Load organization if not loaded
-	var organization baseAPI.Organization
+	var organization models.Organization
 	if err := s.db.First(&organization, invoice.OrganizationID).Error; err != nil {
-		organization = baseAPI.Organization{} // Empty fallback
+		organization = models.Organization{} // Empty fallback
 	}
 
 	// Build organization data

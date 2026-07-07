@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/ae/shared-modules/documents/entities"
-	"github.com/ae/shared-modules/documents/services/storage"
+	"github.com/AgileExecutives/shared-modules/documents/entities"
+	"github.com/AgileExecutives/shared-modules/documents/services/storage"
 	"gorm.io/datatypes"
 	"gorm.io/gorm"
 )

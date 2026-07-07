@@ -6,10 +6,10 @@ import (
 	"strconv"
 	"time"
 
-	baseAPI "github.com/ae/base-server/api"
+	baseAPI "github.com/AgileExecutives/serverbase/api"
 	"github.com/gin-gonic/gin"
-	"github.com/ae/shared-modules/audit/entities"
-	"github.com/ae/shared-modules/audit/services"
+	"github.com/AgileExecutives/shared-modules/audit/entities"
+	"github.com/AgileExecutives/shared-modules/audit/services"
 )
 
 type AuditHandler struct {

@@ -12,9 +12,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/ae/shared-modules/booking/entities"
-	"github.com/ae/shared-modules/booking/middleware"
-	"github.com/ae/shared-modules/booking/services"
+	"github.com/AgileExecutives/shared-modules/booking/entities"
+	"github.com/AgileExecutives/shared-modules/booking/middleware"
+	"github.com/AgileExecutives/shared-modules/booking/services"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )

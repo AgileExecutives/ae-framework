@@ -6,11 +6,11 @@ import (
 	"strconv"
 	"time"
 
-	baseAPI "github.com/ae/base-server/api"
-	"github.com/ae/base-server/pkg/core"
+	baseAPI "github.com/AgileExecutives/serverbase/api"
+	"github.com/AgileExecutives/serverbase/pkg/core"
 	"github.com/gin-gonic/gin"
-	"github.com/ae/shared-modules/documents/entities"
-	"github.com/ae/shared-modules/documents/services"
+	"github.com/AgileExecutives/shared-modules/documents/entities"
+	"github.com/AgileExecutives/shared-modules/documents/services"
 	"gorm.io/gorm"
 )
 

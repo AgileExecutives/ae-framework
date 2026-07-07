@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/ae/shared-modules/booking/entities"
+	"github.com/AgileExecutives/shared-modules/booking/entities"
 	"gorm.io/gorm"
 )
 

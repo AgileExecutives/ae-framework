@@ -4,14 +4,14 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/ae/base-server/pkg/core"
+	"github.com/AgileExecutives/serverbase/pkg/core"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 
-	"github.com/ae/shared-modules/calendar/entities"
-	"github.com/ae/shared-modules/calendar/handlers"
-	"github.com/ae/shared-modules/calendar/routes"
-	"github.com/ae/shared-modules/calendar/services"
+	"github.com/AgileExecutives/shared-modules/calendar/entities"
+	"github.com/AgileExecutives/shared-modules/calendar/handlers"
+	"github.com/AgileExecutives/shared-modules/calendar/routes"
+	"github.com/AgileExecutives/shared-modules/calendar/services"
 )
 
 // Module implements the complete core.Module interface for auto-migration support
@@ -173,6 +173,16 @@ func (m *Module) RegisterRoutes(router *gin.RouterGroup) {
 // GetPrefix implements compatibility with baseAPI.ModuleRouteProvider
 func (m *Module) GetPrefix() string {
 	return m.routeProvider.GetPrefix()
+}
+
+// GetMiddleware returns middleware from the route provider for legacy compatibility
+func (m *Module) GetMiddleware() []gin.HandlerFunc {
+	return m.routeProvider.GetMiddleware()
+}
+
+// GetSwaggerTags returns swagger tags from the route provider for legacy compatibility
+func (m *Module) GetSwaggerTags() []string {
+	return m.routeProvider.GetSwaggerTags()
 }
 
 // calendarRouteAdapter adapts the calendar routes.RouteProvider to core.RouteProvider

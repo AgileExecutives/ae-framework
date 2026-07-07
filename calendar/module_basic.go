@@ -1,13 +1,13 @@
 package calendar
 
 import (
-	baseAPI "github.com/ae/base-server/api"
+	baseAPI "github.com/AgileExecutives/serverbase/api"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 
-	"github.com/ae/shared-modules/calendar/handlers"
-	"github.com/ae/shared-modules/calendar/routes"
-	"github.com/ae/shared-modules/calendar/services"
+	"github.com/AgileExecutives/shared-modules/calendar/handlers"
+	"github.com/AgileExecutives/shared-modules/calendar/routes"
+	"github.com/AgileExecutives/shared-modules/calendar/services"
 )
 
 // BasicModule implements the baseAPI.ModuleRouteProvider interface (legacy compatibility)
@@ -40,6 +40,16 @@ func (m *BasicModule) RegisterRoutes(router *gin.RouterGroup) {
 // GetPrefix implements baseAPI.ModuleRouteProvider
 func (m *BasicModule) GetPrefix() string {
 	return m.routeProvider.GetPrefix()
+}
+
+// GetMiddleware forwards middleware from the underlying route provider
+func (m *BasicModule) GetMiddleware() []gin.HandlerFunc {
+	return m.routeProvider.GetMiddleware()
+}
+
+// GetSwaggerTags forwards Swagger tags from the underlying route provider
+func (m *BasicModule) GetSwaggerTags() []string {
+	return m.routeProvider.GetSwaggerTags()
 }
 
 // NewModule creates a new calendar module with auto-migration support (now the default)

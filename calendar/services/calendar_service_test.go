@@ -11,7 +11,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 
-	"github.com/ae/shared-modules/calendar/entities"
+	"github.com/AgileExecutives/shared-modules/calendar/entities"
 )
 
 func setupCalendarDB(t *testing.T) *gorm.DB {

@@ -3,9 +3,9 @@ package handlers
 import (
 	"net/http"
 
-	baseAPI "github.com/ae/base-server/api"
-	"github.com/ae/base-server/pkg/utils"
-	"github.com/ae/shared-modules/saas-base/models"
+	baseAPI "github.com/AgileExecutives/serverbase/api"
+	"github.com/AgileExecutives/serverbase/pkg/utils"
+	"github.com/AgileExecutives/shared-modules/saas-base/models"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )

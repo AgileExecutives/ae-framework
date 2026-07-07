@@ -3,13 +3,13 @@ package documents
 import (
 	"context"
 
-	templateServices "github.com/ae/base-server/modules/templates/services"
-	"github.com/ae/base-server/pkg/core"
+	templateServices "github.com/AgileExecutives/serverbase/modules/templates/services"
+	"github.com/AgileExecutives/serverbase/pkg/core"
+	"github.com/AgileExecutives/shared-modules/documents/entities"
+	"github.com/AgileExecutives/shared-modules/documents/routes"
+	"github.com/AgileExecutives/shared-modules/documents/services"
+	"github.com/AgileExecutives/shared-modules/documents/services/storage"
 	"github.com/redis/go-redis/v9"
-	"github.com/ae/shared-modules/documents/entities"
-	"github.com/ae/shared-modules/documents/routes"
-	"github.com/ae/shared-modules/documents/services"
-	"github.com/ae/shared-modules/documents/services/storage"
 )
 
 // CoreModule implements the core.Module interface for the documents module

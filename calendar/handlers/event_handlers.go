@@ -6,9 +6,9 @@ import (
 	"log"
 	"strconv"
 
-	"github.com/ae/base-server/pkg/eventbus"
-	"github.com/ae/shared-modules/calendar/entities"
-	"github.com/ae/shared-modules/calendar/services"
+	"github.com/AgileExecutives/serverbase/pkg/eventbus"
+	"github.com/AgileExecutives/shared-modules/calendar/entities"
+	"github.com/AgileExecutives/shared-modules/calendar/services"
 )
 
 // CalendarEventHandler handles calendar-related events

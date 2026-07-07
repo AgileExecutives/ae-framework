@@ -1,7 +1,7 @@
 package entities
 
 import (
-	"github.com/ae/base-server/pkg/core"
+	"github.com/AgileExecutives/serverbase/pkg/core"
 )
 
 // CalendarEntity implements core.Entity for Calendar model

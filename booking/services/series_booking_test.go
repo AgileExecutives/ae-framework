@@ -6,7 +6,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/ae/shared-modules/booking/entities"
+	"github.com/AgileExecutives/shared-modules/booking/entities"
 	"gorm.io/gorm"
 )
 

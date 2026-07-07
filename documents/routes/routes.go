@@ -1,12 +1,12 @@
 package routes
 
 import (
-	baseAPI "github.com/ae/base-server/api"
-	"github.com/ae/base-server/pkg/core"
+	baseAPI "github.com/AgileExecutives/serverbase/api"
+	"github.com/AgileExecutives/serverbase/pkg/core"
 	"github.com/gin-gonic/gin"
-	"github.com/ae/shared-modules/documents/handlers"
-	"github.com/ae/shared-modules/documents/middleware"
-	"github.com/ae/shared-modules/documents/services"
+	"github.com/AgileExecutives/shared-modules/documents/handlers"
+	"github.com/AgileExecutives/shared-modules/documents/middleware"
+	"github.com/AgileExecutives/shared-modules/documents/services"
 	"gorm.io/gorm"
 )
 

@@ -6,10 +6,10 @@ import (
 	"strconv"
 	"time"
 
-	baseAPI "github.com/ae/base-server/api"
+	baseAPI "github.com/AgileExecutives/serverbase/api"
 	"github.com/gin-gonic/gin"
-	"github.com/ae/shared-modules/booking/entities"
-	"github.com/ae/shared-modules/booking/services"
+	"github.com/AgileExecutives/shared-modules/booking/entities"
+	"github.com/AgileExecutives/shared-modules/booking/services"
 	"gorm.io/gorm"
 )
 

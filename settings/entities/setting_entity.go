@@ -1,9 +1,8 @@
 package entities
-package entities
 
 import (
-    "github.com/ae/base-server/pkg/core"
-    settingsEntities "github.com/ae/base-server/pkg/settings/entities"
+    "github.com/AgileExecutives/serverbase/pkg/core"
+    settingsEntities "github.com/AgileExecutives/serverbase/pkg/settings/entities"
 )
 
 type SettingEntity struct{}

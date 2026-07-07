@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ae/shared-modules/invoice_number/entities"
+	"github.com/AgileExecutives/shared-modules/invoice_number/entities"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )

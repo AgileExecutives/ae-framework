@@ -1,7 +1,7 @@
 package entities
 
 import (
-	"github.com/ae/base-server/pkg/core"
+	"github.com/AgileExecutives/serverbase/pkg/core"
 )
 
 // BookingTemplateEntity implements core.Entity for BookingTemplate model

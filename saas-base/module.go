@@ -4,9 +4,9 @@ package saasbase
 // subscription plans, and newsletter subscriptions.
 
 import (
-	"github.com/ae/shared-modules/saas-base/entities"
-	"github.com/ae/shared-modules/saas-base/handlers"
-	"github.com/ae/shared-modules/saas-base/models"
+	"github.com/AgileExecutives/shared-modules/saas-base/entities"
+	"github.com/AgileExecutives/shared-modules/saas-base/handlers"
+	"github.com/AgileExecutives/shared-modules/saas-base/models"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )

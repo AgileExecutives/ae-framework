@@ -3,10 +3,10 @@ package saasbase
 import (
 	"context"
 
-	"github.com/ae/base-server/pkg/core"
-	"github.com/ae/shared-modules/saas-base/entities"
-	"github.com/ae/shared-modules/saas-base/handlers"
-	"github.com/ae/shared-modules/saas-base/services"
+	"github.com/AgileExecutives/serverbase/pkg/core"
+	"github.com/AgileExecutives/shared-modules/saas-base/entities"
+	"github.com/AgileExecutives/shared-modules/saas-base/handlers"
+	"github.com/AgileExecutives/shared-modules/saas-base/services"
 	"github.com/gin-gonic/gin"
 )
 

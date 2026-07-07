@@ -5,9 +5,9 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/ae/shared-modules/invoice/entities"
-	"github.com/ae/shared-modules/invoice/services"
-	"github.com/ae/shared-modules/invoice/utils"
+	"github.com/AgileExecutives/shared-modules/invoice/entities"
+	"github.com/AgileExecutives/shared-modules/invoice/services"
+	"github.com/AgileExecutives/shared-modules/invoice/utils"
 )
 
 // InvoiceHandler handles invoice-related HTTP requests

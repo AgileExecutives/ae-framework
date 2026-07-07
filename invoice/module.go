@@ -3,11 +3,11 @@ package invoice
 import (
 	"context"
 
-	"github.com/ae/base-server/pkg/core"
-	"github.com/ae/shared-modules/invoice/entities"
-	"github.com/ae/shared-modules/invoice/handlers"
-	"github.com/ae/shared-modules/invoice/routes"
-	"github.com/ae/shared-modules/invoice/services"
+	"github.com/AgileExecutives/serverbase/pkg/core"
+	"github.com/AgileExecutives/shared-modules/invoice/entities"
+	"github.com/AgileExecutives/shared-modules/invoice/handlers"
+	"github.com/AgileExecutives/shared-modules/invoice/routes"
+	"github.com/AgileExecutives/shared-modules/invoice/services"
 )
 
 // CoreModule implements the core.Module interface for the invoice module

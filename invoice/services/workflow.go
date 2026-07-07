@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/ae/shared-modules/invoice/entities"
-	invoiceNumberService "github.com/ae/shared-modules/invoice_number/services"
+	"github.com/AgileExecutives/shared-modules/invoice/entities"
+	invoiceNumberService "github.com/AgileExecutives/shared-modules/invoice_number/services"
 )
 
 // FinalizeInvoice finalizes a draft invoice by generating an invoice number and changing status to finalized
