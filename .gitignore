@@ -1,3 +1,4 @@
 .env
 server-test-bin
 tmp/main
+.DS_Store
