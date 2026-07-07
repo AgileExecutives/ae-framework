@@ -1,0 +1,4 @@
+{
+  "icd10": ["A00","B00"],
+  "category": "test-diagnostic"
+}
