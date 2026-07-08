@@ -5,13 +5,13 @@
 POST http://localhost:8080/api/v1/auth/register
 Content-Type: application/json
 {
-  "email": "test_1783501978_55351c49@example.com",
-  "username": "user_1783501978_55351c49",
-  "password": "Pass123_55351c49",
+  "email": "test_1783530248_c8305b23@example.com",
+  "username": "user_1783530248_c8305b23",
+  "password": "Pass123_c8305b23",
   "first_name": "Contact",
   "last_name": "Tester",
-  "company_name": "Contact Test Company 1783501978_55351c49",
-  "tenant_name": "tenant_1783501978_55351c49",
+  "company_name": "Contact Test Company 1783530248_c8305b23",
+  "tenant_name": "tenant_1783530248_c8305b23",
   "accept_terms": true
 }
 
@@ -22,8 +22,8 @@ HTTP *
 POST http://localhost:8080/api/v1/auth/login
 Content-Type: application/json
 {
-  "email": "test_1783501978_55351c49@example.com",
-  "password": "Pass123_55351c49"
+  "email": "test_1783530248_c8305b23@example.com",
+  "password": "Pass123_c8305b23"
 }
 
 HTTP 200
@@ -35,10 +35,10 @@ POST http://localhost:8080/api/v1/contacts
 Authorization: Bearer {{auth_token}}
 Content-Type: application/json
 {
-  "first_name": "1783501978_55351c49_John",
-  "last_name": "1783501978_55351c49_Doe", 
-  "email": "test_1783501978_55351c49@example.com",
-  "username": "user_1783501978_55351c49",  "phone": "+1-555-0100",
+  "first_name": "1783530248_c8305b23_John",
+  "last_name": "1783530248_c8305b23_Doe", 
+  "email": "test_1783530248_c8305b23@example.com",
+  "username": "user_1783530248_c8305b23",  "phone": "+1-555-0100",
   "mobile": "+1-555-0101",
   "street": "456 Contact Street",
   "zip": "54321",
@@ -51,8 +51,8 @@ Content-Type: application/json
 HTTP *
 [Asserts]
 jsonpath "$.success" == true
-jsonpath "$.data.first_name" == "1783501978_55351c49_John"
-jsonpath "$.data.email" == "test_1783501978_55351c49@example.com"
+jsonpath "$.data.first_name" == "1783530248_c8305b23_John"
+jsonpath "$.data.email" == "test_1783530248_c8305b23@example.com"
 
 [Captures]
 contact_id: jsonpath "$.data.id"
@@ -74,16 +74,16 @@ HTTP 200
 [Asserts]
 jsonpath "$.success" == true
 jsonpath "$.data.id" == {{contact_id}}
-jsonpath "$.data.first_name" == "1783501978_55351c49_John"
+jsonpath "$.data.first_name" == "1783530248_c8305b23_John"
 
 # Test 4: Update contact
 PUT http://localhost:8080/api/v1/contacts/{{contact_id}}
 Authorization: Bearer {{auth_token}}
 Content-Type: application/json
 {
-  "first_name": "1783501978_55351c49_John_Updated",
-  "last_name": "1783501978_55351c49_Doe_Updated",
-  "email": "updated_1783501978_55351c49@example.com",
+  "first_name": "1783530248_c8305b23_John_Updated",
+  "last_name": "1783530248_c8305b23_Doe_Updated",
+  "email": "updated_1783530248_c8305b23@example.com",
   "phone": "+1-555-0200",
   "type": "personal"
 }
@@ -91,10 +91,10 @@ Content-Type: application/json
 HTTP 200
 [Asserts]
 jsonpath "$.success" == true
-jsonpath "$.data.first_name" == "1783501978_55351c49_John_Updated"
+jsonpath "$.data.first_name" == "1783530248_c8305b23_John_Updated"
 
 # Test 5: Search contacts
-GET http://localhost:8080/api/v1/contacts?search=1783501978_55351c49_John
+GET http://localhost:8080/api/v1/contacts?search=1783530248_c8305b23_John
 Authorization: Bearer {{auth_token}}
 
 HTTP 200

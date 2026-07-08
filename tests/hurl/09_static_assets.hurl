@@ -214,10 +214,10 @@ GET {{host}}/api/v1/static
 
 HTTP 401
 [Asserts]
-body contains "Authorization required"
+body contains "Authorization header required"
 
 GET {{host}}/api/v1/static/diagnostic_std
 
 HTTP 401
 [Asserts]
-body contains "Authorization required"
+body contains "Authorization header required"
