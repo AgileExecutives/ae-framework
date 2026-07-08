@@ -1,8 +1,8 @@
 package routes
 
 import (
-	"github.com/AgileExecutives/shared-modules/settings/handlers"
 	"github.com/AgileExecutives/serverbase/pkg/core"
+	"github.com/AgileExecutives/shared-modules/settings/handlers"
 	"github.com/gin-gonic/gin"
 )
 

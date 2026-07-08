@@ -1,8 +1,8 @@
 package routes
 
 import (
-	"github.com/gin-gonic/gin"
 	"github.com/AgileExecutives/shared-modules/audit/handlers"
+	"github.com/gin-gonic/gin"
 )
 
 type RouteProvider struct {

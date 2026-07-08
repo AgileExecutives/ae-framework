@@ -5,9 +5,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/AgileExecutives/shared-modules/booking/entities"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/AgileExecutives/shared-modules/booking/entities"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )

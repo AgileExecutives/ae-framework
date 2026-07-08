@@ -459,12 +459,12 @@ func TestCalendarService_CalendarEntry_CRUD(t *testing.T) {
 		isException := true
 		pos := 3
 		updated, err := svc.UpdateCalendarEntry(entryID, 1, 1, entities.UpdateCalendarEntryRequest{
-			Description:  &desc,
-			Location:     &loc,
-			Timezone:     &tz,
-			Type:         &entryType,
-			IsAllDay:     &allDay,
-			IsException:  &isException,
+			Description:      &desc,
+			Location:         &loc,
+			Timezone:         &tz,
+			Type:             &entryType,
+			IsAllDay:         &allDay,
+			IsException:      &isException,
 			PositionInSeries: &pos,
 		})
 		require.NoError(t, err)
@@ -879,9 +879,9 @@ func TestCalendarService_ImportHolidaysToCalendar(t *testing.T) {
 			Holidays: entities.UnburdyHolidaysData{
 				PublicHolidays: map[string]map[string]string{
 					"2025": {
-						"Neujahr":          "2025-01-01",
-						"Tag der Arbeit":   "2025-05-01",
-						"Weihnachten":      "2025-12-25",
+						"Neujahr":        "2025-01-01",
+						"Tag der Arbeit": "2025-05-01",
+						"Weihnachten":    "2025-12-25",
 					},
 				},
 			},

@@ -3,9 +3,9 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/AgileExecutives/shared-modules/pdf/services"
 	"github.com/AgileExecutives/serverbase/pkg/core"
 	"github.com/AgileExecutives/serverbase/pkg/middleware"
+	"github.com/AgileExecutives/shared-modules/pdf/services"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )

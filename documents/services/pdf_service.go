@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/chromedp/cdproto/page"
-	"github.com/chromedp/chromedp"
 	"github.com/AgileExecutives/shared-modules/documents/entities"
 	"github.com/AgileExecutives/shared-modules/documents/services/storage"
+	"github.com/chromedp/cdproto/page"
+	"github.com/chromedp/chromedp"
 	"gorm.io/gorm"
 )
 

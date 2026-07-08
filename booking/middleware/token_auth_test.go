@@ -7,12 +7,12 @@ import (
 	"testing"
 	"time"
 
+	"github.com/AgileExecutives/shared-modules/booking/entities"
+	"github.com/AgileExecutives/shared-modules/booking/services"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/AgileExecutives/shared-modules/booking/entities"
-	"github.com/AgileExecutives/shared-modules/booking/services"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )

@@ -1,29 +1,27 @@
 package services
 
 import (
+	"context"
+
+	"github.com/AgileExecutives/serverbase/modules/customers/repo"
 	"github.com/AgileExecutives/serverbase/pkg/core"
 	"github.com/AgileExecutives/shared-modules/saas-base/models"
-	"gorm.io/gorm"
 )
 
 // CustomerService provides customer business logic.
 type CustomerService struct {
-	db     *gorm.DB
+	repo   repo.CustomerRepo
 	logger core.Logger
 }
 
-// NewCustomerService creates a new CustomerService.
-func NewCustomerService(db *gorm.DB, logger core.Logger) *CustomerService {
-	return &CustomerService{db: db, logger: logger}
+// NewCustomerService creates a new CustomerService accepting a CustomerRepo.
+func NewCustomerService(r repo.CustomerRepo, logger core.Logger) *CustomerService {
+	return &CustomerService{repo: r, logger: logger}
 }
 
 // GetByTenant returns all customers for a given tenant.
 func (s *CustomerService) GetByTenant(tenantID uint) ([]models.Customer, error) {
-	var customers []models.Customer
-	if err := s.db.Where("tenant_id = ?", tenantID).Find(&customers).Error; err != nil {
-		return nil, err
-	}
-	return customers, nil
+	return s.repo.FindByTenant(context.Background(), tenantID)
 }
 
 // CustomerServiceProvider implements core.ServiceProvider.

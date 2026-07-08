@@ -7,9 +7,9 @@ import (
 	"time"
 
 	baseAPI "github.com/AgileExecutives/serverbase/api"
-	"github.com/gin-gonic/gin"
 	"github.com/AgileExecutives/shared-modules/booking/entities"
 	"github.com/AgileExecutives/shared-modules/booking/services"
+	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
 

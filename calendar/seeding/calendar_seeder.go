@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/AgileExecutives/shared-modules/calendar/entities"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 

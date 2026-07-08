@@ -36,9 +36,9 @@ type InvoiceNumberLog struct {
 	Year           int       `gorm:"not null;index" json:"year"`
 	Month          int       `gorm:"not null;index" json:"month"`
 	Sequence       int       `gorm:"not null" json:"sequence"`
-	ReferenceID    uint      `gorm:"index" json:"reference_id,omitempty"`    // Optional reference to invoice
+	ReferenceID    uint      `gorm:"index" json:"reference_id,omitempty"`     // Optional reference to invoice
 	ReferenceType  string    `gorm:"size:50" json:"reference_type,omitempty"` // e.g., "invoice", "credit_note"
-	Status         string    `gorm:"size:20;default:'active'" json:"status"` // active, voided, cancelled
+	Status         string    `gorm:"size:20;default:'active'" json:"status"`  // active, voided, cancelled
 	GeneratedAt    time.Time `gorm:"not null" json:"generated_at"`
 	CreatedAt      time.Time `json:"created_at"`
 	UpdatedAt      time.Time `json:"updated_at"`

@@ -5,9 +5,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/AgileExecutives/shared-modules/invoice/entities"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/AgileExecutives/shared-modules/invoice/entities"
 )
 
 func makeCreateReq(orgID uint, num string) *entities.CreateInvoiceRequest {

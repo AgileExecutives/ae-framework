@@ -1,11 +1,11 @@
 package audit
 
 import (
-	"github.com/gin-gonic/gin"
 	"github.com/AgileExecutives/shared-modules/audit/entities"
 	"github.com/AgileExecutives/shared-modules/audit/handlers"
 	"github.com/AgileExecutives/shared-modules/audit/routes"
 	"github.com/AgileExecutives/shared-modules/audit/services"
+	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
 

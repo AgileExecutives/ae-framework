@@ -3,6 +3,7 @@ package saasbase
 import (
 	"context"
 
+	"github.com/AgileExecutives/serverbase/modules/customers/repo"
 	"github.com/AgileExecutives/serverbase/pkg/core"
 	"github.com/AgileExecutives/shared-modules/saas-base/entities"
 	"github.com/AgileExecutives/shared-modules/saas-base/handlers"
@@ -37,7 +38,8 @@ func (m *CoreModule) Initialize(ctx core.ModuleContext) error {
 	ctx.Logger.Info("Initializing saas-base module...")
 
 	m.module = NewModule(ctx.DB)
-	m.customerService = services.NewCustomerService(ctx.DB, ctx.Logger)
+	custRepo := repo.NewGormCustomerRepo(ctx.DB)
+	m.customerService = services.NewCustomerService(custRepo, ctx.Logger)
 
 	if err := m.module.AutoMigrate(); err != nil {
 		return err

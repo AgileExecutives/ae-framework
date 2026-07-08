@@ -3,9 +3,9 @@ package routes
 import (
 	"github.com/AgileExecutives/serverbase/pkg/core"
 	"github.com/AgileExecutives/serverbase/pkg/middleware"
-	"github.com/gin-gonic/gin"
 	"github.com/AgileExecutives/shared-modules/invoice_number/handlers"
 	"github.com/AgileExecutives/shared-modules/invoice_number/services"
+	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
 

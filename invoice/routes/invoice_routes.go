@@ -2,8 +2,8 @@ package routes
 
 import (
 	"github.com/AgileExecutives/serverbase/pkg/core"
-	"github.com/gin-gonic/gin"
 	"github.com/AgileExecutives/shared-modules/invoice/handlers"
+	"github.com/gin-gonic/gin"
 )
 
 // InvoiceRoutes implements RouteProvider for invoice management

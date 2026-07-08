@@ -10,8 +10,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/golang-jwt/jwt/v5"
 	"github.com/AgileExecutives/shared-modules/booking/entities"
+	"github.com/golang-jwt/jwt/v5"
 	"gorm.io/gorm"
 )
 

@@ -4,9 +4,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/AgileExecutives/shared-modules/booking/entities"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/stretchr/testify/assert"
-	"github.com/AgileExecutives/shared-modules/booking/entities"
 )
 
 // TestGenerateToken tests JWT token generation

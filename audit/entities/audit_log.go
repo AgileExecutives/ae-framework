@@ -1,36 +1,36 @@
 package entities
 
 import (
-"encoding/json"
-"time"
+	"encoding/json"
+	"time"
 
-"gorm.io/gorm"
+	"gorm.io/gorm"
 )
 
 // AuditAction represents the type of action performed
 type AuditAction string
 
 const (
-AuditActionInvoiceDraftCreated   AuditAction = "invoice_draft_created"
-AuditActionInvoiceDraftUpdated   AuditAction = "invoice_draft_updated"
-AuditActionInvoiceDraftCancelled AuditAction = "invoice_draft_cancelled"
-AuditActionInvoiceFinalized      AuditAction = "invoice_finalized"
-AuditActionInvoiceSent           AuditAction = "invoice_sent"
-AuditActionInvoiceMarkedPaid     AuditAction = "invoice_marked_paid"
-AuditActionInvoiceMarkedOverdue  AuditAction = "invoice_marked_overdue"
-AuditActionReminderSent          AuditAction = "reminder_sent"
-AuditActionCreditNoteCreated     AuditAction = "credit_note_created"
-AuditActionXRechnungExported     AuditAction = "xrechnung_exported"
+	AuditActionInvoiceDraftCreated   AuditAction = "invoice_draft_created"
+	AuditActionInvoiceDraftUpdated   AuditAction = "invoice_draft_updated"
+	AuditActionInvoiceDraftCancelled AuditAction = "invoice_draft_cancelled"
+	AuditActionInvoiceFinalized      AuditAction = "invoice_finalized"
+	AuditActionInvoiceSent           AuditAction = "invoice_sent"
+	AuditActionInvoiceMarkedPaid     AuditAction = "invoice_marked_paid"
+	AuditActionInvoiceMarkedOverdue  AuditAction = "invoice_marked_overdue"
+	AuditActionReminderSent          AuditAction = "reminder_sent"
+	AuditActionCreditNoteCreated     AuditAction = "credit_note_created"
+	AuditActionXRechnungExported     AuditAction = "xrechnung_exported"
 )
 
 // EntityType represents the type of entity being audited
 type EntityType string
 
 const (
-EntityTypeInvoice     EntityType = "invoice"
-EntityTypeInvoiceItem EntityType = "invoice_item"
-EntityTypeSession     EntityType = "session"
-EntityTypeExtraEffort EntityType = "extra_effort"
+	EntityTypeInvoice     EntityType = "invoice"
+	EntityTypeInvoiceItem EntityType = "invoice_item"
+	EntityTypeSession     EntityType = "session"
+	EntityTypeExtraEffort EntityType = "extra_effort"
 )
 
 // AuditLog represents an audit trail entry

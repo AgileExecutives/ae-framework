@@ -4,10 +4,10 @@ import (
 	"testing"
 
 	"github.com/AgileExecutives/serverbase/pkg/testutils"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 	"github.com/AgileExecutives/shared-modules/audit/entities"
 	"github.com/AgileExecutives/shared-modules/audit/services"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"gorm.io/gorm"
 )
 
@@ -330,120 +330,120 @@ func TestAuditService_Immutability(t *testing.T) {
 	assert.Equal(t, originalAction, verifyLog.Action, "Audit log should be immutable")
 }
 func TestAuditService_GetAuditLogsByEntity(t *testing.T) {
-        service, db := setupAuditTest(t)
-        _ = db
+	service, db := setupAuditTest(t)
+	_ = db
 
-        // Create some logs
-        for i, action := range []entities.AuditAction{
-                entities.AuditActionInvoiceDraftCreated,
-                entities.AuditActionInvoiceDraftUpdated,
-                entities.AuditActionInvoiceFinalized,
-        } {
-                _ = i
-                err := service.LogEvent(services.LogEventRequest{
-                        TenantID:   1,
-                        UserID:     10,
-                        EntityType: entities.EntityTypeInvoice,
-                        EntityID:   42,
-                        Action:     action,
-                })
-                require.NoError(t, err)
-        }
-        // Different entity
-        err := service.LogEvent(services.LogEventRequest{
-                TenantID:   1,
-                UserID:     10,
-                EntityType: entities.EntityTypeSession,
-                EntityID:   99,
-                Action:     entities.AuditActionInvoiceDraftCreated,
-        })
-        require.NoError(t, err)
+	// Create some logs
+	for i, action := range []entities.AuditAction{
+		entities.AuditActionInvoiceDraftCreated,
+		entities.AuditActionInvoiceDraftUpdated,
+		entities.AuditActionInvoiceFinalized,
+	} {
+		_ = i
+		err := service.LogEvent(services.LogEventRequest{
+			TenantID:   1,
+			UserID:     10,
+			EntityType: entities.EntityTypeInvoice,
+			EntityID:   42,
+			Action:     action,
+		})
+		require.NoError(t, err)
+	}
+	// Different entity
+	err := service.LogEvent(services.LogEventRequest{
+		TenantID:   1,
+		UserID:     10,
+		EntityType: entities.EntityTypeSession,
+		EntityID:   99,
+		Action:     entities.AuditActionInvoiceDraftCreated,
+	})
+	require.NoError(t, err)
 
-        t.Run("returns logs for specific entity", func(t *testing.T) {
-                logs, err := service.GetAuditLogsByEntity(1, 42, entities.EntityTypeInvoice)
-                require.NoError(t, err)
-                assert.Len(t, logs, 3)
-        })
+	t.Run("returns logs for specific entity", func(t *testing.T) {
+		logs, err := service.GetAuditLogsByEntity(1, 42, entities.EntityTypeInvoice)
+		require.NoError(t, err)
+		assert.Len(t, logs, 3)
+	})
 
-        t.Run("returns empty for non-existent entity", func(t *testing.T) {
-                logs, err := service.GetAuditLogsByEntity(1, 999, entities.EntityTypeInvoice)
-                require.NoError(t, err)
-                assert.Empty(t, logs)
-        })
+	t.Run("returns empty for non-existent entity", func(t *testing.T) {
+		logs, err := service.GetAuditLogsByEntity(1, 999, entities.EntityTypeInvoice)
+		require.NoError(t, err)
+		assert.Empty(t, logs)
+	})
 
-        t.Run("tenant isolation", func(t *testing.T) {
-                logs, err := service.GetAuditLogsByEntity(2, 42, entities.EntityTypeInvoice)
-                require.NoError(t, err)
-                assert.Empty(t, logs)
-        })
+	t.Run("tenant isolation", func(t *testing.T) {
+		logs, err := service.GetAuditLogsByEntity(2, 42, entities.EntityTypeInvoice)
+		require.NoError(t, err)
+		assert.Empty(t, logs)
+	})
 }
 
 func TestAuditService_ExportAuditLogsToCSV(t *testing.T) {
-        service, _ := setupAuditTest(t)
+	service, _ := setupAuditTest(t)
 
-        // Seed some audit logs
-        for _, action := range []entities.AuditAction{
-                entities.AuditActionInvoiceDraftCreated,
-                entities.AuditActionInvoiceFinalized,
-        } {
-                err := service.LogEvent(services.LogEventRequest{
-                        TenantID:   1,
-                        UserID:     5,
-                        EntityType: entities.EntityTypeInvoice,
-                        EntityID:   10,
-                        Action:     action,
-                        IPAddress:  "127.0.0.1",
-                })
-                require.NoError(t, err)
-        }
+	// Seed some audit logs
+	for _, action := range []entities.AuditAction{
+		entities.AuditActionInvoiceDraftCreated,
+		entities.AuditActionInvoiceFinalized,
+	} {
+		err := service.LogEvent(services.LogEventRequest{
+			TenantID:   1,
+			UserID:     5,
+			EntityType: entities.EntityTypeInvoice,
+			EntityID:   10,
+			Action:     action,
+			IPAddress:  "127.0.0.1",
+		})
+		require.NoError(t, err)
+	}
 
-        t.Run("returns CSV with header and rows", func(t *testing.T) {
-                filter := entities.AuditLogFilter{TenantID: 1, Page: 1, Limit: 100}
-                csv, err := service.ExportAuditLogsToCSV(filter)
-                require.NoError(t, err)
-                assert.Contains(t, csv, "ID,Tenant ID,User ID")
-                assert.Contains(t, csv, "invoice_draft_created")
-        })
+	t.Run("returns CSV with header and rows", func(t *testing.T) {
+		filter := entities.AuditLogFilter{TenantID: 1, Page: 1, Limit: 100}
+		csv, err := service.ExportAuditLogsToCSV(filter)
+		require.NoError(t, err)
+		assert.Contains(t, csv, "ID,Tenant ID,User ID")
+		assert.Contains(t, csv, "invoice_draft_created")
+	})
 
-        t.Run("empty result still returns header", func(t *testing.T) {
-                filter := entities.AuditLogFilter{TenantID: 99, Page: 1, Limit: 100}
-                csv, err := service.ExportAuditLogsToCSV(filter)
-                require.NoError(t, err)
-                assert.Contains(t, csv, "ID,Tenant ID,User ID")
-        })
+	t.Run("empty result still returns header", func(t *testing.T) {
+		filter := entities.AuditLogFilter{TenantID: 99, Page: 1, Limit: 100}
+		csv, err := service.ExportAuditLogsToCSV(filter)
+		require.NoError(t, err)
+		assert.Contains(t, csv, "ID,Tenant ID,User ID")
+	})
 }
 
 func TestAuditService_GetAuditStatistics(t *testing.T) {
-        service, _ := setupAuditTest(t)
+	service, _ := setupAuditTest(t)
 
-        // Seed some logs
-        for _, action := range []entities.AuditAction{
-                entities.AuditActionInvoiceDraftCreated,
-                entities.AuditActionInvoiceFinalized,
-                entities.AuditActionInvoiceSent,
-        } {
-                err := service.LogEvent(services.LogEventRequest{
-                        TenantID:   1,
-                        UserID:     5,
-                        EntityType: entities.EntityTypeInvoice,
-                        EntityID:   10,
-                        Action:     action,
-                })
-                require.NoError(t, err)
-        }
+	// Seed some logs
+	for _, action := range []entities.AuditAction{
+		entities.AuditActionInvoiceDraftCreated,
+		entities.AuditActionInvoiceFinalized,
+		entities.AuditActionInvoiceSent,
+	} {
+		err := service.LogEvent(services.LogEventRequest{
+			TenantID:   1,
+			UserID:     5,
+			EntityType: entities.EntityTypeInvoice,
+			EntityID:   10,
+			Action:     action,
+		})
+		require.NoError(t, err)
+	}
 
-        t.Run("returns statistics for tenant", func(t *testing.T) {
-                stats, err := service.GetAuditStatistics(1, nil, nil)
-                require.NoError(t, err)
-                assert.NotNil(t, stats)
-                total, ok := stats["total_logs"]
-                require.True(t, ok)
-                assert.GreaterOrEqual(t, total, int64(3))
-        })
+	t.Run("returns statistics for tenant", func(t *testing.T) {
+		stats, err := service.GetAuditStatistics(1, nil, nil)
+		require.NoError(t, err)
+		assert.NotNil(t, stats)
+		total, ok := stats["total_logs"]
+		require.True(t, ok)
+		assert.GreaterOrEqual(t, total, int64(3))
+	})
 
-        t.Run("empty tenant returns zero stats", func(t *testing.T) {
-                stats, err := service.GetAuditStatistics(99, nil, nil)
-                require.NoError(t, err)
-                assert.NotNil(t, stats)
-        })
+	t.Run("empty tenant returns zero stats", func(t *testing.T) {
+		stats, err := service.GetAuditStatistics(99, nil, nil)
+		require.NoError(t, err)
+		assert.NotNil(t, stats)
+	})
 }

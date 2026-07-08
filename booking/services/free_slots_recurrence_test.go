@@ -4,9 +4,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/AgileExecutives/shared-modules/booking/entities"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"github.com/AgileExecutives/shared-modules/booking/entities"
 )
 
 // Phase 1: Test recurrence calculation stops on first conflict
