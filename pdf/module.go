@@ -3,10 +3,10 @@ package pdf
 import (
 	"context"
 
+	"github.com/AgileExecutives/serverbase/pkg/core"
 	"github.com/AgileExecutives/shared-modules/pdf/events"
 	"github.com/AgileExecutives/shared-modules/pdf/handlers"
 	"github.com/AgileExecutives/shared-modules/pdf/services"
-	"github.com/AgileExecutives/serverbase/pkg/core"
 )
 
 type PDFModule struct {
@@ -25,6 +25,9 @@ func (m *PDFModule) Initialize(ctx core.ModuleContext) error {
 	m.pdfService = services.NewPDFGenerator()
 	m.pdfHandler = handlers.NewPDFHandler(m.pdfService, ctx.DB)
 	m.eventHandlers = []core.EventHandler{events.NewPDFGeneratedHandler(ctx.Logger), events.NewPDFFailedHandler(ctx.Logger)}
+	if ctx.DocRegistry != nil {
+		ctx.DocRegistry.RegisterDoc(m.Name(), PDFSwaggerJSON)
+	}
 	ctx.Logger.Info("PDF module initialized successfully")
 	return nil
 }

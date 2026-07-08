@@ -8,6 +8,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"gorm.io/gorm"
 
+	"github.com/AgileExecutives/shared-modules/booking/docs"
 	"github.com/AgileExecutives/shared-modules/booking/entities"
 	"github.com/AgileExecutives/shared-modules/booking/handlers"
 	"github.com/AgileExecutives/shared-modules/booking/middleware"
@@ -120,6 +121,12 @@ func (m *Module) Initialize(ctx core.ModuleContext) error {
 
 	// Initialize route provider with database for auth middleware
 	m.routeProvider = routes.NewRouteProvider(m.bookingHandler, m.tokenMiddleware, ctx.DB)
+
+	// Register pre-generated swagger docs with the server's doc registry so they
+	// are merged into the combined spec served at /swagger/index.html.
+	if ctx.DocRegistry != nil {
+		ctx.DocRegistry.RegisterDoc(m.Name(), docs.SwaggerInfo.ReadDoc())
+	}
 
 	ctx.Logger.Info("Booking module initialized successfully")
 	return nil

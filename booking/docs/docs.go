@@ -1241,7 +1241,7 @@ var SwaggerInfo = &swag.Spec{
 	Schemes:          []string{},
 	Title:            "",
 	Description:      "",
-	InfoInstanceName: "swagger",
+	InfoInstanceName: "booking",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",
 	RightDelim:       "}}",

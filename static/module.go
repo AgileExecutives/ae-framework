@@ -3,8 +3,8 @@ package static
 import (
 	"context"
 
-	"github.com/AgileExecutives/shared-modules/static/handlers"
 	"github.com/AgileExecutives/serverbase/pkg/core"
+	"github.com/AgileExecutives/shared-modules/static/handlers"
 	"gorm.io/gorm"
 )
 
@@ -22,6 +22,9 @@ func (m *StaticModule) Initialize(ctx core.ModuleContext) error {
 	m.db = ctx.DB
 	repo := handlers.NewFSStaticRepo("./statics/json")
 	m.staticHandlers = handlers.NewStaticHandlers(ctx.Logger, repo)
+	if ctx.DocRegistry != nil {
+		ctx.DocRegistry.RegisterDoc(m.Name(), StaticSwaggerJSON)
+	}
 	ctx.Logger.Info("Static module initialized successfully")
 	return nil
 }

@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 
+	"github.com/AgileExecutives/shared-modules/calendar/docs"
 	"github.com/AgileExecutives/shared-modules/calendar/entities"
 	"github.com/AgileExecutives/shared-modules/calendar/handlers"
 	"github.com/AgileExecutives/shared-modules/calendar/routes"
@@ -78,6 +79,12 @@ func (m *Module) Initialize(ctx core.ModuleContext) error {
 
 	// Initialize route provider with database for auth middleware
 	m.routeProvider = routes.NewRouteProvider(m.calendarHandler, ctx.DB)
+
+	// Register pre-generated swagger docs with the server's doc registry so they
+	// are merged into the combined spec served at /swagger/index.html.
+	if ctx.DocRegistry != nil {
+		ctx.DocRegistry.RegisterDoc(m.Name(), docs.SwaggerInfo.ReadDoc())
+	}
 
 	ctx.Logger.Info("Calendar module initialized successfully")
 	return nil
