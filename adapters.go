@@ -1,16 +1,13 @@
 package main
 
 import (
-	"context"
 	"log"
 	"net/http"
 	"strings"
 	"time"
 
 	models "github.com/AgileExecutives/serverbase/internal/models"
-	sbmodule "github.com/AgileExecutives/serverbase/module"
 	"github.com/AgileExecutives/serverbase/pkg/auth"
-	"github.com/AgileExecutives/serverbase/pkg/core"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
@@ -111,40 +108,3 @@ func (s *simpleTokenService) ParseTokenID(tokenString string) (string, error)   
 func (s *simpleTokenService) GetTokenExpiration(tokenString string) (time.Time, error) {
 	return time.Time{}, nil
 }
-
-// coreModuleAdapter adapts a core.Module to the serverbase Module interface.
-type coreModuleAdapter struct {
-	mod core.Module
-	ctx core.ModuleContext
-}
-
-func newCoreAdapter(m core.Module, ctx core.ModuleContext) sbmodule.Module {
-	return &coreModuleAdapter{mod: m, ctx: ctx}
-}
-
-func (a *coreModuleAdapter) Name() string { return a.mod.Name() }
-
-// Register will initialize the underlying core module and register its routes
-// directly on the provided ModuleContext.Router (gin.Engine) under /api/v1.
-func (a *coreModuleAdapter) Register(reg sbmodule.Registry) error {
-	// Initialize the module with the prepared context
-	if err := a.mod.Initialize(a.ctx); err != nil {
-		return err
-	}
-
-	// Register each route provider on the gin router
-	apiV1 := a.ctx.Router.Group("/api/v1")
-	for _, rp := range a.mod.Routes() {
-		group := apiV1.Group(rp.GetPrefix())
-		for _, m := range rp.GetMiddleware() {
-			group.Use(m)
-		}
-		rp.RegisterRoutes(group, a.ctx)
-	}
-
-	// Register event handlers / services would go here if needed
-	return nil
-}
-
-func (a *coreModuleAdapter) Start(ctx context.Context) error { return a.mod.Start(ctx) }
-func (a *coreModuleAdapter) Stop(ctx context.Context) error  { return a.mod.Stop(ctx) }

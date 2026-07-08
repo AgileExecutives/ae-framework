@@ -2,19 +2,19 @@ package main
 
 import (
 	"log"
+	"os"
 
 	email "github.com/AgileExecutives/serverbase/modules/email"
+	orgmod "github.com/AgileExecutives/serverbase/modules/organizations"
+	saas "github.com/AgileExecutives/serverbase/modules/saas"
 	user "github.com/AgileExecutives/serverbase/modules/user"
 	"github.com/AgileExecutives/serverbase/pkg/core"
+	"github.com/AgileExecutives/serverbase/pkg/swagger"
 	calmod "github.com/AgileExecutives/shared-modules/calendar"
-	orgmod "github.com/AgileExecutives/shared-modules/organization"
+	minimalorg "github.com/AgileExecutives/shared-modules/organization"
 	pdf "github.com/AgileExecutives/shared-modules/pdf"
 	static "github.com/AgileExecutives/shared-modules/static"
 	"github.com/gin-gonic/gin"
-
-	internalHandlers "github.com/AgileExecutives/serverbase/internal/handlers"
-	internalMiddleware "github.com/AgileExecutives/serverbase/internal/middleware"
-	saashandlers "github.com/AgileExecutives/shared-modules/saas-base/handlers"
 
 	models "github.com/AgileExecutives/serverbase/internal/models"
 	saasmodels "github.com/AgileExecutives/shared-modules/saas-base/models"
@@ -31,6 +31,9 @@ import (
 func main() {
 	// create gin engine to satisfy existing core.Module expectations
 	gin.SetMode(gin.ReleaseMode)
+	// Ensure email verification is disabled for the test harness so
+	// registration -> login works without external email flows.
+	os.Setenv("FEATURE_EMAIL_VERIFICATION", "false")
 	ginEngine := gin.New()
 	// Do not auto-redirect requests that differ only by trailing slash — tests
 	// expect exact behavior for `/api/v1/static` vs `/api/v1/static/`.
@@ -42,6 +45,9 @@ func main() {
 		log.Fatalf("failed to open sqlite db: %v", err)
 	}
 
+	// Swagger doc registry – modules register their pre-generated JSON here during Initialize.
+	docRegistry := swagger.NewRegistry()
+
 	// build a module context used by core modules
 	coreCtx := core.ModuleContext{
 		Router:       ginEngine,
@@ -50,38 +56,27 @@ func main() {
 		Logger:       core.NewLogger(),
 		Auth:         &simpleAuthService{db: db},
 		TokenService: &simpleTokenService{},
-	}
-
-	// Ensure saas-base models exist for plans/customers used by tests
-	if err := db.AutoMigrate(&saasmodels.Plan{}, &saasmodels.Customer{}); err != nil {
-		log.Printf("warning: failed to auto-migrate saas-base models: %v", err)
+		DocRegistry:  docRegistry,
+		Services:     core.NewServiceRegistry(),
 	}
 
 	mr := sbmodule.NewRegistry()
 
-	// register adapted core modules so they initialize and register their routes
+	// All routes and swagger docs are registered by the modules themselves.
 	modules := []core.Module{
 		user.NewUserModule(),
-		orgmod.NewOrganizationModule(),
+		minimalorg.NewOrganizationModule(), // entity only
+		orgmod.NewOrganizationsModule(),    // CRUD routes + swagger docs
 		email.NewEmailModule(),
 		pdf.NewPDFModule(),
 		calmod.NewCoreModule(),
 		static.NewStaticModule(),
+		saas.NewSaaSModule(), // customers + plans (no newsletter – handled by user module)
 	}
 
-	for _, m := range modules {
-		// run AutoMigrate for module entities so handlers have tables available
-		for _, e := range m.Entities() {
-			if model := e.GetModel(); model != nil {
-				if err := db.AutoMigrate(model); err != nil {
-					log.Fatalf("auto-migrate failed for module %s: %v", m.Name(), err)
-				}
-			}
-		}
-
-		mr.RegisterModule(newCoreAdapter(m, coreCtx))
+	if err := sbmodule.RegisterCoreModules(mr, modules, db, coreCtx); err != nil {
+		log.Fatalf("module registration failed: %v", err)
 	}
-
 	cfg := sbconfig.Config{Addr: ":8080"}
 
 	server := sbhttp.New(cfg.Addr)
@@ -136,31 +131,14 @@ func main() {
 		log.Fatalf("module init failed: %v", err)
 	}
 
-	// Register saas-base handlers (customers, plans, newsletter) so tests can hit /customers
-	apiGroup := ginEngine.Group("/api/v1")
-	protected := apiGroup.Group("")
-	protected.Use(internalMiddleware.AuthMiddleware(db))
-
-	customerHandlers := saashandlers.NewCustomerHandlers(db)
-	// customer routes
-	protected.GET("/customers", customerHandlers.GetCustomers)
-	protected.POST("/customers", customerHandlers.CreateCustomer)
-	protected.GET("/customers/:id", customerHandlers.GetCustomer)
-	protected.PUT("/customers/:id", customerHandlers.UpdateCustomer)
-	protected.DELETE("/customers/:id", customerHandlers.DeleteCustomer)
-
-	// plan routes
-	planHandler := internalHandlers.NewPlanHandler(db)
-	// Public plans endpoints
-	apiGroup.GET("/plans", planHandler.GetPlans)
-	apiGroup.GET("/plans/:id", planHandler.GetPlan)
-
-	// Admin plan management endpoints
-	adminGroup := apiGroup.Group("/admin")
-	adminGroup.Use(internalMiddleware.AuthMiddleware(db), internalMiddleware.RequireAdmin())
-	adminGroup.POST("/plans", planHandler.CreatePlan)
-	adminGroup.PUT("/plans/:id", planHandler.UpdatePlan)
-	adminGroup.DELETE("/plans/:id", planHandler.DeletePlan)
+	// Merge swagger docs from all modules and mount the UI endpoint.
+	swagger.SetupAndMount(docRegistry, ginEngine, swagger.ServerInfo{
+		Title:       "AE SaaS API (test)",
+		Description: "Combined API documentation for all registered modules",
+		Version:     "1.0.0",
+		BasePath:    "/api/v1",
+		Schemes:     []string{"http"},
+	})
 
 	go func() {
 		if err := server.Start(); err != nil {

@@ -13,13 +13,13 @@ jsonpath "$.database" == "connected"
 POST http://localhost:8080/api/v1/auth/register
 Content-Type: application/json
 {
-  "email": "test_1783450980_bbda909e@example.com",
-  "username": "user_1783450980_bbda909e",
-  "password": "Pass123_bbda909e",
+  "email": "test_1783501978_55351c49@example.com",
+  "username": "user_1783501978_55351c49",
+  "password": "Pass123_55351c49",
   "first_name": "Integration",
   "last_name": "Test",
-  "company_name": "Test Company 1783450980_bbda909e",
-  "tenant_name": "tenant_1783450980_bbda909e",
+  "company_name": "Test Company 1783501978_55351c49",
+  "tenant_name": "tenant_1783501978_55351c49",
   "accept_terms": true
 }
 
@@ -32,8 +32,8 @@ jsonpath "$.success" exists
 POST http://localhost:8080/api/v1/auth/login
 Content-Type: application/json
 {
-  "email": "test_1783450980_bbda909e@example.com",
-  "password": "Pass123_bbda909e"
+  "email": "test_1783501978_55351c49@example.com",
+  "password": "Pass123_55351c49"
 }
 
 HTTP 200

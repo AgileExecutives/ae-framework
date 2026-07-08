@@ -1,4 +1,5 @@
 .env
 server-test-bin
 tmp/*
+test_results/*
 .DS_Store
