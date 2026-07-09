@@ -228,18 +228,7 @@ func (m *Module) SwaggerPaths() []string {
 	}
 }
 
-// Legacy support methods for compatibility with existing baseAPI.ModuleRouteProvider interface
-
-// RegisterRoutes implements compatibility with baseAPI.ModuleRouteProvider
-func (m *Module) RegisterRoutes(router *gin.RouterGroup) {
-	// Legacy compatibility: call route provider with minimal ModuleContext
-	m.routeProvider.RegisterRoutes(router, core.ModuleContext{DB: m.db})
-}
-
-// GetPrefix implements compatibility with baseAPI.ModuleRouteProvider
-func (m *Module) GetPrefix() string {
-	return m.routeProvider.GetPrefix()
-}
+// Legacy compatibility methods removed (ModuleRouteProvider compatibility no longer required)
 
 // bookingRouteAdapter adapts the booking routes.RouteProvider to core.RouteProvider
 type bookingRouteAdapter struct {
