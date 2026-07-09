@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/AgileExecutives/shared-modules/booking/entities"
+	repo "github.com/AgileExecutives/shared-modules/booking/repo"
 	"github.com/AgileExecutives/shared-modules/booking/services"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
@@ -47,7 +48,8 @@ func setupTestDB(t *testing.T) *gorm.DB {
 func setupTestServices(db *gorm.DB) (*BookingTokenMiddleware, *services.BookingLinkService) {
 	secret := "test-secret-key-32-chars-long!!"
 	bookingLinkSvc := services.NewBookingLinkService(db, secret)
-	middleware := NewBookingTokenMiddleware(bookingLinkSvc, db)
+	gormRepo := repo.NewGormBookingRepo(db)
+	middleware := NewBookingTokenMiddleware(bookingLinkSvc, gormRepo)
 	return middleware, bookingLinkSvc
 }
 

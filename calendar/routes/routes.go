@@ -1,31 +1,25 @@
 package routes
 
 import (
-	"github.com/AgileExecutives/serverbase/pkg/middleware"
+	"github.com/AgileExecutives/serverbase/pkg/core"
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 
 	"github.com/AgileExecutives/shared-modules/calendar/handlers"
 )
 
 // RouteProvider provides routing functionality for calendar management
-type RouteProvider struct {
-	calendarHandler *handlers.CalendarHandler
-	db              *gorm.DB
-}
+type RouteProvider struct{ calendarHandler *handlers.CalendarHandler }
 
 // NewRouteProvider creates a new route provider
-func NewRouteProvider(calendarHandler *handlers.CalendarHandler, db *gorm.DB) *RouteProvider {
-	return &RouteProvider{
-		calendarHandler: calendarHandler,
-		db:              db,
-	}
+func NewRouteProvider(calendarHandler *handlers.CalendarHandler) *RouteProvider {
+	return &RouteProvider{calendarHandler: calendarHandler}
 }
 
 // RegisterRoutes registers the calendar management routes with the provided router group
-func (rp *RouteProvider) RegisterRoutes(router *gin.RouterGroup) {
+func (rp *RouteProvider) RegisterRoutes(router *gin.RouterGroup, ctx core.ModuleContext) {
 	// Calendar CRUD endpoints (authenticated)
 	calendar := router.Group("/calendars")
+	calendar.Use(ctx.Auth.RequireAuth())
 	{
 		calendar.POST("", rp.calendarHandler.CreateCalendar)
 		calendar.GET("", rp.calendarHandler.GetCalendarsWithMetadata)
@@ -41,6 +35,7 @@ func (rp *RouteProvider) RegisterRoutes(router *gin.RouterGroup) {
 
 	// Calendar Entry CRUD endpoints (authenticated)
 	entries := router.Group("/calendar-entries")
+	entries.Use(ctx.Auth.RequireAuth())
 	{
 		entries.POST("", rp.calendarHandler.CreateCalendarEntry)
 		entries.GET("", rp.calendarHandler.GetAllCalendarEntries)
@@ -51,6 +46,7 @@ func (rp *RouteProvider) RegisterRoutes(router *gin.RouterGroup) {
 
 	// Calendar Series CRUD endpoints (authenticated)
 	series := router.Group("/calendar-series")
+	series.Use(ctx.Auth.RequireAuth())
 	{
 		series.POST("", rp.calendarHandler.CreateCalendarSeries)
 		series.GET("", rp.calendarHandler.GetAllCalendarSeries)
@@ -61,6 +57,7 @@ func (rp *RouteProvider) RegisterRoutes(router *gin.RouterGroup) {
 
 	// External Calendar CRUD endpoints (authenticated)
 	external := router.Group("/external-calendars")
+	external.Use(ctx.Auth.RequireAuth())
 	{
 		external.POST("", rp.calendarHandler.CreateExternalCalendar)
 		external.GET("", rp.calendarHandler.GetAllExternalCalendars)
@@ -71,16 +68,10 @@ func (rp *RouteProvider) RegisterRoutes(router *gin.RouterGroup) {
 }
 
 // GetPrefix returns the route prefix for calendar management endpoints
-func (rp *RouteProvider) GetPrefix() string {
-	return ""
-}
+func (rp *RouteProvider) GetPrefix() string { return "" }
 
 // GetMiddleware returns middleware to apply to all routes
-func (rp *RouteProvider) GetMiddleware() []gin.HandlerFunc {
-	return []gin.HandlerFunc{
-		middleware.AuthMiddleware(rp.db), // Require authentication for all calendar routes
-	}
-}
+func (rp *RouteProvider) GetMiddleware() []gin.HandlerFunc { return nil }
 
 // GetSwaggerTags returns swagger tags for the routes
 func (rp *RouteProvider) GetSwaggerTags() []string {

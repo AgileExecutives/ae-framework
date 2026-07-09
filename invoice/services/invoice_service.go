@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/AgileExecutives/shared-modules/invoice/entities"
+	repo "github.com/AgileExecutives/shared-modules/invoice/repo"
 	invoiceNumberService "github.com/AgileExecutives/shared-modules/invoice_number/services"
 	"gorm.io/gorm"
 )
@@ -14,6 +15,7 @@ import (
 type InvoiceService struct {
 	db         *gorm.DB
 	pdfService PDFService
+	repo       repo.InvoiceRepo
 }
 
 // NewInvoiceService creates a new invoice service
@@ -21,6 +23,11 @@ func NewInvoiceService(db *gorm.DB) *InvoiceService {
 	return &InvoiceService{
 		db: db,
 	}
+}
+
+// NewInvoiceServiceWithRepo creates an InvoiceService backed by an explicit repo
+func NewInvoiceServiceWithRepo(r repo.InvoiceRepo) *InvoiceService {
+	return &InvoiceService{repo: r}
 }
 
 // CreateInvoice creates a new invoice
@@ -86,6 +93,13 @@ func (s *InvoiceService) CreateInvoice(ctx context.Context, tenantID, userID uin
 		invoice.Currency = "EUR"
 	}
 
+	if s.repo != nil {
+		if err := s.repo.CreateInvoice(ctx, invoice); err != nil {
+			return nil, fmt.Errorf("failed to create invoice: %w", err)
+		}
+		return invoice, nil
+	}
+
 	if err := s.db.WithContext(ctx).Create(invoice).Error; err != nil {
 		return nil, fmt.Errorf("failed to create invoice: %w", err)
 	}
@@ -128,6 +142,10 @@ func (s *InvoiceService) GetInvoiceSettings(ctx context.Context, tenantID, organ
 
 // GetInvoice retrieves an invoice by ID
 func (s *InvoiceService) GetInvoice(ctx context.Context, tenantID, invoiceID uint) (*entities.Invoice, error) {
+	if s.repo != nil {
+		return s.repo.GetInvoice(ctx, tenantID, invoiceID)
+	}
+
 	var invoice entities.Invoice
 	err := s.db.WithContext(ctx).
 		Preload("Items").
@@ -143,6 +161,10 @@ func (s *InvoiceService) GetInvoice(ctx context.Context, tenantID, invoiceID uin
 
 // ListInvoices lists invoices with filters
 func (s *InvoiceService) ListInvoices(ctx context.Context, tenantID uint, organizationID *uint, status *entities.InvoiceStatus, page, pageSize int) ([]entities.Invoice, int64, error) {
+	if s.repo != nil {
+		return s.repo.ListInvoices(ctx, tenantID, organizationID, status, page, pageSize)
+	}
+
 	var invoices []entities.Invoice
 	var total int64
 
@@ -259,6 +281,13 @@ func (s *InvoiceService) UpdateInvoice(ctx context.Context, tenantID, invoiceID 
 		invoice.Items = items
 	}
 
+	if s.repo != nil {
+		if err := s.repo.UpdateInvoice(ctx, invoice); err != nil {
+			return nil, fmt.Errorf("failed to update invoice: %w", err)
+		}
+		return invoice, nil
+	}
+
 	if err := s.db.WithContext(ctx).Save(invoice).Error; err != nil {
 		return nil, fmt.Errorf("failed to update invoice: %w", err)
 	}
@@ -268,6 +297,10 @@ func (s *InvoiceService) UpdateInvoice(ctx context.Context, tenantID, invoiceID 
 
 // DeleteInvoice soft deletes an invoice
 func (s *InvoiceService) DeleteInvoice(ctx context.Context, tenantID, invoiceID uint) error {
+	if s.repo != nil {
+		return s.repo.DeleteInvoice(ctx, tenantID, invoiceID)
+	}
+
 	return s.db.WithContext(ctx).
 		Where("id = ? AND tenant_id = ?", invoiceID, tenantID).
 		Delete(&entities.Invoice{}).Error
@@ -275,6 +308,10 @@ func (s *InvoiceService) DeleteInvoice(ctx context.Context, tenantID, invoiceID 
 
 // MarkAsPaid marks an invoice as paid
 func (s *InvoiceService) MarkAsPaid(ctx context.Context, tenantID, invoiceID uint, paymentDate time.Time) error {
+	if s.repo != nil {
+		return s.repo.MarkAsPaid(ctx, tenantID, invoiceID, paymentDate)
+	}
+
 	return s.db.WithContext(ctx).
 		Model(&entities.Invoice{}).
 		Where("id = ? AND tenant_id = ?", invoiceID, tenantID).
@@ -286,6 +323,10 @@ func (s *InvoiceService) MarkAsPaid(ctx context.Context, tenantID, invoiceID uin
 
 // LinkDocument links a generated PDF document to an invoice
 func (s *InvoiceService) LinkDocument(ctx context.Context, tenantID, invoiceID, documentID uint) error {
+	if s.repo != nil {
+		return s.repo.LinkDocument(ctx, tenantID, invoiceID, documentID)
+	}
+
 	return s.db.WithContext(ctx).
 		Model(&entities.Invoice{}).
 		Where("id = ? AND tenant_id = ?", invoiceID, tenantID).

@@ -11,21 +11,16 @@ import (
 	"github.com/AgileExecutives/shared-modules/documents/entities"
 	"github.com/AgileExecutives/shared-modules/documents/services"
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
 // DocumentHandler handles document-related HTTP requests
 type DocumentHandler struct {
 	service *services.DocumentService
-	db      *gorm.DB
 }
 
 // NewDocumentHandler creates a new document handler
-func NewDocumentHandler(service *services.DocumentService, db *gorm.DB) *DocumentHandler {
-	return &DocumentHandler{
-		service: service,
-		db:      db,
-	}
+func NewDocumentHandler(service *services.DocumentService) *DocumentHandler {
+	return &DocumentHandler{service: service}
 }
 
 // RegisterRoutes registers document-related routes

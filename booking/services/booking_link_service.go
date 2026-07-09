@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/AgileExecutives/shared-modules/booking/entities"
+	repo "github.com/AgileExecutives/shared-modules/booking/repo"
 	"github.com/golang-jwt/jwt/v5"
 	"gorm.io/gorm"
 )
@@ -27,6 +28,7 @@ type BookingLinkService struct {
 	db           *gorm.DB
 	secretKey    []byte
 	tokenService TokenServiceInterface
+	repo         repo.BookingRepo
 }
 
 // NewBookingLinkService creates a new booking link service
@@ -36,6 +38,16 @@ func NewBookingLinkService(db *gorm.DB, secretKey string) *BookingLinkService {
 		secretKey:    []byte(secretKey),
 		tokenService: nil, // Will use legacy implementation
 	}
+}
+
+// NewBookingLinkServiceWithRepo creates a BookingLinkService that uses a repo for persistence
+func NewBookingLinkServiceWithRepo(r repo.BookingRepo, secretKey string) *BookingLinkService {
+	return &BookingLinkService{repo: r, secretKey: []byte(secretKey)}
+}
+
+// NewBookingLinkServiceWithRepoAndTokenService creates a BookingLinkService using repo and token service
+func NewBookingLinkServiceWithRepoAndTokenService(r repo.BookingRepo, tokenService TokenServiceInterface) *BookingLinkService {
+	return &BookingLinkService{repo: r, tokenService: tokenService}
 }
 
 // NewBookingLinkServiceWithTokenService creates a service using the unified token service
@@ -56,11 +68,22 @@ func (s *BookingLinkService) GenerateBookingLink(templateID, clientID, tenantID 
 func (s *BookingLinkService) GenerateBookingLinkWithOptions(templateID, clientID, tenantID uint, tokenPurpose entities.TokenPurpose, maxUseCount, validityDays int) (string, error) {
 	// Fetch the template to get user_id and calendar_id
 	var template entities.BookingTemplate
-	if err := s.db.Where("id = ? AND tenant_id = ?", templateID, tenantID).First(&template).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return "", errors.New("booking template not found")
+	if s.repo != nil {
+		tpl, err := s.repo.FindConfiguration(nil, templateID, tenantID)
+		if err != nil || tpl == nil {
+			if err == nil {
+				err = errors.New("booking template not found")
+			}
+			return "", fmt.Errorf("failed to retrieve booking template: %w", err)
 		}
-		return "", fmt.Errorf("failed to retrieve booking template: %w", err)
+		template = *tpl
+	} else {
+		if err := s.db.Where("id = ? AND tenant_id = ?", templateID, tenantID).First(&template).Error; err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return "", errors.New("booking template not found")
+			}
+			return "", fmt.Errorf("failed to retrieve booking template: %w", err)
+		}
 	}
 
 	// Create JWT claims
@@ -184,6 +207,13 @@ func (s *BookingLinkService) InvalidateOneTimeToken(token string, claims *entiti
 		"user_id":    claims.UserID,
 		"expires_at": expiresAt,
 		"reason":     fmt.Sprintf("One-time token exhausted after booking (client_id: %d)", claims.ClientID),
+	}
+
+	if s.repo != nil {
+		if err := s.repo.BlacklistToken(nil, tokenID, claims.UserID, expiresAt, blacklistEntry["reason"].(string)); err != nil {
+			return fmt.Errorf("failed to blacklist token: %w", err)
+		}
+		return nil
 	}
 
 	if err := s.db.Table("token_blacklist").Create(&blacklistEntry).Error; err != nil {

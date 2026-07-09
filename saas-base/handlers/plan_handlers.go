@@ -6,19 +6,17 @@ import (
 	baseAPI "github.com/AgileExecutives/serverbase/api"
 	"github.com/AgileExecutives/serverbase/pkg/utils"
 	"github.com/AgileExecutives/shared-modules/saas-base/models"
+	"github.com/AgileExecutives/shared-modules/saas-base/services"
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
 // PlanHandlers provides subscription plan management handlers.
 type PlanHandlers struct {
-	db *gorm.DB
+	service *services.PlanService
 }
 
 // NewPlanHandlers creates new plan handlers.
-func NewPlanHandlers(db *gorm.DB) *PlanHandlers {
-	return &PlanHandlers{db: db}
-}
+func NewPlanHandlers(s *services.PlanService) *PlanHandlers { return &PlanHandlers{service: s} }
 
 // GetPlans retrieves all available plans with pagination.
 // @Summary Get all plans
@@ -34,27 +32,10 @@ func NewPlanHandlers(db *gorm.DB) *PlanHandlers {
 // @Router /plans [get]
 func (h *PlanHandlers) GetPlans(c *gin.Context) {
 	page, limit := utils.GetPaginationParams(c)
-	offset := utils.GetOffset(page, limit)
+	_ = utils.GetOffset(page, limit)
 
-	var plans []models.Plan
-	var total int64
-
-	query := h.db.Model(&models.Plan{})
-
-	if activeStr := c.Query("active"); activeStr != "" {
-		if activeStr == "true" {
-			query = query.Where("active = ?", true)
-		} else if activeStr == "false" {
-			query = query.Where("active = ?", false)
-		}
-	}
-
-	if err := query.Count(&total).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, baseAPI.ErrorResponseFunc("Failed to count plans", err.Error()))
-		return
-	}
-
-	if err := query.Offset(offset).Limit(limit).Order("created_at DESC").Find(&plans).Error; err != nil {
+	plans, err := h.service.List()
+	if err != nil {
 		c.JSON(http.StatusInternalServerError, baseAPI.ErrorResponseFunc("Failed to retrieve plans", err.Error()))
 		return
 	}
@@ -69,8 +50,8 @@ func (h *PlanHandlers) GetPlans(c *gin.Context) {
 		Pagination: baseAPI.PaginationResponse{
 			Page:       page,
 			Limit:      limit,
-			Total:      int(total),
-			TotalPages: utils.CalculateTotalPages(int(total), limit),
+			Total:      len(responses),
+			TotalPages: utils.CalculateTotalPages(len(responses), limit),
 		},
 	}
 
@@ -95,13 +76,9 @@ func (h *PlanHandlers) GetPlan(c *gin.Context) {
 		return
 	}
 
-	var plan models.Plan
-	if err := h.db.First(&plan, id).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
-			c.JSON(http.StatusNotFound, baseAPI.ErrorResponseFunc("Plan not found", "Plan with specified ID does not exist"))
-			return
-		}
-		c.JSON(http.StatusInternalServerError, baseAPI.ErrorResponseFunc("Failed to retrieve plan", err.Error()))
+	plan, err := h.service.GetByID(id)
+	if err != nil || plan == nil {
+		c.JSON(http.StatusNotFound, baseAPI.ErrorResponseFunc("Plan not found", "Plan with specified ID does not exist"))
 		return
 	}
 
@@ -125,12 +102,6 @@ func (h *PlanHandlers) CreatePlan(c *gin.Context) {
 	var req models.PlanCreateRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, baseAPI.ErrorResponseFunc("Invalid request", err.Error()))
-		return
-	}
-
-	var existingPlan models.Plan
-	if err := h.db.Where("slug = ?", req.Slug).First(&existingPlan).Error; err == nil {
-		c.JSON(http.StatusConflict, baseAPI.ErrorResponseFunc("Plan already exists", "Plan with this slug already exists"))
 		return
 	}
 
@@ -165,7 +136,7 @@ func (h *PlanHandlers) CreatePlan(c *gin.Context) {
 		Active:        active,
 	}
 
-	if err := h.db.Create(&plan).Error; err != nil {
+	if err := h.service.Save(&plan); err != nil {
 		c.JSON(http.StatusInternalServerError, baseAPI.ErrorResponseFunc("Failed to create plan", err.Error()))
 		return
 	}
@@ -200,13 +171,9 @@ func (h *PlanHandlers) UpdatePlan(c *gin.Context) {
 		return
 	}
 
-	var plan models.Plan
-	if err := h.db.First(&plan, id).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
-			c.JSON(http.StatusNotFound, baseAPI.ErrorResponseFunc("Plan not found", "Plan with specified ID does not exist"))
-			return
-		}
-		c.JSON(http.StatusInternalServerError, baseAPI.ErrorResponseFunc("Failed to retrieve plan", err.Error()))
+	plan, err := h.service.GetByID(id)
+	if err != nil || plan == nil {
+		c.JSON(http.StatusNotFound, baseAPI.ErrorResponseFunc("Plan not found", "Plan with specified ID does not exist"))
 		return
 	}
 
@@ -238,7 +205,7 @@ func (h *PlanHandlers) UpdatePlan(c *gin.Context) {
 		plan.Active = *req.Active
 	}
 
-	if err := h.db.Save(&plan).Error; err != nil {
+	if err := h.service.Save(plan); err != nil {
 		c.JSON(http.StatusInternalServerError, baseAPI.ErrorResponseFunc("Failed to update plan", err.Error()))
 		return
 	}
@@ -265,17 +232,7 @@ func (h *PlanHandlers) DeletePlan(c *gin.Context) {
 		return
 	}
 
-	var plan models.Plan
-	if err := h.db.First(&plan, id).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
-			c.JSON(http.StatusNotFound, baseAPI.ErrorResponseFunc("Plan not found", "Plan with specified ID does not exist"))
-			return
-		}
-		c.JSON(http.StatusInternalServerError, baseAPI.ErrorResponseFunc("Failed to retrieve plan", err.Error()))
-		return
-	}
-
-	if err := h.db.Delete(&plan).Error; err != nil {
+	if err := h.service.Delete(id); err != nil {
 		c.JSON(http.StatusInternalServerError, baseAPI.ErrorResponseFunc("Failed to delete plan", err.Error()))
 		return
 	}

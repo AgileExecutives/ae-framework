@@ -6,6 +6,7 @@ import (
 	"github.com/AgileExecutives/serverbase/pkg/core"
 	"github.com/AgileExecutives/shared-modules/invoice/entities"
 	"github.com/AgileExecutives/shared-modules/invoice/handlers"
+	repo "github.com/AgileExecutives/shared-modules/invoice/repo"
 	"github.com/AgileExecutives/shared-modules/invoice/routes"
 	"github.com/AgileExecutives/shared-modules/invoice/services"
 )
@@ -40,7 +41,8 @@ func (m *CoreModule) Dependencies() []string {
 // Initialize sets up the module with dependencies
 func (m *CoreModule) Initialize(ctx core.ModuleContext) error {
 	// Initialize service
-	m.invoiceService = services.NewInvoiceService(ctx.DB)
+	gormRepo := repo.NewGormInvoiceRepo(ctx.DB)
+	m.invoiceService = services.NewInvoiceServiceWithRepo(gormRepo)
 
 	// Initialize handler
 	m.invoiceHandler = handlers.NewInvoiceHandler(m.invoiceService)

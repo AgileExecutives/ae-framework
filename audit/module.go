@@ -3,6 +3,7 @@ package audit
 import (
 	"github.com/AgileExecutives/shared-modules/audit/entities"
 	"github.com/AgileExecutives/shared-modules/audit/handlers"
+	repo "github.com/AgileExecutives/shared-modules/audit/repo"
 	"github.com/AgileExecutives/shared-modules/audit/routes"
 	"github.com/AgileExecutives/shared-modules/audit/services"
 	"github.com/gin-gonic/gin"
@@ -17,7 +18,8 @@ type Module struct {
 }
 
 func NewModule(db *gorm.DB) *Module {
-	service := services.NewAuditService(db)
+	gormRepo := repo.NewGormAuditRepo(db)
+	service := services.NewAuditServiceWithRepo(gormRepo)
 	handler := handlers.NewAuditHandler(service)
 	routeProvider := routes.NewRouteProvider(handler)
 

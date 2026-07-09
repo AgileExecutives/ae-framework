@@ -8,7 +8,6 @@ import (
 	"github.com/AgileExecutives/serverbase/pkg/settings/entities"
 	"github.com/AgileExecutives/serverbase/pkg/settings/repository"
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
 type DomainSettingsResponse struct {
@@ -38,8 +37,9 @@ type SettingsHandler struct {
 	repo *repository.SettingsRepository
 }
 
-func NewSettingsHandler(db *gorm.DB) *SettingsHandler {
-	return &SettingsHandler{repo: repository.NewSettingsRepository(db)}
+// NewSettingsHandler creates a SettingsHandler wired with an existing repository.
+func NewSettingsHandler(repo *repository.SettingsRepository) *SettingsHandler {
+	return &SettingsHandler{repo: repo}
 }
 
 // Methods follow original implementation

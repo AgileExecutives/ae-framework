@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"context"
 	"crypto/sha256"
 	"encoding/hex"
 	"net/http"
@@ -8,22 +9,22 @@ import (
 
 	baseAPI "github.com/AgileExecutives/serverbase/api"
 	"github.com/AgileExecutives/shared-modules/booking/entities"
+	repo "github.com/AgileExecutives/shared-modules/booking/repo"
 	"github.com/AgileExecutives/shared-modules/booking/services"
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
 // BookingTokenMiddleware validates booking link tokens
 type BookingTokenMiddleware struct {
 	bookingLinkSvc *services.BookingLinkService
-	db             *gorm.DB
+	repo           repo.BookingRepo
 }
 
 // NewBookingTokenMiddleware creates a new booking token middleware
-func NewBookingTokenMiddleware(svc *services.BookingLinkService, db *gorm.DB) *BookingTokenMiddleware {
+func NewBookingTokenMiddleware(svc *services.BookingLinkService, r repo.BookingRepo) *BookingTokenMiddleware {
 	return &BookingTokenMiddleware{
 		bookingLinkSvc: svc,
-		db:             db,
+		repo:           r,
 	}
 }
 
@@ -54,20 +55,10 @@ func (m *BookingTokenMiddleware) ValidateBookingToken() gin.HandlerFunc {
 		// Generate token ID for tracking
 		tokenID := generateTokenID(token)
 
-		// Check if token is blacklisted
-		var blacklistedToken struct {
-			ID        uint
-			TokenID   string
-			ExpiresAt time.Time
-		}
-		result := m.db.Table("token_blacklist").
-			Select("id, token_id, expires_at").
-			Where("token_id = ? AND deleted_at IS NULL", tokenID).
-			First(&blacklistedToken)
-
-		if result.Error == nil {
-			// Token found in blacklist - check if still active
-			if time.Now().Before(blacklistedToken.ExpiresAt) {
+		// Check if token is blacklisted using repo
+		if m.repo != nil {
+			blacklisted, err := m.repo.IsTokenBlacklisted(c.Request.Context(), tokenID)
+			if err == nil && blacklisted {
 				c.JSON(http.StatusUnauthorized, baseAPI.ErrorResponseFunc("Token revoked", "This booking link has been revoked"))
 				c.Abort()
 				return
@@ -114,13 +105,8 @@ func GetBookingClaims(c *gin.Context) (*entities.BookingLinkClaims, bool) {
 // BlacklistToken adds a token to the blacklist
 func (m *BookingTokenMiddleware) BlacklistToken(token string, reason string, expiresAt time.Time) error {
 	tokenID := generateTokenID(token)
-
-	blacklistEntry := map[string]interface{}{
-		"token_id":   tokenID,
-		"user_id":    0, // Booking tokens don't have a user_id in the traditional sense
-		"expires_at": expiresAt,
-		"reason":     reason,
+	if m.repo != nil {
+		return m.repo.BlacklistToken(context.Background(), tokenID, 0, expiresAt, reason)
 	}
-
-	return m.db.Table("token_blacklist").Create(&blacklistEntry).Error
+	return nil
 }

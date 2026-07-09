@@ -10,22 +10,19 @@ import (
 	"github.com/AgileExecutives/shared-modules/booking/entities"
 	"github.com/AgileExecutives/shared-modules/booking/services"
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
 type BookingHandler struct {
 	service        *services.BookingService
 	bookingLinkSvc *services.BookingLinkService
 	freeSlotsSvc   *services.FreeSlotsService
-	db             *gorm.DB
 }
 
-func NewBookingHandler(service *services.BookingService, bookingLinkSvc *services.BookingLinkService, freeSlotsSvc *services.FreeSlotsService, db *gorm.DB) *BookingHandler {
+func NewBookingHandler(service *services.BookingService, bookingLinkSvc *services.BookingLinkService, freeSlotsSvc *services.FreeSlotsService) *BookingHandler {
 	return &BookingHandler{
 		service:        service,
 		bookingLinkSvc: bookingLinkSvc,
 		freeSlotsSvc:   freeSlotsSvc,
-		db:             db,
 	}
 }
 
@@ -521,27 +518,8 @@ func (h *BookingHandler) GetClientByToken(c *gin.Context) {
 	c.Set("client_id", claims.ClientID)
 	c.Set("tenant_id", claims.TenantID)
 
-	// Query client information from database
-	var client struct {
-		ID              uint       `json:"id"`
-		FirstName       string     `json:"first_name"`
-		LastName        string     `json:"last_name"`
-		Email           string     `json:"email"`
-		Phone           string     `json:"phone"`
-		DateOfBirth     *time.Time `json:"date_of_birth,omitempty"`
-		Gender          string     `json:"gender,omitempty"`
-		PrimaryLanguage string     `json:"primary_language,omitempty"`
-		StreetAddress   string     `json:"street_address,omitempty"`
-		Zip             string     `json:"zip,omitempty"`
-		City            string     `json:"city,omitempty"`
-		Status          string     `json:"status"`
-	}
-
-	err := h.db.Table("clients").
-		Select("id, first_name, last_name, email, phone, date_of_birth, gender, primary_language, street_address, zip, city, status").
-		Where("id = ? AND tenant_id = ? AND deleted_at IS NULL", claims.ClientID, claims.TenantID).
-		First(&client).Error
-
+	// Use service to fetch client information (keeps DB access centralized in services)
+	client, err := h.service.GetClientInfo(claims.ClientID, claims.TenantID)
 	if err != nil {
 		c.JSON(http.StatusNotFound, baseAPI.ErrorResponseFunc("Not Found", "Client not found"))
 		return

@@ -7,18 +7,18 @@ import (
 	baseAPI "github.com/AgileExecutives/serverbase/api"
 	"github.com/AgileExecutives/serverbase/pkg/utils"
 	"github.com/AgileExecutives/shared-modules/saas-base/models"
+	"github.com/AgileExecutives/shared-modules/saas-base/services"
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
 // NewsletterHandlers provides newsletter subscription management handlers.
 type NewsletterHandlers struct {
-	db *gorm.DB
+	service *services.NewsletterService
 }
 
 // NewNewsletterHandlers creates new newsletter handlers.
-func NewNewsletterHandlers(db *gorm.DB) *NewsletterHandlers {
-	return &NewsletterHandlers{db: db}
+func NewNewsletterHandlers(s *services.NewsletterService) *NewsletterHandlers {
+	return &NewsletterHandlers{service: s}
 }
 
 // GetSubscribers lists all newsletter subscribers with pagination.
@@ -36,25 +36,15 @@ func NewNewsletterHandlers(db *gorm.DB) *NewsletterHandlers {
 // @Router /newsletter [get]
 func (h *NewsletterHandlers) GetSubscribers(c *gin.Context) {
 	page, limit := utils.GetPaginationParams(c)
-	offset := utils.GetOffset(page, limit)
 
-	var subscribers []models.Newsletter
-	var total int64
-
-	query := h.db.Model(&models.Newsletter{})
-
-	if err := query.Count(&total).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, baseAPI.ErrorResponseFunc("Failed to count subscribers", err.Error()))
-		return
-	}
-
-	if err := query.Offset(offset).Limit(limit).Order("created_at DESC").Find(&subscribers).Error; err != nil {
+	subs, err := h.service.List()
+	if err != nil {
 		c.JSON(http.StatusInternalServerError, baseAPI.ErrorResponseFunc("Failed to retrieve subscribers", err.Error()))
 		return
 	}
 
 	var responses []models.NewsletterResponse
-	for _, s := range subscribers {
+	for _, s := range subs {
 		responses = append(responses, s.ToResponse())
 	}
 
@@ -63,8 +53,8 @@ func (h *NewsletterHandlers) GetSubscribers(c *gin.Context) {
 		Pagination: baseAPI.PaginationResponse{
 			Page:       page,
 			Limit:      limit,
-			Total:      int(total),
-			TotalPages: utils.CalculateTotalPages(int(total), limit),
+			Total:      len(responses),
+			TotalPages: utils.CalculateTotalPages(len(responses), limit),
 		},
 	}
 
@@ -94,15 +84,17 @@ func (h *NewsletterHandlers) Subscribe(c *gin.Context) {
 	}
 
 	// Check if already subscribed
-	var existing models.Newsletter
-	result := h.db.Where("email = ?", req.Email).First(&existing)
-	if result.Error == nil {
-		// Update existing subscriber
+	existing, err := h.service.FindByEmail(req.Email)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, baseAPI.ErrorResponseFunc("Failed to check subscription", err.Error()))
+		return
+	}
+	if existing != nil {
 		existing.Name = req.Name
 		existing.Interest = req.Interest
 		existing.Source = req.Source
 		existing.LastContact = time.Now()
-		if err := h.db.Save(&existing).Error; err != nil {
+		if err := h.service.Save(existing); err != nil {
 			c.JSON(http.StatusInternalServerError, baseAPI.ErrorResponseFunc("Failed to update subscription", err.Error()))
 			return
 		}
@@ -110,7 +102,7 @@ func (h *NewsletterHandlers) Subscribe(c *gin.Context) {
 		return
 	}
 
-	subscriber := models.Newsletter{
+	subscriber := &models.Newsletter{
 		Name:        req.Name,
 		Email:       req.Email,
 		Interest:    req.Interest,
@@ -118,7 +110,7 @@ func (h *NewsletterHandlers) Subscribe(c *gin.Context) {
 		LastContact: time.Now(),
 	}
 
-	if err := h.db.Create(&subscriber).Error; err != nil {
+	if err := h.service.Save(subscriber); err != nil {
 		c.JSON(http.StatusInternalServerError, baseAPI.ErrorResponseFunc("Failed to create subscription", err.Error()))
 		return
 	}
@@ -145,17 +137,17 @@ func (h *NewsletterHandlers) Unsubscribe(c *gin.Context) {
 		return
 	}
 
-	var subscriber models.Newsletter
-	if err := h.db.Where("email = ?", req.Email).First(&subscriber).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
-			c.JSON(http.StatusNotFound, baseAPI.ErrorResponseFunc("Subscriber not found", "Email is not subscribed"))
-			return
-		}
+	sub, err := h.service.FindByEmail(req.Email)
+	if err != nil {
 		c.JSON(http.StatusInternalServerError, baseAPI.ErrorResponseFunc("Failed to find subscriber", err.Error()))
 		return
 	}
+	if sub == nil {
+		c.JSON(http.StatusNotFound, baseAPI.ErrorResponseFunc("Subscriber not found", "Email is not subscribed"))
+		return
+	}
 
-	if err := h.db.Delete(&subscriber).Error; err != nil {
+	if err := h.service.Delete(sub.ID); err != nil {
 		c.JSON(http.StatusInternalServerError, baseAPI.ErrorResponseFunc("Failed to unsubscribe", err.Error()))
 		return
 	}
@@ -182,17 +174,13 @@ func (h *NewsletterHandlers) DeleteSubscriber(c *gin.Context) {
 		return
 	}
 
-	var subscriber models.Newsletter
-	if err := h.db.First(&subscriber, id).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
-			c.JSON(http.StatusNotFound, baseAPI.ErrorResponseFunc("Subscriber not found", "Subscriber with specified ID does not exist"))
-			return
-		}
-		c.JSON(http.StatusInternalServerError, baseAPI.ErrorResponseFunc("Failed to retrieve subscriber", err.Error()))
+	sub, err := h.service.GetByID(id)
+	if err != nil || sub == nil {
+		c.JSON(http.StatusNotFound, baseAPI.ErrorResponseFunc("Subscriber not found", "Subscriber with specified ID does not exist"))
 		return
 	}
 
-	if err := h.db.Unscoped().Delete(&subscriber).Error; err != nil {
+	if err := h.service.Delete(id); err != nil {
 		c.JSON(http.StatusInternalServerError, baseAPI.ErrorResponseFunc("Failed to delete subscriber", err.Error()))
 		return
 	}

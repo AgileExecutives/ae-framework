@@ -1,6 +1,7 @@
 package services
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"time"
@@ -10,16 +11,23 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/AgileExecutives/shared-modules/calendar/entities"
+	repo "github.com/AgileExecutives/shared-modules/calendar/repo"
 )
 
 type CalendarService struct {
 	db       *gorm.DB
 	eventBus core.EventBus
+	repo     repo.CalendarRepo
 }
 
 // NewCalendarService creates a new calendar service
 func NewCalendarService(db *gorm.DB) *CalendarService {
 	return &CalendarService{db: db}
+}
+
+// NewCalendarServiceWithRepo creates a CalendarService backed by an explicit repo (in-memory or adapter)
+func NewCalendarServiceWithRepo(r repo.CalendarRepo) *CalendarService {
+	return &CalendarService{repo: r}
 }
 
 // SetEventBus sets the event bus for the calendar service
@@ -41,6 +49,13 @@ func (s *CalendarService) CreateCalendar(req entities.CreateCalendarRequest, ten
 		Timezone:           req.Timezone,
 	}
 
+	if s.repo != nil {
+		if err := s.repo.CreateCalendar(context.Background(), &calendar); err != nil {
+			return nil, fmt.Errorf("failed to create calendar: %w", err)
+		}
+		return &calendar, nil
+	}
+
 	if err := s.db.Create(&calendar).Error; err != nil {
 		return nil, fmt.Errorf("failed to create calendar: %w", err)
 	}
@@ -50,6 +65,14 @@ func (s *CalendarService) CreateCalendar(req entities.CreateCalendarRequest, ten
 
 // GetCalendarByID returns a calendar by ID within a tenant and user
 func (s *CalendarService) GetCalendarByID(id, tenantID, userID uint) (*entities.Calendar, error) {
+	if s.repo != nil {
+		cal, err := s.repo.FindCalendarByID(context.Background(), id, tenantID, userID)
+		if err != nil {
+			return nil, fmt.Errorf("calendar with ID %d not found", id)
+		}
+		return cal, nil
+	}
+
 	var calendar entities.Calendar
 	if err := s.db.Preload("CalendarSeries").Preload("CalendarEntries").Preload("ExternalCalendars").
 		Where("id = ? AND tenant_id = ? AND user_id = ?", id, tenantID, userID).First(&calendar).Error; err != nil {
@@ -64,6 +87,14 @@ func (s *CalendarService) GetCalendarByID(id, tenantID, userID uint) (*entities.
 // GetAllCalendars returns all calendars for a user with pagination and 2-level deep preloading
 // Preloads: CalendarEntries with their Series, CalendarSeries with their CalendarEntries, ExternalCalendars
 func (s *CalendarService) GetAllCalendars(page, limit int, tenantID, userID uint) ([]entities.Calendar, int, error) {
+	if s.repo != nil {
+		list, total, err := s.repo.ListCalendars(context.Background(), page, limit, tenantID, userID)
+		if err != nil {
+			return nil, 0, fmt.Errorf("failed to fetch calendars: %w", err)
+		}
+		return list, total, nil
+	}
+
 	var calendars []entities.Calendar
 	var total int64
 
@@ -75,8 +106,6 @@ func (s *CalendarService) GetAllCalendars(page, limit int, tenantID, userID uint
 	}
 
 	// Get paginated records with 2-level deep preloaded relationships
-	// Level 1: Direct relationships
-	// Level 2: Nested relationships (entries->series, series->entries)
 	if err := s.db.
 		Preload("CalendarEntries").                // Load all calendar entries
 		Preload("CalendarEntries.Series").         // Load series for each entry (2nd level)
@@ -94,11 +123,17 @@ func (s *CalendarService) GetAllCalendars(page, limit int, tenantID, userID uint
 // GetCalendarsWithDeepPreload returns all calendars for a user with 2-level deep preloading (no pagination)
 // This method is optimized for the /calendar endpoint that returns all calendar metadata
 func (s *CalendarService) GetCalendarsWithDeepPreload(tenantID, userID uint) ([]entities.Calendar, error) {
+	if s.repo != nil {
+		list, err := s.repo.ListCalendarsNoPaging(context.Background(), tenantID, userID)
+		if err != nil {
+			return nil, fmt.Errorf("failed to fetch calendars with deep preload: %w", err)
+		}
+		return list, nil
+	}
+
 	var calendars []entities.Calendar
 
 	// Get all records with 2-level deep preloaded relationships
-	// Level 1: Direct relationships (CalendarEntries, CalendarSeries, ExternalCalendars)
-	// Level 2: Nested relationships (entries->series, series->entries)
 	if err := s.db.
 		Preload("CalendarEntries").                // Load all calendar entries
 		Preload("CalendarEntries.Series").         // Load series for each entry (2nd level)
@@ -116,13 +151,20 @@ func (s *CalendarService) GetCalendarsWithDeepPreload(tenantID, userID uint) ([]
 // UpdateCalendar updates an existing calendar within a tenant and user
 func (s *CalendarService) UpdateCalendar(id, tenantID, userID uint, req entities.UpdateCalendarRequest) (*entities.Calendar, error) {
 	var calendar entities.Calendar
-	if err := s.db.Where("id = ? AND tenant_id = ? AND user_id = ?", id, tenantID, userID).First(&calendar).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
+	if s.repo != nil {
+		cal, err := s.repo.FindCalendarByID(context.Background(), id, tenantID, userID)
+		if err != nil {
 			return nil, fmt.Errorf("calendar with ID %d not found", id)
 		}
-		return nil, fmt.Errorf("failed to get calendar: %w", err)
+		calendar = *cal
+	} else {
+		if err := s.db.Where("id = ? AND tenant_id = ? AND user_id = ?", id, tenantID, userID).First(&calendar).Error; err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return nil, fmt.Errorf("calendar with ID %d not found", id)
+			}
+			return nil, fmt.Errorf("failed to get calendar: %w", err)
+		}
 	}
-
 	// Update fields if provided
 	if req.Title != nil {
 		calendar.Title = *req.Title
@@ -135,6 +177,13 @@ func (s *CalendarService) UpdateCalendar(id, tenantID, userID uint, req entities
 	}
 	if req.Timezone != nil {
 		calendar.Timezone = *req.Timezone
+	}
+
+	if s.repo != nil {
+		if err := s.repo.UpdateCalendar(context.Background(), &calendar); err != nil {
+			return nil, fmt.Errorf("failed to update calendar: %w", err)
+		}
+		return &calendar, nil
 	}
 
 	if err := s.db.Save(&calendar).Error; err != nil {
@@ -152,6 +201,13 @@ func (s *CalendarService) UpdateCalendar(id, tenantID, userID uint, req entities
 
 // DeleteCalendar soft deletes a calendar within a tenant and user
 func (s *CalendarService) DeleteCalendar(id, tenantID, userID uint) error {
+	if s.repo != nil {
+		if err := s.repo.DeleteCalendar(context.Background(), id, tenantID, userID); err != nil {
+			return fmt.Errorf("failed to delete calendar: %w", err)
+		}
+		return nil
+	}
+
 	var calendar entities.Calendar
 	if err := s.db.Where("id = ? AND tenant_id = ? AND user_id = ?", id, tenantID, userID).First(&calendar).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -172,9 +228,16 @@ func (s *CalendarService) DeleteCalendar(id, tenantID, userID uint) error {
 // CreateCalendarEntry creates a new calendar entry
 func (s *CalendarService) CreateCalendarEntry(req entities.CreateCalendarEntryRequest, tenantID, userID uint) (*entities.CalendarEntry, error) {
 	// Verify calendar belongs to user
-	var calendar entities.Calendar
-	if err := s.db.Where("id = ? AND tenant_id = ? AND user_id = ?", req.CalendarID, tenantID, userID).First(&calendar).Error; err != nil {
-		return nil, fmt.Errorf("calendar not found or access denied")
+	if s.repo != nil {
+		// ensure calendar exists via repo
+		if _, err := s.repo.FindCalendarByID(context.Background(), req.CalendarID, tenantID, userID); err != nil {
+			return nil, fmt.Errorf("calendar not found or access denied")
+		}
+	} else {
+		var calendar entities.Calendar
+		if err := s.db.Where("id = ? AND tenant_id = ? AND user_id = ?", req.CalendarID, tenantID, userID).First(&calendar).Error; err != nil {
+			return nil, fmt.Errorf("calendar not found or access denied")
+		}
 	}
 
 	entry := entities.CalendarEntry{
@@ -194,6 +257,13 @@ func (s *CalendarService) CreateCalendarEntry(req entities.CreateCalendarEntryRe
 		IsAllDay:     req.IsAllDay,
 	}
 
+	if s.repo != nil {
+		if err := s.repo.CreateCalendarEntry(context.Background(), &entry); err != nil {
+			return nil, fmt.Errorf("failed to create calendar entry: %w", err)
+		}
+		return &entry, nil
+	}
+
 	if err := s.db.Create(&entry).Error; err != nil {
 		return nil, fmt.Errorf("failed to create calendar entry: %w", err)
 	}
@@ -203,6 +273,14 @@ func (s *CalendarService) CreateCalendarEntry(req entities.CreateCalendarEntryRe
 
 // GetCalendarEntryByID returns a calendar entry by ID
 func (s *CalendarService) GetCalendarEntryByID(id, tenantID, userID uint) (*entities.CalendarEntry, error) {
+	if s.repo != nil {
+		e, err := s.repo.FindCalendarEntryByID(context.Background(), id, tenantID, userID)
+		if err != nil {
+			return nil, fmt.Errorf("calendar entry with ID %d not found", id)
+		}
+		return e, nil
+	}
+
 	var entry entities.CalendarEntry
 	if err := s.db.Preload("Calendar").Preload("Series").
 		Where("id = ? AND tenant_id = ? AND user_id = ?", id, tenantID, userID).First(&entry).Error; err != nil {
@@ -216,6 +294,14 @@ func (s *CalendarService) GetCalendarEntryByID(id, tenantID, userID uint) (*enti
 
 // GetAllCalendarEntries returns all calendar entries for a user with pagination
 func (s *CalendarService) GetAllCalendarEntries(page, limit int, tenantID, userID uint) ([]entities.CalendarEntry, int, error) {
+	if s.repo != nil {
+		list, total, err := s.repo.ListCalendarEntries(context.Background(), page, limit, tenantID, userID)
+		if err != nil {
+			return nil, 0, fmt.Errorf("failed to fetch calendar entries: %w", err)
+		}
+		return list, total, nil
+	}
+
 	var entries []entities.CalendarEntry
 	var total int64
 
@@ -236,13 +322,20 @@ func (s *CalendarService) GetAllCalendarEntries(page, limit int, tenantID, userI
 // UpdateCalendarEntry updates an existing calendar entry
 func (s *CalendarService) UpdateCalendarEntry(id, tenantID, userID uint, req entities.UpdateCalendarEntryRequest) (*entities.CalendarEntry, error) {
 	var entry entities.CalendarEntry
-	if err := s.db.Where("id = ? AND tenant_id = ? AND user_id = ?", id, tenantID, userID).First(&entry).Error; err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
+	if s.repo != nil {
+		e, err := s.repo.FindCalendarEntryByID(context.Background(), id, tenantID, userID)
+		if err != nil {
 			return nil, fmt.Errorf("calendar entry with ID %d not found", id)
 		}
-		return nil, fmt.Errorf("failed to get calendar entry: %w", err)
+		entry = *e
+	} else {
+		if err := s.db.Where("id = ? AND tenant_id = ? AND user_id = ?", id, tenantID, userID).First(&entry).Error; err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return nil, fmt.Errorf("calendar entry with ID %d not found", id)
+			}
+			return nil, fmt.Errorf("failed to get calendar entry: %w", err)
+		}
 	}
-
 	// Update fields if provided
 	if req.Title != nil {
 		entry.Title = *req.Title
@@ -278,6 +371,13 @@ func (s *CalendarService) UpdateCalendarEntry(id, tenantID, userID uint, req ent
 		entry.IsAllDay = *req.IsAllDay
 	}
 
+	if s.repo != nil {
+		if err := s.repo.UpdateCalendarEntry(context.Background(), &entry); err != nil {
+			return nil, fmt.Errorf("failed to update calendar entry: %w", err)
+		}
+		return &entry, nil
+	}
+
 	if err := s.db.Save(&entry).Error; err != nil {
 		return nil, fmt.Errorf("failed to update calendar entry: %w", err)
 	}
@@ -287,6 +387,22 @@ func (s *CalendarService) UpdateCalendarEntry(id, tenantID, userID uint, req ent
 
 // DeleteCalendarEntry soft deletes a calendar entry
 func (s *CalendarService) DeleteCalendarEntry(id, tenantID, userID uint) error {
+	if s.repo != nil {
+		if err := s.repo.DeleteCalendarEntry(context.Background(), id, tenantID, userID); err != nil {
+			return fmt.Errorf("failed to delete calendar entry: %w", err)
+		}
+		// publish event
+		if s.eventBus != nil {
+			event := map[string]interface{}{
+				"calendar_entry_id": id,
+				"tenant_id":         tenantID,
+				"user_id":           userID,
+			}
+			_ = s.eventBus.Publish("calendar.entry.deleted", event)
+		}
+		return nil
+	}
+
 	var entry entities.CalendarEntry
 	if err := s.db.Where("id = ? AND tenant_id = ? AND user_id = ?", id, tenantID, userID).First(&entry).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -321,9 +437,15 @@ func (s *CalendarService) DeleteCalendarEntry(id, tenantID, userID uint) error {
 // CreateCalendarSeries creates a new calendar series
 func (s *CalendarService) CreateCalendarSeries(req entities.CreateCalendarSeriesRequest, tenantID, userID uint) (*entities.CalendarSeries, error) {
 	// Verify calendar belongs to user
-	var calendar entities.Calendar
-	if err := s.db.Where("id = ? AND tenant_id = ? AND user_id = ?", req.CalendarID, tenantID, userID).First(&calendar).Error; err != nil {
-		return nil, fmt.Errorf("calendar not found or access denied")
+	if s.repo != nil {
+		if _, err := s.repo.FindCalendarByID(context.Background(), req.CalendarID, tenantID, userID); err != nil {
+			return nil, fmt.Errorf("calendar not found or access denied")
+		}
+	} else {
+		var calendar entities.Calendar
+		if err := s.db.Where("id = ? AND tenant_id = ? AND user_id = ?", req.CalendarID, tenantID, userID).First(&calendar).Error; err != nil {
+			return nil, fmt.Errorf("calendar not found or access denied")
+		}
 	}
 
 	series := entities.CalendarSeries{
@@ -343,6 +465,13 @@ func (s *CalendarService) CreateCalendarSeries(req entities.CreateCalendarSeries
 		EntryUUID:            uuid.New().String(),
 		ExternalUID:          req.ExternalUID,
 		ExternalCalendarUUID: req.ExternalCalendarUUID,
+	}
+
+	if s.repo != nil {
+		if err := s.repo.CreateCalendarSeries(context.Background(), &series); err != nil {
+			return nil, fmt.Errorf("failed to create calendar series: %w", err)
+		}
+		return &series, nil
 	}
 
 	if err := s.db.Create(&series).Error; err != nil {
@@ -355,9 +484,15 @@ func (s *CalendarService) CreateCalendarSeries(req entities.CreateCalendarSeries
 // CreateCalendarSeriesWithEntries creates a new calendar series and generates all calendar entries based on recurrence rules
 func (s *CalendarService) CreateCalendarSeriesWithEntries(req entities.CreateCalendarSeriesRequest, tenantID, userID uint) (*entities.CalendarSeries, []entities.CalendarEntry, error) {
 	// Verify calendar belongs to user
-	var calendar entities.Calendar
-	if err := s.db.Where("id = ? AND tenant_id = ? AND user_id = ?", req.CalendarID, tenantID, userID).First(&calendar).Error; err != nil {
-		return nil, nil, fmt.Errorf("calendar not found or access denied")
+	if s.repo != nil {
+		if _, err := s.repo.FindCalendarByID(context.Background(), req.CalendarID, tenantID, userID); err != nil {
+			return nil, nil, fmt.Errorf("calendar not found or access denied")
+		}
+	} else {
+		var calendar entities.Calendar
+		if err := s.db.Where("id = ? AND tenant_id = ? AND user_id = ?", req.CalendarID, tenantID, userID).First(&calendar).Error; err != nil {
+			return nil, nil, fmt.Errorf("calendar not found or access denied")
+		}
 	}
 
 	series := entities.CalendarSeries{
@@ -377,6 +512,19 @@ func (s *CalendarService) CreateCalendarSeriesWithEntries(req entities.CreateCal
 		EntryUUID:            uuid.New().String(),
 		ExternalUID:          req.ExternalUID,
 		ExternalCalendarUUID: req.ExternalCalendarUUID,
+	}
+	if s.repo != nil {
+		if err := s.repo.CreateCalendarSeries(context.Background(), &series); err != nil {
+			return nil, nil, fmt.Errorf("failed to create calendar series: %w", err)
+		}
+		// Generate entries using existing service logic, but persist via repo when creating
+		entries, err := s.generateSeriesEntries(&series, tenantID, userID)
+		if err != nil {
+			// rollback
+			_ = s.repo.DeleteCalendarSeries(context.Background(), series.ID, tenantID, userID)
+			return nil, nil, fmt.Errorf("failed to generate series entries: %w", err)
+		}
+		return &series, entries, nil
 	}
 
 	if err := s.db.Create(&series).Error; err != nil {
@@ -847,6 +995,13 @@ func (s *CalendarService) GetCalendarWeekView(date time.Time, tenantID, userID u
 	// Calculate start and end of week (Sunday to Saturday)
 	startOfWeek := date.AddDate(0, 0, -int(date.Weekday()))
 	endOfWeek := startOfWeek.AddDate(0, 0, 6)
+	if s.repo != nil {
+		list, err := s.repo.ListCalendarEntriesInRange(context.Background(), tenantID, userID, startOfWeek, endOfWeek)
+		if err != nil {
+			return nil, fmt.Errorf("failed to fetch week view: %w", err)
+		}
+		return list, nil
+	}
 
 	var entries []entities.CalendarEntry
 	if err := s.db.Preload("Calendar").Preload("Series").
@@ -863,6 +1018,13 @@ func (s *CalendarService) GetCalendarWeekView(date time.Time, tenantID, userID u
 func (s *CalendarService) GetCalendarYearView(year int, tenantID, userID uint) ([]entities.CalendarEntry, error) {
 	startOfYear := time.Date(year, 1, 1, 0, 0, 0, 0, time.UTC)
 	endOfYear := time.Date(year, 12, 31, 23, 59, 59, 0, time.UTC)
+	if s.repo != nil {
+		list, err := s.repo.ListCalendarEntriesInRange(context.Background(), tenantID, userID, startOfYear, endOfYear)
+		if err != nil {
+			return nil, fmt.Errorf("failed to fetch year view: %w", err)
+		}
+		return list, nil
+	}
 
 	var entries []entities.CalendarEntry
 	if err := s.db.Preload("Calendar").Preload("Series").

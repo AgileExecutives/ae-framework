@@ -6,15 +6,22 @@ import (
 	"time"
 
 	"github.com/AgileExecutives/shared-modules/audit/entities"
+	repo "github.com/AgileExecutives/shared-modules/audit/repo"
 	"gorm.io/gorm"
 )
 
 type AuditService struct {
-	db *gorm.DB
+	db   *gorm.DB
+	repo repo.AuditRepo
 }
 
 func NewAuditService(db *gorm.DB) *AuditService {
 	return &AuditService{db: db}
+}
+
+// NewAuditServiceWithRepo creates an AuditService backed by a repository implementation
+func NewAuditServiceWithRepo(r repo.AuditRepo) *AuditService {
+	return &AuditService{repo: r}
 }
 
 type LogEventRequest struct {
@@ -48,6 +55,13 @@ func (s *AuditService) LogEvent(req LogEventRequest) error {
 		auditLog.Metadata = metadataJSON
 	}
 
+	if s.repo != nil {
+		if err := s.repo.CreateLog(nil, &auditLog); err != nil {
+			return fmt.Errorf("failed to create audit log: %w", err)
+		}
+		return nil
+	}
+
 	if err := s.db.Create(&auditLog).Error; err != nil {
 		return fmt.Errorf("failed to create audit log: %w", err)
 	}
@@ -56,6 +70,10 @@ func (s *AuditService) LogEvent(req LogEventRequest) error {
 }
 
 func (s *AuditService) GetAuditLogs(filter entities.AuditLogFilter) ([]entities.AuditLog, int64, error) {
+	if s.repo != nil {
+		return s.repo.GetLogs(nil, filter)
+	}
+
 	var logs []entities.AuditLog
 	var total int64
 
@@ -112,6 +130,10 @@ func (s *AuditService) GetAuditLogs(filter entities.AuditLogFilter) ([]entities.
 }
 
 func (s *AuditService) GetAuditLogsByEntity(tenantID, entityID uint, entityType entities.EntityType) ([]entities.AuditLog, error) {
+	if s.repo != nil {
+		return s.repo.GetLogsByEntity(nil, tenantID, entityID, entityType)
+	}
+
 	var logs []entities.AuditLog
 
 	if err := s.db.Where("tenant_id = ? AND entity_type = ? AND entity_id = ?", tenantID, entityType, entityID).
@@ -128,35 +150,42 @@ func (s *AuditService) ExportAuditLogsToCSV(filter entities.AuditLogFilter) (str
 	filter.Page = 0
 
 	var logs []entities.AuditLog
+	if s.repo != nil {
+		var err error
+		logs, err = s.repo.GetLogsForExport(nil, filter)
+		if err != nil {
+			return "", fmt.Errorf("failed to fetch audit logs for export: %w", err)
+		}
+	} else {
+		query := s.db.Model(&entities.AuditLog{}).Where("tenant_id = ?", filter.TenantID)
 
-	query := s.db.Model(&entities.AuditLog{}).Where("tenant_id = ?", filter.TenantID)
+		if filter.UserID != nil {
+			query = query.Where("user_id = ?", *filter.UserID)
+		}
 
-	if filter.UserID != nil {
-		query = query.Where("user_id = ?", *filter.UserID)
-	}
+		if filter.EntityType != nil {
+			query = query.Where("entity_type = ?", *filter.EntityType)
+		}
 
-	if filter.EntityType != nil {
-		query = query.Where("entity_type = ?", *filter.EntityType)
-	}
+		if filter.EntityID != nil {
+			query = query.Where("entity_id = ?", *filter.EntityID)
+		}
 
-	if filter.EntityID != nil {
-		query = query.Where("entity_id = ?", *filter.EntityID)
-	}
+		if filter.Action != nil {
+			query = query.Where("action = ?", *filter.Action)
+		}
 
-	if filter.Action != nil {
-		query = query.Where("action = ?", *filter.Action)
-	}
+		if filter.StartDate != nil {
+			query = query.Where("created_at >= ?", *filter.StartDate)
+		}
 
-	if filter.StartDate != nil {
-		query = query.Where("created_at >= ?", *filter.StartDate)
-	}
+		if filter.EndDate != nil {
+			query = query.Where("created_at <= ?", *filter.EndDate)
+		}
 
-	if filter.EndDate != nil {
-		query = query.Where("created_at <= ?", *filter.EndDate)
-	}
-
-	if err := query.Order("created_at ASC").Find(&logs).Error; err != nil {
-		return "", fmt.Errorf("failed to fetch audit logs for export: %w", err)
+		if err := query.Order("created_at ASC").Find(&logs).Error; err != nil {
+			return "", fmt.Errorf("failed to fetch audit logs for export: %w", err)
+		}
 	}
 
 	csv := "ID,Tenant ID,User ID,Entity Type,Entity ID,Action,Metadata,IP Address,User Agent,Created At\n"
@@ -201,6 +230,10 @@ func escapeCSV(s string) string {
 }
 
 func (s *AuditService) GetAuditStatistics(tenantID uint, startDate, endDate *time.Time) (map[string]interface{}, error) {
+	if s.repo != nil {
+		return s.repo.GetStatistics(nil, tenantID, startDate, endDate)
+	}
+
 	stats := make(map[string]interface{})
 
 	query := s.db.Model(&entities.AuditLog{}).Where("tenant_id = ?", tenantID)

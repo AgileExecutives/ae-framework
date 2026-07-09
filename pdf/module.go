@@ -6,6 +6,7 @@ import (
 	"github.com/AgileExecutives/serverbase/pkg/core"
 	"github.com/AgileExecutives/shared-modules/pdf/events"
 	"github.com/AgileExecutives/shared-modules/pdf/handlers"
+	repo "github.com/AgileExecutives/shared-modules/pdf/repo"
 	"github.com/AgileExecutives/shared-modules/pdf/services"
 )
 
@@ -22,8 +23,9 @@ func (m *PDFModule) Description() string    { return "PDF generation and documen
 func (m *PDFModule) Dependencies() []string { return []string{} }
 func (m *PDFModule) Initialize(ctx core.ModuleContext) error {
 	ctx.Logger.Info("Initializing PDF module...")
-	m.pdfService = services.NewPDFGenerator()
-	m.pdfHandler = handlers.NewPDFHandler(m.pdfService, ctx.DB)
+	gormRepo := repo.NewGormDocumentRepo(ctx.DB)
+	m.pdfService = services.NewPDFGeneratorWithRepo(gormRepo)
+	m.pdfHandler = handlers.NewPDFHandler(m.pdfService)
 	m.eventHandlers = []core.EventHandler{events.NewPDFGeneratedHandler(ctx.Logger), events.NewPDFFailedHandler(ctx.Logger)}
 	if ctx.DocRegistry != nil {
 		ctx.DocRegistry.RegisterDoc(m.Name(), PDFSwaggerJSON)

@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/AgileExecutives/shared-modules/documents/entities"
+	repo "github.com/AgileExecutives/shared-modules/documents/repo"
 	"github.com/AgileExecutives/shared-modules/documents/services/storage"
 	"gorm.io/datatypes"
 	"gorm.io/gorm"
@@ -17,6 +18,7 @@ import (
 type DocumentService struct {
 	db      *gorm.DB
 	storage storage.DocumentStorage
+	repo    repo.DocumentRepo
 }
 
 // NewDocumentService creates a new document service
@@ -25,6 +27,11 @@ func NewDocumentService(db *gorm.DB, storage storage.DocumentStorage) *DocumentS
 		db:      db,
 		storage: storage,
 	}
+}
+
+// NewDocumentServiceWithRepo creates a document service using an explicit repository
+func NewDocumentServiceWithRepo(r repo.DocumentRepo, storage storage.DocumentStorage) *DocumentService {
+	return &DocumentService{repo: r, storage: storage}
 }
 
 // StoreDocument uploads a document and creates metadata record
@@ -80,6 +87,15 @@ func (s *DocumentService) StoreDocument(ctx context.Context, tenantID, userID ui
 		Tags:           tags,
 	}
 
+	if s.repo != nil {
+		if err := s.repo.Create(ctx, document); err != nil {
+			// Rollback: delete from storage
+			s.storage.Delete(ctx, req.Bucket, storageKey)
+			return nil, fmt.Errorf("failed to create document record: %w", err)
+		}
+		return document, nil
+	}
+
 	if err := s.db.Create(document).Error; err != nil {
 		// Rollback: delete from storage
 		s.storage.Delete(ctx, req.Bucket, storageKey)
@@ -91,6 +107,10 @@ func (s *DocumentService) StoreDocument(ctx context.Context, tenantID, userID ui
 
 // GetDocument retrieves document metadata by ID (tenant-scoped)
 func (s *DocumentService) GetDocument(ctx context.Context, documentID, tenantID uint) (*entities.Document, error) {
+	if s.repo != nil {
+		return s.repo.GetByID(ctx, tenantID, documentID)
+	}
+
 	var doc entities.Document
 	err := s.db.Where("id = ? AND tenant_id = ?", documentID, tenantID).First(&doc).Error
 	if err != nil {
@@ -139,6 +159,10 @@ func (s *DocumentService) GetDownloadURL(ctx context.Context, documentID, tenant
 
 // ListDocuments retrieves paginated list of documents (tenant-scoped)
 func (s *DocumentService) ListDocuments(ctx context.Context, tenantID uint, req entities.ListDocumentsRequest) ([]entities.Document, int64, error) {
+	if s.repo != nil {
+		return s.repo.List(ctx, tenantID, req)
+	}
+
 	var documents []entities.Document
 	var total int64
 
@@ -205,6 +229,11 @@ func (s *DocumentService) DeleteDocument(ctx context.Context, documentID, tenant
 		fmt.Printf("Warning: failed to delete document from storage: %v\n", err)
 	}
 
+	// Delete record via repo when available
+	if s.repo != nil {
+		return s.repo.Delete(ctx, tenantID, documentID)
+	}
+
 	// Soft delete from database
 	if err := s.db.Delete(doc).Error; err != nil {
 		return fmt.Errorf("failed to delete document record: %w", err)
@@ -215,6 +244,10 @@ func (s *DocumentService) DeleteDocument(ctx context.Context, documentID, tenant
 
 // GetDocumentsByReference retrieves all documents for a specific reference
 func (s *DocumentService) GetDocumentsByReference(ctx context.Context, tenantID uint, referenceType string, referenceID uint) ([]entities.Document, error) {
+	if s.repo != nil {
+		return s.repo.ListByReference(ctx, tenantID, referenceType, referenceID)
+	}
+
 	var documents []entities.Document
 
 	err := s.db.Where("tenant_id = ? AND reference_type = ? AND reference_id = ?",

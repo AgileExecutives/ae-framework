@@ -1,35 +1,29 @@
 package routes
 
 import (
-	baseAPI "github.com/AgileExecutives/serverbase/api"
 	"github.com/AgileExecutives/serverbase/pkg/core"
 	"github.com/AgileExecutives/shared-modules/documents/handlers"
 	"github.com/AgileExecutives/shared-modules/documents/middleware"
 	"github.com/AgileExecutives/shared-modules/documents/services"
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
 // DocumentRoutes implements RouteProvider for document management endpoints
-type DocumentRoutes struct {
-	documentService *services.DocumentService
-	db              *gorm.DB
-}
+type DocumentRoutes struct{ documentService *services.DocumentService }
 
 // NewDocumentRoutes creates a new DocumentRoutes instance
-func NewDocumentRoutes(documentService *services.DocumentService, db *gorm.DB) *DocumentRoutes {
-	return &DocumentRoutes{
-		documentService: documentService,
-		db:              db,
-	}
+func NewDocumentRoutes(documentService *services.DocumentService) *DocumentRoutes {
+	return &DocumentRoutes{documentService: documentService}
 }
 
 // RegisterRoutes registers all document management routes
 func (r *DocumentRoutes) RegisterRoutes(router *gin.RouterGroup, ctx core.ModuleContext) {
-	documentHandler := handlers.NewDocumentHandler(r.documentService, ctx.DB)
+	documentHandler := handlers.NewDocumentHandler(r.documentService)
 
 	// Document routes with tenant isolation
 	documents := router.Group("/documents")
+	// Apply auth middleware at registration using ModuleContext
+	documents.Use(ctx.Auth.RequireAuth())
 	{
 		// Upload a document
 		documents.POST("", documentHandler.UploadDocument)
@@ -58,18 +52,10 @@ func (r *DocumentRoutes) RegisterRoutes(router *gin.RouterGroup, ctx core.Module
 }
 
 // GetPrefix returns the base path for document routes
-func (r *DocumentRoutes) GetPrefix() string {
-	return ""
-}
+func (r *DocumentRoutes) GetPrefix() string { return "" }
 
 // GetMiddleware returns middleware to apply to all document routes
-func (r *DocumentRoutes) GetMiddleware() []gin.HandlerFunc {
-	return []gin.HandlerFunc{
-		baseAPI.AuthMiddleware(r.db), // Require authentication for tenant ID extraction
-	}
-}
+func (r *DocumentRoutes) GetMiddleware() []gin.HandlerFunc { return nil }
 
 // GetSwaggerTags returns Swagger tags for documentation
-func (r *DocumentRoutes) GetSwaggerTags() []string {
-	return []string{"Documents"}
-}
+func (r *DocumentRoutes) GetSwaggerTags() []string { return []string{"Documents"} }

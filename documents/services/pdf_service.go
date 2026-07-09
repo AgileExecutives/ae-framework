@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/AgileExecutives/shared-modules/documents/entities"
+	repo "github.com/AgileExecutives/shared-modules/documents/repo"
 	"github.com/AgileExecutives/shared-modules/documents/services/storage"
 	"github.com/chromedp/cdproto/page"
 	"github.com/chromedp/chromedp"
@@ -16,6 +17,7 @@ import (
 type PDFService struct {
 	db      *gorm.DB
 	storage storage.DocumentStorage
+	repo    repo.DocumentRepo
 }
 
 // NewPDFService creates a new PDF service instance
@@ -24,6 +26,11 @@ func NewPDFService(db *gorm.DB, storage storage.DocumentStorage) *PDFService {
 		db:      db,
 		storage: storage,
 	}
+}
+
+// NewPDFServiceWithRepo creates a PDFService backed by a DocumentRepo
+func NewPDFServiceWithRepo(r repo.DocumentRepo, storage storage.DocumentStorage) *PDFService {
+	return &PDFService{repo: r, storage: storage}
 }
 
 // GeneratePDFFromHTMLRequest represents a request to generate PDF from HTML
@@ -209,10 +216,17 @@ func (s *PDFService) saveDocument(
 		Metadata:      metadataJSON,
 	}
 
-	if err := s.db.Create(doc).Error; err != nil {
-		// Rollback storage if DB insert fails
-		s.storage.Delete(ctx, "documents", storageKey)
-		return nil, fmt.Errorf("failed to create document record: %w", err)
+	if s.repo != nil {
+		if err := s.repo.Create(ctx, doc); err != nil {
+			s.storage.Delete(ctx, "documents", storageKey)
+			return nil, fmt.Errorf("failed to create document record: %w", err)
+		}
+	} else {
+		if err := s.db.Create(doc).Error; err != nil {
+			// Rollback storage if DB insert fails
+			s.storage.Delete(ctx, "documents", storageKey)
+			return nil, fmt.Errorf("failed to create document record: %w", err)
+		}
 	}
 
 	return doc, nil

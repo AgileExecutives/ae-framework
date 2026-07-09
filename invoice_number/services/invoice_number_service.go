@@ -9,6 +9,8 @@ import (
 	"time"
 
 	"github.com/AgileExecutives/shared-modules/invoice_number/entities"
+	repo "github.com/AgileExecutives/shared-modules/invoice_number/repo"
+
 	// "github.com/AgileExecutives/serverbase/pkg/settings/manager"
 	"gorm.io/gorm"
 )
@@ -42,6 +44,7 @@ type InvoiceNumberService struct {
 	mutex       sync.Mutex
 	cacheTTL    time.Duration
 	lockTimeout time.Duration
+	repo        repo.InvoiceNumberRepo
 }
 
 // NewInvoiceNumberService creates a new invoice number service
@@ -52,6 +55,11 @@ func NewInvoiceNumberService(db *gorm.DB) *InvoiceNumberService {
 		cacheTTL:    24 * time.Hour,
 		lockTimeout: 5 * time.Second,
 	}
+}
+
+// NewInvoiceNumberServiceWithRepo creates service backed by an explicit repo (in-memory or gorm adapter)
+func NewInvoiceNumberServiceWithRepo(r repo.InvoiceNumberRepo) *InvoiceNumberService {
+	return &InvoiceNumberService{repo: r, cacheTTL: 24 * time.Hour, lockTimeout: 5 * time.Second}
 }
 
 // GenerateInvoiceNumber generates the next invoice number
@@ -90,8 +98,14 @@ func (s *InvoiceNumberService) GenerateInvoiceNumber(
 		GeneratedAt:    now,
 	}
 
-	if err := s.db.Create(log).Error; err != nil {
-		return nil, fmt.Errorf("failed to save log: %w", err)
+	if s.repo != nil {
+		if err := s.repo.CreateLog(ctx, log); err != nil {
+			return nil, fmt.Errorf("failed to save log: %w", err)
+		}
+	} else {
+		if err := s.db.Create(log).Error; err != nil {
+			return nil, fmt.Errorf("failed to save log: %w", err)
+		}
 	}
 
 	response := log.ToResponse()
@@ -189,6 +203,35 @@ func (s *InvoiceNumberService) getNextSequenceFromDB(
 	month int,
 	config InvoiceNumberConfig,
 ) (int, error) {
+	if s.repo != nil {
+		rec, err := s.repo.Find(ctx, tenantID, organizationID, year, month)
+		if err != nil {
+			// treat as not found
+			rec = nil
+		}
+		if rec == nil {
+			r := &entities.InvoiceNumber{
+				TenantID:       tenantID,
+				OrganizationID: organizationID,
+				Year:           year,
+				Month:          month,
+				Sequence:       1,
+				Format:         s.getFormatString(config),
+				LastNumber:     s.formatInvoiceNumber(year, month, 1, config),
+			}
+			if err := s.repo.Create(ctx, r); err != nil {
+				return 0, err
+			}
+			return 1, nil
+		}
+		rec.Sequence++
+		rec.LastNumber = s.formatInvoiceNumber(year, month, rec.Sequence, config)
+		if err := s.repo.Update(ctx, rec); err != nil {
+			return 0, err
+		}
+		return rec.Sequence, nil
+	}
+
 	var record entities.InvoiceNumber
 
 	err := s.db.Where(

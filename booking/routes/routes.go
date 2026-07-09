@@ -1,9 +1,8 @@
 package routes
 
 import (
-	"github.com/AgileExecutives/serverbase/pkg/middleware"
+	"github.com/AgileExecutives/serverbase/pkg/core"
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 
 	"github.com/AgileExecutives/shared-modules/booking/handlers"
 	bookingMiddleware "github.com/AgileExecutives/shared-modules/booking/middleware"
@@ -13,30 +12,23 @@ import (
 type RouteProvider struct {
 	bookingHandler  *handlers.BookingHandler
 	tokenMiddleware *bookingMiddleware.BookingTokenMiddleware
-	db              *gorm.DB
 }
 
 // NewRouteProvider creates a new route provider
-func NewRouteProvider(bookingHandler *handlers.BookingHandler, tokenMiddleware *bookingMiddleware.BookingTokenMiddleware, db *gorm.DB) *RouteProvider {
-	return &RouteProvider{
-		bookingHandler:  bookingHandler,
-		tokenMiddleware: tokenMiddleware,
-		db:              db,
-	}
+func NewRouteProvider(bookingHandler *handlers.BookingHandler, tokenMiddleware *bookingMiddleware.BookingTokenMiddleware) *RouteProvider {
+	return &RouteProvider{bookingHandler: bookingHandler, tokenMiddleware: tokenMiddleware}
 }
 
 // RegisterRoutes registers the booking management routes with the provided router group
-func (rp *RouteProvider) RegisterRoutes(router *gin.RouterGroup) {
+func (rp *RouteProvider) RegisterRoutes(router *gin.RouterGroup, ctx core.ModuleContext) {
 	// Public endpoints (no authentication) - just token validation
 	router.GET("/booking/freeslots/:token", rp.tokenMiddleware.ValidateBookingToken(), rp.bookingHandler.GetFreeSlots)
 	router.GET("/client/:token", rp.tokenMiddleware.ValidateBookingToken(), rp.bookingHandler.GetClientByToken)
 
-	// Authenticated endpoints - wrap in auth middleware
-	authMiddleware := middleware.AuthMiddleware(rp.db)
-
+	// Authenticated endpoints - use ModuleContext auth
 	// Booking templates/configurations CRUD endpoints (authenticated)
 	templates := router.Group("/booking/templates")
-	templates.Use(authMiddleware)
+	templates.Use(ctx.Auth.RequireAuth())
 	{
 		templates.POST("", rp.bookingHandler.CreateConfiguration)
 		templates.GET("", rp.bookingHandler.GetAllConfigurations)
@@ -50,21 +42,15 @@ func (rp *RouteProvider) RegisterRoutes(router *gin.RouterGroup) {
 	}
 
 	// Booking link generation endpoint (authenticated)
-	router.POST("/booking/link", authMiddleware, rp.bookingHandler.CreateBookingLink)
+	router.POST("/booking/link", ctx.Auth.RequireAuth(), rp.bookingHandler.CreateBookingLink)
 }
 
 // GetPrefix returns the route prefix for booking management endpoints
-func (rp *RouteProvider) GetPrefix() string {
-	return ""
-}
+func (rp *RouteProvider) GetPrefix() string { return "" }
 
 // GetMiddleware returns middleware to apply to all routes
 // Returns empty array since we apply auth selectively in RegisterRoutes
-func (rp *RouteProvider) GetMiddleware() []gin.HandlerFunc {
-	return []gin.HandlerFunc{}
-}
+func (rp *RouteProvider) GetMiddleware() []gin.HandlerFunc { return []gin.HandlerFunc{} }
 
 // GetSwaggerTags returns swagger tags for the routes
-func (rp *RouteProvider) GetSwaggerTags() []string {
-	return []string{"booking"}
-}
+func (rp *RouteProvider) GetSwaggerTags() []string { return []string{"booking"} }

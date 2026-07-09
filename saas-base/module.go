@@ -7,6 +7,7 @@ import (
 	"github.com/AgileExecutives/shared-modules/saas-base/entities"
 	"github.com/AgileExecutives/shared-modules/saas-base/handlers"
 	"github.com/AgileExecutives/shared-modules/saas-base/models"
+	"github.com/AgileExecutives/shared-modules/saas-base/services"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
@@ -20,12 +21,12 @@ type Module struct {
 }
 
 // NewModule creates a new saas-base Module.
-func NewModule(db *gorm.DB) *Module {
+func NewModule(db *gorm.DB, custSvc *services.CustomerService, planSvc *services.PlanService, newsSvc *services.NewsletterService) *Module {
 	return &Module{
 		db:                 db,
-		customerHandlers:   handlers.NewCustomerHandlers(db),
-		planHandlers:       handlers.NewPlanHandlers(db),
-		newsletterHandlers: handlers.NewNewsletterHandlers(db),
+		customerHandlers:   handlers.NewCustomerHandlers(custSvc),
+		planHandlers:       handlers.NewPlanHandlers(planSvc),
+		newsletterHandlers: handlers.NewNewsletterHandlers(newsSvc),
 	}
 }
 

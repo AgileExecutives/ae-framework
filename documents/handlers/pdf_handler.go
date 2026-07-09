@@ -10,23 +10,17 @@ import (
 	templateServices "github.com/AgileExecutives/serverbase/modules/templates/services"
 	"github.com/AgileExecutives/shared-modules/documents/services"
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
 // PDFHandler handles PDF generation requests
 type PDFHandler struct {
 	pdfService      *services.PDFService
 	templateService *templateServices.TemplateService
-	db              *gorm.DB
 }
 
 // NewPDFHandler creates a new PDF handler
-func NewPDFHandler(pdfService *services.PDFService, templateService *templateServices.TemplateService, db *gorm.DB) *PDFHandler {
-	return &PDFHandler{
-		pdfService:      pdfService,
-		templateService: templateService,
-		db:              db,
-	}
+func NewPDFHandler(pdfService *services.PDFService, templateService *templateServices.TemplateService) *PDFHandler {
+	return &PDFHandler{pdfService: pdfService, templateService: templateService}
 }
 
 // GeneratePDFFromHTML godoc

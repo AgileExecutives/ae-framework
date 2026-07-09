@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/AgileExecutives/shared-modules/booking/entities"
+	repo "github.com/AgileExecutives/shared-modules/booking/repo"
 	"gorm.io/gorm"
 )
 
@@ -22,13 +23,19 @@ type CalendarEntry struct {
 
 // FreeSlotsService handles free slot calculation
 type FreeSlotsService struct {
-	db  *gorm.DB
-	now func() time.Time
+	db   *gorm.DB
+	now  func() time.Time
+	repo repo.BookingRepo
 }
 
 // NewFreeSlotsService creates a new free slots service
 func NewFreeSlotsService(db *gorm.DB) *FreeSlotsService {
 	return &FreeSlotsService{db: db, now: time.Now}
+}
+
+// NewFreeSlotsServiceWithRepo creates a repo-backed FreeSlotsService
+func NewFreeSlotsServiceWithRepo(r repo.BookingRepo) *FreeSlotsService {
+	return &FreeSlotsService{repo: r, now: time.Now}
 }
 
 // FreeSlotsRequest contains parameters for free slot calculation
@@ -64,13 +71,31 @@ func (s *FreeSlotsService) CalculateFreeSlots(req FreeSlotsRequest, template *en
 	}
 
 	var existingEntries []CalendarEntry
-	err = s.db.Table("calendar_entries").
-		Select("id, calendar_id, tenant_id, start_time, end_time").
-		Where("calendar_id = ? AND tenant_id = ? AND start_time >= ? AND start_time <= ? AND deleted_at IS NULL",
-			req.CalendarID, req.TenantID, req.StartDate, endDateForConflicts).
-		Find(&existingEntries).Error
-	if err != nil {
-		return nil, fmt.Errorf("failed to fetch existing entries: %w", err)
+	if s.repo != nil {
+		rows, err := s.repo.GetCalendarEntries(nil, req.CalendarID, req.TenantID, req.StartDate, endDateForConflicts)
+		if err != nil {
+			return nil, fmt.Errorf("failed to fetch existing entries: %w", err)
+		}
+		for _, r := range rows {
+			existingEntries = append(existingEntries, CalendarEntry{
+				ID:               r.ID,
+				CalendarID:       r.CalendarID,
+				TenantID:         r.TenantID,
+				StartTime:        r.StartTime,
+				EndTime:          r.EndTime,
+				SeriesID:         r.SeriesID,
+				PositionInSeries: r.PositionInSeries,
+			})
+		}
+	} else {
+		err = s.db.Table("calendar_entries").
+			Select("id, calendar_id, tenant_id, start_time, end_time").
+			Where("calendar_id = ? AND tenant_id = ? AND start_time >= ? AND start_time <= ? AND deleted_at IS NULL",
+				req.CalendarID, req.TenantID, req.StartDate, endDateForConflicts).
+			Find(&existingEntries).Error
+		if err != nil {
+			return nil, fmt.Errorf("failed to fetch existing entries: %w", err)
+		}
 	}
 
 	// Generate all possible slots
@@ -115,18 +140,28 @@ func (s *FreeSlotsService) getWeeklyAvailabilityWithFallback(calendarID, tenantI
 	}
 
 	// Fallback to calendar availability
-	var calendar struct {
-		WeeklyAvailability []byte `gorm:"column:weekly_availability"`
+	var availBytes []byte
+	if s.repo != nil {
+		b, err := s.repo.GetCalendarWeeklyAvailability(nil, calendarID, tenantID)
+		if err == nil {
+			availBytes = b
+		}
+	} else {
+		var calendar struct {
+			WeeklyAvailability []byte `gorm:"column:weekly_availability"`
+		}
+		err := s.db.Table("calendars").
+			Select("weekly_availability").
+			Where("id = ? AND tenant_id = ? AND deleted_at IS NULL", calendarID, tenantID).
+			Take(&calendar).Error
+		if err == nil {
+			availBytes = calendar.WeeklyAvailability
+		}
 	}
 
-	err := s.db.Table("calendars").
-		Select("weekly_availability").
-		Where("id = ? AND tenant_id = ? AND deleted_at IS NULL", calendarID, tenantID).
-		Take(&calendar).Error
-
-	if err == nil && len(calendar.WeeklyAvailability) > 0 {
+	if len(availBytes) > 0 {
 		var calendarAvailability entities.WeeklyAvailability
-		if err := calendarAvailability.Scan(calendar.WeeklyAvailability); err == nil {
+		if err := calendarAvailability.Scan(availBytes); err == nil {
 			if s.hasAvailability(calendarAvailability) {
 				return calendarAvailability
 			}

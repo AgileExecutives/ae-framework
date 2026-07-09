@@ -5,6 +5,7 @@ import (
 
 	"github.com/AgileExecutives/serverbase/pkg/core"
 	"github.com/AgileExecutives/shared-modules/invoice_number/entities"
+	repo "github.com/AgileExecutives/shared-modules/invoice_number/repo"
 	"github.com/AgileExecutives/shared-modules/invoice_number/routes"
 	"github.com/AgileExecutives/shared-modules/invoice_number/services"
 )
@@ -35,11 +36,12 @@ func (m *InvoiceNumberModule) Dependencies() []string {
 func (m *InvoiceNumberModule) Initialize(ctx core.ModuleContext) error {
 	ctx.Logger.Info("Initializing invoice number module...")
 
-	// Initialize service
-	m.invoiceNumberService = services.NewInvoiceNumberService(ctx.DB)
+	// Initialize service (prefer repo-backed)
+	gormRepo := repo.NewGormInvoiceNumberRepo(ctx.DB)
+	m.invoiceNumberService = services.NewInvoiceNumberServiceWithRepo(gormRepo)
 
 	// Initialize routes
-	m.invoiceNumberRoutes = routes.NewInvoiceNumberRoutes(m.invoiceNumberService, ctx.DB)
+	m.invoiceNumberRoutes = routes.NewInvoiceNumberRoutes(m.invoiceNumberService)
 
 	ctx.Logger.Info("Invoice number module initialized successfully")
 	return nil

@@ -3,10 +3,11 @@ package saasbase
 import (
 	"context"
 
-	"github.com/AgileExecutives/serverbase/modules/customers/repo"
+	custrepo "github.com/AgileExecutives/serverbase/modules/customers/repo"
 	"github.com/AgileExecutives/serverbase/pkg/core"
 	"github.com/AgileExecutives/shared-modules/saas-base/entities"
 	"github.com/AgileExecutives/shared-modules/saas-base/handlers"
+	saasrepo "github.com/AgileExecutives/shared-modules/saas-base/repo"
 	"github.com/AgileExecutives/shared-modules/saas-base/services"
 	"github.com/gin-gonic/gin"
 )
@@ -37,15 +38,26 @@ func (m *CoreModule) Dependencies() []string {
 func (m *CoreModule) Initialize(ctx core.ModuleContext) error {
 	ctx.Logger.Info("Initializing saas-base module...")
 
-	m.module = NewModule(ctx.DB)
-	custRepo := repo.NewGormCustomerRepo(ctx.DB)
-	m.customerService = services.NewCustomerService(custRepo, ctx.Logger)
+	// Customer service (uses serverbase customer repo)
+	custRepo := custrepo.NewGormCustomerRepo(ctx.DB)
+	m.customerService = services.NewCustomerServiceWithDB(custRepo, ctx.DB, ctx.Logger)
+
+	// Plan and newsletter services for saas-base
+	planRepo := saasrepo.NewGormPlanRepo(ctx.DB)
+	planService := services.NewPlanService(planRepo)
+
+	newsletterRepo := saasrepo.NewGormNewsletterRepo(ctx.DB)
+	newsletterService := services.NewNewsletterService(newsletterRepo)
+
+	m.module = NewModule(ctx.DB, m.customerService, planService, newsletterService)
 
 	if err := m.module.AutoMigrate(); err != nil {
 		return err
 	}
 
 	ctx.Services.Register("saas-base-customer", m.customerService)
+	ctx.Services.Register("saas-base-plan", planService)
+	ctx.Services.Register("saas-base-newsletter", newsletterService)
 	ctx.Logger.Info("saas-base module initialized successfully")
 	return nil
 }
@@ -62,10 +74,31 @@ func (m *CoreModule) Entities() []core.Entity {
 }
 
 func (m *CoreModule) Routes() []core.RouteProvider {
+	// Wire handlers using services created during Initialize. If Initialize
+	// hasn't run yet, create lightweight handlers with nil services.
+	var custH *handlers.CustomerHandlers
+	var planH *handlers.PlanHandlers
+	var newsH *handlers.NewsletterHandlers
+
+	if m.customerService != nil {
+		custH = handlers.NewCustomerHandlers(m.customerService)
+	} else {
+		custH = handlers.NewCustomerHandlers(nil)
+	}
+	// Plan and newsletter services were registered in Initialize; fetch via module if available
+	// but here we wire using m.module.db presence as fallback
+	if m.module != nil {
+		planH = handlers.NewPlanHandlers(services.NewPlanService(saasrepo.NewGormPlanRepo(m.module.db)))
+		newsH = handlers.NewNewsletterHandlers(services.NewNewsletterService(saasrepo.NewGormNewsletterRepo(m.module.db)))
+	} else {
+		planH = handlers.NewPlanHandlers(nil)
+		newsH = handlers.NewNewsletterHandlers(nil)
+	}
+
 	return []core.RouteProvider{
-		&customerRouteProvider{handlers: handlers.NewCustomerHandlers(m.module.db)},
-		&planRouteProvider{handlers: handlers.NewPlanHandlers(m.module.db)},
-		&newsletterRouteProvider{handlers: handlers.NewNewsletterHandlers(m.module.db)},
+		&customerRouteProvider{handlers: custH},
+		&planRouteProvider{handlers: planH},
+		&newsletterRouteProvider{handlers: newsH},
 	}
 }
 

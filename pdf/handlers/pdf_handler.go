@@ -7,22 +7,21 @@ import (
 	"github.com/AgileExecutives/serverbase/pkg/middleware"
 	"github.com/AgileExecutives/shared-modules/pdf/services"
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
 type PDFHandler struct {
 	service *services.PDFGenerator
-	db      *gorm.DB
 }
 
-func NewPDFHandler(service *services.PDFGenerator, db *gorm.DB) *PDFHandler {
-	return &PDFHandler{service: service, db: db}
+func NewPDFHandler(service *services.PDFGenerator) *PDFHandler {
+	return &PDFHandler{service: service}
 }
 
 // RegisterRoutes registers the PDF endpoints used by tests.
 func (h *PDFHandler) RegisterRoutes(router *gin.RouterGroup, ctx core.ModuleContext) {
 	// router is already mounted under /api/v1/<prefix> where prefix is /pdf
-	router.POST("/create", func(c *gin.Context) {
+	auth := middleware.AuthMiddleware(ctx.DB)
+	router.POST("/create", auth, func(c *gin.Context) {
 		var req struct {
 			Data         map[string]interface{} `json:"data"`
 			TemplateName string                 `json:"templateName"`
@@ -56,6 +55,7 @@ func (h *PDFHandler) RegisterRoutes(router *gin.RouterGroup, ctx core.ModuleCont
 
 func (h *PDFHandler) GetPrefix() string { return "/pdf" }
 func (h *PDFHandler) GetMiddleware() []gin.HandlerFunc {
-	return []gin.HandlerFunc{middleware.AuthMiddleware(h.db)}
+	// Middleware applied in RegisterRoutes using ModuleContext
+	return []gin.HandlerFunc{}
 }
 func (h *PDFHandler) GetSwaggerTags() []string { return []string{"pdf"} }

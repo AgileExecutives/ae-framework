@@ -2,10 +2,12 @@ package calendar
 
 import (
 	baseAPI "github.com/AgileExecutives/serverbase/api"
+	"github.com/AgileExecutives/serverbase/pkg/core"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 
 	"github.com/AgileExecutives/shared-modules/calendar/handlers"
+	repo "github.com/AgileExecutives/shared-modules/calendar/repo"
 	"github.com/AgileExecutives/shared-modules/calendar/routes"
 	"github.com/AgileExecutives/shared-modules/calendar/services"
 )
@@ -13,28 +15,32 @@ import (
 // BasicModule implements the baseAPI.ModuleRouteProvider interface (legacy compatibility)
 type BasicModule struct {
 	routeProvider *routes.RouteProvider
+	db            *gorm.DB
 }
 
 // NewBasicModule creates a new basic calendar module (legacy compatibility)
 func NewBasicModule(db *gorm.DB) baseAPI.ModuleRouteProvider {
-	// Initialize services
-	calendarService := services.NewCalendarService(db)
+
+	// Initialize GORM-backed repo and service
+	gormRepo := repo.NewGormCalendarRepo(db)
+	calendarService := services.NewCalendarServiceWithRepo(gormRepo)
 
 	// Initialize handlers
 	calendarHandler := handlers.NewCalendarHandler(calendarService)
 
-	// Initialize route provider with database for auth middleware
-	routeProvider := routes.NewRouteProvider(calendarHandler, db)
+	// Initialize route provider
+	routeProvider := routes.NewRouteProvider(calendarHandler)
 
 	return &BasicModule{
 		routeProvider: routeProvider,
+		db:            db,
 	}
 }
 
 // RegisterRoutes implements baseAPI.ModuleRouteProvider
 func (m *BasicModule) RegisterRoutes(router *gin.RouterGroup) {
-	// Directly call the method to avoid any interface conflicts
-	m.routeProvider.RegisterRoutes(router)
+	// Legacy compatibility: call route provider with minimal ModuleContext
+	m.routeProvider.RegisterRoutes(router, core.ModuleContext{DB: m.db})
 }
 
 // GetPrefix implements baseAPI.ModuleRouteProvider

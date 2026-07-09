@@ -6,6 +6,7 @@ import (
 	templateServices "github.com/AgileExecutives/serverbase/modules/templates/services"
 	"github.com/AgileExecutives/serverbase/pkg/core"
 	"github.com/AgileExecutives/shared-modules/documents/entities"
+	repo "github.com/AgileExecutives/shared-modules/documents/repo"
 	"github.com/AgileExecutives/shared-modules/documents/routes"
 	"github.com/AgileExecutives/shared-modules/documents/services"
 	"github.com/AgileExecutives/shared-modules/documents/services/storage"
@@ -82,17 +83,18 @@ func (m *CoreModule) Initialize(ctx core.ModuleContext) error {
 		}
 	}
 
-	// Initialize services
-	m.documentService = services.NewDocumentService(ctx.DB, m.minioStorage)
+	// Initialize services (prefer repo-backed service)
+	gormRepo := repo.NewGormDocumentRepo(ctx.DB)
+	m.documentService = services.NewDocumentServiceWithRepo(gormRepo, m.minioStorage)
 
 	// PDF service no longer needs template service - orchestration happens in handler
 	if m.pdfService == nil {
-		m.pdfService = services.NewPDFService(ctx.DB, m.minioStorage)
+		m.pdfService = services.NewPDFServiceWithRepo(gormRepo, m.minioStorage)
 	}
 
 	// Initialize routes
-	m.documentRoutes = routes.NewDocumentRoutes(m.documentService, ctx.DB)
-	m.pdfRoutes = routes.NewPDFRoutes(m.pdfService, m.templateService, ctx.DB)
+	m.documentRoutes = routes.NewDocumentRoutes(m.documentService)
+	m.pdfRoutes = routes.NewPDFRoutes(m.pdfService, m.templateService)
 
 	return nil
 }
@@ -181,7 +183,8 @@ func (p *documentServiceProvider) Factory(ctx core.ModuleContext) (interface{}, 
 
 	// Create Document service if not already present
 	if p.module.documentService == nil {
-		p.module.documentService = services.NewDocumentService(ctx.DB, p.module.minioStorage)
+		gormRepo := repo.NewGormDocumentRepo(ctx.DB)
+		p.module.documentService = services.NewDocumentServiceWithRepo(gormRepo, p.module.minioStorage)
 	}
 
 	return p.module.documentService, nil
@@ -220,7 +223,8 @@ func (p *pdfServiceProvider) Factory(ctx core.ModuleContext) (interface{}, error
 
 	// Create PDF service if not already present
 	if p.module.pdfService == nil {
-		p.module.pdfService = services.NewPDFService(ctx.DB, p.module.minioStorage)
+		gormRepo := repo.NewGormDocumentRepo(ctx.DB)
+		p.module.pdfService = services.NewPDFServiceWithRepo(gormRepo, p.module.minioStorage)
 	}
 
 	return p.module.pdfService, nil

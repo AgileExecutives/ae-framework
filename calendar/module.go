@@ -11,6 +11,7 @@ import (
 	"github.com/AgileExecutives/shared-modules/calendar/docs"
 	"github.com/AgileExecutives/shared-modules/calendar/entities"
 	"github.com/AgileExecutives/shared-modules/calendar/handlers"
+	repo "github.com/AgileExecutives/shared-modules/calendar/repo"
 	"github.com/AgileExecutives/shared-modules/calendar/routes"
 	"github.com/AgileExecutives/shared-modules/calendar/services"
 )
@@ -31,14 +32,15 @@ func NewCoreModule() *Module {
 
 // NewModuleWithAutoMigration creates a new calendar module with auto-migration support
 func NewModuleWithAutoMigration(db *gorm.DB) *Module {
-	// Initialize services
-	calendarService := services.NewCalendarService(db)
+	// Initialize GORM-backed repo, service and handlers
+	gormRepo := repo.NewGormCalendarRepo(db)
+	calendarService := services.NewCalendarServiceWithRepo(gormRepo)
 
 	// Initialize handlers
 	calendarHandler := handlers.NewCalendarHandler(calendarService)
 
 	// Initialize route provider with database for auth middleware
-	routeProvider := routes.NewRouteProvider(calendarHandler, db)
+	routeProvider := routes.NewRouteProvider(calendarHandler)
 
 	return &Module{
 		db:              db,
@@ -70,7 +72,7 @@ func (m *Module) Initialize(ctx core.ModuleContext) error {
 	// Store database reference
 	m.db = ctx.DB
 
-	// Initialize services
+	// Initialize service directly with DB so generation logic has access to gorm DB
 	m.calendarService = services.NewCalendarService(ctx.DB)
 	m.calendarService.SetEventBus(ctx.EventBus)
 
@@ -78,7 +80,7 @@ func (m *Module) Initialize(ctx core.ModuleContext) error {
 	m.calendarHandler = handlers.NewCalendarHandler(m.calendarService)
 
 	// Initialize route provider with database for auth middleware
-	m.routeProvider = routes.NewRouteProvider(m.calendarHandler, ctx.DB)
+	m.routeProvider = routes.NewRouteProvider(m.calendarHandler)
 
 	// Register pre-generated swagger docs with the server's doc registry so they
 	// are merged into the combined spec served at /swagger/index.html.
@@ -174,7 +176,8 @@ func (m *Module) SwaggerPaths() []string {
 
 // RegisterRoutes implements compatibility with baseAPI.ModuleRouteProvider
 func (m *Module) RegisterRoutes(router *gin.RouterGroup) {
-	m.routeProvider.RegisterRoutes(router)
+	// Legacy compatibility: call route provider with minimal ModuleContext
+	m.routeProvider.RegisterRoutes(router, core.ModuleContext{DB: m.db})
 }
 
 // GetPrefix implements compatibility with baseAPI.ModuleRouteProvider
@@ -198,7 +201,7 @@ type calendarRouteAdapter struct {
 }
 
 func (a *calendarRouteAdapter) RegisterRoutes(router *gin.RouterGroup, ctx core.ModuleContext) {
-	a.provider.RegisterRoutes(router)
+	a.provider.RegisterRoutes(router, ctx)
 }
 
 func (a *calendarRouteAdapter) GetPrefix() string {

@@ -12,6 +12,7 @@ import (
 	"github.com/AgileExecutives/shared-modules/booking/entities"
 	"github.com/AgileExecutives/shared-modules/booking/handlers"
 	"github.com/AgileExecutives/shared-modules/booking/middleware"
+	repo "github.com/AgileExecutives/shared-modules/booking/repo"
 	"github.com/AgileExecutives/shared-modules/booking/routes"
 	"github.com/AgileExecutives/shared-modules/booking/services"
 )
@@ -36,18 +37,19 @@ func NewCoreModule() *Module {
 // NewModuleWithAutoMigration creates a new booking module with auto-migration support
 func NewModuleWithAutoMigration(db *gorm.DB, jwtSecret string) *Module {
 	// Initialize services
-	bookingService := services.NewBookingService(db)
+	gormRepo := repo.NewGormBookingRepo(db)
+	bookingService := services.NewBookingServiceWithRepoAndDB(gormRepo, db)
 	bookingLinkService := services.NewBookingLinkService(db, jwtSecret)
-	freeSlotsSvc := services.NewFreeSlotsService(db)
+	freeSlotsSvc := services.NewFreeSlotsServiceWithRepo(gormRepo)
 
-	// Initialize middleware
-	tokenMiddleware := middleware.NewBookingTokenMiddleware(bookingLinkService, db)
+	// Initialize middleware (use repo for blacklist checks)
+	tokenMiddleware := middleware.NewBookingTokenMiddleware(bookingLinkService, gormRepo)
 
 	// Initialize handlers
-	bookingHandler := handlers.NewBookingHandler(bookingService, bookingLinkService, freeSlotsSvc, db)
+	bookingHandler := handlers.NewBookingHandler(bookingService, bookingLinkService, freeSlotsSvc)
 
-	// Initialize route provider with database for auth middleware
-	routeProvider := routes.NewRouteProvider(bookingHandler, tokenMiddleware, db)
+	// Initialize route provider
+	routeProvider := routes.NewRouteProvider(bookingHandler, tokenMiddleware)
 
 	return &Module{
 		db:                 db,
@@ -82,8 +84,9 @@ func (m *Module) Initialize(ctx core.ModuleContext) error {
 	// Store database reference
 	m.db = ctx.DB
 
-	// Initialize services
-	m.bookingService = services.NewBookingService(ctx.DB)
+	// Initialize services (prefer repo-backed service)
+	gormRepo := repo.NewGormBookingRepo(ctx.DB)
+	m.bookingService = services.NewBookingServiceWithRepoAndDB(gormRepo, ctx.DB)
 
 	// Try to get BookingLinkService from service registry (created by Factory)
 	// If not available, create it directly
@@ -111,16 +114,16 @@ func (m *Module) Initialize(ctx core.ModuleContext) error {
 		}
 	}
 
-	m.freeSlotsSvc = services.NewFreeSlotsService(ctx.DB)
+	m.freeSlotsSvc = services.NewFreeSlotsServiceWithRepo(gormRepo)
 
 	// Initialize middleware
-	m.tokenMiddleware = middleware.NewBookingTokenMiddleware(m.bookingLinkService, ctx.DB)
+	m.tokenMiddleware = middleware.NewBookingTokenMiddleware(m.bookingLinkService, gormRepo)
 
 	// Initialize handlers
-	m.bookingHandler = handlers.NewBookingHandler(m.bookingService, m.bookingLinkService, m.freeSlotsSvc, ctx.DB)
+	m.bookingHandler = handlers.NewBookingHandler(m.bookingService, m.bookingLinkService, m.freeSlotsSvc)
 
-	// Initialize route provider with database for auth middleware
-	m.routeProvider = routes.NewRouteProvider(m.bookingHandler, m.tokenMiddleware, ctx.DB)
+	// Initialize route provider
+	m.routeProvider = routes.NewRouteProvider(m.bookingHandler, m.tokenMiddleware)
 
 	// Register pre-generated swagger docs with the server's doc registry so they
 	// are merged into the combined spec served at /swagger/index.html.
@@ -229,7 +232,8 @@ func (m *Module) SwaggerPaths() []string {
 
 // RegisterRoutes implements compatibility with baseAPI.ModuleRouteProvider
 func (m *Module) RegisterRoutes(router *gin.RouterGroup) {
-	m.routeProvider.RegisterRoutes(router)
+	// Legacy compatibility: call route provider with minimal ModuleContext
+	m.routeProvider.RegisterRoutes(router, core.ModuleContext{DB: m.db})
 }
 
 // GetPrefix implements compatibility with baseAPI.ModuleRouteProvider
@@ -243,7 +247,7 @@ type bookingRouteAdapter struct {
 }
 
 func (a *bookingRouteAdapter) RegisterRoutes(router *gin.RouterGroup, ctx core.ModuleContext) {
-	a.provider.RegisterRoutes(router)
+	a.provider.RegisterRoutes(router, ctx)
 }
 
 func (a *bookingRouteAdapter) GetPrefix() string {

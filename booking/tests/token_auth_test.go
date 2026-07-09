@@ -11,6 +11,7 @@ import (
 
 	"github.com/AgileExecutives/shared-modules/booking/entities"
 	"github.com/AgileExecutives/shared-modules/booking/middleware"
+	repo "github.com/AgileExecutives/shared-modules/booking/repo"
 	"github.com/AgileExecutives/shared-modules/booking/services"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
@@ -68,7 +69,8 @@ func setupTestServices(t *testing.T, db *gorm.DB) (*services.BookingLinkService,
 	require.NoError(t, err)
 
 	bookingLinkSvc := services.NewBookingLinkService(db, "test-secret-key")
-	middleware := middleware.NewBookingTokenMiddleware(bookingLinkSvc, db)
+	gormRepo := repo.NewGormBookingRepo(db)
+	middleware := middleware.NewBookingTokenMiddleware(bookingLinkSvc, gormRepo)
 
 	return bookingLinkSvc, middleware
 }
@@ -508,7 +510,8 @@ func TestNewBookingTokenMiddleware(t *testing.T) {
 	db := setupTestDB(t)
 	bookingLinkSvc := services.NewBookingLinkService(db, "test-secret")
 
-	middleware := middleware.NewBookingTokenMiddleware(bookingLinkSvc, db)
+	gormRepo := repo.NewGormBookingRepo(db)
+	middleware := middleware.NewBookingTokenMiddleware(bookingLinkSvc, gormRepo)
 
 	assert.NotNil(t, middleware)
 	// Note: Cannot test unexported fields bookingLinkSvc and db directly

@@ -10,23 +10,16 @@ import (
 
 	// "github.com/AgileExecutives/serverbase/pkg/settings/manager"
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
 // InvoiceNumberHandler handles invoice number generation requests
 type InvoiceNumberHandler struct {
 	service *services.InvoiceNumberService
-	// settingsManager *manager.SettingsManager // TODO: Integrate with new settings system
-	db *gorm.DB
 }
 
 // NewInvoiceNumberHandler creates a new invoice number handler
-func NewInvoiceNumberHandler(service *services.InvoiceNumberService, db *gorm.DB) *InvoiceNumberHandler {
-	return &InvoiceNumberHandler{
-		service: service,
-		// settingsManager: settingsManager, // TODO: Integrate with new settings system
-		db: db,
-	}
+func NewInvoiceNumberHandler(service *services.InvoiceNumberService) *InvoiceNumberHandler {
+	return &InvoiceNumberHandler{service: service}
 }
 
 // GenerateInvoiceNumber generates the next invoice number

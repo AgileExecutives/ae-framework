@@ -1,40 +1,33 @@
 package static
 
 import (
-	"context"
-
+	"github.com/AgileExecutives/serverbase/module"
 	"github.com/AgileExecutives/serverbase/pkg/core"
 	"github.com/AgileExecutives/shared-modules/static/handlers"
-	"gorm.io/gorm"
+	"github.com/gin-gonic/gin"
 )
 
-type StaticModule struct {
-	staticHandlers *handlers.StaticHandlers
-	db             *gorm.DB
+// NewStaticModule returns a lightweight adapter-based module
+func NewStaticModule() core.Module {
+	// route provider constructs handlers at RegisterRoutes time using ctx
+	rp := &staticRouteProvider{}
+	return module.NewAdapterModule("static", "1.0.0", []string{},
+		module.WithRoutes(rp),
+		module.WithSwaggerPaths("./modules/static/handlers"),
+	)
 }
 
-func NewStaticModule() core.Module             { return &StaticModule{} }
-func (m *StaticModule) Name() string           { return "static" }
-func (m *StaticModule) Version() string        { return "1.0.0" }
-func (m *StaticModule) Dependencies() []string { return []string{} }
-func (m *StaticModule) Initialize(ctx core.ModuleContext) error {
-	ctx.Logger.Info("Initializing static module...")
-	m.db = ctx.DB
+type staticRouteProvider struct{}
+
+func (r *staticRouteProvider) GetPrefix() string                { return "/static" }
+func (r *staticRouteProvider) GetMiddleware() []gin.HandlerFunc { return nil }
+func (r *staticRouteProvider) GetSwaggerTags() []string         { return []string{"static"} }
+func (r *staticRouteProvider) RegisterRoutes(router *gin.RouterGroup, ctx core.ModuleContext) {
 	repo := handlers.NewFSStaticRepo("./statics/json")
-	m.staticHandlers = handlers.NewStaticHandlers(ctx.Logger, repo)
-	if ctx.DocRegistry != nil {
-		ctx.DocRegistry.RegisterDoc(m.Name(), StaticSwaggerJSON)
-	}
-	ctx.Logger.Info("Static module initialized successfully")
-	return nil
+	h := handlers.NewStaticHandlers(ctx.Logger, repo)
+	auth := router.Group("")
+	auth.Use(ctx.Auth.RequireAuth())
+	auth.GET("", h.ListStaticJSON)
+	auth.GET("/", h.ListStaticJSON)
+	auth.GET("/:filename", h.ServeStaticJSON)
 }
-func (m *StaticModule) Start(ctx context.Context) error { return nil }
-func (m *StaticModule) Stop(ctx context.Context) error  { return nil }
-func (m *StaticModule) Entities() []core.Entity         { return []core.Entity{} }
-func (m *StaticModule) Routes() []core.RouteProvider {
-	return []core.RouteProvider{handlers.NewStaticRoutes(m.staticHandlers, m.db)}
-}
-func (m *StaticModule) EventHandlers() []core.EventHandler    { return []core.EventHandler{} }
-func (m *StaticModule) Services() []core.ServiceProvider      { return []core.ServiceProvider{} }
-func (m *StaticModule) Middleware() []core.MiddlewareProvider { return []core.MiddlewareProvider{} }
-func (m *StaticModule) SwaggerPaths() []string                { return []string{"./modules/static/handlers"} }
