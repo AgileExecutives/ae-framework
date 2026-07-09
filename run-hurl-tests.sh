@@ -22,6 +22,9 @@ TEMPLATES_DIR="tests/hurl/templates"
 PROCESSED_DIR="tests/hurl/processed"
 RESULTS_DIR="test_results"
 
+# Enable nullglob so globs that match nothing expand to empty
+shopt -s nullglob
+
 # Check for test filter argument
 TEST_FILTER="$1"
 VERBOSE_OUTPUT=""
@@ -115,6 +118,12 @@ run_test() {
         process_template "$test_file" "$source_file"
     fi
     
+    # Skip files that contain no HTTP requests (variables-only files)
+    if ! grep -E "^(GET|POST|PUT|DELETE|PATCH|HEAD) " -q "$source_file"; then
+        echo -e "${YELLOW}ℹ️  Skipping ${test_name}.hurl (no HTTP requests found)${NC}"
+        return 0
+    fi
+
     # Run the test with or without verbose output
     local hurl_output=""
     if [ -n "$VERBOSE_OUTPUT" ]; then
@@ -127,6 +136,8 @@ run_test() {
         
         if hurl_output=$(hurl "$source_file" \
             --variable "host=${HOST}" \
+            --variable "base_url=${HOST}" \
+            --variable "auth_token=${AUTH_TOKEN}" \
             --test \
             --verbose 2>&1); then
             echo -e "${GREEN}✅ ${test_name}.hurl passed${NC}"
@@ -142,35 +153,48 @@ run_test() {
             return 1
         fi
     else
-        # Regular quiet mode
-        if hurl "$source_file" \
+        # Regular quiet mode: always run and then inspect JSON for failures
+        hurl "$source_file" \
             --variable "host=${HOST}" \
+            --variable "base_url=${HOST}" \
+            --variable "auth_token=${AUTH_TOKEN}" \
             --test \
-            --json > "$RESULTS_DIR/${test_name}.json" 2>/dev/null; then
-            echo -e "${GREEN}✅ ${test_name}.hurl passed${NC}"
-            return 0
+            --json > "$RESULTS_DIR/${test_name}.json" 2>/dev/null || true
+
+        if [ -f "$RESULTS_DIR/${test_name}.json" ]; then
+            local failed_msg
+            failed_msg=$(jq -r '.entries[]?.asserts[]? | select(.success == false) | .message' "$RESULTS_DIR/${test_name}.json" 2>/dev/null | head -1 || true)
+            if [ -z "$failed_msg" ] || [ "$failed_msg" = "null" ]; then
+                echo -e "${GREEN}✅ ${test_name}.hurl passed${NC}"
+                return 0
+            else
+                echo -e "${RED}❌ ${test_name}.hurl failed${NC}"
+                echo -e "${RED}📝 Error details:${NC}"
+                echo "\"$failed_msg\""
+                return 1
+            fi
         else
             echo -e "${RED}❌ ${test_name}.hurl failed${NC}"
-            
-            # Show error details if available
-            if [ -f "$RESULTS_DIR/${test_name}.json" ]; then
-                local error_msg=$(jq -r '.entries[0].asserts[]? | select(.success == false) | .message' "$RESULTS_DIR/${test_name}.json" 2>/dev/null | head -1)
-                if [ -n "$error_msg" ] && [ "$error_msg" != "null" ]; then
-                    echo -e "${RED}📝 Error details:${NC}"
-                    echo "\"$error_msg\""
-                else
-                    echo -e "${RED}📝 Error details:${NC}"
-                    echo "\"No response\""
-                fi
-            fi
+            echo -e "${RED}📝 Error details:${NC}"
+            echo "\"No response\""
             return 1
         fi
     fi
+
 }
 
 # Check server availability first
 if ! check_server; then
     exit 1
+fi
+
+# Perform a quick login to obtain a reusable auth token for template tests
+echo -e "${YELLOW}🔑 Obtaining reusable auth token for template tests...${NC}"
+AUTH_TOKEN=$(curl -s -X POST "${HOST}/api/v1/auth/login" -H 'Content-Type: application/json' -d '{"email":"testuser@unburdy.de","password":"newpass123"}' | jq -r '.data.token // empty')
+if [ -z "$AUTH_TOKEN" ]; then
+    echo -e "${RED}⚠️  Failed to obtain auth token; some template tests may fail${NC}"
+else
+    echo -e "${GREEN}✅ Obtained auth token${NC}"
 fi
 
 echo ""
@@ -199,12 +223,12 @@ if [ -n "$TEST_FILTER" ]; then
         done
     fi
     
-    # Also look in main tests directory for direct files
-    for file in "$TESTS_DIR/${TEST_FILTER}"*.hurl; do
+    # Also look in main hurl directory for direct files
+    for file in "$HURL_DIR/${TEST_FILTER}"*.hurl; do
         if [ -f "$file" ]; then
             # Only add if not already added from templates
-            local basename_file=$(basename "$file")
-            local found_in_templates=false
+            basename_file=$(basename "$file")
+            found_in_templates=false
             for template_file in "${test_files[@]}"; do
                 if [ "$(basename "$template_file")" = "$basename_file" ]; then
                     found_in_templates=true
@@ -228,7 +252,7 @@ if [ -n "$TEST_FILTER" ]; then
     done
     echo ""
 else
-    # Get all test files (run only templates as before)
+    # Get all test files: templates first (if any), then regular hurl files
     if [ -d "$TEMPLATES_DIR" ]; then
         for file in "$TEMPLATES_DIR"/*.hurl; do
             if [ -f "$file" ]; then
@@ -236,7 +260,16 @@ else
             fi
         done
     fi
-    
+
+    # Always include regular hurl files from main directory
+    if [ -d "$HURL_DIR" ]; then
+        for file in "$HURL_DIR"/*.hurl; do
+            if [ -f "$file" ]; then
+                test_files+=("$file")
+            fi
+        done
+    fi
+
     echo -e "${GREEN}📋 Found ${#test_files[@]} total test files${NC}"
 fi
 

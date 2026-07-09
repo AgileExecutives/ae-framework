@@ -18,7 +18,7 @@ if [ -n "$p" ]; then
   kill -9 $p || true
 fi
 
-nohup go run ./main.go > "$LOG" 2>&1 &
+nohup go run . > "$LOG" 2>&1 &
 PID=$!
 sleep 1
 

@@ -3,7 +3,7 @@
 # Setup - Create test templates for various scenarios
 
 # Test GET /templates - Initial state (should have system default templates)
-GET {{host}}/api/v1/templates
+GET http://localhost:8080/api/v1/templates
 Authorization: Bearer {{auth_token}}
 
 HTTP 200
@@ -12,7 +12,7 @@ jsonpath "$.data" exists
 jsonpath "$.data" isCollection
 
 # Test POST /templates - Create Email Template
-POST {{host}}/api/v1/templates
+POST http://localhost:8080/api/v1/templates
 Authorization: Bearer {{auth_token}}
 Content-Type: application/json
 
@@ -45,7 +45,7 @@ jsonpath "$.data.is_active" == true
 email_template_id: jsonpath "$.data.id"
 
 # Test POST /templates - Create PDF Template
-POST {{host}}/api/v1/templates
+POST http://localhost:8080/api/v1/templates
 Authorization: Bearer {{auth_token}}
 Content-Type: application/json
 
@@ -75,7 +75,7 @@ jsonpath "$.data.channel" == "PDF"
 pdf_template_id: jsonpath "$.data.id"
 
 # Test GET /templates - Verify templates were created
-GET {{host}}/api/v1/templates
+GET http://localhost:8080/api/v1/templates
 Authorization: Bearer {{auth_token}}
 
 HTTP 200
@@ -84,7 +84,7 @@ jsonpath "$.data[?(@.name == 'Integration Test Email Template')]" exists
 jsonpath "$.data[?(@.name == 'Integration Test Document Template')]" exists
 
 # Test GET /templates/{id} - Get specific email template
-GET {{host}}/api/v1/templates/{{email_template_id}}
+GET http://localhost:8080/api/v1/templates/{{email_template_id}}
 Authorization: Bearer {{auth_token}}
 
 HTTP 200
@@ -97,7 +97,7 @@ jsonpath "$.data.variables" includes "Purpose"
 jsonpath "$.data.variables" includes "ContactEmail"
 
 # Test PUT /templates/{id} - Update email template
-PUT {{host}}/api/v1/templates/{{email_template_id}}
+PUT http://localhost:8080/api/v1/templates/{{email_template_id}}
 Authorization: Bearer {{auth_token}}
 Content-Type: application/json
 
@@ -122,7 +122,7 @@ jsonpath "$.data.content" contains "Updated content"
 jsonpath "$.data.variables" includes "Version"
 
 # Test POST /templates/{id}/render - Render updated template
-POST {{host}}/api/v1/templates/{{email_template_id}}/render
+POST http://localhost:8080/api/v1/templates/{{email_template_id}}/render
 Authorization: Bearer {{auth_token}}
 Content-Type: application/json
 
@@ -143,7 +143,7 @@ jsonpath "$.data.content" contains "john@crudtest.com"
 jsonpath "$.data.content" contains "3.0"
 
 # Test POST /templates/{id}/duplicate - Duplicate email template
-POST {{host}}/api/v1/templates/{{email_template_id}}/duplicate
+POST http://localhost:8080/api/v1/templates/{{email_template_id}}/duplicate
 Authorization: Bearer {{auth_token}}
 Content-Type: application/json
 
@@ -162,7 +162,7 @@ jsonpath "$.data.content" contains "Updated content"
 duplicated_email_id: jsonpath "$.data.id"
 
 # Test GET /templates - Verify duplication
-GET {{host}}/api/v1/templates
+GET http://localhost:8080/api/v1/templates
 Authorization: Bearer {{auth_token}}
 
 HTTP 200
@@ -171,7 +171,7 @@ jsonpath "$.data[?(@.name == 'Updated Integration Test Email')]" exists
 jsonpath "$.data[?(@.name == 'Duplicated Integration Email')]" exists
 
 # Test Template Status Toggle - Deactivate template
-PUT {{host}}/api/v1/templates/{{email_template_id}}
+PUT http://localhost:8080/api/v1/templates/{{email_template_id}}
 Authorization: Bearer {{auth_token}}
 Content-Type: application/json
 
@@ -184,7 +184,7 @@ HTTP 200
 jsonpath "$.data.is_active" == false
 
 # Test Template Status Toggle - Reactivate template
-PUT {{host}}/api/v1/templates/{{email_template_id}}
+PUT http://localhost:8080/api/v1/templates/{{email_template_id}}
 Authorization: Bearer {{auth_token}}
 Content-Type: application/json
 
@@ -197,7 +197,7 @@ HTTP 200
 jsonpath "$.data.is_active" == true
 
 # Test Bulk Operations - Get templates by type
-GET {{host}}/api/v1/templates?template_type=email
+GET http://localhost:8080/api/v1/templates?template_type=email
 Authorization: Bearer {{auth_token}}
 
 HTTP 200
@@ -206,7 +206,7 @@ jsonpath "$.data" isCollection
 jsonpath "$.data[0].template_type" == "email"
 
 # Test Bulk Operations - Get templates by channel
-GET {{host}}/api/v1/templates?channel=EMAIL
+GET http://localhost:8080/api/v1/templates?channel=EMAIL
 Authorization: Bearer {{auth_token}}
 
 HTTP 200
@@ -215,35 +215,35 @@ jsonpath "$.data" isCollection
 jsonpath "$.data[0].channel" == "EMAIL"
 
 # Cleanup - Delete duplicated template
-DELETE {{host}}/api/v1/templates/{{duplicated_email_id}}
+DELETE http://localhost:8080/api/v1/templates/{{duplicated_email_id}}
 Authorization: Bearer {{auth_token}}
 
 HTTP 204
 
 # Cleanup - Delete PDF template
-DELETE {{host}}/api/v1/templates/{{pdf_template_id}}
+DELETE http://localhost:8080/api/v1/templates/{{pdf_template_id}}
 Authorization: Bearer {{auth_token}}
 
 HTTP 204
 
 # Cleanup - Delete email template
-DELETE {{host}}/api/v1/templates/{{email_template_id}}
+DELETE http://localhost:8080/api/v1/templates/{{email_template_id}}
 Authorization: Bearer {{auth_token}}
 
 HTTP 204
 
 # Verify cleanup - Templates should be gone
-GET {{host}}/api/v1/templates/{{email_template_id}}
+GET http://localhost:8080/api/v1/templates/{{email_template_id}}
 Authorization: Bearer {{auth_token}}
 
 HTTP 404
 
-GET {{host}}/api/v1/templates/{{pdf_template_id}}
+GET http://localhost:8080/api/v1/templates/{{pdf_template_id}}
 Authorization: Bearer {{auth_token}}
 
 HTTP 404
 
-GET {{host}}/api/v1/templates/{{duplicated_email_id}}
+GET http://localhost:8080/api/v1/templates/{{duplicated_email_id}}
 Authorization: Bearer {{auth_token}}
 
 HTTP 404
