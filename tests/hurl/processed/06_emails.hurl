@@ -5,13 +5,13 @@
 POST http://localhost:8080/api/v1/auth/register
 Content-Type: application/json
 {
-  "email": "test_1783613157_74895302@example.com",
-  "username": "user_1783613157_74895302",
-  "password": "Pass123_74895302",
+  "email": "test_1783615425_035a815c@example.com",
+  "username": "user_1783615425_035a815c",
+  "password": "Pass123_035a815c",
   "first_name": "Email",
   "last_name": "Tester",
-  "company_name": "Email Test Company 1783613157_74895302",
-  "tenant_name": "tenant_1783613157_74895302",
+  "company_name": "Email Test Company 1783615425_035a815c",
+  "tenant_name": "tenant_1783615425_035a815c",
   "accept_terms": true
 }
 
@@ -22,8 +22,8 @@ HTTP *
 POST http://localhost:8080/api/v1/auth/login
 Content-Type: application/json
 {
-  "email": "test_1783613157_74895302@example.com",
-  "password": "Pass123_74895302"
+  "email": "test_1783615425_035a815c@example.com",
+  "password": "Pass123_035a815c"
 }
 
 HTTP 200
@@ -35,11 +35,11 @@ POST http://localhost:8080/api/v1/emails/send
 Authorization: Bearer {{auth_token}}
 Content-Type: application/json
 {
-  "to": "test_1783613157_74895302@example.com",
-  "from": "sender_1783613157_74895302@example.com",
-  "subject": "Test Email Subject - 1783613157_74895302",
-  "body": "This is a test email body for 1783613157_74895302.",
-  "html_body": "<h1>Test Email 1783613157_74895302</h1><p>This is a test email body in <strong>HTML</strong>.</p>"
+  "to": "test_1783615425_035a815c@example.com",
+  "from": "sender_1783615425_035a815c@example.com",
+  "subject": "Test Email Subject - 1783615425_035a815c",
+  "body": "This is a test email body for 1783615425_035a815c.",
+  "html_body": "<h1>Test Email 1783615425_035a815c</h1><p>This is a test email body in <strong>HTML</strong>.</p>"
 }
 
 # Email creation may have database issues, accept various status codes
@@ -66,7 +66,7 @@ HTTP *
 jsonpath "$.success" exists
 
 # Test 4: Search emails by subject
-GET http://localhost:8080/api/v1/emails?search=1783613157_74895302
+GET http://localhost:8080/api/v1/emails?search=1783615425_035a815c
 Authorization: Bearer {{auth_token}}
 
 HTTP 200
@@ -75,7 +75,7 @@ jsonpath "$.success" exists
 jsonpath "$.data.data" isCollection
 
 # Test 5: Filter emails by recipient (may not be implemented)
-GET http://localhost:8080/api/v1/emails?to=test_1783613157_74895302@example.com
+GET http://localhost:8080/api/v1/emails?to=test_1783615425_035a815c@example.com
 Authorization: Bearer {{auth_token}}
 
 HTTP 200

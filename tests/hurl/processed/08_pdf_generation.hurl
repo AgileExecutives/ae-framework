@@ -5,13 +5,13 @@
 POST http://localhost:8080/api/v1/auth/register
 Content-Type: application/json
 {
-  "email": "test_1783613157_74895302@example.com",
-  "username": "user_1783613157_74895302",
-  "password": "Pass123_74895302",
+  "email": "test_1783615425_035a815c@example.com",
+  "username": "user_1783615425_035a815c",
+  "password": "Pass123_035a815c",
   "first_name": "PDF",
   "last_name": "Tester",
-  "company_name": "PDF Test Company 1783613157_74895302",
-  "tenant_name": "tenant_1783613157_74895302",
+  "company_name": "PDF Test Company 1783615425_035a815c",
+  "tenant_name": "tenant_1783615425_035a815c",
   "accept_terms": true
 }
 
@@ -22,8 +22,8 @@ HTTP *
 POST http://localhost:8080/api/v1/auth/login
 Content-Type: application/json
 {
-  "email": "test_1783613157_74895302@example.com",
-  "password": "Pass123_74895302"
+  "email": "test_1783615425_035a815c@example.com",
+  "password": "Pass123_035a815c"
 }
 
 HTTP 200
@@ -37,14 +37,14 @@ Authorization: Bearer {{auth_token}}
 Content-Type: application/json
 {
   "data": {
-    "invoice_number": "INV-1783613157_74895302",
-    "customer_name": "customer_1783613157_74895302",
+    "invoice_number": "INV-1783615425_035a815c",
+    "customer_name": "customer_1783615425_035a815c",
     "amount": "€123.45",
     "date": "2025-10-27",
-    "unique_id": "1783613157_74895302"
+    "unique_id": "1783615425_035a815c"
   },
   "templateName": "report.html",
-  "fileName": "test-invoice-1783613157_74895302"
+  "fileName": "test-invoice-1783615425_035a815c"
 }
 
 # Accept either success or server error (if template missing or Chrome not available)  
@@ -59,11 +59,11 @@ Authorization: Bearer {{auth_token}}
 Content-Type: application/json
 {
   "data": {
-    "title": "Simple Test 1783613157_74895302",
+    "title": "Simple Test 1783615425_035a815c",
     "content": "PDF generation test"
   },
   "templateName": "invoice_units_template.html",
-  "fileName": "simple-test-1783613157_74895302"
+  "fileName": "simple-test-1783615425_035a815c"
 }
 
 # Accept either success or server error
