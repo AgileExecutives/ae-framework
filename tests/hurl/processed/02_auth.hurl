@@ -2,9 +2,9 @@
 # Tests user registration, login, logout, and token management
 
 # Variables for this test run (automatically generated):
-# testuser_1783615425_035a815c - Unique username for this test
-# test_1783615425_035a815c@example.com - Unique email for this test  
-# Pass123_035a815c - Unique password for this test
+# testuser_1783619998_d5e76e73 - Unique username for this test
+# test_1783619998_d5e76e73@example.com - Unique email for this test  
+# Pass123_d5e76e73 - Unique password for this test
 # http://localhost:8080 - Server host URL
 
 # Test 1: User Login with known existing user (we'll use testuser which should exist)
@@ -28,13 +28,13 @@ auth_token: jsonpath "$.data.token"
 POST http://localhost:8080/api/v1/auth/register
 Content-Type: application/json
 {
-  "email": "test_1783615425_035a815c@example.com",
-  "username": "user_1783615425_035a815c",
-  "password": "Pass123_035a815c",
+  "email": "test_1783619998_d5e76e73@example.com",
+  "username": "user_1783619998_d5e76e73",
+  "password": "Pass123_d5e76e73",
   "first_name": "Test",
   "last_name": "User",
-  "company_name": "Test Company 1783615425_035a815c",
-  "tenant_name": "tenant_1783615425_035a815c",
+  "company_name": "Test Company 1783619998_d5e76e73",
+  "tenant_name": "tenant_1783619998_d5e76e73",
   "accept_terms": true
 }
 
@@ -55,8 +55,8 @@ jsonpath "$.success" exists
 POST http://localhost:8080/api/v1/auth/login
 Content-Type: application/json
 {
-  "email": "test_1783615425_035a815c@example.com",
-  "username": "user_1783615425_035a815c",
+  "email": "test_1783619998_d5e76e73@example.com",
+  "username": "user_1783619998_d5e76e73",
   "password": "wrongpassword"
 }
 
@@ -69,8 +69,8 @@ jsonpath "$.message" exists
 POST http://localhost:8080/api/v1/auth/login
 Content-Type: application/json
 {
-  "email": "nonexistent_1783615425_035a815c@example.com",
-  "password": "Pass123_035a815c"
+  "email": "nonexistent_1783619998_d5e76e73@example.com",
+  "password": "Pass123_d5e76e73"
 }
 
 HTTP 401
@@ -87,7 +87,7 @@ jsonpath "$.success" == false
 
 # Test 7: Access protected endpoint with invalid token
 GET http://localhost:8080/api/v1/user-settings
-Authorization: Bearer invalid_token_1783615425_035a815c
+Authorization: Bearer invalid_token_1783619998_d5e76e73
 
 HTTP 401
 [Asserts]
