@@ -103,14 +103,14 @@ func (h *PDFHandler) GeneratePDFFromTemplate(c *gin.Context) {
 	}
 
 	// Step 1: Get template and render HTML
-	html, err := h.templateService.RenderTemplate(c.Request.Context(), int(req.TenantID), req.TemplateID, req.Data)
+	html, err := h.templateService.RenderTemplate(c.Request.Context(), req.TenantID, req.TemplateID, req.Data)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("failed to render template: %v", err)})
 		return
 	}
 
 	// Get template for filename
-	tmpl, err := h.templateService.GetTemplate(c.Request.Context(), int(req.TenantID), req.TemplateID)
+	tmpl, err := h.templateService.GetTemplate(c.Request.Context(), req.TenantID, req.TemplateID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("failed to get template: %v", err)})
 		return
