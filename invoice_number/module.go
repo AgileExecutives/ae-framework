@@ -8,6 +8,8 @@ import (
 	repo "github.com/AgileExecutives/shared-modules/invoice_number/repo"
 	"github.com/AgileExecutives/shared-modules/invoice_number/routes"
 	"github.com/AgileExecutives/shared-modules/invoice_number/services"
+	sbsettingsrepo "github.com/AgileExecutives/serverbase/pkg/settings/repository"
+	sbsettings "github.com/AgileExecutives/serverbase/pkg/settings/services"
 )
 
 // InvoiceNumberModule represents the invoice number generation module
@@ -39,6 +41,10 @@ func (m *InvoiceNumberModule) Initialize(ctx core.ModuleContext) error {
 	// Initialize service (prefer repo-backed)
 	gormRepo := repo.NewGormInvoiceNumberRepo(ctx.DB)
 	m.invoiceNumberService = services.NewInvoiceNumberServiceWithRepo(gormRepo)
+	// Wire settings service so handlers and consumers get per-tenant formats
+	settingsRepo := sbsettingsrepo.NewSettingsRepository(ctx.DB)
+	settingsSvc := sbsettings.NewSettingsService(settingsRepo)
+	m.invoiceNumberService.SetSettingsService(settingsSvc)
 
 	// Initialize routes
 	m.invoiceNumberRoutes = routes.NewInvoiceNumberRoutes(m.invoiceNumberService)

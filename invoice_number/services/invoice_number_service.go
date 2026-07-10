@@ -11,7 +11,8 @@ import (
 	"github.com/AgileExecutives/shared-modules/invoice_number/entities"
 	repo "github.com/AgileExecutives/shared-modules/invoice_number/repo"
 
-	// "github.com/AgileExecutives/serverbase/pkg/settings/manager"
+	// optional serverbase settings service
+	sbsettings "github.com/AgileExecutives/serverbase/pkg/settings/services"
 	"gorm.io/gorm"
 )
 
@@ -40,7 +41,8 @@ func DefaultInvoiceConfig() InvoiceNumberConfig {
 // InvoiceNumberService handles invoice number generation with database
 type InvoiceNumberService struct {
 	db *gorm.DB
-	// settingsManager *manager.SettingsManager // TODO: Integrate with new settings system
+	// optional pointer to serverbase settings service
+	settingsSvc *sbsettings.SettingsService
 	mutex       sync.Mutex
 	cacheTTL    time.Duration
 	lockTimeout time.Duration
@@ -50,16 +52,31 @@ type InvoiceNumberService struct {
 // NewInvoiceNumberService creates a new invoice number service
 func NewInvoiceNumberService(db *gorm.DB) *InvoiceNumberService {
 	return &InvoiceNumberService{
-		db: db,
-		// settingsManager: settingsManager, // TODO: Integrate with new settings system
+		db:          db,
+		settingsSvc: nil,
 		cacheTTL:    24 * time.Hour,
 		lockTimeout: 5 * time.Second,
 	}
 }
 
+// NewInvoiceNumberServiceWithSettings creates a new service and wires a SettingsService.
+func NewInvoiceNumberServiceWithSettings(db *gorm.DB, ss *sbsettings.SettingsService) *InvoiceNumberService {
+	s := NewInvoiceNumberService(db)
+	if ss != nil {
+		s.SetSettingsService(ss)
+	}
+	return s
+}
+
 // NewInvoiceNumberServiceWithRepo creates service backed by an explicit repo (in-memory or gorm adapter)
 func NewInvoiceNumberServiceWithRepo(r repo.InvoiceNumberRepo) *InvoiceNumberService {
 	return &InvoiceNumberService{repo: r, cacheTTL: 24 * time.Hour, lockTimeout: 5 * time.Second}
+}
+
+// SetSettingsService wires an optional SettingsService used to obtain per-tenant
+// invoice formatting settings. This is optional; when not set defaults are used.
+func (s *InvoiceNumberService) SetSettingsService(ss *sbsettings.SettingsService) {
+	s.settingsSvc = ss
 }
 
 // GenerateInvoiceNumber generates the next invoice number
@@ -119,9 +136,34 @@ func (s *InvoiceNumberService) GenerateNextInvoiceNumber(
 	tenantID uint,
 	organizationID uint,
 ) (*entities.InvoiceNumberResponse, error) {
-	// TODO: Integrate with new settings system
-	// For now, use default config
+	// Try to fetch configuration from SettingsService if wired
 	config := DefaultInvoiceConfig()
+	if s.settingsSvc != nil {
+		// SettingsService expects organizationID as string
+		orgStr := strconv.FormatUint(uint64(organizationID), 10)
+		if domainSettings, err := s.settingsSvc.GetDomainSettings(tenantID, orgStr, "invoice"); err == nil {
+			// Map domainSettings into InvoiceNumberConfig where possible
+			if v, ok := domainSettings["invoice_prefix"].(string); ok {
+				config.Prefix = v
+			}
+			if v, ok := domainSettings["year_format"].(string); ok {
+				config.YearFormat = v
+			}
+			if v, ok := domainSettings["month_format"].(string); ok {
+				config.MonthFormat = v
+			}
+			if v, ok := domainSettings["padding"].(float64); ok {
+				config.Padding = int(v)
+			}
+			if v, ok := domainSettings["separator"].(string); ok {
+				config.Separator = v
+			}
+			if v, ok := domainSettings["reset_monthly"].(bool); ok {
+				config.ResetMonthly = v
+			}
+		}
+	}
+
 	return s.GenerateInvoiceNumber(ctx, tenantID, organizationID, config)
 }
 

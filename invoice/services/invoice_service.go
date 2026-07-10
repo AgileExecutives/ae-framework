@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"time"
 
+	sbsettingsrepo "github.com/AgileExecutives/serverbase/pkg/settings/repository"
+	sbsettings "github.com/AgileExecutives/serverbase/pkg/settings/services"
 	"github.com/AgileExecutives/shared-modules/invoice/entities"
 	repo "github.com/AgileExecutives/shared-modules/invoice/repo"
 	invoiceNumberService "github.com/AgileExecutives/shared-modules/invoice_number/services"
@@ -109,7 +111,10 @@ func (s *InvoiceService) CreateInvoice(ctx context.Context, tenantID, userID uin
 
 // CreateInvoiceWithAutoNumber creates a new invoice with auto-generated invoice number
 func (s *InvoiceService) CreateInvoiceWithAutoNumber(ctx context.Context, tenantID, userID uint, req *entities.CreateInvoiceRequest) (*entities.Invoice, error) {
-	invoiceNumberSvc := invoiceNumberService.NewInvoiceNumberService(s.db)
+	// construct invoice number service with settings wired
+	settingsRepo := sbsettingsrepo.NewSettingsRepository(s.db)
+	settingsSvc := sbsettings.NewSettingsService(settingsRepo)
+	invoiceNumberSvc := invoiceNumberService.NewInvoiceNumberServiceWithSettings(s.db, settingsSvc)
 	resp, err := invoiceNumberSvc.GenerateNextInvoiceNumber(ctx, tenantID, req.OrganizationID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to generate invoice number: %w", err)

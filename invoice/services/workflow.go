@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"time"
 
+	sbsettingsrepo "github.com/AgileExecutives/serverbase/pkg/settings/repository"
+	sbsettings "github.com/AgileExecutives/serverbase/pkg/settings/services"
 	"github.com/AgileExecutives/shared-modules/invoice/entities"
 	invoiceNumberService "github.com/AgileExecutives/shared-modules/invoice_number/services"
 )
@@ -51,7 +53,10 @@ func (s *InvoiceService) FinalizeInvoice(ctx context.Context, tenantID, invoiceI
 	// Generate invoice number if still has DRAFT prefix
 	var invoiceNumber string
 	if invoice.InvoiceNumber == "" || len(invoice.InvoiceNumber) > 5 && invoice.InvoiceNumber[:6] == "DRAFT-" {
-		invoiceNumberSvc := invoiceNumberService.NewInvoiceNumberService(tx)
+		// construct invoice number service with settings wired using transaction DB
+		settingsRepo := sbsettingsrepo.NewSettingsRepository(tx)
+		settingsSvc := sbsettings.NewSettingsService(settingsRepo)
+		invoiceNumberSvc := invoiceNumberService.NewInvoiceNumberServiceWithSettings(tx, settingsSvc)
 		resp, err := invoiceNumberSvc.GenerateNextInvoiceNumber(ctx, tenantID, invoice.OrganizationID)
 		if err != nil {
 			tx.Rollback()
