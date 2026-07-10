@@ -47,12 +47,6 @@ type UUIDProvider interface {
 	New() string
 }
 
-// Storage is a small key/value storage abstraction used by modules.
-type Storage interface {
-	Put(key string, data []byte) error
-	Get(key string) ([]byte, error)
-}
-
 // HTTPClient is a small abstraction over net/http for modules that call external services.
 type HTTPClient interface {
 	Do(req *http.Request) (*http.Response, error)

@@ -277,7 +277,8 @@ func (h *AuthHandlers) ResetPassword(c *gin.Context) {
 
 // GetPasswordSecurity stub
 func (h *AuthHandlers) GetPasswordSecurity(c *gin.Context) {
-	c.JSON(http.StatusOK, models.SuccessResponse("Password security", nil))
+	requirements := utils.GetPasswordRequirements()
+	c.JSON(http.StatusOK, requirements)
 }
 
 // Logout handles user logout
