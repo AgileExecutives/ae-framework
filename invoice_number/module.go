@@ -4,12 +4,12 @@ import (
 	"context"
 
 	"github.com/AgileExecutives/serverbase/pkg/core"
+	sbsettingsrepo "github.com/AgileExecutives/serverbase/pkg/settings/repository"
+	sbsettings "github.com/AgileExecutives/serverbase/pkg/settings/services"
 	"github.com/AgileExecutives/shared-modules/invoice_number/entities"
 	repo "github.com/AgileExecutives/shared-modules/invoice_number/repo"
 	"github.com/AgileExecutives/shared-modules/invoice_number/routes"
 	"github.com/AgileExecutives/shared-modules/invoice_number/services"
-	sbsettingsrepo "github.com/AgileExecutives/serverbase/pkg/settings/repository"
-	sbsettings "github.com/AgileExecutives/serverbase/pkg/settings/services"
 )
 
 // InvoiceNumberModule represents the invoice number generation module
