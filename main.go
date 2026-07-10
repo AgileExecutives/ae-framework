@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 
 	email "github.com/AgileExecutives/serverbase/modules/email"
 	orgmod "github.com/AgileExecutives/serverbase/modules/organizations"
@@ -32,6 +33,9 @@ import (
 )
 
 func main() {
+	// Load .env from server-test directory if present so local dev overrides apply
+	loadLocalEnv()
+
 	// create gin engine to satisfy existing core.Module expectations
 	gin.SetMode(gin.ReleaseMode)
 	// Ensure email verification is disabled for the test harness so
@@ -544,4 +548,33 @@ func main() {
 
 	// keep process alive; server.Start runs in goroutine
 	select {}
+}
+
+// loadLocalEnv reads server-test/.env if it exists and sets environment variables.
+// This is a lightweight loader used for the test harness; it ignores empty lines and comments.
+func loadLocalEnv() {
+	path := "server-test/.env"
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return
+	}
+	lines := strings.Split(string(data), "\n")
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		if line == "" || strings.HasPrefix(line, "#") {
+			continue
+		}
+		// split at first '='
+		parts := strings.SplitN(line, "=", 2)
+		if len(parts) != 2 {
+			continue
+		}
+		key := strings.TrimSpace(parts[0])
+		val := strings.TrimSpace(parts[1])
+		// Remove optional surrounding quotes
+		if len(val) >= 2 && ((val[0] == '"' && val[len(val)-1] == '"') || (val[0] == '\'' && val[len(val)-1] == '\'')) {
+			val = val[1 : len(val)-1]
+		}
+		os.Setenv(key, val)
+	}
 }
