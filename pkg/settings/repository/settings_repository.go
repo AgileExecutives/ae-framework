@@ -12,6 +12,29 @@ type SettingsRepository struct {
 	db *gorm.DB
 }
 
+// SettingsRepositoryInterface defines the methods used by services so alternate
+// implementations (in-memory) can be injected for tests.
+type SettingsRepositoryInterface interface {
+	// Setting definitions
+	GetSettingDefinition(domain, key string) (*entities.SettingDefinition, error)
+	CreateSettingDefinition(def *entities.SettingDefinition) error
+	UpdateSettingDefinition(def *entities.SettingDefinition) error
+	GetAllSettingDefinitions() ([]entities.SettingDefinition, error)
+	GetSettingDefinitionsByDomain(domain string) ([]entities.SettingDefinition, error)
+
+	// Tenant settings
+	GetSetting(tenantID uint, domain, key string) (*entities.Setting, error)
+	SetSetting(setting *entities.Setting) error
+	GetDomainSettings(tenantID uint, domain string) ([]entities.Setting, error)
+	GetAllSettings(tenantID uint) ([]entities.Setting, error)
+	DeleteSetting(tenantID uint, domain, key string) error
+	GetDomains(tenantID uint) ([]string, error)
+
+	// Lifecycle
+	AutoMigrate() error
+	HealthCheck() error
+}
+
 // NewSettingsRepository creates a new settings repository
 func NewSettingsRepository(db *gorm.DB) *SettingsRepository {
 	return &SettingsRepository{db: db}

@@ -12,11 +12,11 @@ import (
 
 // SettingsService provides business logic for settings management
 type SettingsService struct {
-	repo *repository.SettingsRepository
+	repo repository.SettingsRepositoryInterface
 }
 
-// NewSettingsService creates a new settings service
-func NewSettingsService(repo *repository.SettingsRepository) *SettingsService {
+// NewSettingsService creates a new settings service accepting a repository interface
+func NewSettingsService(repo repository.SettingsRepositoryInterface) *SettingsService {
 	return &SettingsService{repo: repo}
 }
 
