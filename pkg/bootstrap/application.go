@@ -264,6 +264,9 @@ func (app *Application) initializeCoreServices() error {
 	}
 
 	app.server = router
+
+	// Settings system is provided via a module; modules should register
+	// their own routes during Initialize(). Do not auto-initialize here.
 	return nil
 }
 
