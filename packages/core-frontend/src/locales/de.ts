@@ -57,8 +57,17 @@ export default {
     email: 'E-Mail',
     sendLink: 'Link senden',
     sending: 'Wird gesendet...',
+    successTitle: 'Prüfen Sie Ihre E-Mail',
     successMessage: 'Wenn die E-Mail existiert, wurde ein Link zum Zurücksetzen an Ihre E-Mail gesendet.',
     errorMessage: 'Fehler beim Senden der E-Mail. Bitte versuchen Sie es erneut.'
+  },
+
+  success: {
+    registration: {
+      title: 'Registrierung erfolgreich',
+      message: 'Ihr Konto wurde erstellt. Bitte überprüfen Sie Ihre E-Mails, um Ihre E-Mail-Adresse zu bestätigen.'
+    },
+    goToLogin: 'Zur Anmeldung'
   },
 
   register: {

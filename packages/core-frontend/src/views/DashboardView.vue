@@ -1,8 +1,17 @@
 <template>
-  <div class="min-h-screen bg-base-100 flex flex-col">
+  <div class="h-screen w-full flex flex-col justify-center items-center">
+  <div class="bg-base-100 flex flex-col">
+    <!-- Floating controls (top-right) -->
+    <div class="fixed md:absolute top-1 md:top-4 right-1 md:right-4 flex flex-row items-center md:gap-2 z-10 
+                bg-accent-200/80 md:bg-transparent backdrop-blur-sm md:backdrop-blur-none 
+                rounded-lg md:rounded-none shadow-lg shadow-none">
+      <LocaleSwitcher />
+      <ThemeToggle />
+    </div>
+
     <!-- Header -->
     <header class="bg-base-200 shadow-sm">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="max-w-xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-16">
           <h1 class="text-xl font-semibold text-base-content">{{ $t('dashboard.welcome') }}</h1>
           <div class="flex items-center space-x-4">
@@ -13,9 +22,10 @@
       </div>
     </header>
 
-    <!-- Main Content -->
+    <!-- Main Content (centered like AuthLayout) -->
     <main class="flex-1 bg-base-100">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div class="overflow-auto sm:flex sm:items-center sm:justify-center sm:px-4 py-16">
+        <div class="max-w-4xl w-full px-4 sm:px-6 lg:px-8">
         <!-- Statistics Cards -->
         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-6 mb-8">
           <div class="stat bg-base-200 rounded-lg shadow-sm">
@@ -136,7 +146,10 @@
           <div class="loading loading-spinner loading-lg"></div>
         </div>
       </div>
+      </div>
     </main>
+  </div>
+    
   </div>
 </template>
 
@@ -146,6 +159,8 @@ import { useAuthStore } from '../stores/auth'
 import { useToast } from '../composables/useToast'
 import { useI18n } from 'vue-i18n'
 import LogoutButton from '../components/LogoutButton.vue'
+import LocaleSwitcher from '../components/LocaleSwitcher.vue'
+import ThemeToggle from '../components/ThemeToggle.vue'
 import { getApiClient } from '@/config/api-config'
 
 // Get the global API client instance

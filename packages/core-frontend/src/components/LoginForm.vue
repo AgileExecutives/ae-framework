@@ -79,9 +79,20 @@ async function handleLogin() {
     })
     
     console.log('🔐 Attempting navigation to dashboard or redirect...')
-    const redirectPath = router.currentRoute.value.query.redirect || '/';
-    const result = await router.push(redirectPath as string)
-    console.log('🔐 Navigation result:', result)
+    // Normalize redirect query which may be string or array
+    const rawRedirect = router.currentRoute.value.query.redirect
+    let redirectPath = '/dashboard' // Default redirect path
+    if (Array.isArray(rawRedirect)) {
+      redirectPath = rawRedirect[0] || '/'
+    } else if (typeof rawRedirect === 'string') {
+      redirectPath = rawRedirect
+    }
+
+    // Default to dashboard when redirect is root or empty
+    if (!redirectPath || redirectPath === '/') redirectPath = '/dashboard'
+
+    const result = await router.push('/dashboard')
+    console.log('🔐 Navigation result:', result, 'currentRoute=', router.currentRoute.value.fullPath)
     
   } catch (error: any) {
     console.error('🔐 Login failed:', error)

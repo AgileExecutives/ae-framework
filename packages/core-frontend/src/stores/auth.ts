@@ -82,16 +82,40 @@ export const useAuthStore = defineStore('auth', () => {
 
       console.log('🔍 Auth Store: Raw API response:', JSON.stringify(response, null, 2))
 
-      // Handle successful response
-      if (response && response.success === true && response.data) {
-        const { token, user } = response.data
-        if (token && user) {
-          console.log('✅ Auth Store: Valid login response, setting auth state')
-          setToken(token)
-          setUser(user as AuthTypes.User)
-          console.log('✅ Auth Store: Login successful', { username: user.username })
-          return // Success - exit function
-        }
+      // Handle successful response with flexible shapes
+      // Example shapes:
+      // { success: true, data: { token, user } }
+      // { success: true, data: { access_token, user } }
+      // { success: true, data: { data: { token, user } } }
+      // { success: true, data: user } (no token)
+      const respData = response?.data ?? response
+
+      // Try common token fields
+      const tokenCandidate = respData?.token || respData?.access_token || respData?.data?.token || respData?.data?.access_token
+      const userCandidate = respData?.user || respData?.data?.user || (respData?.data && typeof respData.data === 'object' && !respData.data.token ? respData.data : undefined)
+
+      if (tokenCandidate) {
+        console.log('✅ Auth Store: Detected token in login response')
+        setToken(tokenCandidate)
+      }
+
+      if (userCandidate) {
+        console.log('✅ Auth Store: Detected user in login response')
+        setUser(userCandidate as AuthTypes.User)
+      }
+
+      if (tokenCandidate && userCandidate) {
+        console.log('✅ Auth Store: Login successful', { username: (userCandidate as any)?.username })
+        // Mark auth as initialized to avoid immediate re-validation during navigation
+        initialized.value = true
+        return
+      }
+
+      // Fallback: some APIs return the user object directly without token (session-based)
+      if (respData && typeof respData === 'object' && !tokenCandidate && respData?.username) {
+        setUser(respData as AuthTypes.User)
+        console.log('✅ Auth Store: Login succeeded (user-only response)')
+        return
       }
 
       // If we reach here, the response was invalid
@@ -128,6 +152,8 @@ export const useAuthStore = defineStore('auth', () => {
         if (response.data.token) {
           setToken(response.data.token)
           setUser(response.data.user as AuthTypes.User)
+          // Mark auth initialized after auto-login
+          initialized.value = true
           console.log('✅ Auth Store: Registration successful with auto-login', { user: response.data.user.username })
         } else {
           // Registration successful but no auto-login
@@ -264,12 +290,32 @@ export const useAuthStore = defineStore('auth', () => {
 
       const client = getApiClient()
       const response = await client.getCurrentUser()
-      
-      // Extract user data from response
-      const userData = response.data as AuthTypes.User
+
+      // Response may have several shapes:
+      // - { success: true, data: { ...user } }
+      // - { user: { ... } }
+      // - { ...user }
+      let userData: AuthTypes.User | null = null
+
+      if (!response) {
+        userData = null
+      } else if (response.data && typeof response.data === 'object') {
+        userData = response.data as AuthTypes.User
+      } else if (response.user && typeof response.user === 'object') {
+        userData = response.user as AuthTypes.User
+      } else if (typeof response === 'object' && response.username) {
+        userData = response as AuthTypes.User
+      }
+
+      if (!userData) {
+        // No usable user data returned
+        console.warn('⚠️ Auth Store: getCurrentUser returned no user data', { rawResponse: response })
+        throw new Error('No user data returned')
+      }
+
       setUser(userData)
       console.log('✅ Auth Store: User data refreshed', { user: userData.username })
-      
+
       return userData
     } catch (err: any) {
       console.error('❌ Auth Store: Failed to get current user', err)
