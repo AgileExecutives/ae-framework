@@ -13,11 +13,14 @@ import (
 	user "github.com/AgileExecutives/serverbase/modules/user"
 	"github.com/AgileExecutives/serverbase/pkg/core"
 	"github.com/AgileExecutives/serverbase/pkg/swagger"
+	auditmod "github.com/AgileExecutives/shared-modules/audit"
+	bookingmod "github.com/AgileExecutives/shared-modules/booking"
 	calmod "github.com/AgileExecutives/shared-modules/calendar"
 	minimalorg "github.com/AgileExecutives/shared-modules/organization"
 	pdf "github.com/AgileExecutives/shared-modules/pdf"
 	static "github.com/AgileExecutives/shared-modules/static"
 	"github.com/gin-gonic/gin"
+	clientmod "github.com/unburdy/unburdy-server-api/modules/client_management"
 
 	models "github.com/AgileExecutives/serverbase/internal/models"
 	saasmodels "github.com/AgileExecutives/shared-modules/saas-base/models"
@@ -79,6 +82,10 @@ func main() {
 		static.NewStaticModule(),
 		saas.NewSaaSModule(), // customers + plans (no newsletter – handled by user module)
 		settingsModule.NewSettingsModule(),
+		// Modules required by client management
+		bookingmod.NewCoreModule(),
+		auditmod.NewCoreModule(),
+		clientmod.NewCoreModule(),
 		// Templates module provides the in-memory template endpoints used by tests
 		// and a simple TemplateService. Keep it last so other modules' routes are
 		// available when templates are initialized if needed.
