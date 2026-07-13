@@ -5,3 +5,4 @@ test_results/*.json
 .DS_Store
 server.log
 tests/hurl/processed/*.hurl
+
