@@ -32,7 +32,7 @@ func (m *CoreModule) Version() string {
 }
 
 func (m *CoreModule) Dependencies() []string {
-	return []string{"base"}
+	return []string{"user"}
 }
 
 func (m *CoreModule) Initialize(ctx core.ModuleContext) error {

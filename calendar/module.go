@@ -62,7 +62,7 @@ func (m *Module) Version() string {
 
 // Dependencies returns module dependencies
 func (m *Module) Dependencies() []string {
-	return []string{"base"} // Depends on base module for users/tenants
+	return []string{"user"} // Depends on user (base) module for users/tenants
 }
 
 // Initialize initializes the module

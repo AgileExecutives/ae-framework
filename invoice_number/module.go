@@ -32,7 +32,7 @@ func (m *InvoiceNumberModule) Version() string {
 }
 
 func (m *InvoiceNumberModule) Dependencies() []string {
-	return []string{"base"}
+	return []string{"user"}
 }
 
 func (m *InvoiceNumberModule) Initialize(ctx core.ModuleContext) error {

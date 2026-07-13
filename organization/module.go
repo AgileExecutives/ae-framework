@@ -14,7 +14,7 @@ type OrganizationModule struct{}
 func NewOrganizationModule() core.Module             { return &OrganizationModule{} }
 func (m *OrganizationModule) Name() string           { return "organization" }
 func (m *OrganizationModule) Version() string        { return "1.0.0" }
-func (m *OrganizationModule) Dependencies() []string { return []string{"base"} }
+func (m *OrganizationModule) Dependencies() []string { return []string{"user"} }
 func (m *OrganizationModule) Initialize(ctx core.ModuleContext) error {
 	ctx.Logger.Info("Initializing organization module (minimal)")
 	return nil

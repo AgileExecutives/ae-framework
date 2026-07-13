@@ -74,7 +74,7 @@ func (m *Module) Version() string {
 
 // Dependencies returns module dependencies
 func (m *Module) Dependencies() []string {
-	return []string{"base", "calendar"} // Depends on base module for users/tenants and calendar for calendar entities
+	return []string{"user", "calendar"} // Depends on user (base) module for users/tenants and calendar for calendar entities
 }
 
 // Initialize initializes the module

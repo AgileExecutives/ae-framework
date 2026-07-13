@@ -41,7 +41,7 @@ func (m *CoreModule) Version() string {
 
 // Dependencies returns module dependencies
 func (m *CoreModule) Dependencies() []string {
-	return []string{"base", "templates"} // Depends on base module for auth and templates for template service
+	return []string{"user", "templates"} // Depends on user (base) module for auth and templates for template service
 }
 
 // Initialize sets up the module with dependencies
