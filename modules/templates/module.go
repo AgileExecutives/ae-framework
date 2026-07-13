@@ -18,7 +18,43 @@ import (
 func NewTemplatesModule() core.Module {
 	return module.NewAdapterModule("templates", "0.1.0", []string{},
 		module.WithRoutes(&templatesRouteProvider{}),
+		module.WithServices(
+			&templateServiceProvider{},
+			&contractRegistrarProvider{},
+		),
 	)
+}
+
+// Service providers to expose TemplateService and ContractRegistrar via the
+// central service registry so other modules (e.g., client_management) can look them up.
+type templateServiceProvider struct{}
+
+func (p *templateServiceProvider) ServiceName() string {
+	return "template_service"
+}
+
+func (p *templateServiceProvider) ServiceInterface() interface{} {
+	return (*services.TemplateService)(nil)
+}
+
+func (p *templateServiceProvider) Factory(ctx core.ModuleContext) (interface{}, error) {
+	svc := services.NewTemplateService()
+	return svc, nil
+}
+
+type contractRegistrarProvider struct{}
+
+func (p *contractRegistrarProvider) ServiceName() string {
+	return "contract-registrar"
+}
+
+func (p *contractRegistrarProvider) ServiceInterface() interface{} {
+	return (*services.ContractRegistrar)(nil)
+}
+
+func (p *contractRegistrarProvider) Factory(ctx core.ModuleContext) (interface{}, error) {
+	r := services.NewContractRegistrar()
+	return r, nil
 }
 
 type templatesRouteProvider struct{}
