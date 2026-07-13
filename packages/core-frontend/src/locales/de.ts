@@ -9,9 +9,7 @@ export default {
     noAccount: 'Noch kein Konto?',
     signUp: 'Registrieren'
   },
-
   messages: {
-    // API Response Messages (using exact message property as key)
     'Invalid credentials': 'Ungültige Anmeldedaten',
     'Invalid request': 'Ungültige Anfrage',
     'Terms not accepted': 'AGB nicht akzeptiert',
@@ -20,18 +18,12 @@ export default {
     'Company name required': 'Firmenname erforderlich',
     'User created successfully. Please check your email to verify your account.': 'Benutzer erfolgreich erstellt. Bitte überprüfen Sie Ihre E-Mail, um Ihr Konto zu verifizieren.',
     'Login successful': 'Anmeldung erfolgreich',
-    
-    // Error Messages
     'User not found': 'Benutzer nicht gefunden',
     'Username or email already taken': 'Benutzername oder E-Mail bereits vergeben',
     'You must accept the terms and conditions to register': 'Sie müssen die AGB akzeptieren, um sich zu registrieren',
     'Company name is required to create a new tenant': 'Firmenname ist erforderlich, um einen neuen Mandanten zu erstellen',
-    
-    // Field validation errors
-    "Key: 'UserCreateRequest.FirstName' Error:Field validation for 'FirstName' failed on the 'required' tag": 'Vorname ist erforderlich',
-    "Key: 'UserCreateRequest.LastName' Error:Field validation for 'LastName' failed on the 'required' tag": 'Nachname ist erforderlich',
-    
-    // Frontend Messages
+    'Key: \'UserCreateRequest.FirstName\' Error:Field validation for \'FirstName\' failed on the \'required\' tag': 'Vorname ist erforderlich',
+    'Key: \'UserCreateRequest.LastName\' Error:Field validation for \'LastName\' failed on the \'required\' tag': 'Nachname ist erforderlich',
     loginSuccessful: 'Anmeldung erfolgreich! Weiterleitung...',
     loginSuccessfulWelcome: 'Willkommen zurück',
     loginFailed: 'Anmeldung fehlgeschlagen',
@@ -50,7 +42,6 @@ export default {
     failedToDeleteEvent: 'Fehler beim Löschen des Termins',
     calendarDataCachedSuccessfully: 'Kalenderdaten erfolgreich zwischengespeichert und geladen'
   },
-
   forgot: {
     title: 'Passwort vergessen',
     subtitle: 'Geben Sie Ihre E-Mail-Adresse ein, um einen Link zum Zurücksetzen zu erhalten',
@@ -61,15 +52,6 @@ export default {
     successMessage: 'Wenn die E-Mail existiert, wurde ein Link zum Zurücksetzen an Ihre E-Mail gesendet.',
     errorMessage: 'Fehler beim Senden der E-Mail. Bitte versuchen Sie es erneut.'
   },
-
-  success: {
-    registration: {
-      title: 'Registrierung erfolgreich',
-      message: 'Ihr Konto wurde erstellt. Bitte überprüfen Sie Ihre E-Mails, um Ihre E-Mail-Adresse zu bestätigen.'
-    },
-    goToLogin: 'Zur Anmeldung'
-  },
-
   register: {
     title: 'Konto erstellen',
     subtitle: 'Registrieren Sie sich für ein neues Konto',
@@ -89,7 +71,6 @@ export default {
     successMessage: 'Registrierung erfolgreich! Weiterleitung zum Dashboard...',
     errorMessage: 'Registrierung fehlgeschlagen. Bitte versuchen Sie es erneut.'
   },
-
   reset: {
     title: 'Passwort zurücksetzen',
     subtitle: 'Geben Sie Ihr neues Passwort ein',
@@ -100,10 +81,12 @@ export default {
     passwordRequirements: 'Passwort-Anforderungen',
     resetButton: 'Passwort zurücksetzen',
     resetting: 'Wird zurückgesetzt...',
+    validatingToken: 'Link wird überprüft...',
     successMessage: 'Passwort wurde erfolgreich zurückgesetzt. Weiterleitung zur Anmeldung...',
-    errorMessage: 'Fehler beim Zurücksetzen des Passworts. Der Link ist möglicherweise ungültig oder abgelaufen.'
+    errorMessage: 'Fehler beim Zurücksetzen des Passworts. Der Link ist möglicherweise ungültig oder abgelaufen.',
+    invalidTokenTitle: 'Ungültiger Link zum Zurücksetzen',
+    invalidTokenMessage: 'Dieser Link zum Zurücksetzen des Passworts ist ungültig oder abgelaufen. Bitte fordere einen neuen Link an.'
   },
-
   change: {
     title: 'Passwort ändern',
     subtitle: 'Aktualisieren Sie Ihr Kontopasswort',
@@ -120,7 +103,6 @@ export default {
     successMessage: 'Passwort wurde erfolgreich geändert!',
     errorMessage: 'Fehler beim Ändern des Passworts. Bitte überprüfen Sie Ihr aktuelles Passwort.'
   },
-
   validation: {
     firstNameRequired: 'Vorname ist erforderlich',
     firstNameMin: 'Vorname muss mindestens 2 Zeichen lang sein',
@@ -138,27 +120,22 @@ export default {
     passwordSameAsCurrent: 'Neues Passwort muss sich vom aktuellen unterscheiden',
     termsRequired: 'Sie müssen die AGB und Datenschutzerklärung akzeptieren'
   },
-
   passwordRequirements: {
     minLength: 'Mindestens 8 Zeichen',
     atLeastChars: 'Mindestens {n} Zeichen',
     hasUppercase: 'Mindestens ein Großbuchstabe',
-    hasLowercase: 'Mindestens ein Kleinbuchstabe', 
+    hasLowercase: 'Mindestens ein Kleinbuchstabe',
     hasNumber: 'Mindestens eine Zahl',
     hasSpecialChar: 'Mindestens ein Sonderzeichen',
     noCommonWords: 'Keine häufigen Wörter',
     notTooSimilar: 'Nicht zu ähnlich zu persönlichen Informationen'
   },
-
   passwordStrength: {
     veryWeak: 'sehr schwach',
     weak: 'schwach',
-    middle: 'mittelmäßig', 
+    middle: 'mittelmäßig',
     strong: 'stark'
   },
-
-
-
   notFound: {
     title: 'Seite nicht gefunden',
     message: 'Entschuldigung, die gesuchte Seite existiert nicht oder wurde verschoben.',
@@ -167,7 +144,6 @@ export default {
     helpfulLinks: 'Diese Links könnten hilfreich sein:',
     mobileHint: 'Tippe auf den Zurück-Button oder versuche die Startseite'
   },
-
   verifyEmail: {
     title: 'E-Mail-Verifizierung',
     verifying: 'Verifiziere Ihre E-Mail-Adresse...',
@@ -178,7 +154,6 @@ export default {
     defaultError: 'Verifizierung fehlgeschlagen. Der Link ist möglicherweise abgelaufen oder ungültig.',
     goToLogin: 'Zur Anmeldung'
   },
-
   dashboard: {
     welcome: 'Dashboard',
     welcomeMessage: 'Willkommen im Dashboard',
@@ -203,6 +178,36 @@ export default {
     inactive: 'Inaktiv',
     email: 'E-Mail',
     loadError: 'Fehler beim Laden der Dashboard-Daten'
+  },
+  success: {
+    goToLogin: 'Zur Anmeldung',
+    registration: {
+      title: 'Registrierung erfolgreich',
+      message: 'Ihr Konto wurde erstellt. Bitte überprüfen Sie Ihre E-Mails, um Ihre E-Mail-Adresse zu bestätigen.'
+    },
+    passwordReset: {
+      title: 'Passwort zurückgesetzt!',
+      message: 'Ihr Passwort wurde zurückgesetzt. Sie können sich jetzt mit Ihrem neuen Passwort anmelden.'
+    },
+    passwordChange: {
+      title: 'Passwort geändert!',
+      message: 'Ihr Passwort wurde erfolgreich geändert.'
+    },
+    emailVerified: {
+      title: 'E-Mail bestätigt!',
+      message: 'Ihre E-Mail-Adresse wurde erfolgreich bestätigt. Sie können sich jetzt anmelden.'
+    },
+    default: {
+      title: 'Erfolg!',
+      message: 'Die Aktion wurde erfolgreich ausgeführt.'
+    }
+  },
+  error: {
+    goBack: 'Zurück',
+    goHome: 'Zur Startseite',
+    default: {
+      title: 'Etwas ist schiefgelaufen',
+      message: 'Es ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut oder wenden Sie sich an den Support, falls das Problem weiterhin besteht.'
+    }
   }
 }
-

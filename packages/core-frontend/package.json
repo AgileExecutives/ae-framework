@@ -67,7 +67,9 @@
     "build-only": "vite build",
     "build-types": "tsc -p tsconfig.build.json",
     "type-check": "vue-tsc --build",
-    "lint": "eslint . --fix",
+    "lint": "eslint . --fix && node scripts/check-i18n.cjs",
+    "lint:i18n": "node scripts/check-i18n.cjs",
+    "lint:i18n:fix": "node scripts/check-i18n.cjs --fix",
     "format": "prettier --write src/"
   },
   "dependencies": {
