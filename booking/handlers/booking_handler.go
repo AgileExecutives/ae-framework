@@ -34,10 +34,10 @@ func NewBookingHandler(service *services.BookingService, bookingLinkSvc *service
 // @Produce json
 // @Param allowed_start_minutes body []int false "Allowed minute marks within the hour (e.g., [0,15,30,45])"
 // @Param configuration body entities.CreateBookingTemplateRequest true "Booking configuration data"
-// @Success 201 {object} baseAPI.APIResponse{data=entities.BookingTemplateResponse}
-// @Failure 400 {object} baseAPI.APIResponse
-// @Failure 401 {object} baseAPI.APIResponse
-// @Failure 500 {object} baseAPI.APIResponse
+// @Success 201 {object} handlers.APIResponse{data=entities.BookingTemplateResponse}
+// @Failure 400 {object} handlers.ErrorResponse
+// @Failure 401 {object} handlers.ErrorResponse
+// @Failure 500 {object} handlers.ErrorResponse
 // @Security BearerAuth
 // @ID createBookingTemplate
 // @Router /booking/templates [post]
@@ -69,11 +69,11 @@ func (h *BookingHandler) CreateConfiguration(c *gin.Context) {
 // @Tags booking
 // @Produce json
 // @Param id path int true "Configuration ID"
-// @Success 200 {object} baseAPI.APIResponse{data=entities.BookingTemplateResponse}
-// @Failure 400 {object} baseAPI.APIResponse
-// @Failure 401 {object} baseAPI.APIResponse
-// @Failure 404 {object} baseAPI.APIResponse
-// @Failure 500 {object} baseAPI.APIResponse
+// @Success 200 {object} handlers.APIResponse{data=entities.BookingTemplateResponse}
+// @Failure 400 {object} handlers.ErrorResponse
+// @Failure 401 {object} handlers.ErrorResponse
+// @Failure 404 {object} handlers.ErrorResponse
+// @Failure 500 {object} handlers.ErrorResponse
 // @Security BearerAuth
 // @ID getBookingTemplate
 // @Router /booking/templates/{id} [get]
@@ -108,9 +108,9 @@ func (h *BookingHandler) GetConfiguration(c *gin.Context) {
 // @Description Retrieve all booking configurations for the tenant
 // @Tags booking
 // @Produce json
-// @Success 200 {object} baseAPI.APIResponse{data=[]entities.BookingTemplateResponse}
-// @Failure 401 {object} baseAPI.APIResponse
-// @Failure 500 {object} baseAPI.APIResponse
+// @Success 200 {object} handlers.APIResponse{data=[]entities.BookingTemplateResponse}
+// @Failure 401 {object} handlers.ErrorResponse
+// @Failure 500 {object} handlers.ErrorResponse
 // @Security BearerAuth
 // @ID listBookingTemplates
 // @Router /booking/templates [get]
@@ -142,10 +142,10 @@ func (h *BookingHandler) GetAllConfigurations(c *gin.Context) {
 // @Tags booking
 // @Produce json
 // @Param user_id query int true "User ID"
-// @Success 200 {object} baseAPI.APIResponse{data=[]entities.BookingTemplateResponse}
-// @Failure 400 {object} baseAPI.APIResponse
-// @Failure 401 {object} baseAPI.APIResponse
-// @Failure 500 {object} baseAPI.APIResponse
+// @Success 200 {object} handlers.APIResponse{data=[]entities.BookingTemplateResponse}
+// @Failure 400 {object} handlers.ErrorResponse
+// @Failure 401 {object} handlers.ErrorResponse
+// @Failure 500 {object} handlers.ErrorResponse
 // @Security BearerAuth
 // @ID listBookingTemplatesByUser
 // @Router /booking/templates/by-user [get]
@@ -188,10 +188,10 @@ func (h *BookingHandler) GetConfigurationsByUser(c *gin.Context) {
 // @Tags booking
 // @Produce json
 // @Param calendar_id query int true "Calendar ID"
-// @Success 200 {object} baseAPI.APIResponse{data=[]entities.BookingTemplateResponse}
-// @Failure 400 {object} baseAPI.APIResponse
-// @Failure 401 {object} baseAPI.APIResponse
-// @Failure 500 {object} baseAPI.APIResponse
+// @Success 200 {object} handlers.APIResponse{data=[]entities.BookingTemplateResponse}
+// @Failure 400 {object} handlers.ErrorResponse
+// @Failure 401 {object} handlers.ErrorResponse
+// @Failure 500 {object} handlers.ErrorResponse
 // @Security BearerAuth
 // @ID listBookingTemplatesByCalendar
 // @Router /booking/templates/by-calendar [get]
@@ -237,11 +237,11 @@ func (h *BookingHandler) GetConfigurationsByCalendar(c *gin.Context) {
 // @Param id path int true "Configuration ID"
 // @Param allowed_start_minutes body []int false "Allowed minute marks within the hour (e.g., [0,15,30,45])"
 // @Param configuration body entities.UpdateBookingTemplateRequest true "Updated configuration data"
-// @Success 200 {object} baseAPI.APIResponse{data=entities.BookingTemplateResponse}
-// @Failure 400 {object} baseAPI.APIResponse
-// @Failure 401 {object} baseAPI.APIResponse
-// @Failure 404 {object} baseAPI.APIResponse
-// @Failure 500 {object} baseAPI.APIResponse
+// @Success 200 {object} handlers.APIResponse{data=entities.BookingTemplateResponse}
+// @Failure 400 {object} handlers.ErrorResponse
+// @Failure 401 {object} handlers.ErrorResponse
+// @Failure 404 {object} handlers.ErrorResponse
+// @Failure 500 {object} handlers.ErrorResponse
 // @Security BearerAuth
 // @ID updateBookingTemplate
 // @Router /booking/templates/{id} [put]
@@ -283,11 +283,11 @@ func (h *BookingHandler) UpdateConfiguration(c *gin.Context) {
 // @Tags booking
 // @Produce json
 // @Param id path int true "Configuration ID"
-// @Success 200 {object} baseAPI.APIResponse
-// @Failure 400 {object} baseAPI.APIResponse
-// @Failure 401 {object} baseAPI.APIResponse
-// @Failure 404 {object} baseAPI.APIResponse
-// @Failure 500 {object} baseAPI.APIResponse
+// @Success 200 {object} handlers.APIResponse
+// @Failure 400 {object} handlers.ErrorResponse
+// @Failure 401 {object} handlers.ErrorResponse
+// @Failure 404 {object} handlers.ErrorResponse
+// @Failure 500 {object} handlers.ErrorResponse
 // @Security BearerAuth
 // @ID deleteBookingTemplate
 // @Router /booking/templates/{id} [delete]
@@ -324,11 +324,11 @@ func (h *BookingHandler) DeleteConfiguration(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param link body entities.CreateBookingLinkRequest true "Booking link data"
-// @Success 201 {object} baseAPI.APIResponse{data=entities.BookingLinkResponse}
-// @Failure 400 {object} baseAPI.APIResponse
-// @Failure 401 {object} baseAPI.APIResponse
-// @Failure 404 {object} baseAPI.APIResponse
-// @Failure 500 {object} baseAPI.APIResponse
+// @Success 201 {object} handlers.APIResponse{data=entities.BookingLinkResponse}
+// @Failure 400 {object} handlers.ErrorResponse
+// @Failure 401 {object} handlers.ErrorResponse
+// @Failure 404 {object} handlers.ErrorResponse
+// @Failure 500 {object} handlers.ErrorResponse
 // @Security BearerAuth
 // @ID createBookingLink
 // @Router /booking/link [post]
@@ -408,11 +408,11 @@ func (h *BookingHandler) CreateBookingLink(c *gin.Context) {
 // @Param token path string true "Booking link token"
 // @Param start query string false "Start date for slot search (YYYY-MM-DD)" example="2025-11-01"
 // @Param end query string false "End date for slot search (YYYY-MM-DD)" example="2025-11-30"
-// @Success 200 {object} baseAPI.APIResponse{data=entities.FreeSlotsResponse}
-// @Failure 400 {object} baseAPI.APIResponse
-// @Failure 401 {object} baseAPI.APIResponse
-// @Failure 404 {object} baseAPI.APIResponse
-// @Failure 500 {object} baseAPI.APIResponse
+// @Success 200 {object} handlers.APIResponse{data=entities.FreeSlotsResponse}
+// @Failure 400 {object} handlers.ErrorResponse
+// @Failure 401 {object} handlers.ErrorResponse
+// @Failure 404 {object} handlers.ErrorResponse
+// @Failure 500 {object} handlers.ErrorResponse
 // @ID getBookingFreeSlots
 // @Router /booking/freeslots/{token} [get]
 func (h *BookingHandler) GetFreeSlots(c *gin.Context) {
@@ -494,10 +494,10 @@ func (h *BookingHandler) GetFreeSlots(c *gin.Context) {
 // @Tags booking
 // @Produce json
 // @Param token path string true "Booking link token"
-// @Success 200 {object} baseAPI.APIResponse
-// @Failure 401 {object} baseAPI.APIResponse
-// @Failure 404 {object} baseAPI.APIResponse
-// @Failure 500 {object} baseAPI.APIResponse
+// @Success 200 {object} handlers.APIResponse
+// @Failure 401 {object} handlers.ErrorResponse
+// @Failure 404 {object} handlers.ErrorResponse
+// @Failure 500 {object} handlers.ErrorResponse
 // @Router /client/{token} [get]
 // @ID getClientByToken
 func (h *BookingHandler) GetClientByToken(c *gin.Context) {

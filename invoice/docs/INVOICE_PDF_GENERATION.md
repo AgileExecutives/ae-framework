@@ -264,7 +264,7 @@ curl -X POST http://localhost:8082/api/v1/client-invoices/generate \
 
 ### Legacy Module Support
 
-The legacy `NewModule` function (non-bootstrap) passes `nil` for template and PDF services, meaning PDF generation will not work in that context. The handler gracefully returns a 503 error in this case.
+The older non-bootstrap constructor passes `nil` for template and PDF services, meaning PDF generation will not work in that context. The handler gracefully returns a 503 error in this case.
 
 ### Service Registry
 

@@ -53,13 +53,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/api.APIResponse"
+                                    "$ref": "#/definitions/handlers.ListResponse"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/api.ListResponse"
+                                            "type": "object"
                                         }
                                     }
                                 }
@@ -69,13 +69,13 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -115,13 +115,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/api.APIResponse"
+                                    "$ref": "#/definitions/handlers.APIResponse"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/entities.CalendarEntryResponse"
+                                            "type": "object"
                                         }
                                     }
                                 }
@@ -131,19 +131,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -180,13 +180,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/api.APIResponse"
+                                    "$ref": "#/definitions/handlers.APIResponse"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/entities.CalendarEntryResponse"
+                                            "type": "object"
                                         }
                                     }
                                 }
@@ -196,25 +196,25 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -261,13 +261,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/api.APIResponse"
+                                    "$ref": "#/definitions/handlers.APIResponse"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/entities.CalendarEntryResponse"
+                                            "type": "object"
                                         }
                                     }
                                 }
@@ -277,25 +277,25 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -328,31 +328,31 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.APIResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -396,13 +396,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/api.APIResponse"
+                                    "$ref": "#/definitions/handlers.ListResponse"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/api.ListResponse"
+                                            "type": "object"
                                         }
                                     }
                                 }
@@ -412,13 +412,13 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -429,7 +429,7 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Create a new calendar series for recurring events. Start/end time fields use UTC ISO 8601 format (e.g., 2025-11-04T09:00:00Z). For recurring events, these represent the time portion that will be combined with calculated recurrence dates.\n\n**Request Body Fields:**\n- ` + "`" + `calendar_id` + "`" + ` (required): ID of the calendar to create the series in\n- ` + "`" + `title` + "`" + ` (required): Title of the recurring series\n- ` + "`" + `participants` + "`" + ` (optional): JSON array of participant objects\n- ` + "`" + `interval_type` + "`" + ` (required): Type of recurrence - one of: \"none\", \"weekly\", \"monthly-date\", \"monthly-day\", \"yearly\"\n- ` + "`" + `interval_value` + "`" + ` (required): Number of intervals between occurrences (e.g., 2 = every 2 weeks for weekly type)\n- ` + "`" + `last_date` + "`" + ` (optional): End date for the recurring series in ISO 8601 UTC format (e.g., 2025-12-31T23:59:59Z)\n- ` + "`" + `start_time` + "`" + ` (optional): Start time for each occurrence in ISO 8601 UTC format\n- ` + "`" + `end_time` + "`" + ` (optional): End time for each occurrence in ISO 8601 UTC format\n- ` + "`" + `description` + "`" + ` (optional): Description of the series\n- ` + "`" + `location` + "`" + ` (optional): Location for all events in the series\n- ` + "`" + `timezone` + "`" + ` (optional): Timezone identifier (e.g., \"Europe/Berlin\")\n- ` + "`" + `external_uid` + "`" + ` (optional): External unique identifier for integration\n- ` + "`" + `external_calendar_uuid` + "`" + ` (optional): UUID of external calendar if imported",
+                "description": "Create a new calendar series for recurring events. Start/end time fields use UTC ISO 8601 format (e.g., 2025-11-04T09:00:00Z). For recurring events, these represent the time portion that will be combined with calculated recurrence dates.\n\n**Request Body Fields:**\n- ` + "`" + `calendar_id` + "`" + ` (required): ID of the calendar to create the series in\n- ` + "`" + `title` + "`" + ` (required): Title of the recurring series\n- ` + "`" + `participants` + "`" + ` (optional): JSON array of participant objects\n- ` + "`" + `interval_type` + "`" + ` (required): Type of recurrence - one of: \"none\", \"weekly\", \"monthly-date\", \"monthly-day\", \"yearly\"\n- ` + "`" + `interval_value` + "`" + ` (required): Number of intervals between occurrences (e.g., 2 = every 2 weeks for weekly type)\n- ` + "`" + `last_date` + "`" + ` (optional): End date for the recurring series in ISO 8601 UTC format (e.g., 2025-12-31T23:59:59Z)\n- ` + "`" + `start_time` + "`" + ` (optional): Start time for each occurrence in ISO 8601 UTC format\n- ` + "`" + `end_time` + "`" + ` (optional): End time for each occurrence in ISO 8601 UTC format\n- ` + "`" + `description` + "`" + ` (optional): Description of the series\n- ` + "`" + `location` + "`" + ` (optional): Location for all events in the series\n- ` + "`" + `timezone` + "`" + ` (optional): Timezone identifier (e.g., \"Europe/Berlin\")\n- ` + "`" + `external_uid` + "`" + ` (optional): External unique identifier for integration\n- ` + "`" + `external_calendar_uuid` + "`" + ` (optional): UUID of external calendar if imported\n\n**Response:** Returns the created series and all auto-generated calendar entries based on the recurrence rules.",
                 "consumes": [
                     "application/json"
                 ],
@@ -458,13 +458,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/api.APIResponse"
+                                    "$ref": "#/definitions/handlers.APIResponse"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/entities.CalendarSeriesResponse"
+                                            "type": "object"
                                         }
                                     }
                                 }
@@ -474,19 +474,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -523,13 +523,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/api.APIResponse"
+                                    "$ref": "#/definitions/handlers.APIResponse"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/entities.CalendarSeriesResponse"
+                                            "type": "object"
                                         }
                                     }
                                 }
@@ -539,25 +539,25 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -604,13 +604,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/api.APIResponse"
+                                    "$ref": "#/definitions/handlers.APIResponse"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/entities.CalendarSeriesResponse"
+                                            "type": "object"
                                         }
                                     }
                                 }
@@ -620,25 +620,25 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -649,7 +649,10 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Delete a calendar series by ID",
+                "description": "Delete a calendar series with two options: 'all' deletes the entire series and all entries, 'from_date' deletes entries from a specific date onwards and updates the series end date. When using 'from_date' mode, provide the from_date in UTC ISO 8601 format (e.g., 2025-12-01T00:00:00Z).",
+                "consumes": [
+                    "application/json"
+                ],
                 "produces": [
                     "application/json"
                 ],
@@ -665,37 +668,46 @@ const docTemplate = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "description": "Delete options",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/entities.DeleteCalendarSeriesRequest"
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.APIResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -723,16 +735,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/api.APIResponse"
+                                    "$ref": "#/definitions/handlers.ListResponse"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/definitions/entities.CalendarResponse"
-                                            }
+                                            "type": "object"
                                         }
                                     }
                                 }
@@ -742,13 +751,13 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized - invalid or missing JWT token",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal server error during calendar retrieval",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -788,13 +797,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/api.APIResponse"
+                                    "$ref": "#/definitions/handlers.APIResponse"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/entities.CalendarResponse"
+                                            "type": "object"
                                         }
                                     }
                                 }
@@ -804,19 +813,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -860,19 +869,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -916,19 +925,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -965,13 +974,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/api.APIResponse"
+                                    "$ref": "#/definitions/handlers.APIResponse"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/entities.CalendarResponse"
+                                            "type": "object"
                                         }
                                     }
                                 }
@@ -981,25 +990,25 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -1046,13 +1055,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/api.APIResponse"
+                                    "$ref": "#/definitions/handlers.APIResponse"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/entities.CalendarResponse"
+                                            "type": "object"
                                         }
                                     }
                                 }
@@ -1062,25 +1071,25 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -1113,31 +1122,31 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.APIResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -1190,25 +1199,25 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -1252,13 +1261,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/api.APIResponse"
+                                    "$ref": "#/definitions/handlers.ListResponse"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/api.ListResponse"
+                                            "type": "object"
                                         }
                                     }
                                 }
@@ -1268,13 +1277,13 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -1314,13 +1323,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/api.APIResponse"
+                                    "$ref": "#/definitions/handlers.APIResponse"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/entities.ExternalCalendarResponse"
+                                            "type": "object"
                                         }
                                     }
                                 }
@@ -1330,19 +1339,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -1379,13 +1388,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/api.APIResponse"
+                                    "$ref": "#/definitions/handlers.APIResponse"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/entities.ExternalCalendarResponse"
+                                            "type": "object"
                                         }
                                     }
                                 }
@@ -1395,25 +1404,25 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -1460,13 +1469,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/api.APIResponse"
+                                    "$ref": "#/definitions/handlers.APIResponse"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/entities.ExternalCalendarResponse"
+                                            "type": "object"
                                         }
                                     }
                                 }
@@ -1476,25 +1485,25 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -1527,31 +1536,31 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.APIResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/api.APIResponse"
+                            "$ref": "#/definitions/handlers.ErrorResponse"
                         }
                     }
                 }
@@ -1559,30 +1568,6 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "api.APIResponse": {
-            "type": "object",
-            "properties": {
-                "data": {},
-                "error": {
-                    "type": "string"
-                },
-                "message": {
-                    "type": "string"
-                },
-                "success": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "api.ListResponse": {
-            "type": "object",
-            "properties": {
-                "data": {},
-                "pagination": {
-                    "$ref": "#/definitions/github_com_ae-base-server_internal_models.PaginationResponse"
-                }
-            }
-        },
         "entities.CalendarEntryResponse": {
             "type": "object",
             "properties": {
@@ -1611,10 +1596,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "participants": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
+                    "type": "object"
                 },
                 "position_in_series": {
                     "type": "integer"
@@ -1645,62 +1627,6 @@ const docTemplate = `{
                 },
                 "user_id": {
                     "type": "integer"
-                }
-            }
-        },
-        "entities.CalendarResponse": {
-            "type": "object",
-            "properties": {
-                "calendar_entries": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/entities.CalendarEntryResponse"
-                    }
-                },
-                "calendar_series": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/entities.CalendarSeriesResponse"
-                    }
-                },
-                "calendar_uuid": {
-                    "type": "string"
-                },
-                "color": {
-                    "type": "string"
-                },
-                "created_at": {
-                    "type": "string"
-                },
-                "external_calendars": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/entities.ExternalCalendarResponse"
-                    }
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "tenant_id": {
-                    "type": "integer"
-                },
-                "timezone": {
-                    "type": "string"
-                },
-                "title": {
-                    "type": "string"
-                },
-                "updated_at": {
-                    "type": "string"
-                },
-                "user_id": {
-                    "type": "integer"
-                },
-                "weekly_availability": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
                 }
             }
         },
@@ -1744,10 +1670,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "participants": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
+                    "type": "object"
                 },
                 "sequence": {
                     "type": "integer"
@@ -1829,7 +1752,27 @@ const docTemplate = `{
             }
         },
         "entities.CreateCalendarRequest": {
-            "type": "object"
+            "type": "object",
+            "required": [
+                "title"
+            ],
+            "properties": {
+                "color": {
+                    "type": "string",
+                    "example": "#FF5733"
+                },
+                "timezone": {
+                    "type": "string",
+                    "example": "UTC"
+                },
+                "title": {
+                    "type": "string",
+                    "example": "My Calendar"
+                },
+                "weekly_availability": {
+                    "type": "object"
+                }
+            }
         },
         "entities.CreateCalendarSeriesRequest": {
             "type": "object",
@@ -1902,49 +1845,52 @@ const docTemplate = `{
             }
         },
         "entities.CreateExternalCalendarRequest": {
-            "type": "object"
-        },
-        "entities.ExternalCalendarResponse": {
             "type": "object",
+            "required": [
+                "calendar_id",
+                "title"
+            ],
             "properties": {
                 "calendar_id": {
-                    "type": "integer"
-                },
-                "calendar_uuid": {
-                    "type": "string"
+                    "type": "integer",
+                    "example": 1
                 },
                 "color": {
-                    "type": "string"
-                },
-                "created_at": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
+                    "type": "string",
+                    "example": "#33FF57"
                 },
                 "settings": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
-                },
-                "sync_last_run": {
-                    "type": "string"
-                },
-                "tenant_id": {
-                    "type": "integer"
+                    "type": "object"
                 },
                 "title": {
-                    "type": "string"
-                },
-                "updated_at": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "External Calendar"
                 },
                 "url": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "https://calendar.google.com/ical/..."
+                }
+            }
+        },
+        "entities.DeleteCalendarSeriesRequest": {
+            "type": "object",
+            "required": [
+                "delete_mode"
+            ],
+            "properties": {
+                "delete_mode": {
+                    "description": "DeleteMode specifies the deletion mode: \"all\" or \"from_date\"",
+                    "type": "string",
+                    "enum": [
+                        "all",
+                        "from_date"
+                    ],
+                    "example": "all"
                 },
-                "user_id": {
-                    "type": "integer"
+                "from_date": {
+                    "description": "FromDate is required when delete_mode is \"from_date\" - all entries from this date onwards will be deleted (UTC ISO 8601 format)",
+                    "type": "string",
+                    "example": "2025-12-01T00:00:00Z"
                 }
             }
         },
@@ -1976,12 +1922,6 @@ const docTemplate = `{
         },
         "entities.ImportHolidaysRequest": {
             "type": "object",
-            "required": [
-                "holidays",
-                "state",
-                "year_from",
-                "year_to"
-            ],
             "properties": {
                 "holidays": {
                     "$ref": "#/definitions/entities.UnburdyHolidaysData"
@@ -1992,15 +1932,11 @@ const docTemplate = `{
                 },
                 "year_from": {
                     "type": "integer",
-                    "maximum": 2100,
-                    "minimum": 1900,
-                    "example": 2025
+                    "example": 2024
                 },
                 "year_to": {
                     "type": "integer",
-                    "maximum": 2100,
-                    "minimum": 1900,
-                    "example": 2027
+                    "example": 2025
                 }
             }
         },
@@ -2079,7 +2015,24 @@ const docTemplate = `{
             }
         },
         "entities.UpdateCalendarRequest": {
-            "type": "object"
+            "type": "object",
+            "properties": {
+                "color": {
+                    "type": "string",
+                    "example": "#FF5733"
+                },
+                "timezone": {
+                    "type": "string",
+                    "example": "UTC"
+                },
+                "title": {
+                    "type": "string",
+                    "example": "My Updated Calendar"
+                },
+                "weekly_availability": {
+                    "type": "object"
+                }
+            }
         },
         "entities.UpdateCalendarSeriesRequest": {
             "type": "object",
@@ -2130,21 +2083,75 @@ const docTemplate = `{
             }
         },
         "entities.UpdateExternalCalendarRequest": {
-            "type": "object"
-        },
-        "github_com_ae-base-server_internal_models.PaginationResponse": {
             "type": "object",
             "properties": {
+                "color": {
+                    "type": "string",
+                    "example": "#33FF57"
+                },
+                "settings": {
+                    "type": "object"
+                },
+                "title": {
+                    "type": "string",
+                    "example": "Updated External Calendar"
+                },
+                "url": {
+                    "type": "string",
+                    "example": "https://calendar.google.com/ical/..."
+                }
+            }
+        },
+        "handlers.APIResponse": {
+            "type": "object",
+            "properties": {
+                "data": {},
+                "message": {
+                    "type": "string",
+                    "example": "ok"
+                },
+                "success": {
+                    "type": "boolean",
+                    "example": true
+                }
+            }
+        },
+        "handlers.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "internal error details"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "error message"
+                },
+                "success": {
+                    "type": "boolean",
+                    "example": false
+                }
+            }
+        },
+        "handlers.ListResponse": {
+            "type": "object",
+            "properties": {
+                "data": {},
                 "limit": {
                     "type": "integer"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "ok"
                 },
                 "page": {
                     "type": "integer"
                 },
-                "total": {
-                    "type": "integer"
+                "success": {
+                    "type": "boolean",
+                    "example": true
                 },
-                "total_pages": {
+                "total": {
                     "type": "integer"
                 }
             }

@@ -27,8 +27,8 @@ func NewPlanHandlers(s *services.PlanService) *PlanHandlers { return &PlanHandle
 // @Param page query int false "Page number" default(1)
 // @Param limit query int false "Items per page" default(10)
 // @Param active query bool false "Filter by active status"
-// @Success 200 {object} baseAPI.APIResponse{data=baseAPI.ListResponse}
-// @Failure 500 {object} baseAPI.ErrorResponse
+// @Success 200 {object} handlers.APIResponse{data=handlers.ListResponse}
+// @Failure 500 {object} handlers.ErrorResponse
 // @Router /plans [get]
 func (h *PlanHandlers) GetPlans(c *gin.Context) {
 	page, limit := utils.GetPaginationParams(c)
@@ -65,9 +65,9 @@ func (h *PlanHandlers) GetPlans(c *gin.Context) {
 // @Tags plans
 // @Produce json
 // @Param id path int true "Plan ID"
-// @Success 200 {object} baseAPI.APIResponse{data=models.PlanResponse}
-// @Failure 400 {object} baseAPI.ErrorResponse
-// @Failure 404 {object} baseAPI.ErrorResponse
+// @Success 200 {object} handlers.APIResponse{data=models.PlanResponse}
+// @Failure 400 {object} handlers.ErrorResponse
+// @Failure 404 {object} handlers.ErrorResponse
 // @Router /plans/{id} [get]
 func (h *PlanHandlers) GetPlan(c *gin.Context) {
 	id, err := utils.ValidateID(c, "id")
@@ -94,9 +94,9 @@ func (h *PlanHandlers) GetPlan(c *gin.Context) {
 // @Produce json
 // @Security BearerAuth
 // @Param plan body models.PlanRequest true "Plan data"
-// @Success 201 {object} baseAPI.APIResponse{data=models.PlanResponse}
-// @Failure 400 {object} baseAPI.ErrorResponse
-// @Failure 409 {object} baseAPI.ErrorResponse
+// @Success 201 {object} handlers.APIResponse{data=models.PlanResponse}
+// @Failure 400 {object} handlers.ErrorResponse
+// @Failure 409 {object} handlers.ErrorResponse
 // @Router /plans [post]
 func (h *PlanHandlers) CreatePlan(c *gin.Context) {
 	var req models.PlanCreateRequest
@@ -154,9 +154,9 @@ func (h *PlanHandlers) CreatePlan(c *gin.Context) {
 // @Security BearerAuth
 // @Param id path int true "Plan ID"
 // @Param plan body models.PlanRequest true "Updated plan data"
-// @Success 200 {object} baseAPI.APIResponse{data=models.PlanResponse}
-// @Failure 400 {object} baseAPI.ErrorResponse
-// @Failure 404 {object} baseAPI.ErrorResponse
+// @Success 200 {object} handlers.APIResponse{data=models.PlanResponse}
+// @Failure 400 {object} handlers.ErrorResponse
+// @Failure 404 {object} handlers.ErrorResponse
 // @Router /plans/{id} [put]
 func (h *PlanHandlers) UpdatePlan(c *gin.Context) {
 	id, err := utils.ValidateID(c, "id")
@@ -221,9 +221,9 @@ func (h *PlanHandlers) UpdatePlan(c *gin.Context) {
 // @Produce json
 // @Security BearerAuth
 // @Param id path int true "Plan ID"
-// @Success 200 {object} baseAPI.APIResponse
-// @Failure 400 {object} baseAPI.ErrorResponse
-// @Failure 404 {object} baseAPI.ErrorResponse
+// @Success 200 {object} handlers.APIResponse
+// @Failure 400 {object} handlers.ErrorResponse
+// @Failure 404 {object} handlers.ErrorResponse
 // @Router /plans/{id} [delete]
 func (h *PlanHandlers) DeletePlan(c *gin.Context) {
 	id, err := utils.ValidateID(c, "id")

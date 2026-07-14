@@ -49,7 +49,13 @@ func (m *CoreModule) Initialize(ctx core.ModuleContext) error {
 	newsletterRepo := saasrepo.NewGormNewsletterRepo(ctx.DB)
 	newsletterService := services.NewNewsletterService(newsletterRepo)
 
-	m.module = NewModule(ctx.DB, m.customerService, planService, newsletterService)
+	// Construct module directly (legacy NewModule removed)
+	m.module = &Module{
+		db:                 ctx.DB,
+		customerHandlers:   handlers.NewCustomerHandlers(m.customerService),
+		planHandlers:       handlers.NewPlanHandlers(planService),
+		newsletterHandlers: handlers.NewNewsletterHandlers(newsletterService),
+	}
 
 	if err := m.module.AutoMigrate(); err != nil {
 		return err

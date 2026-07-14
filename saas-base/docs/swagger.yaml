@@ -1,0 +1,715 @@
+definitions:
+  handlers.APIResponse:
+    properties:
+      data: {}
+      message:
+        example: ok
+        type: string
+      success:
+        example: true
+        type: boolean
+    type: object
+  handlers.ErrorResponse:
+    properties:
+      error:
+        example: details
+        type: string
+      message:
+        example: error
+        type: string
+      success:
+        example: false
+        type: boolean
+    type: object
+  handlers.ListResponse:
+    properties:
+      data: {}
+      pagination:
+        $ref: '#/definitions/handlers.PaginationResponse'
+    type: object
+  handlers.PaginationResponse:
+    properties:
+      limit:
+        type: integer
+      page:
+        type: integer
+      total:
+        type: integer
+      total_pages:
+        type: integer
+    type: object
+  models.CustomerRequest:
+    properties:
+      city:
+        type: string
+      country:
+        type: string
+      email:
+        type: string
+      name:
+        type: string
+      payment_method:
+        type: string
+      phone:
+        type: string
+      plan_id:
+        type: integer
+      street:
+        type: string
+      tax_id:
+        type: string
+      tenant_id:
+        type: integer
+      vat:
+        type: string
+      zip:
+        type: string
+    required:
+    - email
+    - name
+    - plan_id
+    - tenant_id
+    type: object
+  models.CustomerResponse:
+    properties:
+      active:
+        type: boolean
+      city:
+        type: string
+      country:
+        type: string
+      created_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      payment_method:
+        type: string
+      phone:
+        type: string
+      plan_id:
+        type: integer
+      status:
+        type: string
+      street:
+        type: string
+      tax_id:
+        type: string
+      tenant_id:
+        type: integer
+      vat:
+        type: string
+      zip:
+        type: string
+    type: object
+  models.NewsletterResponse:
+    properties:
+      created_at:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      interest:
+        type: string
+      last_contact:
+        type: string
+      name:
+        type: string
+      source:
+        type: string
+    type: object
+  models.NewsletterSubscribeRequest:
+    properties:
+      email:
+        type: string
+      interest:
+        type: string
+      name:
+        type: string
+      source:
+        type: string
+    required:
+    - email
+    - name
+    - source
+    type: object
+  models.NewsletterUnsubscribeRequest:
+    properties:
+      email:
+        type: string
+    required:
+    - email
+    type: object
+  models.PlanRequest:
+    properties:
+      active:
+        type: boolean
+      currency:
+        type: string
+      description:
+        type: string
+      features:
+        type: string
+      invoice_period:
+        type: string
+      max_clients:
+        type: integer
+      max_users:
+        type: integer
+      name:
+        type: string
+      price:
+        type: number
+      slug:
+        type: string
+    required:
+    - name
+    - price
+    - slug
+    type: object
+  models.PlanResponse:
+    properties:
+      active:
+        type: boolean
+      created_at:
+        type: string
+      currency:
+        type: string
+      description:
+        type: string
+      features:
+        type: string
+      id:
+        type: integer
+      invoice_period:
+        type: string
+      max_clients:
+        type: integer
+      max_users:
+        type: integer
+      name:
+        type: string
+      price:
+        type: number
+      slug:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /customers:
+    get:
+      description: Get a paginated list of all customers for the authenticated tenant
+      operationId: getCustomers
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Items per page
+        in: query
+        name: limit
+        type: integer
+      - description: Filter by active status
+        in: query
+        name: active
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/handlers.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/handlers.ListResponse'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get all customers
+      tags:
+      - customers
+    post:
+      consumes:
+      - application/json
+      description: Create a new customer within the authenticated tenant
+      operationId: createCustomer
+      parameters:
+      - description: Customer data
+        in: body
+        name: customer
+        required: true
+        schema:
+          $ref: '#/definitions/models.CustomerRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/handlers.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.CustomerResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a new customer
+      tags:
+      - customers
+  /customers/{id}:
+    delete:
+      description: Soft delete a customer by ID
+      operationId: deleteCustomer
+      parameters:
+      - description: Customer ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete a customer
+      tags:
+      - customers
+    get:
+      description: Get a specific customer by its ID
+      operationId: getCustomerById
+      parameters:
+      - description: Customer ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/handlers.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.CustomerResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get customer by ID
+      tags:
+      - customers
+    put:
+      consumes:
+      - application/json
+      description: Update an existing customer by ID
+      operationId: updateCustomer
+      parameters:
+      - description: Customer ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated customer data
+        in: body
+        name: customer
+        required: true
+        schema:
+          $ref: '#/definitions/models.CustomerRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/handlers.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.CustomerResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update a customer
+      tags:
+      - customers
+  /newsletter:
+    get:
+      description: Get a paginated list of newsletter subscribers (admin only)
+      operationId: getNewsletterSubscribers
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: Items per page
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/handlers.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/handlers.ListResponse'
+              type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get all newsletter subscribers
+      tags:
+      - newsletter
+  /newsletter/{id}:
+    delete:
+      description: Permanently delete a subscriber record (admin only)
+      operationId: deleteNewsletterSubscriber
+      parameters:
+      - description: Subscriber ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete subscriber by ID
+      tags:
+      - newsletter
+  /newsletter/subscribe:
+    post:
+      consumes:
+      - application/json
+      description: Subscribe an email address to the newsletter
+      operationId: subscribeNewsletter
+      parameters:
+      - description: Subscription data
+        in: body
+        name: subscription
+        required: true
+        schema:
+          $ref: '#/definitions/models.NewsletterSubscribeRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/handlers.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.NewsletterResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Subscribe to newsletter
+      tags:
+      - newsletter
+  /newsletter/unsubscribe:
+    post:
+      consumes:
+      - application/json
+      description: Remove an email address from the newsletter
+      operationId: unsubscribeNewsletter
+      parameters:
+      - description: Unsubscribe data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.NewsletterUnsubscribeRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Unsubscribe from newsletter
+      tags:
+      - newsletter
+  /plans:
+    get:
+      description: Get a paginated list of all subscription plans
+      operationId: getPlans
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Items per page
+        in: query
+        name: limit
+        type: integer
+      - description: Filter by active status
+        in: query
+        name: active
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/handlers.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/handlers.ListResponse'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Get all plans
+      tags:
+      - plans
+    post:
+      consumes:
+      - application/json
+      description: Create a new subscription plan (admin only)
+      operationId: createPlan
+      parameters:
+      - description: Plan data
+        in: body
+        name: plan
+        required: true
+        schema:
+          $ref: '#/definitions/models.PlanRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/handlers.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.PlanResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a new plan
+      tags:
+      - plans
+  /plans/{id}:
+    delete:
+      description: Delete a subscription plan (admin only)
+      operationId: deletePlan
+      parameters:
+      - description: Plan ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete a plan
+      tags:
+      - plans
+    get:
+      description: Get a specific subscription plan by its ID
+      operationId: getPlanById
+      parameters:
+      - description: Plan ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/handlers.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.PlanResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      summary: Get plan by ID
+      tags:
+      - plans
+    put:
+      consumes:
+      - application/json
+      description: Update an existing subscription plan (admin only)
+      operationId: updatePlan
+      parameters:
+      - description: Plan ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated plan data
+        in: body
+        name: plan
+        required: true
+        schema:
+          $ref: '#/definitions/models.PlanRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/handlers.APIResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.PlanResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update a plan
+      tags:
+      - plans
+swagger: "2.0"

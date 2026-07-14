@@ -30,9 +30,9 @@ func NewCustomerHandlers(s *services.CustomerService) *CustomerHandlers {
 // @Param page query int false "Page number" default(1)
 // @Param limit query int false "Items per page" default(10)
 // @Param active query bool false "Filter by active status"
-// @Success 200 {object} baseAPI.APIResponse{data=baseAPI.ListResponse}
-// @Failure 401 {object} baseAPI.ErrorResponse
-// @Failure 500 {object} baseAPI.ErrorResponse
+// @Success 200 {object} handlers.APIResponse{data=handlers.ListResponse}
+// @Failure 401 {object} handlers.ErrorResponse
+// @Failure 500 {object} handlers.ErrorResponse
 // @Router /customers [get]
 func (h *CustomerHandlers) GetCustomers(c *gin.Context) {
 	user, err := baseAPI.GetUser(c)
@@ -76,10 +76,10 @@ func (h *CustomerHandlers) GetCustomers(c *gin.Context) {
 // @Produce json
 // @Security BearerAuth
 // @Param id path int true "Customer ID"
-// @Success 200 {object} baseAPI.APIResponse{data=models.CustomerResponse}
-// @Failure 400 {object} baseAPI.ErrorResponse
-// @Failure 401 {object} baseAPI.ErrorResponse
-// @Failure 404 {object} baseAPI.ErrorResponse
+// @Success 200 {object} handlers.APIResponse{data=models.CustomerResponse}
+// @Failure 400 {object} handlers.ErrorResponse
+// @Failure 401 {object} handlers.ErrorResponse
+// @Failure 404 {object} handlers.ErrorResponse
 // @Router /customers/{id} [get]
 func (h *CustomerHandlers) GetCustomer(c *gin.Context) {
 	user, err := baseAPI.GetUser(c)
@@ -111,9 +111,9 @@ func (h *CustomerHandlers) GetCustomer(c *gin.Context) {
 // @Produce json
 // @Security BearerAuth
 // @Param customer body models.CustomerRequest true "Customer data"
-// @Success 201 {object} baseAPI.APIResponse{data=models.CustomerResponse}
-// @Failure 400 {object} baseAPI.ErrorResponse
-// @Failure 401 {object} baseAPI.ErrorResponse
+// @Success 201 {object} handlers.APIResponse{data=models.CustomerResponse}
+// @Failure 400 {object} handlers.ErrorResponse
+// @Failure 401 {object} handlers.ErrorResponse
 // @Router /customers [post]
 func (h *CustomerHandlers) CreateCustomer(c *gin.Context) {
 	user, err := baseAPI.GetUser(c)
@@ -164,10 +164,10 @@ func (h *CustomerHandlers) CreateCustomer(c *gin.Context) {
 // @Security BearerAuth
 // @Param id path int true "Customer ID"
 // @Param customer body models.CustomerRequest true "Updated customer data"
-// @Success 200 {object} baseAPI.APIResponse{data=models.CustomerResponse}
-// @Failure 400 {object} baseAPI.ErrorResponse
-// @Failure 401 {object} baseAPI.ErrorResponse
-// @Failure 404 {object} baseAPI.ErrorResponse
+// @Success 200 {object} handlers.APIResponse{data=models.CustomerResponse}
+// @Failure 400 {object} handlers.ErrorResponse
+// @Failure 401 {object} handlers.ErrorResponse
+// @Failure 404 {object} handlers.ErrorResponse
 // @Router /customers/{id} [put]
 func (h *CustomerHandlers) UpdateCustomer(c *gin.Context) {
 	user, err := baseAPI.GetUser(c)
@@ -251,10 +251,10 @@ func (h *CustomerHandlers) UpdateCustomer(c *gin.Context) {
 // @Produce json
 // @Security BearerAuth
 // @Param id path int true "Customer ID"
-// @Success 200 {object} baseAPI.APIResponse
-// @Failure 400 {object} baseAPI.ErrorResponse
-// @Failure 401 {object} baseAPI.ErrorResponse
-// @Failure 404 {object} baseAPI.ErrorResponse
+// @Success 200 {object} handlers.APIResponse
+// @Failure 400 {object} handlers.ErrorResponse
+// @Failure 401 {object} handlers.ErrorResponse
+// @Failure 404 {object} handlers.ErrorResponse
 // @Router /customers/{id} [delete]
 func (h *CustomerHandlers) DeleteCustomer(c *gin.Context) {
 	user, err := baseAPI.GetUser(c)

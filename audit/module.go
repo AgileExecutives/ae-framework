@@ -3,13 +3,13 @@ package audit
 import (
 	"github.com/AgileExecutives/shared-modules/audit/entities"
 	"github.com/AgileExecutives/shared-modules/audit/handlers"
-	repo "github.com/AgileExecutives/shared-modules/audit/repo"
 	"github.com/AgileExecutives/shared-modules/audit/routes"
 	"github.com/AgileExecutives/shared-modules/audit/services"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
 
+// NewModule remains for direct construction when embedding the module in other code.
 type Module struct {
 	db            *gorm.DB
 	service       *services.AuditService
@@ -17,19 +17,8 @@ type Module struct {
 	routeProvider *routes.RouteProvider
 }
 
-func NewModule(db *gorm.DB) *Module {
-	gormRepo := repo.NewGormAuditRepo(db)
-	service := services.NewAuditServiceWithRepo(gormRepo)
-	handler := handlers.NewAuditHandler(service)
-	routeProvider := routes.NewRouteProvider(handler)
-
-	return &Module{
-		db:            db,
-		service:       service,
-		handler:       handler,
-		routeProvider: routeProvider,
-	}
-}
+// Prefer registering the module via `NewCoreModule()` adapters used by the
+// bootstrap system; direct constructors may still be used for embedding.
 
 func (m *Module) GetService() *services.AuditService {
 	return m.service

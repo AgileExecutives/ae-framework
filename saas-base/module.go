@@ -2,12 +2,17 @@ package saasbase
 
 // Package saasbase provides shared SaaS building blocks: customer management,
 // subscription plans, and newsletter subscriptions.
+//
+// Deprecated: This package is now library-only. The serverbase module
+// `serverbase/modules/saas` provides the `core.Module` integration and
+// ServiceProviders that should be used by the application. Prefer
+// `serverbase/modules/saas.NewSaaSModule()` for runtime registration.
 
 import (
 	"github.com/AgileExecutives/shared-modules/saas-base/entities"
 	"github.com/AgileExecutives/shared-modules/saas-base/handlers"
 	"github.com/AgileExecutives/shared-modules/saas-base/models"
-	"github.com/AgileExecutives/shared-modules/saas-base/services"
+    
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
@@ -21,14 +26,8 @@ type Module struct {
 }
 
 // NewModule creates a new saas-base Module.
-func NewModule(db *gorm.DB, custSvc *services.CustomerService, planSvc *services.PlanService, newsSvc *services.NewsletterService) *Module {
-	return &Module{
-		db:                 db,
-		customerHandlers:   handlers.NewCustomerHandlers(custSvc),
-		planHandlers:       handlers.NewPlanHandlers(planSvc),
-		newsletterHandlers: handlers.NewNewsletterHandlers(newsSvc),
-	}
-}
+// Prefer runtime registration via `NewCoreModule()` adapters used by the
+// bootstrap system; direct construction is deprecated for runtime use.
 
 // AutoMigrate runs the database migrations for all saas-base entities.
 func (m *Module) AutoMigrate() error {

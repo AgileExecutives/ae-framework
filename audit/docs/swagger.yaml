@@ -1,0 +1,323 @@
+definitions:
+  entities.AuditAction:
+    enum:
+    - invoice_draft_created
+    - invoice_draft_updated
+    - invoice_draft_cancelled
+    - invoice_finalized
+    - invoice_sent
+    - invoice_marked_paid
+    - invoice_marked_overdue
+    - reminder_sent
+    - credit_note_created
+    - xrechnung_exported
+    type: string
+    x-enum-varnames:
+    - AuditActionInvoiceDraftCreated
+    - AuditActionInvoiceDraftUpdated
+    - AuditActionInvoiceDraftCancelled
+    - AuditActionInvoiceFinalized
+    - AuditActionInvoiceSent
+    - AuditActionInvoiceMarkedPaid
+    - AuditActionInvoiceMarkedOverdue
+    - AuditActionReminderSent
+    - AuditActionCreditNoteCreated
+    - AuditActionXRechnungExported
+  entities.AuditLogListResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/entities.AuditLogResponse'
+        type: array
+      limit:
+        type: integer
+      message:
+        type: string
+      page:
+        type: integer
+      success:
+        type: boolean
+      total:
+        type: integer
+    type: object
+  entities.AuditLogResponse:
+    properties:
+      action:
+        $ref: '#/definitions/entities.AuditAction'
+      created_at:
+        type: string
+      entity_id:
+        type: integer
+      entity_type:
+        $ref: '#/definitions/entities.EntityType'
+      id:
+        type: integer
+      ip_address:
+        type: string
+      metadata:
+        additionalProperties: true
+        type: object
+      tenant_id:
+        type: integer
+      user_agent:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  entities.EntityType:
+    enum:
+    - invoice
+    - invoice_item
+    - session
+    - extra_effort
+    type: string
+    x-enum-varnames:
+    - EntityTypeInvoice
+    - EntityTypeInvoiceItem
+    - EntityTypeSession
+    - EntityTypeExtraEffort
+  handlers.ErrorResponse:
+    properties:
+      error:
+        example: detailed error message
+        type: string
+      message:
+        example: Unauthorized
+        type: string
+      success:
+        example: false
+        type: boolean
+    type: object
+info:
+  contact: {}
+paths:
+  /audit/entity/{entity_type}/{entity_id}:
+    get:
+      description: Retrieve complete audit trail for a specific entity (e.g., all
+        changes to an invoice)
+      operationId: getEntityAuditLogs
+      parameters:
+      - description: Entity type
+        enum:
+        - invoice
+        - invoice_item
+        - session
+        - extra_effort
+        example: invoice
+        in: path
+        name: entity_type
+        required: true
+        type: string
+      - description: Entity ID
+        example: 123
+        in: path
+        name: entity_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entities.AuditLogListResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get audit logs for a specific entity
+      tags:
+      - audit
+  /audit/export:
+    get:
+      description: Export audit logs in CSV format for tax authority compliance (GoBD).
+        Supports same filtering options as GET /audit/logs.
+      operationId: exportAuditLogs
+      parameters:
+      - description: Filter by user ID
+        example: 1
+        in: query
+        name: user_id
+        type: integer
+      - description: Filter by entity type
+        enum:
+        - invoice
+        - invoice_item
+        - session
+        - extra_effort
+        example: invoice
+        in: query
+        name: entity_type
+        type: string
+      - description: Filter by entity ID
+        example: 123
+        in: query
+        name: entity_id
+        type: integer
+      - description: Filter by action
+        example: invoice_finalized
+        in: query
+        name: action
+        type: string
+      - description: Filter by start date (RFC3339)
+        example: "2026-01-01T00:00:00Z"
+        in: query
+        name: start_date
+        type: string
+      - description: Filter by end date (RFC3339)
+        example: "2026-12-31T23:59:59Z"
+        in: query
+        name: end_date
+        type: string
+      produces:
+      - text/csv
+      responses:
+        "200":
+          description: CSV file download
+          schema:
+            type: file
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Export audit logs to CSV
+      tags:
+      - audit
+  /audit/logs:
+    get:
+      description: Retrieve audit logs with optional filtering by user, entity, action,
+        and date range. Supports pagination.
+      operationId: getAuditLogs
+      parameters:
+      - description: Filter by user ID
+        example: 1
+        in: query
+        name: user_id
+        type: integer
+      - description: Filter by entity type
+        enum:
+        - invoice
+        - invoice_item
+        - session
+        - extra_effort
+        example: invoice
+        in: query
+        name: entity_type
+        type: string
+      - description: Filter by entity ID
+        example: 123
+        in: query
+        name: entity_id
+        type: integer
+      - description: Filter by action
+        enum:
+        - invoice_draft_created
+        - invoice_draft_updated
+        - invoice_draft_cancelled
+        - invoice_finalized
+        - invoice_sent
+        - invoice_marked_paid
+        - invoice_marked_overdue
+        - reminder_sent
+        - credit_note_created
+        - xrechnung_exported
+        example: invoice_finalized
+        in: query
+        name: action
+        type: string
+      - description: Filter by start date (RFC3339)
+        example: "2026-01-01T00:00:00Z"
+        in: query
+        name: start_date
+        type: string
+      - description: Filter by end date (RFC3339)
+        example: "2026-12-31T23:59:59Z"
+        in: query
+        name: end_date
+        type: string
+      - description: 'Page number (default: 1)'
+        example: 1
+        in: query
+        name: page
+        type: integer
+      - description: 'Items per page (default: 50, max: 100)'
+        example: 50
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entities.AuditLogListResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get audit logs
+      tags:
+      - audit
+  /audit/statistics:
+    get:
+      description: Retrieve aggregated statistics for audit logs (action counts, user
+        activity, entity type distribution). Returns statistics including total logs,
+        action counts, user activity, and entity type distribution.
+      operationId: getAuditStatistics
+      parameters:
+      - description: Statistics start date (RFC3339)
+        example: "2026-01-01T00:00:00Z"
+        in: query
+        name: start_date
+        type: string
+      - description: Statistics end date (RFC3339)
+        example: "2026-12-31T23:59:59Z"
+        in: query
+        name: end_date
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Audit statistics with action_counts, user_activity, entity_type_counts,
+            total_logs, date_range
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Get audit statistics
+      tags:
+      - audit
+swagger: "2.0"

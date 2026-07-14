@@ -1,0 +1,423 @@
+definitions:
+  entities.DocumentResponse:
+    properties:
+      content_type:
+        type: string
+      created_at:
+        type: string
+      document_type:
+        type: string
+      file_name:
+        type: string
+      file_size_bytes:
+        type: integer
+      id:
+        type: integer
+      metadata:
+        additionalProperties: true
+        type: object
+      organization_id:
+        type: integer
+      reference_id:
+        type: integer
+      reference_type:
+        type: string
+      storage_bucket:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      tenant_id:
+        type: integer
+      updated_at:
+        type: string
+    type: object
+  handlers.DownloadURLResponse:
+    properties:
+      document_id:
+        example: 1
+        type: integer
+      download_url:
+        example: https://minio.example.com/...
+        type: string
+      expires_at:
+        example: "2025-12-26T11:00:00Z"
+        type: string
+      file_name:
+        example: invoice-001.pdf
+        type: string
+      message:
+        example: Download URL generated successfully
+        type: string
+      success:
+        example: true
+        type: boolean
+    type: object
+  handlers.ErrorResponse:
+    properties:
+      error:
+        example: Error message
+        type: string
+      success:
+        example: false
+        type: boolean
+    type: object
+  handlers.SuccessResponse:
+    properties:
+      message:
+        example: Operation successful
+        type: string
+      success:
+        example: true
+        type: boolean
+    type: object
+  services.GeneratePDFFromHTMLRequest:
+    properties:
+      document_type:
+        type: string
+      filename:
+        type: string
+      html:
+        type: string
+      metadata:
+        additionalProperties: true
+        type: object
+      save_document:
+        description: If true, save to documents table
+        type: boolean
+    required:
+    - html
+    type: object
+  services.GeneratePDFFromTemplateRequest:
+    properties:
+      data:
+        additionalProperties: true
+        type: object
+      document_type:
+        type: string
+      filename:
+        type: string
+      metadata:
+        additionalProperties: true
+        type: object
+      organization_id:
+        type: integer
+      save_document:
+        description: If true, save to documents table
+        type: boolean
+      template_id:
+        type: integer
+    required:
+    - template_id
+    type: object
+info:
+  contact: {}
+paths:
+  /documents:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Upload a document file with metadata to MinIO storage
+      operationId: uploadDocument
+      parameters:
+      - description: Document file to upload
+        in: formData
+        name: file
+        required: true
+        type: file
+      - description: Document type (invoice, contract, report, etc.)
+        in: formData
+        name: document_type
+        required: true
+        type: string
+      - description: 'Storage bucket (default: documents)'
+        in: formData
+        name: bucket
+        type: string
+      - description: 'Storage path (default: filename)'
+        in: formData
+        name: path
+        type: string
+      - description: Reference type (invoice, client, session)
+        in: formData
+        name: reference_type
+        type: string
+      - description: Reference ID
+        in: formData
+        name: reference_id
+        type: integer
+      - description: Organization ID
+        in: formData
+        name: organization_id
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/entities.DocumentResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Upload a document
+      tags:
+      - Documents
+  /documents/{id}:
+    delete:
+      description: Soft delete a document (marks as deleted, does not remove from
+        storage)
+      operationId: deleteDocument
+      parameters:
+      - description: Document ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.SuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete document
+      tags:
+      - Documents
+    get:
+      description: Retrieve metadata for a specific document by ID
+      operationId: getDocument
+      parameters:
+      - description: Document ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entities.DocumentResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get document metadata
+      tags:
+      - Documents
+  /documents/{id}/download:
+    get:
+      description: Get a pre-signed URL for downloading a document (valid for 1 hour)
+      operationId: downloadDocument
+      parameters:
+      - description: Document ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.DownloadURLResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handlers.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Download document
+      tags:
+      - Documents
+  /documents/pdf/invoice/{invoice_id}:
+    post:
+      consumes:
+      - application/json
+      description: Generate a PDF invoice document using predefined templates
+      parameters:
+      - description: Invoice ID
+        in: path
+        name: invoice_id
+        required: true
+        type: integer
+      produces:
+      - application/pdf
+      responses:
+        "200":
+          description: PDF file
+          schema:
+            type: file
+        "400":
+          description: Invalid request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Invoice not found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal server error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - Bearer: []
+      summary: Generate invoice PDF
+      tags:
+      - PDFs
+  /pdfs/from-template:
+    post:
+      consumes:
+      - application/json
+      description: Generate a PDF document from a template with data
+      operationId: generatePDFFromTemplate
+      parameters:
+      - description: Template ID and data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/services.GeneratePDFFromTemplateRequest'
+      produces:
+      - application/pdf
+      responses:
+        "200":
+          description: PDF file
+          schema:
+            type: file
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Generate PDF from template
+      tags:
+      - PDFs
+  /pdfs/generate:
+    post:
+      consumes:
+      - application/json
+      description: Generate a PDF document from HTML content using Chromedp
+      operationId: generatePDFFromHTML
+      parameters:
+      - description: HTML and metadata
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/services.GeneratePDFFromHTMLRequest'
+      produces:
+      - application/pdf
+      responses:
+        "200":
+          description: PDF file
+          schema:
+            type: file
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Generate PDF from HTML
+      tags:
+      - PDFs
+swagger: "2.0"

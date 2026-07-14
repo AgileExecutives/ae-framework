@@ -14,7 +14,7 @@ type Calendar struct {
 	UserID             uint            `gorm:"not null;index" json:"user_id"`
 	Title              string          `gorm:"size:255;not null" json:"title" binding:"required" example:"My Calendar"`
 	Color              string          `gorm:"size:50" json:"color,omitempty" example:"#FF5733"`
-	WeeklyAvailability json.RawMessage `gorm:"type:json" json:"weekly_availability,omitempty" `
+	WeeklyAvailability json.RawMessage `gorm:"type:json" json:"weekly_availability,omitempty" swaggertype:"object"`
 	CalendarUUID       string          `gorm:"size:255;uniqueIndex;not null" json:"calendar_uuid"`
 	Timezone           string          `gorm:"size:100" json:"timezone,omitempty" example:"UTC"`
 	CreatedAt          time.Time       `json:"created_at"`
@@ -37,7 +37,7 @@ type CalendarEntry struct {
 	PositionInSeries *int            `gorm:"index" json:"position_in_series,omitempty"`
 	Title            string          `gorm:"size:255;not null" json:"title" binding:"required" example:"Meeting"`
 	IsException      bool            `gorm:"default:false" json:"is_exception" example:"false"`
-	Participants     json.RawMessage `gorm:"type:json" json:"participants,omitempty" example:"[]"`
+	Participants     json.RawMessage `gorm:"type:json" json:"participants,omitempty" example:"[]" swaggertype:"object"`
 	StartTime        *time.Time      `gorm:"column:start_time" json:"start_time,omitempty" example:"2025-11-04T09:00:00Z"`
 	EndTime          *time.Time      `gorm:"column:end_time" json:"end_time,omitempty" example:"2025-11-04T10:00:00Z"`
 	Type             string          `gorm:"size:50" json:"type,omitempty" example:"meeting"`
@@ -61,12 +61,12 @@ type CalendarSeries struct {
 	UserID               uint            `gorm:"not null;index" json:"user_id"`
 	CalendarID           uint            `gorm:"not null;index" json:"calendar_id"`
 	Title                string          `gorm:"size:255;not null" json:"title" binding:"required" example:"Weekly Meeting"`
-	Participants         json.RawMessage `gorm:"type:json" json:"participants,omitempty" example:"[]"`
-	IntervalType         string          `gorm:"size:50;not null;default:'none'" json:"interval_type" example:"weekly"` // none, weekly, monthly-date, monthly-day, yearly
-	IntervalValue        int             `gorm:"not null;default:1" json:"interval_value" example:"2"`                  // number of intervals (e.g. weekly and 2 means every 2 weeks)
+	Participants         json.RawMessage `gorm:"type:json" json:"participants,omitempty" example:"[]" swaggertype:"object"`
+	IntervalType         string          `gorm:"size:50;not null;default:'none'" json:"interval_type" example:"weekly"`
+	IntervalValue        int             `gorm:"not null;default:1" json:"interval_value" example:"2"`
 	StartTime            *time.Time      `gorm:"column:start_time" json:"start_time,omitempty" example:"2025-11-04T09:00:00Z"`
 	EndTime              *time.Time      `gorm:"column:end_time" json:"end_time,omitempty" example:"2025-11-04T10:00:00Z"`
-	LastDate             *time.Time      `gorm:"column:last_date" json:"last_date,omitempty" example:"2025-12-31T23:59:59Z"` // end condition for recurring events
+	LastDate             *time.Time      `gorm:"column:last_date" json:"last_date,omitempty" example:"2025-12-31T23:59:59Z"`
 	Description          string          `gorm:"type:text" json:"description,omitempty" example:"Weekly team meeting"`
 	Location             string          `gorm:"size:255" json:"location,omitempty" example:"Conference Room A"`
 	Timezone             string          `gorm:"size:100;default:'UTC'" json:"timezone,omitempty" example:"Europe/Berlin"`
@@ -91,7 +91,7 @@ type ExternalCalendar struct {
 	CalendarID   uint            `gorm:"not null;index" json:"calendar_id"`
 	Title        string          `gorm:"size:255;not null" json:"title" binding:"required" example:"External Calendar"`
 	URL          string          `gorm:"size:500" json:"url,omitempty" example:"https://calendar.google.com/ical/..."`
-	Settings     json.RawMessage `gorm:"type:json" json:"settings,omitempty" `
+	Settings     json.RawMessage `gorm:"type:json" json:"settings,omitempty" swaggertype:"object"`
 	SyncLastRun  *time.Time      `gorm:"type:timestamp" json:"sync_last_run,omitempty"`
 	Color        string          `gorm:"size:50" json:"color,omitempty" example:"#33FF57"`
 	CalendarUUID string          `gorm:"size:255;uniqueIndex;not null" json:"calendar_uuid"`
@@ -107,7 +107,7 @@ type ExternalCalendar struct {
 type CreateCalendarRequest struct {
 	Title              string          `json:"title" binding:"required" example:"My Calendar"`
 	Color              string          `json:"color,omitempty" example:"#FF5733"`
-	WeeklyAvailability json.RawMessage `json:"weekly_availability,omitempty" `
+	WeeklyAvailability json.RawMessage `json:"weekly_availability,omitempty" swaggertype:"object"`
 	Timezone           string          `json:"timezone,omitempty" example:"UTC"`
 }
 
@@ -115,7 +115,7 @@ type CreateCalendarRequest struct {
 type UpdateCalendarRequest struct {
 	Title              *string          `json:"title,omitempty" example:"My Updated Calendar"`
 	Color              *string          `json:"color,omitempty" example:"#FF5733"`
-	WeeklyAvailability *json.RawMessage `json:"weekly_availability,omitempty" `
+	WeeklyAvailability *json.RawMessage `json:"weekly_availability,omitempty" swaggertype:"object"`
 	Timezone           *string          `json:"timezone,omitempty" example:"UTC"`
 }
 
@@ -190,12 +190,22 @@ type DeleteCalendarSeriesRequest struct {
 	FromDate *time.Time `json:"from_date,omitempty" example:"2025-12-01T00:00:00Z"`
 }
 
+// WeekViewRequest represents query params for week view handlers
+type WeekViewRequest struct {
+	Date string `form:"date" binding:"required" example:"2025-01-15"`
+}
+
+// YearViewRequest represents query params for year view handlers
+type YearViewRequest struct {
+	Year int `form:"year" binding:"required" example:"2025"`
+}
+
 // CreateExternalCalendarRequest represents the request payload for creating an external calendar
 type CreateExternalCalendarRequest struct {
 	CalendarID uint            `json:"calendar_id" binding:"required" example:"1"`
 	Title      string          `json:"title" binding:"required" example:"External Calendar"`
 	URL        string          `json:"url,omitempty" example:"https://calendar.google.com/ical/..."`
-	Settings   json.RawMessage `json:"settings,omitempty" `
+	Settings   json.RawMessage `json:"settings,omitempty" swaggertype:"object"`
 	Color      string          `json:"color,omitempty" example:"#33FF57"`
 }
 
@@ -203,8 +213,31 @@ type CreateExternalCalendarRequest struct {
 type UpdateExternalCalendarRequest struct {
 	Title    *string          `json:"title,omitempty" example:"Updated External Calendar"`
 	URL      *string          `json:"url,omitempty" example:"https://calendar.google.com/ical/..."`
-	Settings *json.RawMessage `json:"settings,omitempty" `
+	Settings *json.RawMessage `json:"settings,omitempty" swaggertype:"object"`
 	Color    *string          `json:"color,omitempty" example:"#33FF57"`
+}
+
+// UnburdyHolidaysData represents the parsed unburdy holidays structure used for import
+type UnburdyHolidaysData struct {
+	SchoolHolidays map[string]map[string][2]string `json:"school_holidays,omitempty"`
+	PublicHolidays map[string]map[string]string    `json:"public_holidays,omitempty"`
+}
+
+// ImportHolidaysRequest represents the payload for importing holidays into a calendar
+type ImportHolidaysRequest struct {
+	State    string              `json:"state" example:"BW"`
+	YearFrom int                 `json:"year_from" example:"2024"`
+	YearTo   int                 `json:"year_to" example:"2025"`
+	Holidays UnburdyHolidaysData `json:"holidays"`
+}
+
+// HolidayImportResult represents the result summary of importing holidays
+type HolidayImportResult struct {
+	SchoolHolidays int      `json:"school_holidays"`
+	PublicHolidays int      `json:"public_holidays"`
+	TotalImported  int      `json:"total_imported"`
+	ImportedYears  []string `json:"imported_years"`
+	Errors         []string `json:"errors"`
 }
 
 // CalendarResponse represents the response format for calendar data
@@ -214,7 +247,7 @@ type CalendarResponse struct {
 	UserID             uint                       `json:"user_id"`
 	Title              string                     `json:"title"`
 	Color              string                     `json:"color,omitempty"`
-	WeeklyAvailability json.RawMessage            `json:"weekly_availability,omitempty"`
+	WeeklyAvailability json.RawMessage            `json:"weekly_availability,omitempty" swaggertype:"object"`
 	CalendarUUID       string                     `json:"calendar_uuid"`
 	Timezone           string                     `json:"timezone,omitempty"`
 	CalendarSeries     []CalendarSeriesResponse   `json:"calendar_series,omitempty"`
@@ -234,7 +267,7 @@ type CalendarEntryResponse struct {
 	PositionInSeries *int                    `json:"position_in_series,omitempty"`
 	Title            string                  `json:"title"`
 	IsException      bool                    `json:"is_exception"`
-	Participants     json.RawMessage         `json:"participants,omitempty"`
+	Participants     json.RawMessage         `json:"participants,omitempty" swaggertype:"object"`
 	StartTime        *time.Time              `json:"start_time,omitempty"`
 	EndTime          *time.Time              `json:"end_time,omitempty"`
 	Type             string                  `json:"type,omitempty"`
@@ -254,7 +287,7 @@ type CalendarSeriesResponse struct {
 	UserID               uint            `json:"user_id"`
 	CalendarID           uint            `json:"calendar_id"`
 	Title                string          `json:"title"`
-	Participants         json.RawMessage `json:"participants,omitempty"`
+	Participants         json.RawMessage `json:"participants,omitempty" swaggertype:"object"`
 	IntervalType         string          `json:"interval_type"`
 	IntervalValue        int             `json:"interval_value"`
 	StartTime            *time.Time      `json:"start_time,omitempty"`
@@ -285,7 +318,7 @@ type ExternalCalendarResponse struct {
 	CalendarID   uint            `json:"calendar_id"`
 	Title        string          `json:"title"`
 	URL          string          `json:"url,omitempty"`
-	Settings     json.RawMessage `json:"settings,omitempty"`
+	Settings     json.RawMessage `json:"settings,omitempty" swaggertype:"object"`
 	SyncLastRun  *time.Time      `json:"sync_last_run,omitempty"`
 	Color        string          `json:"color,omitempty"`
 	CalendarUUID string          `json:"calendar_uuid"`
@@ -401,37 +434,4 @@ func (ec *ExternalCalendar) ToResponse() ExternalCalendarResponse {
 		CreatedAt:    ec.CreatedAt,
 		UpdatedAt:    ec.UpdatedAt,
 	}
-}
-
-// WeekViewRequest represents the request for week view
-type WeekViewRequest struct {
-	Date string `form:"date" binding:"required" example:"2025-01-15"` // Date in YYYY-MM-DD format
-}
-
-// YearViewRequest represents the request for year view
-type YearViewRequest struct {
-	Year int `form:"year" binding:"required,min=1900,max=2100" example:"2025"`
-}
-
-// ImportHolidaysRequest represents the request for importing holidays from unburdy format
-type ImportHolidaysRequest struct {
-	State    string              `json:"state" binding:"required" example:"BW"`
-	YearFrom int                 `json:"year_from" binding:"required,min=1900,max=2100" example:"2025"`
-	YearTo   int                 `json:"year_to" binding:"required,min=1900,max=2100" example:"2027"`
-	Holidays UnburdyHolidaysData `json:"holidays" binding:"required"`
-}
-
-// UnburdyHolidaysData represents the holidays data structure from unburdy format
-type UnburdyHolidaysData struct {
-	SchoolHolidays map[string]map[string][2]string `json:"school_holidays"`
-	PublicHolidays map[string]map[string]string    `json:"public_holidays"`
-}
-
-// HolidayImportResult represents the result of holiday import operation
-type HolidayImportResult struct {
-	TotalImported  int      `json:"total_imported"`
-	SchoolHolidays int      `json:"school_holidays"`
-	PublicHolidays int      `json:"public_holidays"`
-	ImportedYears  []string `json:"imported_years"`
-	Errors         []string `json:"errors,omitempty"`
 }

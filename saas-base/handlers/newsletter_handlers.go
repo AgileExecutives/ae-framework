@@ -30,9 +30,9 @@ func NewNewsletterHandlers(s *services.NewsletterService) *NewsletterHandlers {
 // @Security BearerAuth
 // @Param page query int false "Page number" default(1)
 // @Param limit query int false "Items per page" default(20)
-// @Success 200 {object} baseAPI.APIResponse{data=baseAPI.ListResponse}
-// @Failure 401 {object} baseAPI.ErrorResponse
-// @Failure 500 {object} baseAPI.ErrorResponse
+// @Success 200 {object} handlers.APIResponse{data=handlers.ListResponse}
+// @Failure 401 {object} handlers.ErrorResponse
+// @Failure 500 {object} handlers.ErrorResponse
 // @Router /newsletter [get]
 func (h *NewsletterHandlers) GetSubscribers(c *gin.Context) {
 	page, limit := utils.GetPaginationParams(c)
@@ -69,8 +69,8 @@ func (h *NewsletterHandlers) GetSubscribers(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param subscription body models.NewsletterSubscribeRequest true "Subscription data"
-// @Success 201 {object} baseAPI.APIResponse{data=models.NewsletterResponse}
-// @Failure 400 {object} baseAPI.ErrorResponse
+// @Success 201 {object} handlers.APIResponse{data=models.NewsletterResponse}
+// @Failure 400 {object} handlers.ErrorResponse
 // @Router /newsletter/subscribe [post]
 func (h *NewsletterHandlers) Subscribe(c *gin.Context) {
 	var req models.NewsletterSubscribeRequest
@@ -126,9 +126,9 @@ func (h *NewsletterHandlers) Subscribe(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Param request body models.NewsletterUnsubscribeRequest true "Unsubscribe data"
-// @Success 200 {object} baseAPI.APIResponse
-// @Failure 400 {object} baseAPI.ErrorResponse
-// @Failure 404 {object} baseAPI.ErrorResponse
+// @Success 200 {object} handlers.APIResponse
+// @Failure 400 {object} handlers.ErrorResponse
+// @Failure 404 {object} handlers.ErrorResponse
 // @Router /newsletter/unsubscribe [post]
 func (h *NewsletterHandlers) Unsubscribe(c *gin.Context) {
 	var req models.NewsletterUnsubscribeRequest
@@ -163,9 +163,9 @@ func (h *NewsletterHandlers) Unsubscribe(c *gin.Context) {
 // @Produce json
 // @Security BearerAuth
 // @Param id path int true "Subscriber ID"
-// @Success 200 {object} baseAPI.APIResponse
-// @Failure 400 {object} baseAPI.ErrorResponse
-// @Failure 404 {object} baseAPI.ErrorResponse
+// @Success 200 {object} handlers.APIResponse
+// @Failure 400 {object} handlers.ErrorResponse
+// @Failure 404 {object} handlers.ErrorResponse
 // @Router /newsletter/{id} [delete]
 func (h *NewsletterHandlers) DeleteSubscriber(c *gin.Context) {
 	id, err := utils.ValidateID(c, "id")

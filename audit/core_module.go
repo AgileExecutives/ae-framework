@@ -4,6 +4,10 @@ import (
 	"context"
 
 	"github.com/AgileExecutives/serverbase/pkg/core"
+	"github.com/AgileExecutives/shared-modules/audit/handlers"
+	repo "github.com/AgileExecutives/shared-modules/audit/repo"
+	"github.com/AgileExecutives/shared-modules/audit/routes"
+	"github.com/AgileExecutives/shared-modules/audit/services"
 	"github.com/gin-gonic/gin"
 )
 
@@ -30,7 +34,18 @@ func (m *CoreModule) Dependencies() []string {
 func (m *CoreModule) Initialize(ctx core.ModuleContext) error {
 	ctx.Logger.Info("Initializing audit module...")
 
-	m.module = NewModule(ctx.DB)
+	// Construct module components directly (legacy NewModule removed)
+	gormRepo := repo.NewGormAuditRepo(ctx.DB)
+	service := services.NewAuditServiceWithRepo(gormRepo)
+	handler := handlers.NewAuditHandler(service)
+	routeProvider := routes.NewRouteProvider(handler)
+
+	m.module = &Module{
+		db:            ctx.DB,
+		service:       service,
+		handler:       handler,
+		routeProvider: routeProvider,
+	}
 
 	if err := m.module.AutoMigrate(); err != nil {
 		return err
@@ -38,7 +53,6 @@ func (m *CoreModule) Initialize(ctx core.ModuleContext) error {
 
 	ctx.Services.Register("audit-service", m.module.GetService())
 	ctx.Logger.Info("Audit module initialized successfully")
-
 	return nil
 }
 

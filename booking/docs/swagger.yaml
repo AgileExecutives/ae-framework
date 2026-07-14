@@ -1,14 +1,4 @@
 definitions:
-  api.APIResponse:
-    properties:
-      data: {}
-      error:
-        type: string
-      message:
-        type: string
-      success:
-        type: boolean
-    type: object
   entities.BookingLinkResponse:
     properties:
       created_at:
@@ -80,6 +70,9 @@ definitions:
     properties:
       client_id:
         type: integer
+      max_use_count:
+        description: Maximum number of uses (0 = unlimited, 1 = one-time)
+        type: integer
       template_id:
         type: integer
       token_purpose:
@@ -88,6 +81,10 @@ definitions:
         enum:
         - one-time-booking-link
         - timed-booking-link
+      validity_days:
+        description: 'Number of days token is valid (default: 180 for timed links,
+          1 for one-time)'
+        type: integer
     required:
     - client_id
     - template_id
@@ -289,7 +286,7 @@ definitions:
     type: string
     x-enum-varnames:
     - OneTimeBookingLink
-    - PermanentBookingLink
+    - TimedBookingLink
   entities.UpdateBookingTemplateRequest:
     properties:
       advance_booking_days:
@@ -370,6 +367,28 @@ definitions:
           $ref: '#/definitions/entities.TimeRange'
         type: array
     type: object
+  handlers.APIResponse:
+    properties:
+      data: {}
+      message:
+        example: Operation completed
+        type: string
+      success:
+        example: true
+        type: boolean
+    type: object
+  handlers.ErrorResponse:
+    properties:
+      error:
+        example: detailed error message
+        type: string
+      message:
+        example: Error occurred
+        type: string
+      success:
+        example: false
+        type: boolean
+    type: object
 info:
   contact: {}
 paths:
@@ -399,7 +418,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/api.APIResponse'
+            - $ref: '#/definitions/handlers.APIResponse'
             - properties:
                 data:
                   $ref: '#/definitions/entities.FreeSlotsResponse'
@@ -407,19 +426,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
       summary: Get available time slots for booking
       tags:
       - booking
@@ -443,7 +462,7 @@ paths:
           description: Created
           schema:
             allOf:
-            - $ref: '#/definitions/api.APIResponse'
+            - $ref: '#/definitions/handlers.APIResponse'
             - properties:
                 data:
                   $ref: '#/definitions/entities.BookingLinkResponse'
@@ -451,19 +470,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Create a booking link
@@ -480,7 +499,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/api.APIResponse'
+            - $ref: '#/definitions/handlers.APIResponse'
             - properties:
                 data:
                   items:
@@ -490,11 +509,11 @@ paths:
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Get all booking configurations
@@ -526,7 +545,7 @@ paths:
           description: Created
           schema:
             allOf:
-            - $ref: '#/definitions/api.APIResponse'
+            - $ref: '#/definitions/handlers.APIResponse'
             - properties:
                 data:
                   $ref: '#/definitions/entities.BookingTemplateResponse'
@@ -534,15 +553,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Create a new booking configuration
@@ -564,23 +583,23 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.APIResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Delete a booking configuration
@@ -602,7 +621,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/api.APIResponse'
+            - $ref: '#/definitions/handlers.APIResponse'
             - properties:
                 data:
                   $ref: '#/definitions/entities.BookingTemplateResponse'
@@ -610,19 +629,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Get a booking configuration by ID
@@ -659,7 +678,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/api.APIResponse'
+            - $ref: '#/definitions/handlers.APIResponse'
             - properties:
                 data:
                   $ref: '#/definitions/entities.BookingTemplateResponse'
@@ -667,19 +686,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Update a booking configuration
@@ -702,7 +721,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/api.APIResponse'
+            - $ref: '#/definitions/handlers.APIResponse'
             - properties:
                 data:
                   items:
@@ -712,15 +731,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Get booking configurations by calendar ID
@@ -743,7 +762,7 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/api.APIResponse'
+            - $ref: '#/definitions/handlers.APIResponse'
             - properties:
                 data:
                   items:
@@ -753,15 +772,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Get booking configurations by user ID
@@ -783,19 +802,19 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.APIResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
       summary: Get client information by booking token
       tags:
       - booking

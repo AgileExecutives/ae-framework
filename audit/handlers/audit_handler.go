@@ -35,8 +35,8 @@ func NewAuditHandler(service *services.AuditService) *AuditHandler {
 // @Param page query int false "Page number (default: 1)" example(1)
 // @Param limit query int false "Items per page (default: 50, max: 100)" example(50)
 // @Success 200 {object} entities.AuditLogListResponse
-// @Failure 401 {object} baseAPI.ErrorResponse
-// @Failure 500 {object} baseAPI.ErrorResponse
+// @Failure 401 {object} handlers.ErrorResponse
+// @Failure 500 {object} handlers.ErrorResponse
 // @Security BearerAuth
 // @Router /audit/logs [get]
 func (h *AuditHandler) GetAuditLogs(c *gin.Context) {
@@ -132,9 +132,9 @@ func (h *AuditHandler) GetAuditLogs(c *gin.Context) {
 // @Param entity_type path string true "Entity type" Enums(invoice, invoice_item, session, extra_effort) example(invoice)
 // @Param entity_id path int true "Entity ID" example(123)
 // @Success 200 {object} entities.AuditLogListResponse
-// @Failure 400 {object} baseAPI.ErrorResponse
-// @Failure 401 {object} baseAPI.ErrorResponse
-// @Failure 500 {object} baseAPI.ErrorResponse
+// @Failure 400 {object} handlers.ErrorResponse
+// @Failure 401 {object} handlers.ErrorResponse
+// @Failure 500 {object} handlers.ErrorResponse
 // @Security BearerAuth
 // @Router /audit/entity/{entity_type}/{entity_id} [get]
 func (h *AuditHandler) GetEntityAuditLogs(c *gin.Context) {
@@ -185,8 +185,8 @@ func (h *AuditHandler) GetEntityAuditLogs(c *gin.Context) {
 // @Param start_date query string false "Filter by start date (RFC3339)" example(2026-01-01T00:00:00Z)
 // @Param end_date query string false "Filter by end date (RFC3339)" example(2026-12-31T23:59:59Z)
 // @Success 200 {file} string "CSV file download"
-// @Failure 401 {object} baseAPI.ErrorResponse
-// @Failure 500 {object} baseAPI.ErrorResponse
+// @Failure 401 {object} handlers.ErrorResponse
+// @Failure 500 {object} handlers.ErrorResponse
 // @Security BearerAuth
 // @Router /audit/export [get]
 func (h *AuditHandler) ExportAuditLogs(c *gin.Context) {
@@ -260,8 +260,8 @@ func (h *AuditHandler) ExportAuditLogs(c *gin.Context) {
 // @Param start_date query string false "Statistics start date (RFC3339)" example(2026-01-01T00:00:00Z)
 // @Param end_date query string false "Statistics end date (RFC3339)" example(2026-12-31T23:59:59Z)
 // @Success 200 {object} map[string]interface{} "Audit statistics with action_counts, user_activity, entity_type_counts, total_logs, date_range"
-// @Failure 401 {object} baseAPI.ErrorResponse
-// @Failure 500 {object} baseAPI.ErrorResponse
+// @Failure 401 {object} handlers.ErrorResponse
+// @Failure 500 {object} handlers.ErrorResponse
 // @Security BearerAuth
 // @Router /audit/statistics [get]
 func (h *AuditHandler) GetAuditStatistics(c *gin.Context) {

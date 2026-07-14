@@ -228,7 +228,8 @@ func (m *Module) SwaggerPaths() []string {
 	}
 }
 
-// Legacy compatibility methods removed (ModuleRouteProvider compatibility no longer required)
+// Compatibility adapters removed; this module implements the `core.Module`
+// lifecycle directly.
 
 // bookingRouteAdapter adapts the booking routes.RouteProvider to core.RouteProvider
 type bookingRouteAdapter struct {

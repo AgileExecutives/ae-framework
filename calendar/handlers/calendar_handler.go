@@ -35,10 +35,10 @@ func NewCalendarHandler(service *services.CalendarService) *CalendarHandler {
 // @Produce json
 // @Security BearerAuth
 // @Param calendar body entities.CreateCalendarRequest true "Calendar data"
-// @Success 201 {object} baseAPI.APIResponse{data=entities.CalendarResponse}
-// @Failure 400 {object} baseAPI.APIResponse
-// @Failure 401 {object} baseAPI.APIResponse
-// @Failure 500 {object} baseAPI.APIResponse
+// @Success 201 {object} handlers.APIResponse{data=object}
+// @Failure 400 {object} handlers.ErrorResponse
+// @Failure 401 {object} handlers.ErrorResponse
+// @Failure 500 {object} handlers.ErrorResponse
 // @Router /calendars [post]
 func (h *CalendarHandler) CreateCalendar(c *gin.Context) {
 	var req entities.CreateCalendarRequest
@@ -77,11 +77,11 @@ func (h *CalendarHandler) CreateCalendar(c *gin.Context) {
 // @Produce json
 // @Security BearerAuth
 // @Param id path int true "Calendar ID"
-// @Success 200 {object} baseAPI.APIResponse{data=entities.CalendarResponse}
-// @Failure 400 {object} baseAPI.APIResponse
-// @Failure 401 {object} baseAPI.APIResponse
-// @Failure 404 {object} baseAPI.APIResponse
-// @Failure 500 {object} baseAPI.APIResponse
+// @Success 200 {object} handlers.APIResponse{data=object}
+// @Failure 400 {object} handlers.ErrorResponse
+// @Failure 401 {object} handlers.ErrorResponse
+// @Failure 404 {object} handlers.ErrorResponse
+// @Failure 500 {object} handlers.ErrorResponse
 // @Router /calendars/{id} [get]
 func (h *CalendarHandler) GetCalendar(c *gin.Context) {
 	idStr := c.Param("id")
@@ -118,9 +118,9 @@ func (h *CalendarHandler) GetCalendar(c *gin.Context) {
 // @Tags calendar
 // @Produce json
 // @Security BearerAuth
-// @Success 200 {object} baseAPI.APIResponse{data=[]entities.CalendarResponse} "Returns calendars array with complete metadata including nested relationships"
-// @Failure 401 {object} baseAPI.APIResponse "Unauthorized - invalid or missing JWT token"
-// @Failure 500 {object} baseAPI.APIResponse "Internal server error during calendar retrieval"
+// @Success 200 {object} handlers.ListResponse{data=object} "Returns calendars array with complete metadata including nested relationships"
+// @Failure 401 {object} handlers.ErrorResponse "Unauthorized - invalid or missing JWT token"
+// @Failure 500 {object} handlers.ErrorResponse "Internal server error during calendar retrieval"
 // @Router /calendars [get]
 func (h *CalendarHandler) GetCalendarsWithMetadata(c *gin.Context) {
 	tenantID, err := baseAPI.GetTenantID(c)
@@ -158,11 +158,11 @@ func (h *CalendarHandler) GetCalendarsWithMetadata(c *gin.Context) {
 // @Security BearerAuth
 // @Param id path int true "Calendar ID"
 // @Param calendar body entities.UpdateCalendarRequest true "Updated calendar data"
-// @Success 200 {object} baseAPI.APIResponse{data=entities.CalendarResponse}
-// @Failure 400 {object} baseAPI.APIResponse
-// @Failure 401 {object} baseAPI.APIResponse
-// @Failure 404 {object} baseAPI.APIResponse
-// @Failure 500 {object} baseAPI.APIResponse
+// @Success 200 {object} handlers.APIResponse{data=object}
+// @Failure 400 {object} handlers.ErrorResponse
+// @Failure 401 {object} handlers.ErrorResponse
+// @Failure 404 {object} handlers.ErrorResponse
+// @Failure 500 {object} handlers.ErrorResponse
 // @Router /calendars/{id} [put]
 func (h *CalendarHandler) UpdateCalendar(c *gin.Context) {
 	idStr := c.Param("id")
@@ -206,11 +206,11 @@ func (h *CalendarHandler) UpdateCalendar(c *gin.Context) {
 // @Produce json
 // @Security BearerAuth
 // @Param id path int true "Calendar ID"
-// @Success 200 {object} baseAPI.APIResponse
-// @Failure 400 {object} baseAPI.APIResponse
-// @Failure 401 {object} baseAPI.APIResponse
-// @Failure 404 {object} baseAPI.APIResponse
-// @Failure 500 {object} baseAPI.APIResponse
+// @Success 200 {object} handlers.APIResponse
+// @Failure 400 {object} handlers.ErrorResponse
+// @Failure 401 {object} handlers.ErrorResponse
+// @Failure 404 {object} handlers.ErrorResponse
+// @Failure 500 {object} handlers.ErrorResponse
 // @Router /calendars/{id} [delete]
 func (h *CalendarHandler) DeleteCalendar(c *gin.Context) {
 	idStr := c.Param("id")
@@ -265,10 +265,10 @@ func (h *CalendarHandler) DeleteCalendar(c *gin.Context) {
 // @Produce json
 // @Security BearerAuth
 // @Param entry body entities.CreateCalendarEntryRequest true "Calendar entry data"
-// @Success 201 {object} baseAPI.APIResponse{data=entities.CalendarEntryResponse}
-// @Failure 400 {object} baseAPI.APIResponse
-// @Failure 401 {object} baseAPI.APIResponse
-// @Failure 500 {object} baseAPI.APIResponse
+// @Success 201 {object} handlers.APIResponse{data=object}
+// @Failure 400 {object} handlers.ErrorResponse
+// @Failure 401 {object} handlers.ErrorResponse
+// @Failure 500 {object} handlers.ErrorResponse
 // @Router /calendar-entries [post]
 func (h *CalendarHandler) CreateCalendarEntry(c *gin.Context) {
 	var req entities.CreateCalendarEntryRequest
@@ -305,11 +305,11 @@ func (h *CalendarHandler) CreateCalendarEntry(c *gin.Context) {
 // @Produce json
 // @Security BearerAuth
 // @Param id path int true "Calendar Entry ID"
-// @Success 200 {object} baseAPI.APIResponse{data=entities.CalendarEntryResponse}
-// @Failure 400 {object} baseAPI.APIResponse
-// @Failure 401 {object} baseAPI.APIResponse
-// @Failure 404 {object} baseAPI.APIResponse
-// @Failure 500 {object} baseAPI.APIResponse
+// @Success 200 {object} handlers.APIResponse{data=object}
+// @Failure 400 {object} handlers.ErrorResponse
+// @Failure 401 {object} handlers.ErrorResponse
+// @Failure 404 {object} handlers.ErrorResponse
+// @Failure 500 {object} handlers.ErrorResponse
 // @Router /calendar-entries/{id} [get]
 func (h *CalendarHandler) GetCalendarEntry(c *gin.Context) {
 	idStr := c.Param("id")
@@ -348,9 +348,9 @@ func (h *CalendarHandler) GetCalendarEntry(c *gin.Context) {
 // @Security BearerAuth
 // @Param page query int false "Page number" default(1)
 // @Param limit query int false "Items per page" default(10)
-// @Success 200 {object} baseAPI.APIResponse{data=baseAPI.ListResponse}
-// @Failure 401 {object} baseAPI.APIResponse
-// @Failure 500 {object} baseAPI.APIResponse
+// @Success 200 {object} handlers.ListResponse{data=object}
+// @Failure 401 {object} handlers.ErrorResponse
+// @Failure 500 {object} handlers.ErrorResponse
 // @Router /calendar-entries [get]
 func (h *CalendarHandler) GetAllCalendarEntries(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
@@ -399,11 +399,11 @@ func (h *CalendarHandler) GetAllCalendarEntries(c *gin.Context) {
 // @Security BearerAuth
 // @Param id path int true "Calendar Entry ID"
 // @Param entry body entities.UpdateCalendarEntryRequest true "Updated calendar entry data"
-// @Success 200 {object} baseAPI.APIResponse{data=entities.CalendarEntryResponse}
-// @Failure 400 {object} baseAPI.APIResponse
-// @Failure 401 {object} baseAPI.APIResponse
-// @Failure 404 {object} baseAPI.APIResponse
-// @Failure 500 {object} baseAPI.APIResponse
+// @Success 200 {object} handlers.APIResponse{data=object}
+// @Failure 400 {object} handlers.ErrorResponse
+// @Failure 401 {object} handlers.ErrorResponse
+// @Failure 404 {object} handlers.ErrorResponse
+// @Failure 500 {object} handlers.ErrorResponse
 // @Router /calendar-entries/{id} [put]
 func (h *CalendarHandler) UpdateCalendarEntry(c *gin.Context) {
 	idStr := c.Param("id")
@@ -447,11 +447,11 @@ func (h *CalendarHandler) UpdateCalendarEntry(c *gin.Context) {
 // @Produce json
 // @Security BearerAuth
 // @Param id path int true "Calendar Entry ID"
-// @Success 200 {object} baseAPI.APIResponse
-// @Failure 400 {object} baseAPI.APIResponse
-// @Failure 401 {object} baseAPI.APIResponse
-// @Failure 404 {object} baseAPI.APIResponse
-// @Failure 500 {object} baseAPI.APIResponse
+// @Success 200 {object} handlers.APIResponse
+// @Failure 400 {object} handlers.ErrorResponse
+// @Failure 401 {object} handlers.ErrorResponse
+// @Failure 404 {object} handlers.ErrorResponse
+// @Failure 500 {object} handlers.ErrorResponse
 // @Router /calendar-entries/{id} [delete]
 func (h *CalendarHandler) DeleteCalendarEntry(c *gin.Context) {
 	idStr := c.Param("id")
@@ -509,10 +509,10 @@ func (h *CalendarHandler) DeleteCalendarEntry(c *gin.Context) {
 // @Produce json
 // @Security BearerAuth
 // @Param series body entities.CreateCalendarSeriesRequest true "Calendar series data"
-// @Success 201 {object} baseAPI.APIResponse{data=entities.CalendarSeriesWithEntriesResponse}
-// @Failure 400 {object} baseAPI.APIResponse
-// @Failure 401 {object} baseAPI.APIResponse
-// @Failure 500 {object} baseAPI.APIResponse
+// @Success 201 {object} handlers.APIResponse{data=object}
+// @Failure 400 {object} handlers.ErrorResponse
+// @Failure 401 {object} handlers.ErrorResponse
+// @Failure 500 {object} handlers.ErrorResponse
 // @Router /calendar-series [post]
 func (h *CalendarHandler) CreateCalendarSeries(c *gin.Context) {
 	var req entities.CreateCalendarSeriesRequest
@@ -560,11 +560,11 @@ func (h *CalendarHandler) CreateCalendarSeries(c *gin.Context) {
 // @Produce json
 // @Security BearerAuth
 // @Param id path int true "Calendar Series ID"
-// @Success 200 {object} baseAPI.APIResponse{data=entities.CalendarSeriesResponse}
-// @Failure 400 {object} baseAPI.APIResponse
-// @Failure 401 {object} baseAPI.APIResponse
-// @Failure 404 {object} baseAPI.APIResponse
-// @Failure 500 {object} baseAPI.APIResponse
+// @Success 200 {object} handlers.APIResponse{data=object}
+// @Failure 400 {object} handlers.ErrorResponse
+// @Failure 401 {object} handlers.ErrorResponse
+// @Failure 404 {object} handlers.ErrorResponse
+// @Failure 500 {object} handlers.ErrorResponse
 // @Router /calendar-series/{id} [get]
 func (h *CalendarHandler) GetCalendarSeries(c *gin.Context) {
 	idStr := c.Param("id")
@@ -603,9 +603,9 @@ func (h *CalendarHandler) GetCalendarSeries(c *gin.Context) {
 // @Security BearerAuth
 // @Param page query int false "Page number" default(1)
 // @Param limit query int false "Items per page" default(10)
-// @Success 200 {object} baseAPI.APIResponse{data=baseAPI.ListResponse}
-// @Failure 401 {object} baseAPI.APIResponse
-// @Failure 500 {object} baseAPI.APIResponse
+// @Success 200 {object} handlers.ListResponse{data=object}
+// @Failure 401 {object} handlers.ErrorResponse
+// @Failure 500 {object} handlers.ErrorResponse
 // @Router /calendar-series [get]
 func (h *CalendarHandler) GetAllCalendarSeries(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
@@ -653,11 +653,11 @@ func (h *CalendarHandler) GetAllCalendarSeries(c *gin.Context) {
 // @Security BearerAuth
 // @Param id path int true "Calendar Series ID"
 // @Param series body entities.UpdateCalendarSeriesRequest true "Updated calendar series data"
-// @Success 200 {object} baseAPI.APIResponse{data=entities.CalendarSeriesResponse}
-// @Failure 400 {object} baseAPI.APIResponse
-// @Failure 401 {object} baseAPI.APIResponse
-// @Failure 404 {object} baseAPI.APIResponse
-// @Failure 500 {object} baseAPI.APIResponse
+// @Success 200 {object} handlers.APIResponse{data=object}
+// @Failure 400 {object} handlers.ErrorResponse
+// @Failure 401 {object} handlers.ErrorResponse
+// @Failure 404 {object} handlers.ErrorResponse
+// @Failure 500 {object} handlers.ErrorResponse
 // @Router /calendar-series/{id} [put]
 func (h *CalendarHandler) UpdateCalendarSeries(c *gin.Context) {
 	idStr := c.Param("id")
@@ -703,11 +703,11 @@ func (h *CalendarHandler) UpdateCalendarSeries(c *gin.Context) {
 // @Security BearerAuth
 // @Param id path int true "Calendar Series ID"
 // @Param request body entities.DeleteCalendarSeriesRequest true "Delete options"
-// @Success 200 {object} baseAPI.APIResponse
-// @Failure 400 {object} baseAPI.APIResponse
-// @Failure 401 {object} baseAPI.APIResponse
-// @Failure 404 {object} baseAPI.APIResponse
-// @Failure 500 {object} baseAPI.APIResponse
+// @Success 200 {object} handlers.APIResponse
+// @Failure 400 {object} handlers.ErrorResponse
+// @Failure 401 {object} handlers.ErrorResponse
+// @Failure 404 {object} handlers.ErrorResponse
+// @Failure 500 {object} handlers.ErrorResponse
 // @Router /calendar-series/{id} [delete]
 func (h *CalendarHandler) DeleteCalendarSeries(c *gin.Context) {
 	idStr := c.Param("id")
@@ -758,10 +758,10 @@ func (h *CalendarHandler) DeleteCalendarSeries(c *gin.Context) {
 // @Produce json
 // @Security BearerAuth
 // @Param external body entities.CreateExternalCalendarRequest true "External calendar data"
-// @Success 201 {object} baseAPI.APIResponse{data=entities.ExternalCalendarResponse}
-// @Failure 400 {object} baseAPI.APIResponse
-// @Failure 401 {object} baseAPI.APIResponse
-// @Failure 500 {object} baseAPI.APIResponse
+// @Success 201 {object} handlers.APIResponse{data=object}
+// @Failure 400 {object} handlers.ErrorResponse
+// @Failure 401 {object} handlers.ErrorResponse
+// @Failure 500 {object} handlers.ErrorResponse
 // @Router /external-calendars [post]
 func (h *CalendarHandler) CreateExternalCalendar(c *gin.Context) {
 	var req entities.CreateExternalCalendarRequest
@@ -798,11 +798,11 @@ func (h *CalendarHandler) CreateExternalCalendar(c *gin.Context) {
 // @Produce json
 // @Security BearerAuth
 // @Param id path int true "External Calendar ID"
-// @Success 200 {object} baseAPI.APIResponse{data=entities.ExternalCalendarResponse}
-// @Failure 400 {object} baseAPI.APIResponse
-// @Failure 401 {object} baseAPI.APIResponse
-// @Failure 404 {object} baseAPI.APIResponse
-// @Failure 500 {object} baseAPI.APIResponse
+// @Success 200 {object} handlers.APIResponse{data=object}
+// @Failure 400 {object} handlers.ErrorResponse
+// @Failure 401 {object} handlers.ErrorResponse
+// @Failure 404 {object} handlers.ErrorResponse
+// @Failure 500 {object} handlers.ErrorResponse
 // @Router /external-calendars/{id} [get]
 func (h *CalendarHandler) GetExternalCalendar(c *gin.Context) {
 	idStr := c.Param("id")
@@ -841,9 +841,9 @@ func (h *CalendarHandler) GetExternalCalendar(c *gin.Context) {
 // @Security BearerAuth
 // @Param page query int false "Page number" default(1)
 // @Param limit query int false "Items per page" default(10)
-// @Success 200 {object} baseAPI.APIResponse{data=baseAPI.ListResponse}
-// @Failure 401 {object} baseAPI.APIResponse
-// @Failure 500 {object} baseAPI.APIResponse
+// @Success 200 {object} handlers.ListResponse{data=object}
+// @Failure 401 {object} handlers.ErrorResponse
+// @Failure 500 {object} handlers.ErrorResponse
 // @Router /external-calendars [get]
 func (h *CalendarHandler) GetAllExternalCalendars(c *gin.Context) {
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
@@ -891,11 +891,11 @@ func (h *CalendarHandler) GetAllExternalCalendars(c *gin.Context) {
 // @Security BearerAuth
 // @Param id path int true "External Calendar ID"
 // @Param external body entities.UpdateExternalCalendarRequest true "Updated external calendar data"
-// @Success 200 {object} baseAPI.APIResponse{data=entities.ExternalCalendarResponse}
-// @Failure 400 {object} baseAPI.APIResponse
-// @Failure 401 {object} baseAPI.APIResponse
-// @Failure 404 {object} baseAPI.APIResponse
-// @Failure 500 {object} baseAPI.APIResponse
+// @Success 200 {object} handlers.APIResponse{data=object}
+// @Failure 400 {object} handlers.ErrorResponse
+// @Failure 401 {object} handlers.ErrorResponse
+// @Failure 404 {object} handlers.ErrorResponse
+// @Failure 500 {object} handlers.ErrorResponse
 // @Router /external-calendars/{id} [put]
 func (h *CalendarHandler) UpdateExternalCalendar(c *gin.Context) {
 	idStr := c.Param("id")
@@ -939,11 +939,11 @@ func (h *CalendarHandler) UpdateExternalCalendar(c *gin.Context) {
 // @Produce json
 // @Security BearerAuth
 // @Param id path int true "External Calendar ID"
-// @Success 200 {object} baseAPI.APIResponse
-// @Failure 400 {object} baseAPI.APIResponse
-// @Failure 401 {object} baseAPI.APIResponse
-// @Failure 404 {object} baseAPI.APIResponse
-// @Failure 500 {object} baseAPI.APIResponse
+// @Success 200 {object} handlers.APIResponse
+// @Failure 400 {object} handlers.ErrorResponse
+// @Failure 401 {object} handlers.ErrorResponse
+// @Failure 404 {object} handlers.ErrorResponse
+// @Failure 500 {object} handlers.ErrorResponse
 // @Router /external-calendars/{id} [delete]
 func (h *CalendarHandler) DeleteExternalCalendar(c *gin.Context) {
 	idStr := c.Param("id")
@@ -984,9 +984,9 @@ func (h *CalendarHandler) DeleteExternalCalendar(c *gin.Context) {
 // @Security BearerAuth
 // @Param date query string true "Date in YYYY-MM-DD format" example:"2025-01-15"
 // @Success 200 {array} entities.CalendarEntryResponse
-// @Failure 400 {object} baseAPI.APIResponse
-// @Failure 401 {object} baseAPI.APIResponse
-// @Failure 500 {object} baseAPI.APIResponse
+// @Failure 400 {object} handlers.ErrorResponse
+// @Failure 401 {object} handlers.ErrorResponse
+// @Failure 500 {object} handlers.ErrorResponse
 // @Router /calendars/week [get]
 func (h *CalendarHandler) GetCalendarWeekView(c *gin.Context) {
 	var req entities.WeekViewRequest
@@ -1036,9 +1036,9 @@ func (h *CalendarHandler) GetCalendarWeekView(c *gin.Context) {
 // @Security BearerAuth
 // @Param year query int true "Year" example:2025
 // @Success 200 {array} entities.CalendarEntryResponse
-// @Failure 400 {object} baseAPI.APIResponse
-// @Failure 401 {object} baseAPI.APIResponse
-// @Failure 500 {object} baseAPI.APIResponse
+// @Failure 400 {object} handlers.ErrorResponse
+// @Failure 401 {object} handlers.ErrorResponse
+// @Failure 500 {object} handlers.ErrorResponse
 // @Router /calendars/year [get]
 func (h *CalendarHandler) GetCalendarYearView(c *gin.Context) {
 	var req entities.YearViewRequest
@@ -1082,10 +1082,10 @@ func (h *CalendarHandler) GetCalendarYearView(c *gin.Context) {
 // @Param id path int true "Calendar ID"
 // @Param holidays body entities.ImportHolidaysRequest true "Import holidays request with state, year range, and holidays data"
 // @Success 200 {object} entities.HolidayImportResult
-// @Failure 400 {object} baseAPI.APIResponse
-// @Failure 401 {object} baseAPI.APIResponse
-// @Failure 404 {object} baseAPI.APIResponse
-// @Failure 500 {object} baseAPI.APIResponse
+// @Failure 400 {object} handlers.ErrorResponse
+// @Failure 401 {object} handlers.ErrorResponse
+// @Failure 404 {object} handlers.ErrorResponse
+// @Failure 500 {object} handlers.ErrorResponse
 // @Router /calendars/{id}/import_holidays [post]
 // @Security BearerAuth
 func (h *CalendarHandler) ImportHolidays(c *gin.Context) {

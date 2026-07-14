@@ -1,20 +1,4 @@
 definitions:
-  api.APIResponse:
-    properties:
-      data: {}
-      error:
-        type: string
-      message:
-        type: string
-      success:
-        type: boolean
-    type: object
-  api.ListResponse:
-    properties:
-      data: {}
-      pagination:
-        $ref: '#/definitions/github_com_ae-base-server_internal_models.PaginationResponse'
-    type: object
   entities.CalendarEntryResponse:
     properties:
       calendar_id:
@@ -34,9 +18,7 @@ definitions:
       location:
         type: string
       participants:
-        items:
-          type: integer
-        type: array
+        type: object
       position_in_series:
         type: integer
       series:
@@ -57,43 +39,6 @@ definitions:
         type: string
       user_id:
         type: integer
-    type: object
-  entities.CalendarResponse:
-    properties:
-      calendar_entries:
-        items:
-          $ref: '#/definitions/entities.CalendarEntryResponse'
-        type: array
-      calendar_series:
-        items:
-          $ref: '#/definitions/entities.CalendarSeriesResponse'
-        type: array
-      calendar_uuid:
-        type: string
-      color:
-        type: string
-      created_at:
-        type: string
-      external_calendars:
-        items:
-          $ref: '#/definitions/entities.ExternalCalendarResponse'
-        type: array
-      id:
-        type: integer
-      tenant_id:
-        type: integer
-      timezone:
-        type: string
-      title:
-        type: string
-      updated_at:
-        type: string
-      user_id:
-        type: integer
-      weekly_availability:
-        items:
-          type: integer
-        type: array
     type: object
   entities.CalendarSeriesResponse:
     properties:
@@ -122,9 +67,7 @@ definitions:
       location:
         type: string
       participants:
-        items:
-          type: integer
-        type: array
+        type: object
       sequence:
         type: integer
       start_time:
@@ -182,6 +125,20 @@ definitions:
     - title
     type: object
   entities.CreateCalendarRequest:
+    properties:
+      color:
+        example: '#FF5733'
+        type: string
+      timezone:
+        example: UTC
+        type: string
+      title:
+        example: My Calendar
+        type: string
+      weekly_availability:
+        type: object
+    required:
+    - title
     type: object
   entities.CreateCalendarSeriesRequest:
     properties:
@@ -237,35 +194,41 @@ definitions:
     - title
     type: object
   entities.CreateExternalCalendarRequest:
-    type: object
-  entities.ExternalCalendarResponse:
     properties:
       calendar_id:
+        example: 1
         type: integer
-      calendar_uuid:
-        type: string
       color:
+        example: '#33FF57'
         type: string
-      created_at:
-        type: string
-      id:
-        type: integer
       settings:
-        items:
-          type: integer
-        type: array
-      sync_last_run:
-        type: string
-      tenant_id:
-        type: integer
+        type: object
       title:
-        type: string
-      updated_at:
+        example: External Calendar
         type: string
       url:
+        example: https://calendar.google.com/ical/...
         type: string
-      user_id:
-        type: integer
+    required:
+    - calendar_id
+    - title
+    type: object
+  entities.DeleteCalendarSeriesRequest:
+    properties:
+      delete_mode:
+        description: 'DeleteMode specifies the deletion mode: "all" or "from_date"'
+        enum:
+        - all
+        - from_date
+        example: all
+        type: string
+      from_date:
+        description: FromDate is required when delete_mode is "from_date" - all entries
+          from this date onwards will be deleted (UTC ISO 8601 format)
+        example: "2025-12-01T00:00:00Z"
+        type: string
+    required:
+    - delete_mode
     type: object
   entities.HolidayImportResult:
     properties:
@@ -292,20 +255,11 @@ definitions:
         example: BW
         type: string
       year_from:
-        example: 2025
-        maximum: 2100
-        minimum: 1900
+        example: 2024
         type: integer
       year_to:
-        example: 2027
-        maximum: 2100
-        minimum: 1900
+        example: 2025
         type: integer
-    required:
-    - holidays
-    - state
-    - year_from
-    - year_to
     type: object
   entities.UnburdyHolidaysData:
     properties:
@@ -360,6 +314,18 @@ definitions:
         type: string
     type: object
   entities.UpdateCalendarRequest:
+    properties:
+      color:
+        example: '#FF5733'
+        type: string
+      timezone:
+        example: UTC
+        type: string
+      title:
+        example: My Updated Calendar
+        type: string
+      weekly_availability:
+        type: object
     type: object
   entities.UpdateCalendarSeriesRequest:
     properties:
@@ -397,16 +363,55 @@ definitions:
         type: string
     type: object
   entities.UpdateExternalCalendarRequest:
-    type: object
-  github_com_ae-base-server_internal_models.PaginationResponse:
     properties:
+      color:
+        example: '#33FF57'
+        type: string
+      settings:
+        type: object
+      title:
+        example: Updated External Calendar
+        type: string
+      url:
+        example: https://calendar.google.com/ical/...
+        type: string
+    type: object
+  handlers.APIResponse:
+    properties:
+      data: {}
+      message:
+        example: ok
+        type: string
+      success:
+        example: true
+        type: boolean
+    type: object
+  handlers.ErrorResponse:
+    properties:
+      error:
+        example: internal error details
+        type: string
+      message:
+        example: error message
+        type: string
+      success:
+        example: false
+        type: boolean
+    type: object
+  handlers.ListResponse:
+    properties:
+      data: {}
       limit:
         type: integer
+      message:
+        example: ok
+        type: string
       page:
         type: integer
+      success:
+        example: true
+        type: boolean
       total:
-        type: integer
-      total_pages:
         type: integer
     type: object
 info:
@@ -435,19 +440,19 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/api.APIResponse'
+            - $ref: '#/definitions/handlers.ListResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/api.ListResponse'
+                  type: object
               type: object
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Get all calendar entries
@@ -487,23 +492,23 @@ paths:
           description: Created
           schema:
             allOf:
-            - $ref: '#/definitions/api.APIResponse'
+            - $ref: '#/definitions/handlers.APIResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/entities.CalendarEntryResponse'
+                  type: object
               type: object
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Create a new calendar entry
@@ -525,23 +530,23 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.APIResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Delete calendar entry
@@ -564,27 +569,27 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/api.APIResponse'
+            - $ref: '#/definitions/handlers.APIResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/entities.CalendarEntryResponse'
+                  type: object
               type: object
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Get calendar entry by ID
@@ -615,27 +620,27 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/api.APIResponse'
+            - $ref: '#/definitions/handlers.APIResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/entities.CalendarEntryResponse'
+                  type: object
               type: object
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Update calendar entry
@@ -664,19 +669,19 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/api.APIResponse'
+            - $ref: '#/definitions/handlers.ListResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/api.ListResponse'
+                  type: object
               type: object
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Get all calendar series
@@ -702,6 +707,8 @@ paths:
         - `timezone` (optional): Timezone identifier (e.g., "Europe/Berlin")
         - `external_uid` (optional): External unique identifier for integration
         - `external_calendar_uuid` (optional): UUID of external calendar if imported
+
+        **Response:** Returns the created series and all auto-generated calendar entries based on the recurrence rules.
       operationId: createCalendarSeries
       parameters:
       - description: Calendar series data
@@ -717,23 +724,23 @@ paths:
           description: Created
           schema:
             allOf:
-            - $ref: '#/definitions/api.APIResponse'
+            - $ref: '#/definitions/handlers.APIResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/entities.CalendarSeriesResponse'
+                  type: object
               type: object
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Create a new calendar series
@@ -741,7 +748,12 @@ paths:
       - calendar-series
   /calendar-series/{id}:
     delete:
-      description: Delete a calendar series by ID
+      consumes:
+      - application/json
+      description: 'Delete a calendar series with two options: ''all'' deletes the
+        entire series and all entries, ''from_date'' deletes entries from a specific
+        date onwards and updates the series end date. When using ''from_date'' mode,
+        provide the from_date in UTC ISO 8601 format (e.g., 2025-12-01T00:00:00Z).'
       operationId: deleteCalendarSeries
       parameters:
       - description: Calendar Series ID
@@ -749,29 +761,35 @@ paths:
         name: id
         required: true
         type: integer
+      - description: Delete options
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/entities.DeleteCalendarSeriesRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.APIResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Delete calendar series
@@ -794,27 +812,27 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/api.APIResponse'
+            - $ref: '#/definitions/handlers.APIResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/entities.CalendarSeriesResponse'
+                  type: object
               type: object
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Get calendar series by ID
@@ -845,27 +863,27 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/api.APIResponse'
+            - $ref: '#/definitions/handlers.APIResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/entities.CalendarSeriesResponse'
+                  type: object
               type: object
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Update calendar series
@@ -885,21 +903,19 @@ paths:
             relationships
           schema:
             allOf:
-            - $ref: '#/definitions/api.APIResponse'
+            - $ref: '#/definitions/handlers.ListResponse'
             - properties:
                 data:
-                  items:
-                    $ref: '#/definitions/entities.CalendarResponse'
-                  type: array
+                  type: object
               type: object
         "401":
           description: Unauthorized - invalid or missing JWT token
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "500":
           description: Internal server error during calendar retrieval
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Get calendars with complete metadata
@@ -924,23 +940,23 @@ paths:
           description: Created
           schema:
             allOf:
-            - $ref: '#/definitions/api.APIResponse'
+            - $ref: '#/definitions/handlers.APIResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/entities.CalendarResponse'
+                  type: object
               type: object
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Create a new calendar
@@ -962,23 +978,23 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.APIResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Delete calendar
@@ -1000,27 +1016,27 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/api.APIResponse'
+            - $ref: '#/definitions/handlers.APIResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/entities.CalendarResponse'
+                  type: object
               type: object
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Get calendar by ID
@@ -1050,27 +1066,27 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/api.APIResponse'
+            - $ref: '#/definitions/handlers.APIResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/entities.CalendarResponse'
+                  type: object
               type: object
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Update calendar
@@ -1106,19 +1122,19 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Import holidays into calendar
@@ -1146,15 +1162,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Get calendar week view
@@ -1182,15 +1198,15 @@ paths:
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Get calendar year view
@@ -1218,19 +1234,19 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/api.APIResponse'
+            - $ref: '#/definitions/handlers.ListResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/api.ListResponse'
+                  type: object
               type: object
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Get all external calendars
@@ -1255,23 +1271,23 @@ paths:
           description: Created
           schema:
             allOf:
-            - $ref: '#/definitions/api.APIResponse'
+            - $ref: '#/definitions/handlers.APIResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/entities.ExternalCalendarResponse'
+                  type: object
               type: object
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Create a new external calendar
@@ -1293,23 +1309,23 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.APIResponse'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Delete external calendar
@@ -1331,27 +1347,27 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/api.APIResponse'
+            - $ref: '#/definitions/handlers.APIResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/entities.ExternalCalendarResponse'
+                  type: object
               type: object
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Get external calendar by ID
@@ -1381,27 +1397,27 @@ paths:
           description: OK
           schema:
             allOf:
-            - $ref: '#/definitions/api.APIResponse'
+            - $ref: '#/definitions/handlers.APIResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/entities.ExternalCalendarResponse'
+                  type: object
               type: object
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/api.APIResponse'
+            $ref: '#/definitions/handlers.ErrorResponse'
       security:
       - BearerAuth: []
       summary: Update external calendar

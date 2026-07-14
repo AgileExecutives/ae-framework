@@ -20,7 +20,7 @@ func NewPDFHandler(service *services.PDFGenerator) *PDFHandler {
 // RegisterRoutes registers the PDF endpoints used by tests.
 func (h *PDFHandler) RegisterRoutes(router *gin.RouterGroup, ctx core.ModuleContext) {
 	// router is already mounted under /api/v1/<prefix> where prefix is /pdf
-	auth := middleware.AuthMiddleware(ctx.DB)
+	auth := middleware.AuthMiddleware(ctx)
 	router.POST("/create", auth, func(c *gin.Context) {
 		var req struct {
 			Data         map[string]interface{} `json:"data"`
