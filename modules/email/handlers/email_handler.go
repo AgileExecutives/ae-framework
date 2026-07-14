@@ -26,7 +26,7 @@ func NewEmailHandler(repo repo.EmailRepo, emailService *services.EmailService) *
 }
 
 func (h *EmailHandler) RegisterRoutes(router *gin.RouterGroup, ctx core.ModuleContext) {
-	authMiddleware := middleware.AuthMiddleware(ctx.DB)
+	authMiddleware := middleware.AuthMiddleware(ctx)
 	emailRoutes := router.Group("/emails")
 	emailRoutes.Use(authMiddleware)
 	{

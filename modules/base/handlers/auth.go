@@ -778,7 +778,7 @@ func (h *AuthHandlers) seedEmailTemplates(tenantID uint, organizationID *uint) {
 // @Tags authentication
 // @Accept json
 // @Produce json
-// @Success 200 {object} utils.PasswordRequirements
+// @Success 200 {object} handlers.PasswordRequirements
 // @Router /auth/password-security [get]
 func (h *AuthHandlers) GetPasswordSecurity(c *gin.Context) {
 	requirements := utils.GetPasswordRequirements()

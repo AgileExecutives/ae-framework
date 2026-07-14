@@ -38,10 +38,8 @@ func (p *AuthMiddlewareProvider) Name() string {
 }
 
 func (p *AuthMiddlewareProvider) Handler() gin.HandlerFunc {
-	return gin.HandlerFunc(func(c *gin.Context) {
-		// Implementation will be moved from internal/middleware/auth.go
-		c.Next()
-	})
+	// Delegate to shared implementation which uses the provider's DB and logger
+	return BuildAuthHandler(p.middleware.db, p.middleware.logger, Options{})
 }
 
 func (p *AuthMiddlewareProvider) Priority() int {

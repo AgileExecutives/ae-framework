@@ -28,7 +28,7 @@ func NewUserSettingsHandlers(svc *baseServices.UserSettingsService, logger core.
 // @Accept json
 // @Produce json
 // @Security BearerAuth
-// @Success 200 {object} models.APIResponse{data=models.UserSettings}
+// @Success 200 {object} models.APIResponse{data=handlers.UserSettings}
 // @Failure 401 {object} models.ErrorResponse
 // @Failure 500 {object} models.ErrorResponse
 // @Router /user-settings [get]
@@ -55,8 +55,8 @@ func (h *UserSettingsHandlers) GetUserSettings(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Security BearerAuth
-// @Param settings body models.UserSettingsUpdateRequest true "Updated settings"
-// @Success 200 {object} models.APIResponse{data=models.UserSettings}
+// @Param settings body handlers.UserSettingsUpdateRequest true "Updated settings"
+// @Success 200 {object} models.APIResponse{data=handlers.UserSettings}
 // @Failure 400 {object} models.ErrorResponse
 // @Failure 401 {object} models.ErrorResponse
 // @Failure 500 {object} models.ErrorResponse
@@ -90,7 +90,7 @@ func (h *UserSettingsHandlers) UpdateUserSettings(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Security BearerAuth
-// @Success 200 {object} models.APIResponse{data=models.UserSettings}
+// @Success 200 {object} models.APIResponse{data=handlers.UserSettings}
 // @Failure 401 {object} models.ErrorResponse
 // @Failure 404 {object} models.ErrorResponse
 // @Failure 500 {object} models.ErrorResponse

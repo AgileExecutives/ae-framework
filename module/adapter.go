@@ -9,7 +9,7 @@ import (
 // AdapterModule is a small helper to adapt internal packages into a core.Module
 // by composing entities, routes, services and lifecycle hooks. It is intended
 // for internal packages that don't need a full module implementation but want
-// to expose a `NewModule()` compatible factory for the module registry.
+// to expose a `NewCoreModule()` compatible factory for the module registry.
 type AdapterModule struct {
 	name         string
 	version      string

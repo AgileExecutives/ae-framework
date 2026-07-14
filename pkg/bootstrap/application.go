@@ -11,12 +11,12 @@ import (
 	"time"
 
 	internalDB "github.com/AgileExecutives/serverbase/internal/database"
-	internalMiddleware "github.com/AgileExecutives/serverbase/internal/middleware"
 	internalServices "github.com/AgileExecutives/serverbase/internal/services"
 	"github.com/AgileExecutives/serverbase/pkg/auth"
 	"github.com/AgileExecutives/serverbase/pkg/config"
 	"github.com/AgileExecutives/serverbase/pkg/core"
 	"github.com/AgileExecutives/serverbase/pkg/database"
+	pkgMiddleware "github.com/AgileExecutives/serverbase/pkg/middleware"
 	"github.com/AgileExecutives/serverbase/pkg/repos"
 	pkgServices "github.com/AgileExecutives/serverbase/pkg/services"
 	"github.com/AgileExecutives/serverbase/pkg/startup"
@@ -410,6 +410,10 @@ type authServiceAdapter struct {
 	singleTenant bool
 }
 
+func (a *authServiceAdapter) getLogger() core.Logger {
+	return core.NewLogger()
+}
+
 func (a *authServiceAdapter) ValidateToken(token string) (interface{}, error) {
 	return auth.ValidateJWT(token)
 }
@@ -425,13 +429,12 @@ func (a *authServiceAdapter) GetCurrentUser(c *gin.Context) (interface{}, error)
 }
 
 func (a *authServiceAdapter) RequireAuth() gin.HandlerFunc {
-	return internalMiddleware.AuthMiddlewareWithOptions(a.db, internalMiddleware.AuthOptions{
-		SingleTenant: a.singleTenant,
-	})
+	// Build a ModuleContext wrapper for the DB so we can reuse module-style middleware
+	return pkgMiddleware.AuthMiddlewareWithOptions(core.ModuleContext{DB: a.db, Logger: a.getLogger()}, pkgMiddleware.AuthOptions{SingleTenant: a.singleTenant})
 }
 
 func (a *authServiceAdapter) RequireRole(roles ...string) gin.HandlerFunc {
-	return internalMiddleware.RequireRole(roles...)
+	return pkgMiddleware.RequireRole(roles...)
 }
 
 // GetDB returns the database instance

@@ -11,6 +11,7 @@ import (
 	"github.com/AgileExecutives/serverbase/module"
 	custrepo "github.com/AgileExecutives/serverbase/modules/customers/repo"
 	"github.com/AgileExecutives/serverbase/pkg/core"
+	saasdocs "github.com/AgileExecutives/shared-modules/saas-base/docs"
 	saasEntities "github.com/AgileExecutives/shared-modules/saas-base/entities"
 	saasHandlers "github.com/AgileExecutives/shared-modules/saas-base/handlers"
 	saasrepo "github.com/AgileExecutives/shared-modules/saas-base/repo"
@@ -23,6 +24,14 @@ func NewSaaSModule() core.Module {
 	return module.NewAdapterModule("saas", "1.0.0", []string{},
 		module.WithEntities(saasEntities.NewPlanEntity(), saasEntities.NewCustomerEntity()),
 		module.WithRoutes(&customerRouteProvider{}, &planRouteProvider{}),
+		module.WithServices(&customerServiceProvider{}, &planServiceProvider{}),
+		module.WithInit(func(ctx core.ModuleContext) error {
+			if ctx.DocRegistry != nil {
+				// register pre-generated saas-base docs under the serverbase saas module name
+				ctx.DocRegistry.RegisterDoc("saas", saasdocs.SwaggerInfo.ReadDoc())
+			}
+			return nil
+		}),
 	)
 }
 
@@ -70,4 +79,36 @@ func (r *planRouteProvider) RegisterRoutes(router *gin.RouterGroup, ctx core.Mod
 	admin.POST("", h.CreatePlan)
 	admin.PUT("/:id", h.UpdatePlan)
 	admin.DELETE("/:id", h.DeletePlan)
+}
+
+// ---------------- Service Providers -----------------
+
+type planServiceProvider struct {
+	svc *saassvc.PlanService
+}
+
+func (p *planServiceProvider) ServiceName() string           { return "saas-plan-service" }
+func (p *planServiceProvider) ServiceInterface() interface{} { return p.svc }
+func (p *planServiceProvider) Factory(ctx core.ModuleContext) (interface{}, error) {
+	if p.svc == nil {
+		planRepo := saasrepo.NewGormPlanRepo(ctx.DB)
+		p.svc = saassvc.NewPlanService(planRepo)
+		ctx.Logger.Info("✅ Factory: saas PlanService created")
+	}
+	return p.svc, nil
+}
+
+type customerServiceProvider struct {
+	svc *saassvc.CustomerService
+}
+
+func (p *customerServiceProvider) ServiceName() string           { return "saas-customer-service" }
+func (p *customerServiceProvider) ServiceInterface() interface{} { return p.svc }
+func (p *customerServiceProvider) Factory(ctx core.ModuleContext) (interface{}, error) {
+	if p.svc == nil {
+		custRepo := custrepo.NewGormCustomerRepo(ctx.DB)
+		p.svc = saassvc.NewCustomerServiceWithDB(custRepo, ctx.DB, ctx.Logger)
+		ctx.Logger.Info("✅ Factory: saas CustomerService created")
+	}
+	return p.svc, nil
 }

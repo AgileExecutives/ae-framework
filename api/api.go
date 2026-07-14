@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/AgileExecutives/serverbase/internal/middleware"
 	"github.com/AgileExecutives/serverbase/internal/models"
+	"github.com/AgileExecutives/serverbase/pkg/middleware"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -47,7 +47,7 @@ func GetUser(c *gin.Context) (*models.User, error) {
 	return middleware.GetUser(c)
 }
 
-// (legacy) AuthMiddleware wrapper removed — use module-provided middleware instead.
+// (legacy) Compatibility wrappers removed — use module-provided middleware instead.
 
 // GetUserID retrieves the authenticated user's ID from the context.
 func GetUserID(c *gin.Context) (uint, error) {
@@ -58,7 +58,7 @@ func GetUserID(c *gin.Context) (uint, error) {
 	return u.ID, nil
 }
 
-// (Removed) ModuleRouteProvider legacy compatibility interface.
+// (Removed) Legacy route-adapter shim.
 
 // Helper to write JSON errors
 func JSONError(c *gin.Context, status int, title, detail string) {
@@ -156,25 +156,6 @@ func (o *Organization) ToResponse() OrganizationResponse {
 	return OrganizationResponse{ID: o.ID, TenantID: o.TenantID, Name: o.Name}
 }
 
-// --- Legacy compatibility helpers (router/auth/interfaces) --------------
-
-// SetupBaseRouterWithConfig returns a gin engine populated with basic middlewares
-// and a root group. It's intentionally minimal to support legacy callers in tests.
-func SetupBaseRouterWithConfig(db *gorm.DB) *gin.Engine {
-	r := gin.New()
-	r.Use(gin.Recovery())
-	return r
-}
-
-// AuthMiddleware returns a middleware that validates authentication. For legacy
-// compatibility in tests this is a permissive no-op that simply continues.
-func AuthMiddleware(db *gorm.DB) gin.HandlerFunc {
-	return func(c *gin.Context) { c.Next() }
-}
-
-// ModuleRouteProvider is a lightweight compatibility interface used by legacy
-// modules that implement route providers outside the bootstrap system.
-type ModuleRouteProvider interface {
-	GetPrefix() string
-	RegisterRoutes(router *gin.RouterGroup)
-}
+// Legacy compatibility shims removed: prefer `serverbase/pkg/middleware` and
+// the `core.Module` lifecycle. Previous compatibility helpers and shims have
+// been retired in favor of the module lifecycle and centralized middleware.

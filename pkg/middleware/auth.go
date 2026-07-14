@@ -1,14 +1,25 @@
 package middleware
 
 import (
-	internalMiddleware "github.com/AgileExecutives/serverbase/internal/middleware"
+	baseMw "github.com/AgileExecutives/serverbase/modules/base/middleware"
+	"github.com/AgileExecutives/serverbase/pkg/core"
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
-// AuthMiddleware returns authentication middleware that can be used by modules
-// This is a wrapper around the internal auth middleware to make it accessible
-// to modules without exposing internal packages
-func AuthMiddleware(db *gorm.DB) gin.HandlerFunc {
-	return internalMiddleware.AuthMiddleware(db)
+// AuthMiddleware returns authentication middleware constructed from a
+// `core.ModuleContext` by delegating to the base module's middleware provider.
+func AuthMiddleware(ctx core.ModuleContext) gin.HandlerFunc {
+	p := baseMw.NewAuthMiddleware(ctx, ctx.Logger)
+	prov := baseMw.NewAuthMiddlewareProvider(p)
+	return prov.Handler()
+}
+
+// AuthOptions mirrors legacy auth options
+type AuthOptions struct {
+	SingleTenant bool
+}
+
+// AuthMiddlewareWithOptions constructs middleware using explicit options.
+func AuthMiddlewareWithOptions(ctx core.ModuleContext, opts AuthOptions) gin.HandlerFunc {
+	return baseMw.BuildAuthHandler(ctx.DB, ctx.Logger, baseMw.Options{SingleTenant: opts.SingleTenant})
 }
