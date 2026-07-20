@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -53,15 +54,37 @@ func (h *AuthHandlers) SetModuleRegistry(registry core.ModuleRegistry) {
 // @Failure 401 {object} models.ErrorResponse
 // @Router /auth/login [post]
 func (h *AuthHandlers) Login(c *gin.Context) {
-	var req models.LoginRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
+	// Accept either `email` or `username` as login identifier
+	var payload struct {
+		Email    string `json:"email"`
+		Username string `json:"username"`
+		Password string `json:"password" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&payload); err != nil {
+		if h.logger != nil {
+			h.logger.Info("auth: login bind failed", "error", err.Error(), "path", c.Request.URL.Path)
+		}
 		c.JSON(http.StatusBadRequest, models.ErrorResponseFunc("Invalid request", err.Error()))
 		return
 	}
 
+	if payload.Email == "" && payload.Username == "" {
+		c.JSON(http.StatusBadRequest, models.ErrorResponseFunc("Invalid request", "email or username is required"))
+		return
+	}
+
+	identifier := payload.Email
+	if identifier == "" {
+		identifier = payload.Username
+	}
+
 	// Find user by username or email via AuthService
-	user, err := h.authService.FindByUsernameOrEmail(c.Request.Context(), req.Email)
+	user, err := h.authService.FindByUsernameOrEmail(c.Request.Context(), identifier)
 	if err != nil || user == nil {
+		if h.logger != nil {
+			h.logger.Info("auth: login failed - user not found", "identifier", identifier, "error", fmt.Sprintf("%v", err))
+		}
 		c.JSON(http.StatusUnauthorized, models.ErrorResponseFunc("Invalid credentials", "User not found"))
 		return
 	}
@@ -79,7 +102,10 @@ func (h *AuthHandlers) Login(c *gin.Context) {
 	}
 
 	// Verify password
-	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(req.Password)); err != nil {
+	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(payload.Password)); err != nil {
+		if h.logger != nil {
+			h.logger.Info("auth: login failed - password mismatch", "identifier", identifier, "user_id", user.ID)
+		}
 		c.JSON(http.StatusUnauthorized, models.ErrorResponseFunc("Invalid credentials", "Password mismatch"))
 		return
 	}

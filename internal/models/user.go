@@ -99,7 +99,8 @@ type UserUpdateRequest struct {
 
 // LoginRequest represents the login request structure
 type LoginRequest struct {
-	Email    string `json:"email" binding:"required,email"`
+	Email    string `json:"email" binding:"omitempty,email"`
+	Username string `json:"username"`
 	Password string `json:"password" binding:"required"`
 }
 

@@ -227,6 +227,12 @@ func (r *moduleRegistry) initializeModule(name string) error {
 
 	// Register routes with proper prefixing
 	apiV1 := r.context.Router.Group("/api/v1")
+	// Apply global auth middleware to the /api/v1 group when an Auth service
+	// is available on the ModuleContext. Modules that require public endpoints
+	// should register them directly on ctx.Router to bypass this middleware.
+	if r.context.Auth != nil {
+		apiV1.Use(r.context.Auth.RequireAuth())
+	}
 	for _, routeProvider := range module.Routes() {
 		routeGroup := apiV1.Group(routeProvider.GetPrefix())
 

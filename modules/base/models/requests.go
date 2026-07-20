@@ -2,7 +2,8 @@ package models
 
 // LoginRequest represents login request data
 type LoginRequest struct {
-	Email    string `json:"email" binding:"required,email" example:"user@example.com"`
+	Email    string `json:"email" binding:"omitempty,email" example:"user@example.com"`
+	Username string `json:"username" example:"user"`
 	Password string `json:"password" binding:"required,min=8" example:"password123"`
 }
 

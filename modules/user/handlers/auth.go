@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"bytes"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -45,12 +47,35 @@ func (h *AuthHandlers) SetModuleRegistry(registry core.ModuleRegistry) {
 
 // Login handles user authentication
 func (h *AuthHandlers) Login(c *gin.Context) {
-	var req models.LoginRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
+	// Debug: capture raw body for troubleshooting binding behavior
+	raw, _ := c.GetRawData()
+	if len(raw) > 0 {
+		log.Printf("[DEBUG] user.Login raw body: %s", string(raw))
+		c.Request.Body = io.NopCloser(bytes.NewBuffer(raw))
+	}
+	// Accept either `email` or `username` as login identifier
+	var payload struct {
+		Email    string `json:"email"`
+		Username string `json:"username"`
+		Password string `json:"password" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&payload); err != nil {
 		c.JSON(http.StatusBadRequest, models.ErrorResponseFunc("Invalid request", err.Error()))
 		return
 	}
-	userPtr, err := h.authService.FindByEmail(c.Request.Context(), req.Email)
+
+	if payload.Email == "" && payload.Username == "" {
+		c.JSON(http.StatusBadRequest, models.ErrorResponseFunc("Invalid request", "email or username is required"))
+		return
+	}
+
+	identifier := payload.Email
+	if identifier == "" {
+		identifier = payload.Username
+	}
+
+	userPtr, err := h.authService.FindByUsernameOrEmail(c.Request.Context(), identifier)
 	if err != nil || userPtr == nil {
 		c.JSON(http.StatusUnauthorized, models.ErrorResponseFunc("Invalid credentials", "User not found"))
 		return
@@ -64,7 +89,7 @@ func (h *AuthHandlers) Login(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, models.ErrorResponseFunc("Email not verified", "Please verify your email address before logging in"))
 		return
 	}
-	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(req.Password)); err != nil {
+	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(payload.Password)); err != nil {
 		c.JSON(http.StatusUnauthorized, models.ErrorResponseFunc("Invalid credentials", "Password mismatch"))
 		return
 	}
