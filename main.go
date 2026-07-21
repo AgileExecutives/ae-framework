@@ -136,11 +136,26 @@ func main() {
 // loadLocalEnv reads server-test/.env if it exists and sets environment variables.
 // This is a lightweight loader used for the test harness; it ignores empty lines and comments.
 func loadLocalEnv() {
-	path := "server-test/.env"
-	data, err := os.ReadFile(path)
+	// Try common local env file locations so the harness works when run
+	// from the repo root (`go run server-test/*.go`) and when run from
+	// the `server-test` directory (`go run main.go`). Prefer
+	// `server-test/.env` when running from repo root, otherwise fall back
+	// to `.env` in the current directory.
+	candidates := []string{"server-test/.env", ".env"}
+	var data []byte
+	var err error
+	var loaded string
+	for _, path := range candidates {
+		data, err = os.ReadFile(path)
+		if err == nil {
+			loaded = path
+			break
+		}
+	}
 	if err != nil {
 		return
 	}
+	log.Printf("Loaded local env from %s", loaded)
 	lines := strings.Split(string(data), "\n")
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
