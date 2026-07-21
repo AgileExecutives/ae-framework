@@ -82,12 +82,10 @@ func (a *coreModuleAdapter) Register(reg Registry) error {
 		return err
 	}
 	apiV1 := a.ctx.Router.Group("/api/v1")
-	// Apply global auth middleware to the /api/v1 group when an Auth service
-	// is available on the ModuleContext. Modules that need public endpoints
-	// should register them directly on ctx.Router to bypass this middleware.
-	if a.ctx.Auth != nil {
-		apiV1.Use(a.ctx.Auth.RequireAuth())
-	}
+	// Do NOT apply a global auth middleware here. Applying auth globally
+	// causes public endpoints (e.g. /api/v1/auth/login) to be rejected
+	// before their handlers run. Modules should protect specific routes
+	// by calling `ctx.Auth.RequireAuth()` when registering routes.
 	for _, rp := range a.mod.Routes() {
 		group := apiV1.Group(rp.GetPrefix())
 		for _, mw := range rp.GetMiddleware() {

@@ -4,7 +4,10 @@ package templates
 // optionally by apps that want an in-process templates provider.
 import (
 	"fmt"
+	"log"
 	"net/http"
+	"regexp"
+	"strings"
 	"sync"
 
 	"github.com/AgileExecutives/serverbase/module"
@@ -161,9 +164,68 @@ func (r *templatesRouteProvider) RegisterRoutes(router *gin.RouterGroup, ctx cor
 		fmt.Sscanf(c.Param("id"), "%d", &id)
 		var payload map[string]interface{}
 		_ = c.ShouldBindJSON(&payload)
-		// try to render via service; allow service to return placeholder
-		html, _ := svc.RenderTemplate(c.Request.Context(), 1, id, payload["data"])
-		c.JSON(http.StatusOK, gin.H{"data": gin.H{"content": html}})
+
+		// Retrieve stored template content for this id
+		mu.Lock()
+		rec, ok := store[id]
+		mu.Unlock()
+		if !ok {
+			c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
+			return
+		}
+		contentI, _ := rec["content"]
+		content, _ := contentI.(string)
+
+		// Prepare data map (stringify values)
+		dataMap := map[string]string{}
+		if d, ok := payload["data"].(map[string]interface{}); ok {
+			for k, v := range d {
+				dataMap[k] = fmt.Sprintf("%v", v)
+			}
+		}
+
+		// Unescape any backslash-escaped braces (e.g. "\{\{.Name\}\}") so
+		// templates authored with JSON-escaped braces render correctly.
+		content = strings.ReplaceAll(content, "\\{\\{", "{{")
+		content = strings.ReplaceAll(content, "\\}\\}", "}}")
+
+		// Simple renderer: replace {{.Key}} with corresponding value from dataMap
+		re := regexp.MustCompile(`\{\{\s*\.([A-Za-z0-9_]+)\s*\}\}`)
+		rendered := re.ReplaceAllStringFunc(content, func(m string) string {
+			parts := re.FindStringSubmatch(m)
+			if len(parts) >= 2 {
+				key := parts[1]
+				if v, ok := dataMap[key]; ok {
+					return v
+				}
+				return ""
+			}
+			return ""
+		})
+
+		// Debug logs to help diagnose rendering issues in the test harness
+		log.Printf("templates: render id=%d content_len=%d rendered_len=%d data_keys=%v", id, len(content), len(rendered), func() []string {
+			keys := []string{}
+			for k := range dataMap {
+				keys = append(keys, k)
+			}
+			return keys
+		}())
+
+		// Fallback to service renderer if no content present
+		if strings.TrimSpace(rendered) == "" {
+			html, _ := svc.RenderTemplate(c.Request.Context(), 1, id, payload["data"])
+			rendered = html
+		}
+
+		log.Printf("templates: render result id=%d rendered_preview=%q", id, func() string {
+			if len(rendered) > 200 {
+				return rendered[:200]
+			}
+			return rendered
+		}())
+
+		c.JSON(http.StatusOK, gin.H{"data": gin.H{"content": rendered}})
 	})
 
 	templates.DELETE("/:id", func(c *gin.Context) {
@@ -173,6 +235,39 @@ func (r *templatesRouteProvider) RegisterRoutes(router *gin.RouterGroup, ctx cor
 		delete(store, id)
 		mu.Unlock()
 		c.Status(http.StatusNoContent)
+	})
+
+	templates.POST("/:id/duplicate", func(c *gin.Context) {
+		var id uint
+		fmt.Sscanf(c.Param("id"), "%d", &id)
+		var payload map[string]interface{}
+		_ = c.ShouldBindJSON(&payload)
+
+		mu.Lock()
+		defer mu.Unlock()
+		src, ok := store[id]
+		if !ok {
+			c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
+			return
+		}
+		// shallow copy
+		copyRec := make(map[string]interface{})
+		for k, v := range src {
+			copyRec[k] = v
+		}
+		// apply overrides from request body
+		if name, ok := payload["name"].(string); ok {
+			copyRec["name"] = name
+		}
+		if key, ok := payload["template_key"].(string); ok {
+			copyRec["template_key"] = key
+		}
+		// new id
+		newID := next
+		next++
+		copyRec["id"] = newID
+		store[newID] = copyRec
+		c.JSON(http.StatusCreated, gin.H{"data": copyRec})
 	})
 
 	// Contracts and helper endpoints used by tests

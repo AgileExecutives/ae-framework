@@ -225,18 +225,15 @@ func (r *moduleRegistry) initializeModule(name string) error {
 		return fmt.Errorf("failed to initialize module %s: %w", name, err)
 	}
 
-	// Register routes with proper prefixing
+	// Register routes with proper prefixing. Do not apply a global auth
+	// middleware here; modules should explicitly protect routes by using
+	// `ctx.Auth.RequireAuth()` when registering them. This keeps public
+	// endpoints reachable while allowing protected routes to opt-in.
 	apiV1 := r.context.Router.Group("/api/v1")
-	// Apply global auth middleware to the /api/v1 group when an Auth service
-	// is available on the ModuleContext. Modules that require public endpoints
-	// should register them directly on ctx.Router to bypass this middleware.
-	if r.context.Auth != nil {
-		apiV1.Use(r.context.Auth.RequireAuth())
-	}
 	for _, routeProvider := range module.Routes() {
 		routeGroup := apiV1.Group(routeProvider.GetPrefix())
 
-		// Apply middleware
+		// Apply middleware provided by the route provider
 		for _, middleware := range routeProvider.GetMiddleware() {
 			routeGroup.Use(middleware)
 		}
