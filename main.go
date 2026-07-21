@@ -166,28 +166,54 @@ func loadLocalEnv() {
 // so HURL tests and local development work without external dependencies.
 func seedTestData(db *gorm.DB) {
 	// Seed a test user used by Hurl tests if it doesn't exist
+	seedUsername := "testuser"
+	seedEmail := "testuser@unburdy.de"
+	seedPassword := "newpass123"
+	seedRole := "admin"
+	seedTenantID := uint(1)
+	seedOrgID := uint(1)
+
 	var existing models.User
-	if err := db.Where("email = ?", "testuser@unburdy.de").First(&existing).Error; err != nil {
+	if err := db.Where("email = ?", seedEmail).First(&existing).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
-			hashed, _ := bcrypt.GenerateFromPassword([]byte("newpass123"), bcrypt.DefaultCost)
+			hashed, _ := bcrypt.GenerateFromPassword([]byte(seedPassword), bcrypt.DefaultCost)
 			u := models.User{
-				Username:       "testuser",
-				Email:          "testuser@unburdy.de",
+				Username:       seedUsername,
+				Email:          seedEmail,
 				PasswordHash:   string(hashed),
 				FirstName:      "Test",
 				LastName:       "User",
-				TenantID:       1,
-				OrganizationID: 1,
-				Role:           "admin",
+				TenantID:       seedTenantID,
+				OrganizationID: seedOrgID,
+				Role:           seedRole,
 				Active:         true,
 				EmailVerified:  true,
 			}
 			if err := db.Create(&u).Error; err != nil {
 				log.Printf("warning: failed to create test user: %v", err)
 			} else {
-				log.Println("Created test user testuser@unburdy.de")
+				log.Printf("Created test user %s", seedEmail)
+				// Explicitly show the seed values used for creating the test user
+				log.Println("--- Test Server Seed User ---")
+				log.Printf("Username: %s", seedUsername)
+				log.Printf("Email: %s", seedEmail)
+				log.Printf("Password: %s", seedPassword)
+				log.Printf("Role: %s", seedRole)
+				log.Printf("TenantID: %d", seedTenantID)
+				log.Printf("OrganizationID: %d", seedOrgID)
+				log.Println("-----------------------------")
 			}
 		}
+	} else {
+		// If a user already exists in the in-memory DB, show what was found
+		log.Println("--- Existing User Found in Test DB ---")
+		log.Printf("Username: %s", existing.Username)
+		log.Printf("Email: %s", existing.Email)
+		log.Printf("Role: %s", existing.Role)
+		log.Printf("TenantID: %d", existing.TenantID)
+		log.Printf("OrganizationID: %d", existing.OrganizationID)
+		log.Println("(Password not available for existing user)")
+		log.Println("--------------------------------------")
 	}
 
 	// Seed default plans if none exist
