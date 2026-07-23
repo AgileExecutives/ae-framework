@@ -277,7 +277,48 @@ func (h *AuthHandlers) Me(c *gin.Context) {
 
 // ChangePassword stub
 func (h *AuthHandlers) ChangePassword(c *gin.Context) {
-	c.JSON(http.StatusOK, models.SuccessResponse("Password changed", nil))
+	var req struct {
+		CurrentPassword string `json:"current_password" binding:"required"`
+		NewPassword     string `json:"new_password" binding:"required"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, models.ErrorResponseFunc("Invalid request", err.Error()))
+		return
+	}
+
+	// Validate new password
+	if err := utils.ValidatePassword(req.NewPassword); err != nil {
+		c.JSON(http.StatusBadRequest, models.ErrorResponseFunc("Invalid password", err.Error()))
+		return
+	}
+
+	userInterface, exists := c.Get("user")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, models.ErrorResponseFunc("User not found", "User not authenticated"))
+		return
+	}
+	user := userInterface.(*models.User)
+
+	// Verify current password
+	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(req.CurrentPassword)); err != nil {
+		c.JSON(http.StatusBadRequest, models.ErrorResponseFunc("Invalid current password", "Current password is incorrect"))
+		return
+	}
+
+	// Hash and save new password
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.NewPassword), bcrypt.DefaultCost)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, models.ErrorResponseFunc("Failed to hash password", err.Error()))
+		return
+	}
+	user.PasswordHash = string(hashedPassword)
+	if err := h.authService.SaveUser(c.Request.Context(), user); err != nil {
+		c.JSON(http.StatusInternalServerError, models.ErrorResponseFunc("Failed to update password", err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, models.SuccessResponse("Password changed successfully", nil))
 }
 
 // VerifyEmail stub
@@ -292,12 +333,119 @@ func (h *AuthHandlers) CheckVerificationToken(c *gin.Context) {
 
 // ForgotPassword stub
 func (h *AuthHandlers) ForgotPassword(c *gin.Context) {
-	c.JSON(http.StatusOK, models.SuccessResponse("Forgot password requested", nil))
+	var req struct {
+		Email string `json:"email" binding:"required,email"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, models.ErrorResponseFunc("Invalid request", err.Error()))
+		return
+	}
+
+	// Find user but do not reveal existence
+	user, _ := h.authService.FindByEmail(c.Request.Context(), req.Email)
+	if user == nil || !user.Active {
+		c.JSON(http.StatusOK, models.SuccessResponse("If the email exists, a password reset link has been sent", nil))
+		return
+	}
+
+	// Token expiry from env
+	expiryStr := os.Getenv("RESET_TOKEN_EXPIRY")
+	if expiryStr == "" {
+		expiryStr = "2h"
+	}
+	expiryDuration, err := time.ParseDuration(expiryStr)
+	if err != nil {
+		expiryDuration = 2 * time.Hour
+	}
+
+	token, err := auth.GenerateResetToken(user.Email, expiryDuration)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, models.ErrorResponseFunc("Failed to generate reset token", err.Error()))
+		return
+	}
+
+	frontendURL := os.Getenv("FRONTEND_URL")
+	if frontendURL == "" {
+		frontendURL = "http://localhost:3000"
+	}
+
+	resetRouteSlug := os.Getenv("RESET_PASSWORD_ROUTE")
+	if resetRouteSlug == "" {
+		resetRouteSlug = "/auth/new-password/"
+	}
+
+	resetURL := frontendURL + resetRouteSlug + token
+
+	emailService := emailServices.NewEmailService()
+	userName := user.FirstName
+	if userName == "" {
+		userName = user.Username
+	}
+
+	if err := emailService.SendPasswordResetEmail(user.Email, userName, resetURL); err != nil {
+		c.JSON(http.StatusInternalServerError, models.ErrorResponseFunc("Failed to send reset email", err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, models.SuccessResponse("Password reset link has been sent to your email", nil))
 }
 
 // ResetPassword stub
 func (h *AuthHandlers) ResetPassword(c *gin.Context) {
-	c.JSON(http.StatusOK, models.SuccessResponse("Password reset", nil))
+	token := c.Param("token")
+	if token == "" {
+		c.JSON(http.StatusBadRequest, models.ErrorResponseFunc("Invalid request", "Reset token is required"))
+		return
+	}
+
+	var req struct {
+		NewPassword string `json:"new_password" binding:"required"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, models.ErrorResponseFunc("Invalid request", err.Error()))
+		return
+	}
+
+	// Validate password against requirements
+	if err := utils.ValidatePassword(req.NewPassword); err != nil {
+		c.JSON(http.StatusBadRequest, models.ErrorResponseFunc("Password validation failed", err.Error()))
+		return
+	}
+
+	// Validate reset token and get email
+	email, err := auth.ValidateResetToken(token)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, models.ErrorResponseFunc("Invalid or expired reset token", err.Error()))
+		return
+	}
+
+	// Find user by email via AuthService
+	user, err := h.authService.FindByEmail(c.Request.Context(), email)
+	if err != nil || user == nil {
+		c.JSON(http.StatusBadRequest, models.ErrorResponseFunc("User not found", "Invalid reset token"))
+		return
+	}
+	if !user.Active {
+		c.JSON(http.StatusBadRequest, models.ErrorResponseFunc("Account disabled", "User account is not active"))
+		return
+	}
+
+	// Hash new password
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.NewPassword), bcrypt.DefaultCost)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, models.ErrorResponseFunc("Failed to hash password", err.Error()))
+		return
+	}
+
+	// Update password and persist
+	user.PasswordHash = string(hashedPassword)
+	if err := h.authService.SaveUser(c.Request.Context(), user); err != nil {
+		c.JSON(http.StatusInternalServerError, models.ErrorResponseFunc("Failed to update password", err.Error()))
+		return
+	}
+
+	c.JSON(http.StatusOK, models.SuccessResponse("Password has been reset successfully", nil))
 }
 
 // GetPasswordSecurity stub
