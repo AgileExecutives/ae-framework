@@ -1,7 +1,7 @@
 {
   "name": "@agile-exec/api-client",
   "version": "0.1.0",
-  "description": "Auto-generated Vue-compatible API client for AE SaaS Basic",
+  "description": "Auto-generated Vue-compatible API client for AE Serverbase",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
@@ -30,7 +30,7 @@
     "buildOnly": "tsup",
     "build-watch": "tsup --watch",
     "dev": "tsup --watch",
-    "prepublishOnly": "npm run generate-and-fix && npm run build",
+    "prepublishOnly": "npm run generate && npm run build",
     "test": "vitest",
     "typecheck": "tsc --noEmit"
   },
@@ -58,13 +58,5 @@
   },
   "peerDependencies": {
     "vue": "^3.0.0"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/unburdy/ae-saas-api-client.git"
-  },
-  "bugs": {
-    "url": "https://github.com/unburdy/ae-saas-api-client/issues"
-  },
-  "homepage": "https://github.com/unburdy/ae-saas-api-client#readme"
+  }
 }

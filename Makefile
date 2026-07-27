@@ -16,15 +16,6 @@ help:
 	@printf "  run-server-test Build and run server-test binary\n"
 	@printf "  clean           Remove local build artifacts\n"
 
-# Swag generation wrapper: runs the script that calls `swag init`
-# Usage: `make swag-init` or override MODULE_DIR/GO_FILE
-MODULE_DIR ?= unburdy/modules/client_management
-GO_FILE ?= $(MODULE_DIR)/module.go
-
-.PHONY: swag-init
-swag-init:
-	@bash scripts/generate_swag_and_fix_instance.sh $(MODULE_DIR) $(GO_FILE)
-
 build-all:
 	@set -e; \
 	for d in $(MODULES); do \
