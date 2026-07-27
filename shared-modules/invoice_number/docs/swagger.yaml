@@ -1,0 +1,307 @@
+definitions:
+  handlers.GenerateInvoiceNumberRequest:
+    properties:
+      month:
+        example: 12
+        type: integer
+      month_format:
+        description: '"MM", "M", or ""'
+        example: MM
+        type: string
+      organization_id:
+        description: Optional - will use authenticated user's organization if not
+          provided
+        example: 10
+        type: integer
+      padding:
+        description: e.g., 4 for "0001"
+        example: 4
+        type: integer
+      prefix:
+        example: INV
+        type: string
+      reset_monthly:
+        description: pointer to distinguish false from not set
+        example: false
+        type: boolean
+      separator:
+        description: e.g., "-"
+        example: '-'
+        type: string
+      year:
+        example: 2025
+        type: integer
+      year_format:
+        description: '"YYYY" or "YY"'
+        example: YYYY
+        type: string
+    type: object
+  handlers.GenerateNextInvoiceNumberRequest:
+    properties:
+      organization_id:
+        description: Optional - will use authenticated user's organization if not
+          provided
+        example: 10
+        type: integer
+    type: object
+  handlers.InvoiceNumberResponse:
+    properties:
+      invoice_number:
+        example: INV-2025-0001
+        type: string
+      month:
+        example: 12
+        type: integer
+      sequence:
+        example: 1
+        type: integer
+      success:
+        example: true
+        type: boolean
+      year:
+        example: 2025
+        type: integer
+    type: object
+info:
+  contact: {}
+paths:
+  /invoice-numbers/current:
+    get:
+      description: Get the current invoice number sequence for an organization
+      operationId: getCurrentInvoiceSequence
+      parameters:
+      - description: Organization ID
+        in: query
+        name: organization_id
+        required: true
+        type: integer
+      - description: Year (defaults to current year)
+        in: query
+        name: year
+        type: integer
+      - description: Month (defaults to current month)
+        in: query
+        name: month
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get current sequence
+      tags:
+      - Invoice Numbers
+  /invoice-numbers/generate:
+    post:
+      consumes:
+      - application/json
+      description: Generate the next sequential invoice number for an organization
+      operationId: generateInvoiceNumber
+      parameters:
+      - description: Invoice number configuration
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.GenerateInvoiceNumberRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.InvoiceNumberResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Generate next invoice number
+      tags:
+      - Invoice Numbers
+  /invoice-numbers/generate/next:
+    post:
+      consumes:
+      - application/json
+      description: Generate the next sequential invoice number using organization
+        settings (prefix, next number)
+      operationId: generateNextInvoiceNumber
+      parameters:
+      - description: Organization ID
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.GenerateNextInvoiceNumberRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handlers.InvoiceNumberResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Generate next invoice number from settings
+      tags:
+      - Invoice Numbers
+  /invoice-numbers/history:
+    get:
+      description: Retrieve the history of generated invoice numbers
+      operationId: getInvoiceNumberHistory
+      parameters:
+      - description: Organization ID
+        in: query
+        name: organization_id
+        required: true
+        type: integer
+      - description: Filter by year
+        in: query
+        name: year
+        type: integer
+      - description: Filter by month
+        in: query
+        name: month
+        type: integer
+      - description: Page number (default 1)
+        in: query
+        name: page
+        type: integer
+      - description: Page size (default 20)
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get invoice number history
+      tags:
+      - Invoice Numbers
+  /invoice-numbers/void:
+    post:
+      consumes:
+      - application/json
+      description: Mark an invoice number as voided in the audit log
+      operationId: voidInvoiceNumber
+      parameters:
+      - description: Invoice number to void
+        in: body
+        name: request
+        required: true
+        schema:
+          additionalProperties:
+            type: string
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Void invoice number
+      tags:
+      - Invoice Numbers
+swagger: "2.0"

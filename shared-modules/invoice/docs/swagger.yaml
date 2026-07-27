@@ -1,0 +1,856 @@
+definitions:
+  entities.CreateInvoiceRequest:
+    properties:
+      currency:
+        type: string
+      customer_address:
+        type: string
+      customer_address_ext:
+        type: string
+      customer_city:
+        type: string
+      customer_contact_person:
+        type: string
+      customer_country:
+        type: string
+      customer_department:
+        type: string
+      customer_email:
+        type: string
+      customer_name:
+        type: string
+      customer_tax_id:
+        type: string
+      customer_zip:
+        type: string
+      delivery_date:
+        type: string
+      discount_rate:
+        type: number
+      discount_terms:
+        type: string
+      due_date:
+        type: string
+      internal_note:
+        type: string
+      invoice_date:
+        type: string
+      invoice_number:
+        type: string
+      items:
+        items:
+          $ref: '#/definitions/entities.InvoiceItemData'
+        minItems: 1
+        type: array
+      net_terms:
+        type: integer
+      notes:
+        type: string
+      organization_id:
+        type: integer
+      our_reference:
+        type: string
+      payment_method:
+        type: string
+      payment_terms:
+        type: string
+      performance_period_end:
+        type: string
+      performance_period_start:
+        type: string
+      po_number:
+        type: string
+      subject:
+        type: string
+      tax_rate:
+        type: number
+      template_html:
+        description: HTML template for PDF generation
+        type: string
+      your_reference:
+        type: string
+    required:
+    - customer_name
+    - invoice_date
+    - invoice_number
+    - items
+    - organization_id
+    type: object
+  entities.InvoiceItemData:
+    properties:
+      description:
+        type: string
+      quantity:
+        type: number
+      tax_rate:
+        type: number
+      unit_price:
+        type: number
+    required:
+    - description
+    - quantity
+    - unit_price
+    type: object
+  entities.InvoiceItemResponse:
+    properties:
+      amount:
+        type: number
+      description:
+        type: string
+      id:
+        type: integer
+      position:
+        type: integer
+      quantity:
+        type: number
+      tax_rate:
+        type: number
+      unit_price:
+        type: number
+    type: object
+  entities.InvoiceResponse:
+    properties:
+      created_at:
+        type: string
+      currency:
+        type: string
+      customer_address:
+        type: string
+      customer_address_ext:
+        type: string
+      customer_city:
+        type: string
+      customer_contact_person:
+        type: string
+      customer_country:
+        type: string
+      customer_department:
+        type: string
+      customer_email:
+        type: string
+      customer_name:
+        type: string
+      customer_tax_id:
+        type: string
+      customer_zip:
+        type: string
+      delivery_date:
+        type: string
+      discount_rate:
+        type: number
+      discount_terms:
+        type: string
+      document_id:
+        type: integer
+      due_date:
+        type: string
+      id:
+        type: integer
+      invoice_date:
+        type: string
+      invoice_number:
+        type: string
+      items:
+        items:
+          $ref: '#/definitions/entities.InvoiceItemResponse'
+        type: array
+      net_terms:
+        type: integer
+      notes:
+        type: string
+      num_reminders:
+        type: integer
+      organization_id:
+        type: integer
+      our_reference:
+        type: string
+      payment_date:
+        type: string
+      payment_method:
+        type: string
+      payment_terms:
+        type: string
+      performance_period_end:
+        type: string
+      performance_period_start:
+        type: string
+      po_number:
+        type: string
+      status:
+        $ref: '#/definitions/entities.InvoiceStatus'
+      subject:
+        type: string
+      subtotal_amount:
+        type: number
+      tax_amount:
+        type: number
+      tax_rate:
+        type: number
+      tenant_id:
+        type: integer
+      total_amount:
+        type: number
+      updated_at:
+        type: string
+      user_id:
+        type: integer
+      your_reference:
+        type: string
+    type: object
+  entities.InvoiceStatus:
+    enum:
+    - draft
+    - finalized
+    - sent
+    - paid
+    - overdue
+    - cancelled
+    type: string
+    x-enum-varnames:
+    - InvoiceStatusDraft
+    - InvoiceStatusFinalized
+    - InvoiceStatusSent
+    - InvoiceStatusPaid
+    - InvoiceStatusOverdue
+    - InvoiceStatusCancelled
+  entities.UpdateInvoiceRequest:
+    properties:
+      customer_address:
+        type: string
+      customer_address_ext:
+        type: string
+      customer_city:
+        type: string
+      customer_contact_person:
+        type: string
+      customer_country:
+        type: string
+      customer_department:
+        type: string
+      customer_email:
+        type: string
+      customer_name:
+        type: string
+      customer_zip:
+        type: string
+      delivery_date:
+        type: string
+      discount_rate:
+        type: number
+      discount_terms:
+        type: string
+      due_date:
+        type: string
+      internal_note:
+        type: string
+      items:
+        items:
+          $ref: '#/definitions/entities.InvoiceItemData'
+        type: array
+      net_terms:
+        type: integer
+      notes:
+        type: string
+      our_reference:
+        type: string
+      payment_date:
+        type: string
+      payment_method:
+        type: string
+      payment_terms:
+        type: string
+      performance_period_end:
+        type: string
+      performance_period_start:
+        type: string
+      po_number:
+        type: string
+      status:
+        $ref: '#/definitions/entities.InvoiceStatus'
+      subject:
+        type: string
+      your_reference:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /invoices:
+    get:
+      description: Get a paginated list of invoices with optional filters
+      parameters:
+      - description: Filter by organization ID
+        in: query
+        name: organization_id
+        type: integer
+      - description: Filter by status
+        enum:
+        - draft
+        - sent
+        - paid
+        - overdue
+        - cancelled
+        in: query
+        name: status
+        type: string
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: Page size
+        in: query
+        name: page_size
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: List invoices
+      tags:
+      - Invoices
+    post:
+      consumes:
+      - application/json
+      description: Create a new invoice with line items
+      parameters:
+      - description: Invoice data
+        in: body
+        name: invoice
+        required: true
+        schema:
+          $ref: '#/definitions/entities.CreateInvoiceRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/entities.InvoiceResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create a new invoice
+      tags:
+      - Invoices
+  /invoices/{id}:
+    delete:
+      description: Soft delete an invoice by ID
+      parameters:
+      - description: Invoice ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete invoice
+      tags:
+      - Invoices
+    get:
+      description: Retrieve a single invoice by its ID
+      parameters:
+      - description: Invoice ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entities.InvoiceResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get invoice by ID
+      tags:
+      - Invoices
+    put:
+      consumes:
+      - application/json
+      description: Update an existing invoice's details
+      parameters:
+      - description: Invoice ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated invoice data
+        in: body
+        name: invoice
+        required: true
+        schema:
+          $ref: '#/definitions/entities.UpdateInvoiceRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/entities.InvoiceResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update invoice
+      tags:
+      - Invoices
+  /invoices/{id}/cancel:
+    post:
+      consumes:
+      - application/json
+      description: Cancel an invoice with optional reason
+      parameters:
+      - description: Invoice ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Cancellation reason
+        in: body
+        name: cancellation
+        schema:
+          properties:
+            reason:
+              type: string
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Cancel invoice
+      tags:
+      - Invoices
+  /invoices/{id}/finalize:
+    post:
+      description: Finalize a draft invoice by generating invoice number and changing
+        status
+      parameters:
+      - description: Invoice ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "422":
+          description: Unprocessable Entity
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Finalize invoice
+      tags:
+      - Invoices
+  /invoices/{id}/generate-pdf:
+    post:
+      consumes:
+      - application/json
+      description: Generate and store a PDF document for an invoice
+      parameters:
+      - description: Invoice ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Optional template ID
+        in: body
+        name: template
+        schema:
+          properties:
+            template_id:
+              type: integer
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Generate invoice PDF
+      tags:
+      - Invoices
+  /invoices/{id}/mark-paid:
+    post:
+      consumes:
+      - application/json
+      description: Mark an invoice as paid with payment date
+      parameters:
+      - description: Invoice ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Payment date (RFC3339 format)
+        in: body
+        name: payment
+        required: true
+        schema:
+          additionalProperties:
+            type: string
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Mark invoice as paid
+      tags:
+      - Invoices
+  /invoices/{id}/pay:
+    post:
+      consumes:
+      - application/json
+      description: Record payment for an invoice
+      parameters:
+      - description: Invoice ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Payment details
+        in: body
+        name: payment
+        required: true
+        schema:
+          properties:
+            payment_date:
+              type: string
+            payment_method:
+              type: string
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Mark invoice as paid
+      tags:
+      - Invoices
+  /invoices/{id}/remind:
+    post:
+      description: Send a payment reminder for an overdue or sent invoice
+      parameters:
+      - description: Invoice ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Send payment reminder
+      tags:
+      - Invoices
+  /invoices/{id}/send:
+    post:
+      description: Mark a finalized invoice as sent (e.g., after emailing to customer)
+      parameters:
+      - description: Invoice ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Mark invoice as sent
+      tags:
+      - Invoices
+swagger: "2.0"
