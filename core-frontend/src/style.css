@@ -1,6 +1,10 @@
-@import 'tailwindcss';
+@import "tailwindcss";
 @import "tw-animate-css";
-@plugin 'daisyui';
+@plugin "daisyui";
+
+@source ".";
+@source "./framework/views";
+@source "./framework/components";
 
 @plugin "daisyui/theme" {
   name: "dark";
@@ -267,10 +271,11 @@ html[data-theme="dark"] {
 
 @layer base {
   * {
-    @apply border-border outline-ring/50;
+    box-sizing: border-box;
+    outline: none;
   }
   body {
-    @apply text-foreground;
+    color: var(--color-foreground);
     background: 
       var(--gradient-mesh-1),
       var(--gradient-mesh-2),

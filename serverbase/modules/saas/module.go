@@ -14,6 +14,8 @@ import (
 	basehandlers "github.com/AgileExecutives/serverbase/modules/base/handlers"
 	baseservices "github.com/AgileExecutives/serverbase/modules/base/services"
 	baserepo "github.com/AgileExecutives/serverbase/modules/base/repo"
+	saasrepo "github.com/AgileExecutives/shared-modules/saas-base/repo"
+	saassvc "github.com/AgileExecutives/shared-modules/saas-base/services"
 	"github.com/gin-gonic/gin"
 )
 

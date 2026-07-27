@@ -82,11 +82,7 @@ test.describe('Simple Form Tests', () => {
     // Check current URL
     const currentUrl = page.url();
     console.log('📍 Current URL after registration:', currentUrl);
-    
-    // Check if there are any error messages on the page
-    const bodyText = await page.textContent('body');
-    console.log('📄 Page content sample:', bodyText?.substring(0, 500));
-    
+        
     console.log('✅ Form submission test completed');
   });
 });

@@ -3,7 +3,7 @@
 # E2E Test Runner Script
 # This script helps run the complete e2e test suite
 
-set -e
+set -euo pipefail
 
 echo "🚀 E2E Authentication Test Runner"
 echo "================================="
@@ -33,16 +33,22 @@ if [ ! -f "package.json" ]; then
     exit 1
 fi
 
-# Check if playwright is installed
-if ! command -v npx playwright &> /dev/null; then
-    print_warning "Installing Playwright..."
+# Check if npx is available (needed to run Playwright)
+if ! command -v npx &> /dev/null; then
+    print_error "npx is not available. Please install Node.js/npm."
+    exit 1
+fi
+
+# Ensure Playwright is installed in node_modules (npm install if package.json lists it but not installed)
+if ! npx playwright --version >/dev/null 2>&1; then
+    print_warning "Playwright not found in node_modules. Running npm install..."
     npm install
 fi
 
 # Check if server is running
 echo ""
 echo "🔍 Checking server status..."
-if curl -s http://localhost:8080/health > /dev/null 2>&1; then
+if curl -s --max-time 2 http://localhost:8080/health > /dev/null 2>&1 || curl -s --max-time 2 http://localhost:8080/ > /dev/null 2>&1; then
     print_status "Server is running on http://localhost:8080"
     
     echo ""
@@ -68,9 +74,11 @@ else
     print_warning "Base app is not running. Starting it now..."
     echo "Starting dev server in background..."
     
-    # Start the dev server in background
-    npm run dev > /dev/null 2>&1 &
+    # Start the dev server in background and capture logs
+    LOG_FILE="/tmp/core-frontend-dev.log"
+    npm run dev > "$LOG_FILE" 2>&1 &
     DEV_SERVER_PID=$!
+    STARTED_DEV_SERVER=true
     
     # Wait for dev server to start
     echo "Waiting for dev server to start..."
@@ -83,9 +91,9 @@ else
     done
     
     # Check if it actually started
-    if ! curl -s http://localhost:3003 > /dev/null 2>&1; then
-        print_error "Failed to start base app"
-        kill $DEV_SERVER_PID 2>/dev/null || true
+    if ! curl -s --max-time 2 http://localhost:3003 > /dev/null 2>&1; then
+        print_error "Failed to start base app. See $LOG_FILE for details."
+        kill "$DEV_SERVER_PID" 2>/dev/null || true
         exit 1
     fi
 fi
@@ -93,7 +101,7 @@ fi
 # Install playwright browsers if needed
 echo ""
 echo "🔍 Checking Playwright browsers..."
-if ! npx playwright install --dry-run chromium > /dev/null 2>&1; then
+if ! npx playwright install --dry-run chromium >/dev/null 2>&1; then
     print_warning "Installing Playwright browsers..."
     npx playwright install chromium
 fi
@@ -116,10 +124,14 @@ else
 fi
 
 # Cleanup if we started the dev server
-if [ ! -z "$DEV_SERVER_PID" ]; then
-    print_status "Stopping dev server..."
-    kill $DEV_SERVER_PID 2>/dev/null || true
-fi
+cleanup() {
+    if [ "${STARTED_DEV_SERVER:-false}" = true ]; then
+        print_status "Stopping dev server (pid: ${DEV_SERVER_PID:-unknown})..."
+        kill "${DEV_SERVER_PID}" 2>/dev/null || true
+    fi
+}
+
+trap cleanup EXIT
 
 echo ""
 echo "✨ E2E test run completed!"

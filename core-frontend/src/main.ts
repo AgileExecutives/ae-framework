@@ -1,40 +1,21 @@
-import { createApp } from 'vue'
-import { createPinia } from 'pinia'
-
-import App from './App.vue'
-import router from './router'
-import { addMiddleware } from './router/middleware'
-import AuthRestrictedView from './views/AuthRestrictedView.vue'
-
-import { createI18n } from 'vue-i18n'
+// main.ts
+import { createBaseApp } from '@@/init.ts'
+import routes from './router/routes.ts'
+import { createApiClient } from './config/api-config.ts'
+import { useAuthStore } from '@@/stores/auth'
+import MainApp from './App.vue'
 import './style.css'
-import applyAppStyles from './plugins/appStyle'
 
-// Import language files
-import en from './locales/en'
-import de from './locales/de'
-import { addCatchAllRoute } from './router/shared-routes'
-const messages = {
-  en,
-  de,
-}
-const i18n = createI18n({
-  legacy: false,
-  locale: 'de',
-  messages,
-})
+// Initialize the global API client (default to relative path so Vite proxy applies in dev)
+createApiClient()
 
-const app = createApp(App)
+const {app} = createBaseApp(MainApp, {
+    routes
+} )
 
-app.use(createPinia())
-addCatchAllRoute(router)
-addMiddleware(router)
-app.use(router)
-app.use(i18n)
+// Initialize auth store after app is mounted
+const authStore = useAuthStore()
+authStore.initializeAuth()
 
-// Apply host-provided styles (inline or stylesheet) before mounting.
-// Host apps can set `window.__CORE_FRONTEND_INLINE_STYLES__` or
-// `window.__CORE_FRONTEND_STYLE_URL__` (or provide `/app-styles.css`).
-applyAppStyles().finally(() => {
-  app.mount('#app')
-})
+// Mount the app
+app.mount('#app')

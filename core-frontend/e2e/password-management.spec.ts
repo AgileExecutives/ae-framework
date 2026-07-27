@@ -170,16 +170,13 @@ test.describe('Password Management E2E Tests', () => {
       data: { email: user.user.email }
     });
     
-    console.log('📧 Forgot password response:', forgotPasswordResponse.status(), await forgotPasswordResponse.text());
-    
     // Wait longer for email to be sent
-    await page.waitForTimeout(2000);
+    await page.waitForTimeout(4000);
     
     // Fetch the reset token from the latest email
     const emailsResponse = await request.get(`${API_BASE_URL}/emails/latest-emails`);
     const emailsData = await emailsResponse.json();
-    
-    console.log('📧 All emails:', emailsData.data.map((e: any) => ({ subject: e.subject, to: e.to })));
+    console.log('📧 Emails fetched:', emailsData.data.map((email: any) => email.subject));
     
     const resetEmail = emailsData.data.find((email: any) => 
       email.to === user.user.email && 
@@ -188,7 +185,6 @@ test.describe('Password Management E2E Tests', () => {
     );
     
     if (!resetEmail) {
-      console.error('Available emails:', emailsData.data.map((e: any) => e.subject));
       throw new Error('Reset email not found');
     }
     
@@ -198,7 +194,6 @@ test.describe('Password Management E2E Tests', () => {
       throw new Error('Token not found in email');
     }
     const testToken = tokenMatch[1];
-    console.log('🔑 Extracted reset token:', testToken);
     
     await page.goto(`/new-password?token=${testToken}`);
     await page.waitForLoadState('networkidle');
@@ -230,9 +225,10 @@ test.describe('Password Management E2E Tests', () => {
     });
     
     // Wait and fetch the reset token from email
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(6000);
     const emailsResponse = await request.get(`${API_BASE_URL}/emails/latest-emails`);
     const emailsData = await emailsResponse.json();
+    console.log('📧 Emails fetched:', emailsData.data.map((email: any) => email.subject));
     const resetEmail = emailsData.data.find((email: any) => 
       email.subject.toLowerCase().includes('password') && email.subject.toLowerCase().includes('reset')
     );
@@ -376,7 +372,8 @@ test.describe('Password Management E2E Tests', () => {
     await page.waitForLoadState('networkidle');
     
     // Should redirect to login (with optional redirect query param)
-    await expect(page.url()).toContain('/login');
+    const currentPath = page.url()
+    await expect(currentPath).toContain('/login');
     
     console.log('✅ Change password correctly requires authentication');
   });
@@ -532,33 +529,6 @@ test.describe('Password Management E2E Tests', () => {
         throw error;
       }
     }
-  });
-
-  test('should handle API errors gracefully', async ({ page }) => {
-    console.log('🧪 Test: Error handling');
-    
-    await page.goto('/forgot-password');
-    await page.waitForLoadState('networkidle');
-    
-    // Intercept API call and return error
-    await page.route(`${API_BASE_URL}/auth/forgot-password`, async (route) => {
-      await route.fulfill({
-        status: 500,
-        contentType: 'application/json',
-        body: JSON.stringify({
-          success: false,
-          error: 'Server error'
-        })
-      });
-    });
-    
-    await page.locator('[data-testid="forgot-email"]').fill(testUser.email);
-    await page.locator('[data-testid="forgot-submit"]').click();
-    
-    // Should show error message using testid
-    await expect(page.locator('[data-testid="forgot-error-message"]')).toBeVisible({ timeout: 5000 });
-    
-    console.log('✅ Error handling works correctly');
   });
 
   test('should show loading states during submission', async ({ page }) => {

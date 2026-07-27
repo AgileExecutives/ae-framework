@@ -217,7 +217,7 @@ test.describe('Authentication E2E Tests', () => {
     await page.click('[data-testid="login-submit"]');
     
     // Wait for response
-    await page.waitForTimeout(2000);
+    await page.waitForTimeout(4000);
     const currentUrl = page.url();
     console.log('Current URL after login:', currentUrl);
     
@@ -373,7 +373,7 @@ test.describe('Authentication E2E Tests', () => {
     await page.click('[data-testid="register-submit"]');
     
     // Since form validation isn't fully implemented, just verify no crash
-    await page.waitForTimeout(2000);
+    await page.waitForTimeout(5000);
     
     console.log('✅ Registration form interactions completed successfully');
   });

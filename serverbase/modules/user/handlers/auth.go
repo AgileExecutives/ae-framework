@@ -272,7 +272,20 @@ func (h *AuthHandlers) seedEmailTemplates(tenantID uint, _ interface{}) {
 
 // Me returns basic info about the authenticated user (stub)
 func (h *AuthHandlers) Me(c *gin.Context) {
-	c.JSON(http.StatusOK, models.SuccessResponse("OK", nil))
+	// Retrieve user from context (set by auth middleware)
+	userInterface, exists := c.Get("user")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, models.ErrorResponseFunc("User not found", "User not authenticated"))
+		return
+	}
+
+	user, ok := userInterface.(*models.User)
+	if !ok || user == nil {
+		c.JSON(http.StatusUnauthorized, models.ErrorResponseFunc("User not found", "User not authenticated"))
+		return
+	}
+
+	c.JSON(http.StatusOK, models.SuccessResponse("User retrieved successfully", user.ToResponse()))
 }
 
 // ChangePassword stub
