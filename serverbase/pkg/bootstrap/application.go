@@ -1,0 +1,448 @@
+package bootstrap
+
+import (
+	"context"
+	"fmt"
+	"log"
+	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
+
+	internalDB "github.com/AgileExecutives/serverbase/internal/database"
+	internalServices "github.com/AgileExecutives/serverbase/internal/services"
+	"github.com/AgileExecutives/serverbase/pkg/auth"
+	"github.com/AgileExecutives/serverbase/pkg/config"
+	"github.com/AgileExecutives/serverbase/pkg/core"
+	"github.com/AgileExecutives/serverbase/pkg/database"
+	pkgMiddleware "github.com/AgileExecutives/serverbase/pkg/middleware"
+	"github.com/AgileExecutives/serverbase/pkg/repos"
+	pkgServices "github.com/AgileExecutives/serverbase/pkg/services"
+	"github.com/AgileExecutives/serverbase/pkg/startup"
+
+	// internalHandlers removed — modules register internal handlers themselves
+	// pdfServices removed — PDF handler is provided via internal handlers/modules
+	"github.com/AgileExecutives/serverbase/pkg/swagger"
+	"github.com/AgileExecutives/shared-modules/saas-base/services/storage"
+	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
+	"gorm.io/gorm"
+)
+
+// Application represents the main application
+type Application struct {
+	config   *config.Config
+	registry core.ModuleRegistry
+	context  core.ModuleContext
+	server   *gin.Engine
+	httpSrv  *http.Server
+	logger   core.Logger
+}
+
+// NewApplication creates a new application instance
+func NewApplication(cfg config.Config) *Application {
+	return &Application{
+		config:   &cfg,
+		registry: core.NewModuleRegistry(),
+		logger:   core.NewLogger(),
+	}
+}
+
+// RegisterModule registers a module with the application
+func (app *Application) RegisterModule(module core.Module) error {
+	app.logger.Info("Registering module", "name", module.Name(), "version", module.Version())
+	return app.registry.Register(module)
+}
+
+// Initialize initializes the application and all modules
+func (app *Application) Initialize() error {
+	app.logger.Info("Initializing application...")
+
+	// 1. Initialize core services (creates DocRegistry and injects into context)
+	if err := app.initializeCoreServices(); err != nil {
+		return fmt.Errorf("failed to initialize core services: %w", err)
+	}
+
+	// 2. Initialize modules – each module that has pre-generated swagger docs calls
+	//    ctx.DocRegistry.RegisterDoc() inside its Initialize method.
+	app.logger.Info("Initializing modules...")
+	if err := app.registry.InitializeAll(app.context); err != nil {
+		return fmt.Errorf("failed to initialize modules: %w", err)
+	}
+
+	// 2.5. Merge all module swagger docs into one combined spec and register it
+	//      so ginSwagger serves the full API at /swagger/index.html.
+	app.logger.Info("Merging swagger documentation from all modules...")
+	docReg := app.context.DocRegistry.(*swagger.Registry)
+	if err := swagger.MergeAndRegister(docReg, swagger.ServerInfo{
+		Title:       app.config.Swagger.Title,
+		Description: app.config.Swagger.Description,
+		Version:     app.config.Swagger.Version,
+		Host:        app.config.Server.Host + ":" + app.config.Server.Port,
+		BasePath:    "/api/v1",
+		Schemes:     []string{"http", "https"},
+	}); err != nil {
+		app.logger.Warn("Swagger merge failed (docs may be incomplete):", err)
+	} else {
+		n := len(docReg.Docs())
+		app.logger.Info("Swagger documentation merged", "module_count", n)
+	}
+	// Mount swagger UI pointing at the merged spec.
+	app.server.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler,
+		ginSwagger.InstanceName(swagger.MergedSpecName)))
+
+	// 3. Run migrations (includes all module entities)
+	app.logger.Info("Running database migrations...")
+	if err := app.runMigrations(); err != nil {
+		return fmt.Errorf("failed to run migrations: %w", err)
+	}
+
+	// 3.5. Register contracts BEFORE seeding so contracts exist when templates are seeded
+	app.logger.Info("Registering template contracts...")
+	if err := app.registerContracts(); err != nil {
+		app.logger.Warn("Failed to register contracts:", err)
+		// Don't fail startup, contracts can be registered later
+	}
+
+	// 4. Seed database
+	app.logger.Info("Seeding database...")
+	if err := app.seedDatabase(); err != nil {
+		return fmt.Errorf("failed to seed database: %w", err)
+	}
+
+	app.logger.Info("Application initialization completed")
+	return nil
+}
+
+// Start starts the application and all modules
+func (app *Application) Start(ctx context.Context) error {
+	app.logger.Info("Starting application...")
+
+	// Start event bus
+	if err := app.context.EventBus.Start(ctx); err != nil {
+		return fmt.Errorf("failed to start event bus: %w", err)
+	}
+
+	// Start all modules
+	if err := app.registry.StartAll(ctx); err != nil {
+		return fmt.Errorf("failed to start modules: %w", err)
+	}
+
+	// Setup HTTP server
+	addr := app.config.Server.Host + ":" + app.config.Server.Port
+	app.httpSrv = &http.Server{
+		Addr:         addr,
+		Handler:      app.server,
+		ReadTimeout:  30 * time.Second,
+		WriteTimeout: 30 * time.Second,
+	}
+
+	// Setup graceful shutdown
+	go app.setupGracefulShutdown()
+
+	app.logger.Info("Server starting", "address", addr)
+	app.logger.Info("Health check available", "url", fmt.Sprintf("http://%s/api/v1/health", addr))
+	app.logger.Info("API documentation", "url", fmt.Sprintf("http://%s/swagger/index.html", addr))
+
+	if err := app.httpSrv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		return fmt.Errorf("failed to start HTTP server: %w", err)
+	}
+
+	return nil
+}
+
+// Stop stops the application and all modules
+func (app *Application) Stop(ctx context.Context) error {
+	app.logger.Info("Stopping application...")
+
+	// Stop HTTP server
+	if app.httpSrv != nil {
+		shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+
+		if err := app.httpSrv.Shutdown(shutdownCtx); err != nil {
+			app.logger.Error("HTTP server shutdown error", "error", err)
+		}
+	}
+
+	// Stop modules
+	if err := app.registry.StopAll(ctx); err != nil {
+		app.logger.Error("Failed to stop modules", "error", err)
+		return err
+	}
+
+	// Stop event bus
+	if err := app.context.EventBus.Stop(ctx); err != nil {
+		app.logger.Error("Failed to stop event bus", "error", err)
+	}
+
+	app.logger.Info("Application stopped")
+	return nil
+}
+
+// GetModuleMetadata returns metadata for all registered modules
+func (app *Application) GetModuleMetadata() []core.ModuleMetadata {
+	return app.registry.GetMetadata()
+}
+
+// GetServiceRegistry returns the service registry
+func (app *Application) GetServiceRegistry() core.ServiceRegistry {
+	return app.context.Services
+}
+
+// DB returns the database connection
+func (app *Application) DB() *gorm.DB {
+	return app.context.DB
+}
+
+// initializeCoreServices initializes core application services
+func (app *Application) initializeCoreServices() error {
+	// Set Gin mode
+	gin.SetMode(app.config.Server.Mode)
+
+	// Set JWT secret
+	auth.SetJWTSecret(app.config.JWT.Secret)
+
+	// Database
+	db, err := database.ConnectWithAutoCreate(app.config.Database)
+	if err != nil {
+		return fmt.Errorf("failed to connect to database: %w", err)
+	}
+
+	// Router with core middleware
+	router := gin.New()
+	router.Use(
+		gin.Logger(),
+		gin.Recovery(),
+		app.corsMiddleware(),
+		app.securityMiddleware(),
+	)
+
+	// Swagger documentation is mounted AFTER modules initialise (and their docs are
+	// merged). See the Initialize() method where MergeAndRegister is called and
+	// ginSwagger.WrapHandler is registered using swagger.MergedSpecName.
+
+	// Setup miscellaneous static file routes (favicon, robots.txt, etc.)
+	app.setupStaticMiscRoutes(router)
+
+	// ✅ Auth routes now handled by modular base module
+	// app.setupInternalAuthRoutes(router, db, *app.config)
+
+	// Event Bus
+	eventBus := core.NewEventBus()
+
+	// Auth Service
+	authService := &authServiceAdapter{
+		jwtSecret:    app.config.JWT.Secret,
+		db:           db,
+		singleTenant: app.config.Server.SingleTenant,
+	}
+
+	// Token Service - shared JWT token service for all modules
+	tokenService := auth.NewTokenService(app.config.JWT.Secret)
+
+	// Service Registry
+	services := core.NewServiceRegistry()
+
+	// Doc registry – collects per-module swagger JSON during module Initialize.
+	docRegistry := swagger.NewRegistry()
+
+	// Create module context
+	app.context = core.ModuleContext{
+		DB:             db,
+		Router:         router,
+		EventBus:       eventBus,
+		Config:         app.config,
+		Logger:         app.logger,
+		Services:       services,
+		Auth:           authService,
+		TokenService:   tokenService,
+		ModuleRegistry: app.registry,
+		DocRegistry:    docRegistry,
+	}
+
+	app.server = router
+
+	// Settings system is provided via a module; modules should register
+	// their own routes during Initialize(). Do not auto-initialize here.
+	return nil
+}
+
+// setupInternalAuthRoutes removed — routes are registered by modules instead.
+
+// runMigrations runs database migrations for all registered module entities
+func (app *Application) runMigrations() error {
+	// Run migrations in dependency order resolved by the ModuleRegistry so
+	// modules that depend on others have their tables created afterward.
+	order, err := app.registry.GetInitializationOrder()
+	if err != nil {
+		return fmt.Errorf("failed to compute module init order: %w", err)
+	}
+
+	totalEntities := 0
+	for _, moduleName := range order {
+		mod, ok := app.registry.Get(moduleName)
+		if !ok {
+			continue
+		}
+		moduleEntities := mod.Entities()
+		if len(moduleEntities) == 0 {
+			continue
+		}
+		app.logger.Info("Migrating module entities", "module", moduleName, "count", len(moduleEntities))
+		models := make([]interface{}, 0, len(moduleEntities))
+		for _, e := range moduleEntities {
+			if m := e.GetModel(); m != nil {
+				models = append(models, m)
+			}
+		}
+		if len(models) == 0 {
+			continue
+		}
+		if err := app.context.DB.AutoMigrate(models...); err != nil {
+			return fmt.Errorf("failed to migrate entities for module %s: %w", moduleName, err)
+		}
+		totalEntities += len(models)
+	}
+
+	if totalEntities > 0 {
+		app.logger.Info("Entity migrations completed", "modules", len(order), "entities", totalEntities)
+	} else {
+		app.logger.Info("No entities to migrate")
+	}
+
+	return nil
+}
+
+// registerContracts registers all template contracts from modules
+func (app *Application) registerContracts() error {
+	app.logger.Info("Registering template contracts...")
+	err := startup.RegisterAllContracts(app.context.DB)
+	if err != nil {
+		app.logger.Error("Failed to register contracts", "error", err)
+		return err
+	}
+	app.logger.Info("Template contracts registered successfully")
+	return nil
+}
+
+// seedDatabase seeds the database with initial data
+func (app *Application) seedDatabase() error {
+	// Initialize MinIO storage for tenant buckets
+	minioConfig := storage.MinIOConfig{
+		Endpoint:        "localhost:9000",
+		AccessKeyID:     "minioadmin",
+		SecretAccessKey: "minioadmin123",
+		UseSSL:          false,
+		Region:          "us-east-1",
+	}
+	minioStorage, err := storage.NewMinIOStorage(minioConfig)
+	if err != nil {
+		log.Printf("⚠️ Warning: Failed to initialize MinIO storage for seeding: %v", err)
+	}
+
+	// Create services for tenant bucket management
+	tenantBucketService := pkgServices.NewTenantBucketService(minioStorage)
+	rf := repos.NewGormRepoFactory(app.context.DB)
+	tenantService := internalServices.NewTenantService(rf.TenantRepo(), tenantBucketService)
+
+	// Use the enhanced seed function that creates MinIO buckets
+	// Pass the event bus so UserCreated events trigger module event handlers
+	return internalDB.SeedWithEventBus(app.context.DB, tenantService, app.context.EventBus)
+}
+
+// corsMiddleware adds CORS headers
+func (app *Application) corsMiddleware() gin.HandlerFunc {
+	return gin.HandlerFunc(func(c *gin.Context) {
+		c.Header("Access-Control-Allow-Origin", "*")
+		c.Header("Access-Control-Allow-Credentials", "true")
+		c.Header("Access-Control-Allow-Headers", "Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization, accept, origin, Cache-Control, X-Requested-With")
+		c.Header("Access-Control-Allow-Methods", "POST, OPTIONS, GET, PUT, DELETE, PATCH")
+
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(204)
+			return
+		}
+
+		c.Next()
+	})
+}
+
+// securityMiddleware adds security headers
+func (app *Application) securityMiddleware() gin.HandlerFunc {
+	return gin.HandlerFunc(func(c *gin.Context) {
+		c.Header("X-Frame-Options", "DENY")
+		c.Header("X-Content-Type-Options", "nosniff")
+		c.Header("X-XSS-Protection", "1; mode=block")
+		c.Next()
+	})
+}
+
+// setupStaticMiscRoutes sets up routes for static miscellaneous files (favicon, robots.txt, etc.)
+func (app *Application) setupStaticMiscRoutes(router *gin.Engine) {
+	// Serve favicon
+	router.StaticFile("/favicon.ico", "./statics/images/favicon.ico")
+}
+
+// setupGracefulShutdown sets up graceful shutdown handling
+func (app *Application) setupGracefulShutdown() {
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+
+	<-c
+	app.logger.Info("Received shutdown signal")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	if err := app.Stop(ctx); err != nil {
+		app.logger.Error("Error during shutdown", "error", err)
+		os.Exit(1)
+	}
+}
+
+// authServiceAdapter adapts the existing auth package to the core.AuthService interface
+type authServiceAdapter struct {
+	jwtSecret    string
+	db           *gorm.DB
+	singleTenant bool
+}
+
+func (a *authServiceAdapter) getLogger() core.Logger {
+	return core.NewLogger()
+}
+
+func (a *authServiceAdapter) ValidateToken(token string) (interface{}, error) {
+	return auth.ValidateJWT(token)
+}
+
+func (a *authServiceAdapter) GenerateToken(user interface{}) (string, error) {
+	// This would need to be implemented based on your existing auth logic
+	return "", fmt.Errorf("not implemented")
+}
+
+func (a *authServiceAdapter) GetCurrentUser(c *gin.Context) (interface{}, error) {
+	// This would need to be implemented based on your existing auth logic
+	return nil, fmt.Errorf("not implemented")
+}
+
+func (a *authServiceAdapter) RequireAuth() gin.HandlerFunc {
+	// Build a ModuleContext wrapper for the DB so we can reuse module-style middleware
+	return pkgMiddleware.AuthMiddlewareWithOptions(core.ModuleContext{DB: a.db, Logger: a.getLogger()}, pkgMiddleware.AuthOptions{SingleTenant: a.singleTenant})
+}
+
+func (a *authServiceAdapter) RequireRole(roles ...string) gin.HandlerFunc {
+	return pkgMiddleware.RequireRole(roles...)
+}
+
+// GetDB returns the database instance
+func (app *Application) GetDB() *gorm.DB {
+	return app.context.DB
+}
+
+// GetRouter returns the Gin router instance
+func (app *Application) GetRouter() *gin.Engine {
+	return app.server
+}
