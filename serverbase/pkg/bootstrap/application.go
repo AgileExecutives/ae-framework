@@ -23,8 +23,8 @@ import (
 
 	// internalHandlers removed — modules register internal handlers themselves
 	// pdfServices removed — PDF handler is provided via internal handlers/modules
+	"github.com/AgileExecutives/serverbase/modules/base/services/storage"
 	"github.com/AgileExecutives/serverbase/pkg/swagger"
-	"github.com/AgileExecutives/shared-modules/saas-base/services/storage"
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"

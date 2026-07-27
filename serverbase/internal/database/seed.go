@@ -18,11 +18,11 @@ import (
 
 	"github.com/AgileExecutives/serverbase/internal/models"
 	"github.com/AgileExecutives/serverbase/internal/services"
+	"github.com/AgileExecutives/serverbase/modules/base/services/storage"
 	templateEntities "github.com/AgileExecutives/serverbase/modules/templates/entities"
 	"github.com/AgileExecutives/serverbase/pkg/core"
 	"github.com/AgileExecutives/serverbase/pkg/eventbus"
 	pkgServices "github.com/AgileExecutives/serverbase/pkg/services"
-	"github.com/AgileExecutives/shared-modules/saas-base/services/storage"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/datatypes"
 	"gorm.io/gorm"

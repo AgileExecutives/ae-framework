@@ -100,24 +100,40 @@ type CustomerResponse struct {
 	UpdatedAt   string `json:"updated_at" example:"2023-01-01T00:00:00Z"`
 }
 
-// Plan-related models
-type Plan struct {
-	ID          int     `json:"id" example:"1"`
-	Name        string  `json:"name" example:"Basic Plan"`
-	Description string  `json:"description" example:"Basic subscription plan"`
-	Price       float64 `json:"price" example:"29.99"`
-	Currency    string  `json:"currency" example:"USD"`
-	IsActive    bool    `json:"is_active" example:"true"`
-	CreatedAt   string  `json:"created_at" example:"2023-01-01T00:00:00Z"`
-	UpdatedAt   string  `json:"updated_at" example:"2023-01-01T00:00:00Z"`
+// CustomerCreateRequest is used for customer creation.
+type CustomerCreateRequest struct {
+	Name          string `json:"name" binding:"required"`
+	Email         string `json:"email" binding:"required,email"`
+	Phone         string `json:"phone"`
+	Street        string `json:"street"`
+	Zip           string `json:"zip"`
+	City          string `json:"city"`
+	Country       string `json:"country"`
+	TaxID         string `json:"tax_id"`
+	VAT           string `json:"vat"`
+	PlanID        uint   `json:"plan_id" binding:"required"`
+	TenantID      uint   `json:"tenant_id"`
+	PaymentMethod string `json:"payment_method"`
 }
 
-type PlanRequest struct {
-	Name        string  `json:"name" binding:"required" example:"Basic Plan"`
-	Description string  `json:"description" example:"Basic subscription plan"`
-	Price       float64 `json:"price" binding:"required" example:"29.99"`
-	Currency    string  `json:"currency" binding:"required" example:"USD"`
+// CustomerUpdateRequest is used for customer updates.
+type CustomerUpdateRequest struct {
+	Name          string `json:"name"`
+	Email         string `json:"email" binding:"omitempty,email"`
+	Phone         string `json:"phone"`
+	Street        string `json:"street"`
+	Zip           string `json:"zip"`
+	City          string `json:"city"`
+	Country       string `json:"country"`
+	TaxID         string `json:"tax_id"`
+	VAT           string `json:"vat"`
+	PlanID        *uint  `json:"plan_id"`
+	Status        string `json:"status"`
+	PaymentMethod string `json:"payment_method"`
+	Active        *bool  `json:"active"`
 }
+
+// Plan-related models are defined in modules/base/models/plan.go
 
 // Email-related models
 type EmailSendRequest struct {

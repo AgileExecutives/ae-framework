@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/AgileExecutives/shared-modules/saas-base/models"
+	"github.com/AgileExecutives/serverbase/modules/base/models"
 )
 
 func TestInMemoryCustomerRepo_SaveAndFind(t *testing.T) {

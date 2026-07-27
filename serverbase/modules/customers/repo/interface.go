@@ -3,7 +3,7 @@ package repo
 import (
 	"context"
 
-	"github.com/AgileExecutives/shared-modules/saas-base/models"
+	"github.com/AgileExecutives/serverbase/modules/base/models"
 )
 
 // CustomerRepo defines the repository responsibilities for customer entities.

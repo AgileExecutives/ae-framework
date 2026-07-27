@@ -11,27 +11,17 @@ import (
 	"github.com/AgileExecutives/serverbase/module"
 	custrepo "github.com/AgileExecutives/serverbase/modules/customers/repo"
 	"github.com/AgileExecutives/serverbase/pkg/core"
-	saasdocs "github.com/AgileExecutives/shared-modules/saas-base/docs"
-	saasEntities "github.com/AgileExecutives/shared-modules/saas-base/entities"
-	saasHandlers "github.com/AgileExecutives/shared-modules/saas-base/handlers"
-	saasrepo "github.com/AgileExecutives/shared-modules/saas-base/repo"
-	saassvc "github.com/AgileExecutives/shared-modules/saas-base/services"
+	basehandlers "github.com/AgileExecutives/serverbase/modules/base/handlers"
+	baseservices "github.com/AgileExecutives/serverbase/modules/base/services"
+	baserepo "github.com/AgileExecutives/serverbase/modules/base/repo"
 	"github.com/gin-gonic/gin"
 )
 
 // NewSaaSModule returns a new SaaSModule implemented via AdapterModule.
 func NewSaaSModule() core.Module {
 	return module.NewAdapterModule("saas", "1.0.0", []string{},
-		module.WithEntities(saasEntities.NewPlanEntity(), saasEntities.NewCustomerEntity()),
 		module.WithRoutes(&customerRouteProvider{}, &planRouteProvider{}),
 		module.WithServices(&customerServiceProvider{}, &planServiceProvider{}),
-		module.WithInit(func(ctx core.ModuleContext) error {
-			if ctx.DocRegistry != nil {
-				// register pre-generated saas-base docs under the serverbase saas module name
-				ctx.DocRegistry.RegisterDoc("saas", saasdocs.SwaggerInfo.ReadDoc())
-			}
-			return nil
-		}),
 	)
 }
 
@@ -48,9 +38,9 @@ func (r *customerRouteProvider) GetSwaggerTags() []string         { return []str
 func (r *customerRouteProvider) RegisterRoutes(router *gin.RouterGroup, ctx core.ModuleContext) {
 	// Construct customer service using serverbase customer repo and wire to handlers
 	custRepo := custrepo.NewGormCustomerRepo(ctx.DB)
-	custSvc := saassvc.NewCustomerServiceWithDB(custRepo, ctx.DB, ctx.Logger)
+	custSvc := baseservices.NewCustomerServiceWithDB(custRepo, ctx.DB, ctx.Logger)
 
-	h := saasHandlers.NewCustomerHandlers(custSvc)
+	h := basehandlers.NewCustomerHandlers(custSvc)
 	auth := router.Group("")
 	auth.Use(ctx.Auth.RequireAuth())
 	auth.GET("", h.GetCustomers)
@@ -66,10 +56,10 @@ func (r *planRouteProvider) GetPrefix() string                { return "/plans" 
 func (r *planRouteProvider) GetMiddleware() []gin.HandlerFunc { return nil }
 func (r *planRouteProvider) GetSwaggerTags() []string         { return []string{"plans"} }
 func (r *planRouteProvider) RegisterRoutes(router *gin.RouterGroup, ctx core.ModuleContext) {
-	// Construct plan service using saas-base plan repo
-	planRepo := saasrepo.NewGormPlanRepo(ctx.DB)
-	planSvc := saassvc.NewPlanService(planRepo)
-	h := saasHandlers.NewPlanHandlers(planSvc)
+	// Construct plan service using local base plan repo
+	planRepo := baserepo.NewGormPlanRepo(ctx.DB)
+	planSvc := baseservices.NewPlanService(planRepo)
+	h := basehandlers.NewPlanHandlers(planSvc)
 	// Public read endpoints
 	router.GET("", h.GetPlans)
 	router.GET("/:id", h.GetPlan)

@@ -1,10 +1,10 @@
 package handlers
 
 import (
+	saas_handlers "github.com/AgileExecutives/serverbase/modules/base/handlers"
+	saasrepo "github.com/AgileExecutives/serverbase/modules/base/repo"
+	saas_services "github.com/AgileExecutives/serverbase/modules/base/services"
 	"github.com/AgileExecutives/serverbase/pkg/core"
-	saas_handlers "github.com/AgileExecutives/shared-modules/saas-base/handlers"
-	saasrepo "github.com/AgileExecutives/shared-modules/saas-base/repo"
-	saas_services "github.com/AgileExecutives/shared-modules/saas-base/services"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
