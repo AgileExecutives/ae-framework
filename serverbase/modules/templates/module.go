@@ -72,7 +72,25 @@ func (r *templatesRouteProvider) RegisterRoutes(router *gin.RouterGroup, ctx cor
 	// in-memory store local to this module instance
 	store := make(map[uint]map[string]interface{})
 	var mu sync.Mutex
-	var next uint = 1
+	var next uint = 2
+	store[1] = map[string]interface{}{
+		"id":            uint(1),
+		"template_type": "email",
+		"template_key":  "welcome",
+		"channel":       "EMAIL",
+		"subject":       "Welcome to Server Test",
+		"name":          "Default Welcome Email",
+		"description":   "Default welcome email for the server-test harness",
+		"content":       "<h1>Welcome {{.FirstName}} {{.LastName}}!</h1><p>Thank you for joining {{.OrganizationName}}.</p>",
+		"variables":     []string{"FirstName", "LastName", "OrganizationName"},
+		"sample_data": map[string]interface{}{
+			"FirstName":        "Test",
+			"LastName":         "User",
+			"OrganizationName": "Server Test Organization",
+		},
+		"is_active":  true,
+		"is_default": true,
+	}
 
 	templates := router.Group("/templates")
 
@@ -121,6 +139,31 @@ func (r *templatesRouteProvider) RegisterRoutes(router *gin.RouterGroup, ctx cor
 		store[id] = payload
 		mu.Unlock()
 		c.JSON(http.StatusCreated, gin.H{"data": payload})
+	})
+
+	templates.GET("/default", func(c *gin.Context) {
+		ttype := c.Query("template_type")
+		channel := c.Query("channel")
+		mu.Lock()
+		defer mu.Unlock()
+		for _, rec := range store {
+			if isDefault, _ := rec["is_default"].(bool); !isDefault {
+				continue
+			}
+			if ttype != "" {
+				if recType, ok := rec["template_type"].(string); !ok || recType != ttype {
+					continue
+				}
+			}
+			if channel != "" {
+				if recChannel, ok := rec["channel"].(string); !ok || recChannel != channel {
+					continue
+				}
+			}
+			c.JSON(http.StatusOK, gin.H{"data": rec})
+			return
+		}
+		c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
 	})
 
 	templates.GET("/:id", func(c *gin.Context) {
@@ -281,20 +324,12 @@ func (r *templatesRouteProvider) RegisterRoutes(router *gin.RouterGroup, ctx cor
 		c.JSON(http.StatusOK, gin.H{"data": contracts})
 	})
 
+	templates.GET("/contracts/by-key/:key", func(c *gin.Context) {
+		writeContractByKey(c, c.Param("key"))
+	})
+
 	templates.GET("/contracts/:key", func(c *gin.Context) {
-		key := c.Param("key")
-		switch key {
-		case "welcome":
-			c.JSON(http.StatusOK, gin.H{"data": gin.H{"template_key": "welcome", "variable_schema": gin.H{"type": "object"}}})
-		case "booking_confirmation":
-			c.JSON(http.StatusOK, gin.H{"data": gin.H{"template_key": "booking_confirmation", "variable_schema": gin.H{"type": "object", "properties": gin.H{"Booking": gin.H{}}}}})
-		case "password_reset":
-			c.JSON(http.StatusOK, gin.H{"data": gin.H{"template_key": "password_reset", "variable_schema": gin.H{"type": "object"}}})
-		case "invoice":
-			c.JSON(http.StatusOK, gin.H{"data": gin.H{"template_key": "invoice", "variable_schema": gin.H{"type": "object", "properties": gin.H{"Customer": gin.H{}, "InvoiceData": gin.H{}}}}})
-		default:
-			c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
-		}
+		writeContractByKey(c, c.Param("key"))
 	})
 
 	templates.GET("/contracts/:key/sample-data", func(c *gin.Context) {
@@ -329,4 +364,19 @@ func (r *templatesRouteProvider) RegisterRoutes(router *gin.RouterGroup, ctx cor
 		}
 		c.JSON(http.StatusOK, gin.H{"data": gin.H{"valid": true, "errors": []interface{}{}}})
 	})
+}
+
+func writeContractByKey(c *gin.Context, key string) {
+	switch key {
+	case "welcome":
+		c.JSON(http.StatusOK, gin.H{"data": gin.H{"template_key": "welcome", "variable_schema": gin.H{"type": "object"}}})
+	case "booking_confirmation":
+		c.JSON(http.StatusOK, gin.H{"data": gin.H{"template_key": "booking_confirmation", "variable_schema": gin.H{"type": "object", "properties": gin.H{"Booking": gin.H{}}}}})
+	case "password_reset":
+		c.JSON(http.StatusOK, gin.H{"data": gin.H{"template_key": "password_reset", "variable_schema": gin.H{"type": "object"}}})
+	case "invoice":
+		c.JSON(http.StatusOK, gin.H{"data": gin.H{"template_key": "invoice", "variable_schema": gin.H{"type": "object", "properties": gin.H{"Customer": gin.H{}, "InvoiceData": gin.H{}}}}})
+	default:
+		c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
+	}
 }

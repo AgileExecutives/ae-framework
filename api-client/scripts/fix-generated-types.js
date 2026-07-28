@@ -83,8 +83,26 @@ function fixGeneratedTypes() {
       fs.writeFileSync(filePath, content);
     }
   });
+
+  // Fix 4: Avoid hard-referencing schemas that may not exist in every generated spec
+  const indexPath = path.join(srcDir, 'index.ts');
+  if (fs.existsSync(indexPath)) {
+    let indexContent = fs.readFileSync(indexPath, 'utf8');
+    const clientTypePattern = /\/\/ Export Client type from generated types\s*\nexport type Client = components\['schemas'\]\['entities\.ClientResponse'\];/;
+
+    if (clientTypePattern.test(indexContent)) {
+      indexContent = indexContent.replace(
+        clientTypePattern,
+        `// Export Client type from generated types. Some generated specs do not expose
+// entities.ClientResponse, so keep this permissive for DTS generation.
+export type Client = any;`
+      );
+      fs.writeFileSync(indexPath, indexContent);
+      console.log('✅ Fixed optional Client type export in index.ts');
+    }
+  }
   
-  // Fix 4: Add missing auth and dashboard methods
+  // Fix 5: Add missing auth and dashboard methods
   const clientPath = path.join(srcDir, 'client.ts');
   if (fs.existsSync(clientPath)) {
     let clientContent = fs.readFileSync(clientPath, 'utf8');
@@ -267,7 +285,7 @@ function fixGeneratedTypes() {
     }
   }
   
-  // Fix 5: Fix composables auth methods
+  // Fix 6: Fix composables auth methods
   const composablesPath = path.join(srcDir, 'composables', 'index.ts');
   if (fs.existsSync(composablesPath)) {
     let composablesContent = fs.readFileSync(composablesPath, 'utf8');

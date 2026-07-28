@@ -13,6 +13,7 @@ import (
 	user "github.com/AgileExecutives/ae-framework/serverbase/modules/user"
 	"github.com/AgileExecutives/ae-framework/serverbase/pkg/core"
 	"github.com/AgileExecutives/ae-framework/serverbase/pkg/swagger"
+	servertestseed "github.com/AgileExecutives/ae-framework/serverbase/server-test/seed"
 	auditmod "github.com/AgileExecutives/ae-framework/shared-modules/audit"
 	bookingmod "github.com/AgileExecutives/ae-framework/shared-modules/booking"
 	calmod "github.com/AgileExecutives/ae-framework/shared-modules/calendar"
@@ -20,10 +21,6 @@ import (
 	pdf "github.com/AgileExecutives/ae-framework/shared-modules/pdf"
 	static "github.com/AgileExecutives/ae-framework/shared-modules/static"
 	"github.com/gin-gonic/gin"
-
-	models "github.com/AgileExecutives/ae-framework/serverbase/internal/models"
-	saasmodels "github.com/AgileExecutives/ae-framework/shared-modules/saas-base/models"
-	"golang.org/x/crypto/bcrypt"
 
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -48,7 +45,9 @@ func main() {
 	ginEngine.RedirectTrailingSlash = false
 
 	// create in-memory sqlite DB for modules
-	db, err := gorm.Open(sqlite.Open("file::memory:?cache=shared"), &gorm.Config{})
+	sqliteDSN := "file::memory:?cache=shared"
+	log.Printf("Connecting to server-test database: driver=sqlite dsn=%s", sqliteDSN)
+	db, err := gorm.Open(sqlite.Open(sqliteDSN), &gorm.Config{})
 	if err != nil {
 		log.Fatalf("failed to open sqlite db: %v", err)
 	}
@@ -101,8 +100,10 @@ func main() {
 	// the standard http Handler from gin and registering it at root.
 	server.RegisterRoute("/", ginEngine)
 
-	// Seed test data (users, plans, etc.) used by HURL tests and the harness.
-	seedTestData(db)
+	// Seed test data used by HURL tests and the harness when the DB is empty.
+	if err := servertestseed.RunIfEmpty(db); err != nil {
+		log.Fatalf("server-test seed failed: %v", err)
+	}
 
 	// initialize modules against our server adapter
 	if err := mr.InitializeAll(server); err != nil {
@@ -172,76 +173,5 @@ func loadLocalEnv() {
 			val = val[1 : len(val)-1]
 		}
 		os.Setenv(key, val)
-	}
-}
-
-// seedTestData ensures the test harness has the minimal required data present
-// so HURL tests and local development work without external dependencies.
-func seedTestData(db *gorm.DB) {
-	// Seed a test user used by Hurl tests if it doesn't exist
-	seedUsername := "testuser"
-	seedEmail := "testuser@unburdy.de"
-	seedPassword := "newpass123"
-	seedRole := "admin"
-	seedTenantID := uint(1)
-	seedOrgID := uint(1)
-
-	var existing models.User
-	if err := db.Where("email = ?", seedEmail).First(&existing).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
-			hashed, _ := bcrypt.GenerateFromPassword([]byte(seedPassword), bcrypt.DefaultCost)
-			u := models.User{
-				Username:       seedUsername,
-				Email:          seedEmail,
-				PasswordHash:   string(hashed),
-				FirstName:      "Test",
-				LastName:       "User",
-				TenantID:       seedTenantID,
-				OrganizationID: seedOrgID,
-				Role:           seedRole,
-				Active:         true,
-				EmailVerified:  true,
-			}
-			if err := db.Create(&u).Error; err != nil {
-				log.Printf("warning: failed to create test user: %v", err)
-			} else {
-				log.Printf("Created test user %s", seedEmail)
-				// Explicitly show the seed values used for creating the test user
-				log.Println("--- Test Server Seed User ---")
-				log.Printf("Username: %s", seedUsername)
-				log.Printf("Email: %s", seedEmail)
-				log.Printf("Password: %s", seedPassword)
-				log.Printf("Role: %s", seedRole)
-				log.Printf("TenantID: %d", seedTenantID)
-				log.Printf("OrganizationID: %d", seedOrgID)
-				log.Println("-----------------------------")
-			}
-		}
-	} else {
-		// If a user already exists in the in-memory DB, show what was found
-		log.Println("--- Existing User Found in Test DB ---")
-		log.Printf("Username: %s", existing.Username)
-		log.Printf("Email: %s", existing.Email)
-		log.Printf("Role: %s", existing.Role)
-		log.Printf("TenantID: %d", existing.TenantID)
-		log.Printf("OrganizationID: %d", existing.OrganizationID)
-		log.Println("(Password not available for existing user)")
-		log.Println("--------------------------------------")
-	}
-
-	// Seed default plans if none exist
-	var planCount int64
-	db.Model(&saasmodels.Plan{}).Count(&planCount)
-	if planCount == 0 {
-		plans := []saasmodels.Plan{
-			{Name: "Free", Slug: "free", Description: "Free tier", Price: 0.0, Currency: "EUR", InvoicePeriod: "monthly", Active: true},
-			{Name: "Pro", Slug: "pro", Description: "Pro tier", Price: 29.0, Currency: "EUR", InvoicePeriod: "monthly", Active: true},
-		}
-		for _, p := range plans {
-			if err := db.Create(&p).Error; err != nil {
-				log.Printf("warning: failed to create default plan %s: %v", p.Name, err)
-			}
-		}
-		log.Println("Seeded default plans")
 	}
 }

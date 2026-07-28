@@ -38,9 +38,10 @@ require (
 	github.com/AgileExecutives/ae-framework/shared-modules/calendar v0.0.0-00010101000000-000000000000
 	github.com/AgileExecutives/ae-framework/shared-modules/organization v0.0.0-00010101000000-000000000000
 	github.com/AgileExecutives/ae-framework/shared-modules/pdf v0.0.0-00010101000000-000000000000
-	github.com/AgileExecutives/ae-framework/shared-modules/saas-base v0.0.0-00010101000000-000000000000
+	github.com/AgileExecutives/ae-framework/shared-modules/saas-base v0.0.0-20260728055225-ce8b3e338f45
 	github.com/AgileExecutives/ae-framework/shared-modules/static v0.0.0-00010101000000-000000000000
 	github.com/stretchr/testify v1.11.1
+	gorm.io/datatypes v1.2.7
 	gorm.io/driver/sqlite v1.6.0
 )
 
@@ -103,7 +104,6 @@ require (
 	google.golang.org/protobuf v1.36.10 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	gorm.io/datatypes v1.2.7 // indirect
 	gorm.io/driver/mysql v1.5.6 // indirect
 	gorm.io/driver/postgres v1.6.0 // indirect
 )

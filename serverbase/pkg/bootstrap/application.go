@@ -3,7 +3,6 @@ package bootstrap
 import (
 	"context"
 	"fmt"
-	"log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -11,19 +10,15 @@ import (
 	"time"
 
 	internalDB "github.com/AgileExecutives/ae-framework/serverbase/internal/database"
-	internalServices "github.com/AgileExecutives/ae-framework/serverbase/internal/services"
 	"github.com/AgileExecutives/ae-framework/serverbase/pkg/auth"
 	"github.com/AgileExecutives/ae-framework/serverbase/pkg/config"
 	"github.com/AgileExecutives/ae-framework/serverbase/pkg/core"
 	"github.com/AgileExecutives/ae-framework/serverbase/pkg/database"
 	pkgMiddleware "github.com/AgileExecutives/ae-framework/serverbase/pkg/middleware"
-	"github.com/AgileExecutives/ae-framework/serverbase/pkg/repos"
-	pkgServices "github.com/AgileExecutives/ae-framework/serverbase/pkg/services"
 	"github.com/AgileExecutives/ae-framework/serverbase/pkg/startup"
 
 	// internalHandlers removed — modules register internal handlers themselves
 	// pdfServices removed — PDF handler is provided via internal handlers/modules
-	"github.com/AgileExecutives/ae-framework/serverbase/modules/base/services/storage"
 	"github.com/AgileExecutives/ae-framework/serverbase/pkg/swagger"
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
@@ -328,29 +323,9 @@ func (app *Application) registerContracts() error {
 	return nil
 }
 
-// seedDatabase seeds the database with initial data
+// seedDatabase seeds the configured initial admin user.
 func (app *Application) seedDatabase() error {
-	// Initialize MinIO storage for tenant buckets
-	minioConfig := storage.MinIOConfig{
-		Endpoint:        "localhost:9000",
-		AccessKeyID:     "minioadmin",
-		SecretAccessKey: "minioadmin123",
-		UseSSL:          false,
-		Region:          "us-east-1",
-	}
-	minioStorage, err := storage.NewMinIOStorage(minioConfig)
-	if err != nil {
-		log.Printf("⚠️ Warning: Failed to initialize MinIO storage for seeding: %v", err)
-	}
-
-	// Create services for tenant bucket management
-	tenantBucketService := pkgServices.NewTenantBucketService(minioStorage)
-	rf := repos.NewGormRepoFactory(app.context.DB)
-	tenantService := internalServices.NewTenantService(rf.TenantRepo(), tenantBucketService)
-
-	// Use the enhanced seed function that creates MinIO buckets
-	// Pass the event bus so UserCreated events trigger module event handlers
-	return internalDB.SeedWithEventBus(app.context.DB, tenantService, app.context.EventBus)
+	return internalDB.SeedInitialAdminUser(app.context.DB)
 }
 
 // corsMiddleware adds CORS headers

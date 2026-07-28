@@ -35,6 +35,7 @@ func CreateDatabaseIfNotExists(config Config) error {
 	// Connect to PostgreSQL without specifying database (connect to 'postgres' database)
 	adminDSN := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=postgres sslmode=%s",
 		config.Host, config.Port, config.User, config.Password, config.SSLMode)
+	log.Printf("Connecting to PostgreSQL server: %s", connectionLogString(config, "postgres"))
 
 	adminDB, err := gorm.Open(postgres.Open(adminDSN), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Silent), // Silent for admin operations
@@ -77,6 +78,7 @@ func CreateDatabaseIfNotExists(config Config) error {
 func Connect(config Config) (*gorm.DB, error) {
 	dsn := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s TimeZone=UTC",
 		config.Host, config.Port, config.User, config.Password, config.DBName, config.SSLMode)
+	log.Printf("Connecting to database: %s", connectionLogString(config, config.DBName))
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
 		Logger:                                   logger.Default.LogMode(logger.Info),
@@ -110,6 +112,7 @@ func ConnectWithAutoCreate(config Config) (*gorm.DB, error) {
 		if dsn == "" {
 			dsn = "file:ae_saas?mode=memory&cache=shared"
 		}
+		log.Printf("Connecting to in-memory SQLite database: dsn=%s", dsn)
 
 		db, err := gorm.Open(sqlite.Open(dsn), &gorm.Config{
 			Logger:                                   logger.Default.LogMode(logger.Info),
@@ -141,4 +144,16 @@ func GetDefaultConfig() Config {
 		DBName:   "ae_saas_basic",
 		SSLMode:  "disable",
 	}
+}
+
+func connectionLogString(config Config, dbName string) string {
+	return fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
+		config.Host, config.Port, config.User, maskPassword(config.Password), dbName, config.SSLMode)
+}
+
+func maskPassword(password string) string {
+	if password == "" {
+		return "<empty>"
+	}
+	return "********"
 }

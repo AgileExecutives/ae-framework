@@ -98,9 +98,8 @@ export interface RenderTemplateResponse {
   subject?: string; // For EMAIL channel
 }
 
-// Export Client type from generated types
-// The generated `components` types may not always include `entities.ClientResponse`.
-// Use a permissive fallback to avoid DTS build failures when that schema is missing.
+// Export Client type from generated types. Some generated specs do not expose
+// entities.ClientResponse, so keep this permissive for DTS generation.
 export type Client = any;
 
 // Additional request types that may not be in generated types yet

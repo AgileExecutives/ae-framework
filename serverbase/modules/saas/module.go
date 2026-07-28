@@ -14,6 +14,7 @@ import (
 	baseservices "github.com/AgileExecutives/ae-framework/serverbase/modules/base/services"
 	custrepo "github.com/AgileExecutives/ae-framework/serverbase/modules/customers/repo"
 	"github.com/AgileExecutives/ae-framework/serverbase/pkg/core"
+	saasentities "github.com/AgileExecutives/ae-framework/shared-modules/saas-base/entities"
 	saasrepo "github.com/AgileExecutives/ae-framework/shared-modules/saas-base/repo"
 	saassvc "github.com/AgileExecutives/ae-framework/shared-modules/saas-base/services"
 	"github.com/gin-gonic/gin"
@@ -22,6 +23,10 @@ import (
 // NewSaaSModule returns a new SaaSModule implemented via AdapterModule.
 func NewSaaSModule() core.Module {
 	return module.NewAdapterModule("saas", "1.0.0", []string{},
+		module.WithEntities(
+			saasentities.NewPlanEntity(),
+			saasentities.NewCustomerEntity(),
+		),
 		module.WithRoutes(&customerRouteProvider{}, &planRouteProvider{}),
 		module.WithServices(&customerServiceProvider{}, &planServiceProvider{}),
 	)
