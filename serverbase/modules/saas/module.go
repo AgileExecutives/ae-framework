@@ -14,8 +14,8 @@ import (
 	baseservices "github.com/AgileExecutives/ae-framework/serverbase/modules/base/services"
 	custrepo "github.com/AgileExecutives/ae-framework/serverbase/modules/customers/repo"
 	"github.com/AgileExecutives/ae-framework/serverbase/pkg/core"
-	saasrepo "github.com/AgileExecutives/shared-modules/saas-base/repo"
-	saassvc "github.com/AgileExecutives/shared-modules/saas-base/services"
+	saasrepo "github.com/AgileExecutives/ae-framework/shared-modules/saas-base/repo"
+	saassvc "github.com/AgileExecutives/ae-framework/shared-modules/saas-base/services"
 	"github.com/gin-gonic/gin"
 )
 
