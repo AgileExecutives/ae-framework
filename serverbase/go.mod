@@ -3,7 +3,7 @@ module github.com/AgileExecutives/ae-framework/serverbase
 go 1.25.0
 
 require (
-	github.com/AgileExecutives/ae-framework/shared-modules/saas-base v0.0.0-00010101000000-000000000000
+	github.com/AgileExecutives/ae-framework/shared-modules/saas-base v0.0.0-20260728055225-ce8b3e338f45
 	github.com/gin-contrib/cors v1.7.7
 	github.com/gin-gonic/gin v1.12.0
 	github.com/golang-jwt/jwt/v5 v5.3.1

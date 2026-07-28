@@ -3,7 +3,7 @@ module github.com/AgileExecutives/ae-framework/shared-modules/documents
 go 1.25.0
 
 require (
-	github.com/AgileExecutives/ae-framework/serverbase v0.0.0
+	github.com/AgileExecutives/ae-framework/serverbase v0.0.0-20260728055225-ce8b3e338f45
 	github.com/chromedp/cdproto v0.0.0-20250803210736-d308e07a266d
 	github.com/chromedp/chromedp v0.14.2
 	github.com/gin-gonic/gin v1.12.0

@@ -3,14 +3,14 @@ module github.com/AgileExecutives/ae-framework/shared-modules/calendar/tests
 go 1.25.0
 
 require (
-	github.com/AgileExecutives/ae-framework/shared-modules/calendar v0.0.0
+	github.com/AgileExecutives/ae-framework/shared-modules/calendar v0.0.0-20260728055225-ce8b3e338f45
 	github.com/stretchr/testify v1.11.1
 	gorm.io/driver/sqlite v1.6.0
 	gorm.io/gorm v1.31.2
 )
 
 require (
-	github.com/AgileExecutives/ae-framework/serverbase v0.0.0 // indirect
+	github.com/AgileExecutives/ae-framework/serverbase v0.0.0-20260728055225-ce8b3e338f45 // indirect
 	github.com/bytedance/gopkg v0.1.3 // indirect
 	github.com/bytedance/sonic v1.15.0 // indirect
 	github.com/bytedance/sonic/loader v0.5.0 // indirect
