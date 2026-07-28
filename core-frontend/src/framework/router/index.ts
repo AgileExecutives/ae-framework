@@ -4,17 +4,6 @@ import DashboardView from '@@/views/DashboardView.vue'
 
 // Create default routes using base components
 const routes = [
-  {
-    path: '/',
-    name: 'Root',
-    redirect: '/dashboard'
-  },
-  {
-    path: '/dashboard',
-    name: 'Dashboard',
-    component: DashboardView,
-    meta: { requiresAuth: true },
-  },
   ...createBaseRoutes()
 ]
 

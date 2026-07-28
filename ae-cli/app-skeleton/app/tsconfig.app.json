@@ -1,0 +1,27 @@
+{
+  "extends": "@vue/tsconfig/tsconfig.dom.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
+    "types": ["vite/client"],
+    "allowArbitraryExtensions": true,
+
+    /* Linting */
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "erasableSyntaxOnly": true,
+    "noFallthroughCasesInSwitch": true, 
+    "skipLibCheck": true,
+    "paths": {
+      "@/*": ["./src/*"],
+      "@@/*": ["./src/framework/*"]
+    }
+  },
+  "include": ["./src/**/*.ts", "./src/**/*.tsx", "./src/**/*.vue"],
+  "exclude": [
+    "./src/**/*.test.ts",
+    "./src/**/*.spec.ts",
+    "./src/**/*.test.tsx",
+    "./src/**/*.spec.tsx",
+    "./src/**/__tests__/**"
+  ]
+}

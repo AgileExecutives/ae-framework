@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 37 41" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+    <g transform="matrix(-1.02024,0,0,1,24.3334,24.485)">
+        <path d="M0.001,-24.485C6.855,-24.485 12.411,-19.004 12.411,-12.242C12.411,-5.482 6.855,0 0.001,0C-6.853,0 -12.41,-5.482 -12.41,-12.242C-12.41,-19.004 -6.853,-24.485 0.001,-24.485" style="fill:rgb(252,252,252);fill-rule:nonzero;"/>
+    </g>
+    <g transform="matrix(-1.02024,0,0,1,12.0736,40.0931)">
+        <path d="M0.001,-23.347C6.537,-23.347 11.834,-18.12 11.834,-11.673C11.834,-5.226 6.537,0 0.001,0C-6.535,0 -11.833,-5.226 -11.833,-11.673C-11.833,-18.12 -6.535,-23.347 0.001,-23.347" style="fill:rgb(0,59,71);fill-rule:nonzero;"/>
+    </g>
+    <g transform="matrix(1,0,0,1,-11.4102,1.91539)">
+        <g transform="matrix(1.01368,0,0,1,-0.202935,0)">
+            <g transform="matrix(31.1299,0,0,31.1299,32.1494,34.4492)">
+            </g>
+            <text x="14.836px" y="34.449px" style="font-family:'Helvetica';font-size:31.13px;fill:rgb(253,253,253);">e</text>
+        </g>
+    </g>
+    <g transform="matrix(-1.02024,0,0,1,24.3319,23.9164)">
+        <path d="M0,-23.348C6.536,-23.348 11.833,-18.121 11.833,-11.674C11.833,-5.228 6.536,0 0,0C-6.536,0 -11.833,-5.228 -11.833,-11.674C-11.833,-18.121 -6.536,-23.348 0,-23.348" style="fill:rgb(0,59,71);fill-rule:nonzero;"/>
+    </g>
+    <g transform="matrix(-1.02024,0,0,1,24.4141,22.4523)">
+        <path d="M0,-20.233C5.664,-20.233 10.256,-15.705 10.256,-10.117C10.256,-4.529 5.664,0 0,0C-5.664,0 -10.256,-4.529 -10.256,-10.117C-10.256,-15.705 -5.664,-20.233 0,-20.233" style="fill:white;fill-rule:nonzero;"/>
+    </g>
+    <g transform="matrix(1,0,0,1,-11.1855,-11.4199)">
+        <g transform="matrix(1.01368,0,0,1,-0.373184,0)">
+            <g transform="matrix(31.1299,0,0,31.1299,44.5962,31.4541)">
+            </g>
+            <text x="27.283px" y="31.454px" style="font-family:'Helvetica';font-size:31.13px;fill:rgb(0,59,71);">a</text>
+        </g>
+    </g>
+</svg>
