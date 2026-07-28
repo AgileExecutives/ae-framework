@@ -11,7 +11,9 @@ import (
 	settingsModule "github.com/AgileExecutives/ae-framework/serverbase/modules/settings"
 	templates "github.com/AgileExecutives/ae-framework/serverbase/modules/templates"
 	user "github.com/AgileExecutives/ae-framework/serverbase/modules/user"
+	pkgconfig "github.com/AgileExecutives/ae-framework/serverbase/pkg/config"
 	"github.com/AgileExecutives/ae-framework/serverbase/pkg/core"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/database"
 	"github.com/AgileExecutives/ae-framework/serverbase/pkg/swagger"
 	servertestseed "github.com/AgileExecutives/ae-framework/serverbase/server-test/seed"
 	auditmod "github.com/AgileExecutives/ae-framework/shared-modules/audit"
@@ -21,9 +23,6 @@ import (
 	pdf "github.com/AgileExecutives/ae-framework/shared-modules/pdf"
 	static "github.com/AgileExecutives/ae-framework/shared-modules/static"
 	"github.com/gin-gonic/gin"
-
-	"gorm.io/driver/sqlite"
-	"gorm.io/gorm"
 
 	sbconfig "github.com/AgileExecutives/ae-framework/serverbase/config"
 	sbhttp "github.com/AgileExecutives/ae-framework/serverbase/http"
@@ -44,12 +43,13 @@ func main() {
 	// expect exact behavior for `/api/v1/static` vs `/api/v1/static/`.
 	ginEngine.RedirectTrailingSlash = false
 
-	// create in-memory sqlite DB for modules
-	sqliteDSN := "file::memory:?cache=shared"
-	log.Printf("Connecting to server-test database: driver=sqlite dsn=%s", sqliteDSN)
-	db, err := gorm.Open(sqlite.Open(sqliteDSN), &gorm.Config{})
+	// Create database connection. Postgres is the default; set USE_IN_MEMORY_DB=true
+	// to run the server-test harness against SQLite.
+	dbConfig := pkgconfig.Load().Database
+	normalizeDatabaseEnvCompatibility(&dbConfig)
+	db, err := database.ConnectWithAutoCreate(dbConfig)
 	if err != nil {
-		log.Fatalf("failed to open sqlite db: %v", err)
+		log.Fatalf("failed to open database: %v", err)
 	}
 
 	// Swagger doc registry – modules register their pre-generated JSON here during Initialize.
@@ -173,5 +173,11 @@ func loadLocalEnv() {
 			val = val[1 : len(val)-1]
 		}
 		os.Setenv(key, val)
+	}
+}
+
+func normalizeDatabaseEnvCompatibility(dbConfig *database.Config) {
+	if sslMode := strings.TrimSpace(os.Getenv("DB_SSL_MODE")); sslMode != "" && strings.TrimSpace(os.Getenv("DB_SSLMODE")) == "" {
+		dbConfig.SSLMode = sslMode
 	}
 }
