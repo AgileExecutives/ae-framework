@@ -1,29 +1,29 @@
-module github.com/AgileExecutives/serverbase/server-test
+module github.com/AgileExecutives/ae-framework/serverbase/server-test
 
 go 1.25.0
 
 // Replace local modules to workspace copies
-// old module path mapping removed; serverbase now uses github.com/AgileExecutives/serverbase
+// old module path mapping removed; serverbase now uses github.com/AgileExecutives/ae-framework/serverbase
 
-replace github.com/AgileExecutives/shared-modules/saas-base => ../shared-modules/saas-base
+replace github.com/AgileExecutives/ae-framework/shared-modules/saas-base => ../shared-modules/saas-base
 
-replace github.com/AgileExecutives/shared-modules/email => ../shared-modules/email
+replace github.com/AgileExecutives/ae-framework/shared-modules/email => ../shared-modules/email
 
-replace github.com/AgileExecutives/shared-modules/organization => ../shared-modules/organization
+replace github.com/AgileExecutives/ae-framework/shared-modules/organization => ../shared-modules/organization
 
-replace github.com/AgileExecutives/shared-modules/pdf => ../shared-modules/pdf
+replace github.com/AgileExecutives/ae-framework/shared-modules/pdf => ../shared-modules/pdf
 
-replace github.com/AgileExecutives/shared-modules/static => ../shared-modules/static
+replace github.com/AgileExecutives/ae-framework/shared-modules/static => ../shared-modules/static
 
-replace github.com/AgileExecutives/shared-modules/calendar => ../shared-modules/calendar
+replace github.com/AgileExecutives/ae-framework/shared-modules/calendar => ../shared-modules/calendar
 
-replace github.com/AgileExecutives/shared-modules/audit => ../shared-modules/audit
+replace github.com/AgileExecutives/ae-framework/shared-modules/audit => ../shared-modules/audit
 
-replace github.com/AgileExecutives/shared-modules/booking => ../shared-modules/booking
+replace github.com/AgileExecutives/ae-framework/shared-modules/booking => ../shared-modules/booking
 
-replace github.com/AgileExecutives/shared-modules/documents => ../shared-modules/documents
+replace github.com/AgileExecutives/ae-framework/shared-modules/documents => ../shared-modules/documents
 
-replace github.com/AgileExecutives/serverbase => ../serverbase
+replace github.com/AgileExecutives/ae-framework/serverbase => ../serverbase
 
 require (
 	github.com/gin-gonic/gin v1.12.0
@@ -32,14 +32,14 @@ require (
 )
 
 require (
-	github.com/AgileExecutives/serverbase v0.0.0
-	github.com/AgileExecutives/shared-modules/audit v0.0.0-00010101000000-000000000000
-	github.com/AgileExecutives/shared-modules/booking v0.0.0-00010101000000-000000000000
-	github.com/AgileExecutives/shared-modules/calendar v0.0.0-00010101000000-000000000000
-	github.com/AgileExecutives/shared-modules/organization v0.0.0-00010101000000-000000000000
-	github.com/AgileExecutives/shared-modules/pdf v0.0.0-00010101000000-000000000000
-	github.com/AgileExecutives/shared-modules/saas-base v0.0.0-00010101000000-000000000000
-	github.com/AgileExecutives/shared-modules/static v0.0.0-00010101000000-000000000000
+	github.com/AgileExecutives/ae-framework/serverbase v0.0.0
+	github.com/AgileExecutives/ae-framework/shared-modules/audit v0.0.0-00010101000000-000000000000
+	github.com/AgileExecutives/ae-framework/shared-modules/booking v0.0.0-00010101000000-000000000000
+	github.com/AgileExecutives/ae-framework/shared-modules/calendar v0.0.0-00010101000000-000000000000
+	github.com/AgileExecutives/ae-framework/shared-modules/organization v0.0.0-00010101000000-000000000000
+	github.com/AgileExecutives/ae-framework/shared-modules/pdf v0.0.0-00010101000000-000000000000
+	github.com/AgileExecutives/ae-framework/shared-modules/saas-base v0.0.0-00010101000000-000000000000
+	github.com/AgileExecutives/ae-framework/shared-modules/static v0.0.0-00010101000000-000000000000
 	github.com/stretchr/testify v1.11.1
 	gorm.io/driver/sqlite v1.6.0
 )

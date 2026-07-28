@@ -1,6 +1,6 @@
 package repo
 
-import "github.com/AgileExecutives/serverbase/internal/models"
+import "github.com/AgileExecutives/ae-framework/serverbase/internal/models"
 
 // UserSettingsRepo defines persistence operations for user settings
 type UserSettingsRepo interface {

@@ -4,14 +4,14 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/AgileExecutives/serverbase/internal/models"
-	basehandlers "github.com/AgileExecutives/serverbase/modules/base/handlers"
-	emailhandlers "github.com/AgileExecutives/serverbase/modules/email/handlers"
-	emailservices "github.com/AgileExecutives/serverbase/modules/email/services"
-	userrepo "github.com/AgileExecutives/serverbase/modules/user/repo"
-	userservices "github.com/AgileExecutives/serverbase/modules/user/services"
-	"github.com/AgileExecutives/serverbase/pkg/core"
-	"github.com/AgileExecutives/serverbase/pkg/testutils"
+	"github.com/AgileExecutives/ae-framework/serverbase/internal/models"
+	basehandlers "github.com/AgileExecutives/ae-framework/serverbase/modules/base/handlers"
+	emailhandlers "github.com/AgileExecutives/ae-framework/serverbase/modules/email/handlers"
+	emailservices "github.com/AgileExecutives/ae-framework/serverbase/modules/email/services"
+	userrepo "github.com/AgileExecutives/ae-framework/serverbase/modules/user/repo"
+	userservices "github.com/AgileExecutives/ae-framework/serverbase/modules/user/services"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/core"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/testutils"
 	"github.com/stretchr/testify/require"
 )
 

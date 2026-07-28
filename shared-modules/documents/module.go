@@ -3,13 +3,13 @@ package documents
 import (
 	"context"
 
-	templateServices "github.com/AgileExecutives/serverbase/modules/templates/services"
-	"github.com/AgileExecutives/serverbase/pkg/core"
-	"github.com/AgileExecutives/shared-modules/documents/entities"
-	repo "github.com/AgileExecutives/shared-modules/documents/repo"
-	"github.com/AgileExecutives/shared-modules/documents/routes"
-	"github.com/AgileExecutives/shared-modules/documents/services"
-	"github.com/AgileExecutives/shared-modules/documents/services/storage"
+	templateServices "github.com/AgileExecutives/ae-framework/serverbase/modules/templates/services"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/core"
+	"github.com/AgileExecutives/ae-framwork/shared-modules/documents/entities"
+	repo "github.com/AgileExecutives/ae-framwork/shared-modules/documents/repo"
+	"github.com/AgileExecutives/ae-framwork/shared-modules/documents/routes"
+	"github.com/AgileExecutives/ae-framwork/shared-modules/documents/services"
+	"github.com/AgileExecutives/ae-framwork/shared-modules/documents/services/storage"
 	"github.com/redis/go-redis/v9"
 )
 

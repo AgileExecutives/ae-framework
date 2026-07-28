@@ -1,8 +1,8 @@
 package middleware
 
 import (
-	baseMw "github.com/AgileExecutives/serverbase/modules/base/middleware"
-	"github.com/AgileExecutives/serverbase/pkg/core"
+	baseMw "github.com/AgileExecutives/ae-framework/serverbase/modules/base/middleware"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/core"
 	"github.com/gin-gonic/gin"
 )
 

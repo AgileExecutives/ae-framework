@@ -1,9 +1,9 @@
 package entities
 
 import (
-	"github.com/AgileExecutives/serverbase/internal/models"
-	basemodels "github.com/AgileExecutives/serverbase/modules/user/models"
-	"github.com/AgileExecutives/serverbase/pkg/core"
+	"github.com/AgileExecutives/ae-framework/serverbase/internal/models"
+	basemodels "github.com/AgileExecutives/ae-framework/serverbase/modules/user/models"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/core"
 )
 
 // UserEntity implements core.Entity for User model

@@ -4,9 +4,9 @@ import (
 	"context"
 	"testing"
 
-	"github.com/AgileExecutives/shared-modules/documents/entities"
-	repo "github.com/AgileExecutives/shared-modules/documents/repo"
-	"github.com/AgileExecutives/shared-modules/documents/services/storage"
+	"github.com/AgileExecutives/ae-framwork/shared-modules/documents/entities"
+	repo "github.com/AgileExecutives/ae-framwork/shared-modules/documents/repo"
+	"github.com/AgileExecutives/ae-framwork/shared-modules/documents/services/storage"
 	"github.com/stretchr/testify/assert"
 )
 

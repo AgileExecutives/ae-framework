@@ -3,9 +3,9 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/AgileExecutives/serverbase/internal/models"
-	"github.com/AgileExecutives/serverbase/internal/repo"
-	"github.com/AgileExecutives/serverbase/pkg/utils"
+	"github.com/AgileExecutives/ae-framework/serverbase/internal/models"
+	"github.com/AgileExecutives/ae-framework/serverbase/internal/repo"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/utils"
 	"github.com/gin-gonic/gin"
 )
 

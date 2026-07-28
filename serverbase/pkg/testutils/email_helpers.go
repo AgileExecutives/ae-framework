@@ -1,7 +1,7 @@
 package testutils
 
 import (
-	"github.com/AgileExecutives/serverbase/modules/email/repo"
+	"github.com/AgileExecutives/ae-framework/serverbase/modules/email/repo"
 )
 
 // NewInMemoryEmailRepo returns an EmailRepo suitable for unit tests.

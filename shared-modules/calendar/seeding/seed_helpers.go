@@ -13,7 +13,7 @@ func GetRecommendedSeedingApproach() string {
 1️⃣  SIMPLE APPROACH - Direct Integration:
    Add this to your server's main.go or startup code:
    
-   import calendarSeeding "github.com/AgileExecutives/shared-modules/calendar/seeding"
+   import calendarSeeding "github.com/AgileExecutives/ae-framwork/shared-modules/calendar/seeding"
    
    func seedCalendarData(db *gorm.DB) {
        seeder := calendarSeeding.NewCalendarSeeder(db)
@@ -32,9 +32,9 @@ func GetRecommendedSeedingApproach() string {
    
    import (
        "log"
-       "github.com/AgileExecutives/serverbase/pkg/config"
-       "github.com/AgileExecutives/serverbase/pkg/database"
-       calendarSeeding "github.com/AgileExecutives/shared-modules/calendar/seeding"
+       "github.com/AgileExecutives/ae-framework/serverbase/pkg/config"
+       "github.com/AgileExecutives/ae-framework/serverbase/pkg/database"
+       calendarSeeding "github.com/AgileExecutives/ae-framwork/shared-modules/calendar/seeding"
    )
    
    func main() {

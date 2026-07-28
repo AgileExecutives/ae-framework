@@ -5,7 +5,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/AgileExecutives/serverbase/pkg/settings/entities"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/settings/entities"
 )
 
 // InMemorySettingsRepository is a simple in-memory implementation of SettingsRepositoryInterface

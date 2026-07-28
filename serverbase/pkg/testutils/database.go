@@ -3,7 +3,7 @@ package testutils
 import (
 	"testing"
 
-	"github.com/AgileExecutives/serverbase/internal/models"
+	"github.com/AgileExecutives/ae-framework/serverbase/internal/models"
 	"github.com/stretchr/testify/require"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"

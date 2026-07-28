@@ -7,8 +7,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/AgileExecutives/serverbase/pkg/settings"
-	"github.com/AgileExecutives/serverbase/pkg/settings/entities"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/settings"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/settings/entities"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
 	"gorm.io/driver/sqlite"

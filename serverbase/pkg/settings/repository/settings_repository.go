@@ -3,7 +3,7 @@ package repository
 import (
 	"errors"
 
-	"github.com/AgileExecutives/serverbase/pkg/settings/entities"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/settings/entities"
 	"gorm.io/gorm"
 )
 

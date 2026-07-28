@@ -6,12 +6,12 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/AgileExecutives/serverbase/pkg/core"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/core"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 
-	"github.com/AgileExecutives/shared-modules/calendar/entities"
-	repo "github.com/AgileExecutives/shared-modules/calendar/repo"
+	"github.com/AgileExecutives/ae-framwork/shared-modules/calendar/entities"
+	repo "github.com/AgileExecutives/ae-framwork/shared-modules/calendar/repo"
 )
 
 type CalendarService struct {

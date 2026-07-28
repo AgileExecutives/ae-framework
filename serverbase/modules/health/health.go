@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/AgileExecutives/serverbase"
+	"github.com/AgileExecutives/ae-framework/serverbase"
 	"github.com/gin-gonic/gin"
 )
 

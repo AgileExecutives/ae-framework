@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/AgileExecutives/serverbase/modules/base/services/storage"
+	"github.com/AgileExecutives/ae-framework/serverbase/modules/base/services/storage"
 )
 
 // StorageService is a unified service for all MinIO storage operations

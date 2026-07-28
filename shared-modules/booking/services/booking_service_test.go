@@ -8,8 +8,8 @@ import (
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 
-	"github.com/AgileExecutives/shared-modules/booking/entities"
-	"github.com/AgileExecutives/shared-modules/booking/services"
+	"github.com/AgileExecutives/ae-framwork/shared-modules/booking/entities"
+	"github.com/AgileExecutives/ae-framwork/shared-modules/booking/services"
 )
 
 // setupBookingTestDB creates an in-memory SQLite database for booking tests

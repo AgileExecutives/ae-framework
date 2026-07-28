@@ -6,9 +6,9 @@ import (
 	"strconv"
 	"time"
 
-	baseAPI "github.com/AgileExecutives/serverbase/api"
-	templateServices "github.com/AgileExecutives/serverbase/modules/templates/services"
-	"github.com/AgileExecutives/shared-modules/documents/services"
+	baseAPI "github.com/AgileExecutives/ae-framework/serverbase/api"
+	templateServices "github.com/AgileExecutives/ae-framework/serverbase/modules/templates/services"
+	"github.com/AgileExecutives/ae-framwork/shared-modules/documents/services"
 	"github.com/gin-gonic/gin"
 )
 

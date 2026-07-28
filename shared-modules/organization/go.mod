@@ -1,9 +1,9 @@
-module github.com/AgileExecutives/shared-modules/organization
+module github.com/AgileExecutives/ae-framwork/shared-modules/organization
 
 go 1.25.0
 
 require (
-	github.com/AgileExecutives/serverbase v0.0.0
+	github.com/AgileExecutives/ae-framework/serverbase v0.0.0
 	github.com/swaggo/swag v1.16.6
 	gorm.io/gorm v1.31.2
 )
@@ -62,4 +62,4 @@ require (
 	gorm.io/driver/mysql v1.5.6 // indirect
 )
 
-replace github.com/AgileExecutives/serverbase => ../../serverbase
+replace github.com/AgileExecutives/ae-framework/serverbase => ../../serverbase

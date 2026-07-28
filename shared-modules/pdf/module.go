@@ -3,11 +3,11 @@ package pdf
 import (
 	"context"
 
-	"github.com/AgileExecutives/serverbase/pkg/core"
-	"github.com/AgileExecutives/shared-modules/pdf/events"
-	"github.com/AgileExecutives/shared-modules/pdf/handlers"
-	repo "github.com/AgileExecutives/shared-modules/pdf/repo"
-	"github.com/AgileExecutives/shared-modules/pdf/services"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/core"
+	"github.com/AgileExecutives/ae-framwork/shared-modules/pdf/events"
+	"github.com/AgileExecutives/ae-framwork/shared-modules/pdf/handlers"
+	repo "github.com/AgileExecutives/ae-framwork/shared-modules/pdf/repo"
+	"github.com/AgileExecutives/ae-framwork/shared-modules/pdf/services"
 )
 
 type PDFModule struct {

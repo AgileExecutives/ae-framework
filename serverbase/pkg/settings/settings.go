@@ -1,9 +1,9 @@
 package settings
 
 import (
-	"github.com/AgileExecutives/serverbase/pkg/settings/handlers"
-	"github.com/AgileExecutives/serverbase/pkg/settings/repository"
-	"github.com/AgileExecutives/serverbase/pkg/settings/services"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/settings/handlers"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/settings/repository"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/settings/services"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )

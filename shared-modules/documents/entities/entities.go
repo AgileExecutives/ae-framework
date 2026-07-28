@@ -1,7 +1,7 @@
 package entities
 
 import (
-	baseCore "github.com/AgileExecutives/serverbase/pkg/core"
+	baseCore "github.com/AgileExecutives/ae-framework/serverbase/pkg/core"
 )
 
 // DocumentEntity implements core.Entity for Document model

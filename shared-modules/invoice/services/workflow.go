@@ -6,10 +6,10 @@ import (
 	"fmt"
 	"time"
 
-	sbsettingsrepo "github.com/AgileExecutives/serverbase/pkg/settings/repository"
-	sbsettings "github.com/AgileExecutives/serverbase/pkg/settings/services"
-	"github.com/AgileExecutives/shared-modules/invoice/entities"
-	invoiceNumberService "github.com/AgileExecutives/shared-modules/invoice_number/services"
+	sbsettingsrepo "github.com/AgileExecutives/ae-framework/serverbase/pkg/settings/repository"
+	sbsettings "github.com/AgileExecutives/ae-framework/serverbase/pkg/settings/services"
+	"github.com/AgileExecutives/ae-framwork/shared-modules/invoice/entities"
+	invoiceNumberService "github.com/AgileExecutives/ae-framwork/shared-modules/invoice_number/services"
 )
 
 // FinalizeInvoice finalizes a draft invoice by generating an invoice number and changing status to finalized

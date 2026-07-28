@@ -4,9 +4,9 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/AgileExecutives/shared-modules/invoice/entities"
-	"github.com/AgileExecutives/shared-modules/invoice/services"
-	"github.com/AgileExecutives/shared-modules/invoice/utils"
+	"github.com/AgileExecutives/ae-framwork/shared-modules/invoice/entities"
+	"github.com/AgileExecutives/ae-framwork/shared-modules/invoice/services"
+	"github.com/AgileExecutives/ae-framwork/shared-modules/invoice/utils"
 	"github.com/gin-gonic/gin"
 )
 

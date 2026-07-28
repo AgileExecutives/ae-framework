@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"time"
 
-	_ "github.com/AgileExecutives/serverbase/modules/user/models" // Import models for swagger
-	"github.com/AgileExecutives/serverbase/pkg/core"
+	_ "github.com/AgileExecutives/ae-framework/serverbase/modules/user/models" // Import models for swagger
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/core"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )

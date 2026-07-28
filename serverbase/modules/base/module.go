@@ -7,18 +7,18 @@ package base
 import (
 	"context"
 
-	internalTenantSvc "github.com/AgileExecutives/serverbase/internal/services"
-	basedocs "github.com/AgileExecutives/serverbase/modules/base/docs"
-	baseRepo "github.com/AgileExecutives/serverbase/modules/base/repo"
-	baseServices "github.com/AgileExecutives/serverbase/modules/base/services"
-	"github.com/AgileExecutives/serverbase/modules/user/entities"
-	"github.com/AgileExecutives/serverbase/modules/user/events"
-	"github.com/AgileExecutives/serverbase/modules/user/handlers"
-	"github.com/AgileExecutives/serverbase/modules/user/middleware"
-	"github.com/AgileExecutives/serverbase/modules/user/services"
-	"github.com/AgileExecutives/serverbase/pkg/core"
-	"github.com/AgileExecutives/serverbase/pkg/repos"
-	settingsentities "github.com/AgileExecutives/serverbase/pkg/settings/entities"
+	internalTenantSvc "github.com/AgileExecutives/ae-framework/serverbase/internal/services"
+	basedocs "github.com/AgileExecutives/ae-framework/serverbase/modules/base/docs"
+	baseRepo "github.com/AgileExecutives/ae-framework/serverbase/modules/base/repo"
+	baseServices "github.com/AgileExecutives/ae-framework/serverbase/modules/base/services"
+	"github.com/AgileExecutives/ae-framework/serverbase/modules/user/entities"
+	"github.com/AgileExecutives/ae-framework/serverbase/modules/user/events"
+	"github.com/AgileExecutives/ae-framework/serverbase/modules/user/handlers"
+	"github.com/AgileExecutives/ae-framework/serverbase/modules/user/middleware"
+	"github.com/AgileExecutives/ae-framework/serverbase/modules/user/services"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/core"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/repos"
+	settingsentities "github.com/AgileExecutives/ae-framework/serverbase/pkg/settings/entities"
 )
 
 // BaseModule provides core authentication, user management, and contact functionality

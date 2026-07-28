@@ -8,12 +8,12 @@
 package saas
 
 import (
-	"github.com/AgileExecutives/serverbase/module"
-	basehandlers "github.com/AgileExecutives/serverbase/modules/base/handlers"
-	baserepo "github.com/AgileExecutives/serverbase/modules/base/repo"
-	baseservices "github.com/AgileExecutives/serverbase/modules/base/services"
-	custrepo "github.com/AgileExecutives/serverbase/modules/customers/repo"
-	"github.com/AgileExecutives/serverbase/pkg/core"
+	"github.com/AgileExecutives/ae-framework/serverbase/module"
+	basehandlers "github.com/AgileExecutives/ae-framework/serverbase/modules/base/handlers"
+	baserepo "github.com/AgileExecutives/ae-framework/serverbase/modules/base/repo"
+	baseservices "github.com/AgileExecutives/ae-framework/serverbase/modules/base/services"
+	custrepo "github.com/AgileExecutives/ae-framework/serverbase/modules/customers/repo"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/core"
 	saasrepo "github.com/AgileExecutives/shared-modules/saas-base/repo"
 	saassvc "github.com/AgileExecutives/shared-modules/saas-base/services"
 	"github.com/gin-gonic/gin"

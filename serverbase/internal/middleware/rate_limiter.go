@@ -7,7 +7,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/AgileExecutives/serverbase/internal/models"
+	"github.com/AgileExecutives/ae-framework/serverbase/internal/models"
 	"github.com/gin-gonic/gin"
 	"github.com/ulule/limiter/v3"
 	mgin "github.com/ulule/limiter/v3/drivers/middleware/gin"

@@ -1,4 +1,4 @@
-module github.com/AgileExecutives/serverbase
+module github.com/AgileExecutives/ae-framework/serverbase
 
 go 1.25.0
 

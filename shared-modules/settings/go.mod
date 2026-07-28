@@ -1,11 +1,11 @@
-module github.com/AgileExecutives/shared-modules/settings
+module github.com/AgileExecutives/ae-framwork/shared-modules/settings
 
 go 1.25.0
 
-replace github.com/AgileExecutives/serverbase => ../../serverbase
+replace github.com/AgileExecutives/ae-framework/serverbase => ../../serverbase
 
 require (
-	github.com/AgileExecutives/serverbase v0.0.0-00010101000000-000000000000
+	github.com/AgileExecutives/ae-framework/serverbase v0.0.0-00010101000000-000000000000
 	github.com/gin-gonic/gin v1.12.0
 	github.com/swaggo/swag v1.16.6
 )

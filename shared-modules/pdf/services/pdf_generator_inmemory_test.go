@@ -3,7 +3,7 @@ package services
 import (
 	"testing"
 
-	repo "github.com/AgileExecutives/shared-modules/pdf/repo"
+	repo "github.com/AgileExecutives/ae-framwork/shared-modules/pdf/repo"
 	"github.com/stretchr/testify/assert"
 )
 

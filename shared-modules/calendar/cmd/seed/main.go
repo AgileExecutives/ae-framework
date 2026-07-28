@@ -6,9 +6,9 @@ import (
 	"log"
 	"os"
 
-	"github.com/AgileExecutives/serverbase/pkg/config"
-	"github.com/AgileExecutives/serverbase/pkg/database"
-	calendarSeeding "github.com/AgileExecutives/shared-modules/calendar/seeding"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/config"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/database"
+	calendarSeeding "github.com/AgileExecutives/ae-framwork/shared-modules/calendar/seeding"
 )
 
 func main() {

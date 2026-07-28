@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
-	"github.com/AgileExecutives/serverbase/internal/models"
-	"github.com/AgileExecutives/serverbase/pkg/testutils"
+	"github.com/AgileExecutives/ae-framework/serverbase/internal/models"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/testutils"
 )
 
 // FakeUserRepo implements the minimal interfaces.UserRepository for tests.

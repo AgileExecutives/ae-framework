@@ -7,8 +7,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/AgileExecutives/serverbase/internal/models"
-	"github.com/AgileExecutives/serverbase/internal/services"
+	"github.com/AgileExecutives/ae-framework/serverbase/internal/models"
+	"github.com/AgileExecutives/ae-framework/serverbase/internal/services"
 	"github.com/gin-gonic/gin"
 )
 

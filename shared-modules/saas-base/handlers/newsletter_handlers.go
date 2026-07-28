@@ -4,10 +4,10 @@ import (
 	"net/http"
 	"time"
 
-	baseAPI "github.com/AgileExecutives/serverbase/api"
-	"github.com/AgileExecutives/serverbase/pkg/utils"
-	"github.com/AgileExecutives/shared-modules/saas-base/models"
-	"github.com/AgileExecutives/shared-modules/saas-base/services"
+	baseAPI "github.com/AgileExecutives/ae-framework/serverbase/api"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/utils"
+	"github.com/AgileExecutives/ae-framwork/shared-modules/saas-base/models"
+	"github.com/AgileExecutives/ae-framwork/shared-modules/saas-base/services"
 	"github.com/gin-gonic/gin"
 )
 

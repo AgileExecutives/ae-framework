@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/AgileExecutives/serverbase/modules/base/services/storage"
+	"github.com/AgileExecutives/ae-framework/serverbase/modules/base/services/storage"
 )
 
 // TenantBucketService handles MinIO bucket operations for tenants

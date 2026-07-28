@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/AgileExecutives/shared-modules/calendar/entities"
+	"github.com/AgileExecutives/ae-framwork/shared-modules/calendar/entities"
 )
 
 type InMemoryCalendarRepo struct {

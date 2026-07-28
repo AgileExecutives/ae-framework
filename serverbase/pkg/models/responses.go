@@ -1,6 +1,6 @@
 package models
 
-import internal "github.com/AgileExecutives/serverbase/internal/models"
+import internal "github.com/AgileExecutives/ae-framework/serverbase/internal/models"
 
 // Re-export helper functions and types from internal models for external use.
 func SuccessResponse(message string, data interface{}) internal.APIResponse {

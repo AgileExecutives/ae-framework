@@ -5,10 +5,10 @@ import (
 	"strconv"
 	"time"
 
-	baseAPI "github.com/AgileExecutives/serverbase/api"
-	"github.com/AgileExecutives/shared-modules/invoice_number/services"
+	baseAPI "github.com/AgileExecutives/ae-framework/serverbase/api"
+	"github.com/AgileExecutives/ae-framwork/shared-modules/invoice_number/services"
 
-	// "github.com/AgileExecutives/serverbase/pkg/settings/manager"
+	// "github.com/AgileExecutives/ae-framework/serverbase/pkg/settings/manager"
 	"github.com/gin-gonic/gin"
 )
 

@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/AgileExecutives/serverbase/internal/models"
-	"github.com/AgileExecutives/serverbase/pkg/middleware"
+	"github.com/AgileExecutives/ae-framework/serverbase/internal/models"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/middleware"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"

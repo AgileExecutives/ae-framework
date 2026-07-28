@@ -3,10 +3,10 @@
 package settings
 
 import (
-	"github.com/AgileExecutives/serverbase/module"
-	"github.com/AgileExecutives/serverbase/pkg/core"
-	sbsettings "github.com/AgileExecutives/serverbase/pkg/settings"
-	sbentities "github.com/AgileExecutives/serverbase/pkg/settings/entities"
+	"github.com/AgileExecutives/ae-framework/serverbase/module"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/core"
+	sbsettings "github.com/AgileExecutives/ae-framework/serverbase/pkg/settings"
+	sbentities "github.com/AgileExecutives/ae-framework/serverbase/pkg/settings/entities"
 	"github.com/gin-gonic/gin"
 )
 

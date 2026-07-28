@@ -3,8 +3,8 @@ package services
 import (
 	"testing"
 
-	"github.com/AgileExecutives/serverbase/internal/models"
-	orgrepo "github.com/AgileExecutives/serverbase/internal/organizations/repo"
+	"github.com/AgileExecutives/ae-framework/serverbase/internal/models"
+	orgrepo "github.com/AgileExecutives/ae-framework/serverbase/internal/organizations/repo"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

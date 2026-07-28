@@ -5,7 +5,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/AgileExecutives/serverbase/pkg/models"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/models"
 	"github.com/gin-gonic/gin"
 )
 

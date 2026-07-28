@@ -1,9 +1,9 @@
 package routes
 
 import (
-	"github.com/AgileExecutives/serverbase/pkg/core"
-	"github.com/AgileExecutives/shared-modules/invoice_number/handlers"
-	"github.com/AgileExecutives/shared-modules/invoice_number/services"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/core"
+	"github.com/AgileExecutives/ae-framwork/shared-modules/invoice_number/handlers"
+	"github.com/AgileExecutives/ae-framwork/shared-modules/invoice_number/services"
 	"github.com/gin-gonic/gin"
 )
 

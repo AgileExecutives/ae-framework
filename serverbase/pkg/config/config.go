@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/AgileExecutives/serverbase/pkg/database"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/database"
 )
 
 // ValidationError represents a configuration validation error

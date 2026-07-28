@@ -5,7 +5,7 @@ import (
 	"errors"
 	"sync"
 
-	"github.com/AgileExecutives/serverbase/modules/base/models"
+	"github.com/AgileExecutives/ae-framework/serverbase/modules/base/models"
 )
 
 type InMemoryCustomerRepo struct {

@@ -3,9 +3,9 @@ package startup
 import (
 	"fmt"
 
-	baseServices "github.com/AgileExecutives/serverbase/modules/base/services"
-	emailServices "github.com/AgileExecutives/serverbase/modules/email/services"
-	templateServices "github.com/AgileExecutives/serverbase/modules/templates/services"
+	baseServices "github.com/AgileExecutives/ae-framework/serverbase/modules/base/services"
+	emailServices "github.com/AgileExecutives/ae-framework/serverbase/modules/email/services"
+	templateServices "github.com/AgileExecutives/ae-framework/serverbase/modules/templates/services"
 	"gorm.io/gorm"
 )
 

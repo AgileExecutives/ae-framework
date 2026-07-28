@@ -3,11 +3,11 @@ package audit
 import (
 	"context"
 
-	"github.com/AgileExecutives/serverbase/pkg/core"
-	"github.com/AgileExecutives/shared-modules/audit/handlers"
-	repo "github.com/AgileExecutives/shared-modules/audit/repo"
-	"github.com/AgileExecutives/shared-modules/audit/routes"
-	"github.com/AgileExecutives/shared-modules/audit/services"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/core"
+	"github.com/AgileExecutives/ae-framwork/shared-modules/audit/handlers"
+	repo "github.com/AgileExecutives/ae-framwork/shared-modules/audit/repo"
+	"github.com/AgileExecutives/ae-framwork/shared-modules/audit/routes"
+	"github.com/AgileExecutives/ae-framwork/shared-modules/audit/services"
 	"github.com/gin-gonic/gin"
 )
 

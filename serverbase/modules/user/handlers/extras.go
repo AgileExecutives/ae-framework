@@ -6,12 +6,12 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/AgileExecutives/serverbase/internal/models"
-	baseRepo "github.com/AgileExecutives/serverbase/modules/base/repo"
-	baseServices "github.com/AgileExecutives/serverbase/modules/base/services"
-	"github.com/AgileExecutives/serverbase/pkg/core"
-	"github.com/AgileExecutives/serverbase/pkg/dbping"
-	"github.com/AgileExecutives/serverbase/pkg/interfaces"
+	"github.com/AgileExecutives/ae-framework/serverbase/internal/models"
+	baseRepo "github.com/AgileExecutives/ae-framework/serverbase/modules/base/repo"
+	baseServices "github.com/AgileExecutives/ae-framework/serverbase/modules/base/services"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/core"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/dbping"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/interfaces"
 	"github.com/gin-gonic/gin"
 )
 

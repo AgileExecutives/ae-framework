@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
-	basemodels "github.com/AgileExecutives/serverbase/modules/user/models"
-	"github.com/AgileExecutives/serverbase/pkg/models"
+	basemodels "github.com/AgileExecutives/ae-framework/serverbase/modules/user/models"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/models"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )

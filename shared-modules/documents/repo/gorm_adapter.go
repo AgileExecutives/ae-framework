@@ -3,7 +3,7 @@ package repo
 import (
 	"context"
 
-	"github.com/AgileExecutives/shared-modules/documents/entities"
+	"github.com/AgileExecutives/ae-framwork/shared-modules/documents/entities"
 	"gorm.io/gorm"
 )
 

@@ -3,8 +3,8 @@ package services
 import (
 	"testing"
 
-	"github.com/AgileExecutives/serverbase/internal/models"
-	baseRepo "github.com/AgileExecutives/serverbase/modules/base/repo"
+	"github.com/AgileExecutives/ae-framework/serverbase/internal/models"
+	baseRepo "github.com/AgileExecutives/ae-framework/serverbase/modules/base/repo"
 )
 
 func TestUserSettings_GetOrCreate_Update_Reset(t *testing.T) {

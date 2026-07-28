@@ -1,12 +1,12 @@
 package services
 
 import (
-    "github.com/AgileExecutives/serverbase/modules/base/models"
-    "github.com/AgileExecutives/serverbase/modules/base/repo"
+	"github.com/AgileExecutives/ae-framework/serverbase/modules/base/models"
+	"github.com/AgileExecutives/ae-framework/serverbase/modules/base/repo"
 )
 
 type PlanService struct {
-    repo repo.PlanRepo
+	repo repo.PlanRepo
 }
 
 func NewPlanService(r repo.PlanRepo) *PlanService { return &PlanService{repo: r} }

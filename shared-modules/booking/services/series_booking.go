@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/AgileExecutives/shared-modules/booking/entities"
+	"github.com/AgileExecutives/ae-framwork/shared-modules/booking/entities"
 )
 
 // CalendarSeries represents a recurring series in the database

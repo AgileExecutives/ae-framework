@@ -3,11 +3,11 @@ package handlers_test
 import (
 	"testing"
 
-	"github.com/AgileExecutives/serverbase/internal/models"
-	orghandlers "github.com/AgileExecutives/serverbase/internal/organizations/handlers"
-	orgrepo "github.com/AgileExecutives/serverbase/internal/organizations/repo"
-	orgservices "github.com/AgileExecutives/serverbase/internal/organizations/services"
-	"github.com/AgileExecutives/serverbase/pkg/testutils"
+	"github.com/AgileExecutives/ae-framework/serverbase/internal/models"
+	orghandlers "github.com/AgileExecutives/ae-framework/serverbase/internal/organizations/handlers"
+	orgrepo "github.com/AgileExecutives/ae-framework/serverbase/internal/organizations/repo"
+	orgservices "github.com/AgileExecutives/ae-framework/serverbase/internal/organizations/services"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/testutils"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/require"
 )

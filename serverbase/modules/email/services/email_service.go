@@ -16,7 +16,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/AgileExecutives/serverbase/pkg/utils"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/utils"
 )
 
 const mockEmailsFilePath = "tmp/mock_emails.json"

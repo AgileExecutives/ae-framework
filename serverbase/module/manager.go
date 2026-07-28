@@ -3,7 +3,7 @@ package module
 import (
 	"context"
 
-	"github.com/AgileExecutives/serverbase/pkg/core"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/core"
 	"gorm.io/gorm"
 )
 

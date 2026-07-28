@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/AgileExecutives/shared-modules/invoice_number/repo"
+	"github.com/AgileExecutives/ae-framwork/shared-modules/invoice_number/repo"
 )
 
 func TestGenerateInvoiceNumber_InMemoryRepo(t *testing.T) {

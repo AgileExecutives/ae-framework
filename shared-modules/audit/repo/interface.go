@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/AgileExecutives/shared-modules/audit/entities"
+	"github.com/AgileExecutives/ae-framwork/shared-modules/audit/entities"
 )
 
 // AuditRepo defines persistence operations for audit logs

@@ -3,7 +3,7 @@ package services
 import (
 	"path/filepath"
 
-	templateServices "github.com/AgileExecutives/serverbase/modules/templates/services"
+	templateServices "github.com/AgileExecutives/ae-framework/serverbase/modules/templates/services"
 )
 
 // RegisterEmailContracts registers template contracts for the email module

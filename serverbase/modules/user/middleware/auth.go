@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"github.com/AgileExecutives/serverbase/pkg/core"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/core"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )

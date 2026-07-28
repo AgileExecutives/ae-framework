@@ -1,6 +1,6 @@
 package models
 
-import internalmodels "github.com/AgileExecutives/serverbase/internal/models"
+import internalmodels "github.com/AgileExecutives/ae-framework/serverbase/internal/models"
 
 // Public aliases to internal models so external modules (shared-modules)
 // can import stable types without referencing internal packages.

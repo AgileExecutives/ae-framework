@@ -3,8 +3,8 @@ package repo
 import (
 	"context"
 
-	basemodels "github.com/AgileExecutives/serverbase/modules/user/models"
-	"github.com/AgileExecutives/serverbase/pkg/models"
+	basemodels "github.com/AgileExecutives/ae-framework/serverbase/modules/user/models"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/models"
 )
 
 // ContactRepo defines data access for contacts and newsletter subscriptions.

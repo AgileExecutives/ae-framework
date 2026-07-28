@@ -1,7 +1,7 @@
 package events
 
 import (
-	"github.com/AgileExecutives/serverbase/pkg/core"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/core"
 )
 
 // BaseEventHandlers provides event handling for base module

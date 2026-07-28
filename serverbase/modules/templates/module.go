@@ -10,9 +10,9 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/AgileExecutives/serverbase/module"
-	"github.com/AgileExecutives/serverbase/modules/templates/services"
-	"github.com/AgileExecutives/serverbase/pkg/core"
+	"github.com/AgileExecutives/ae-framework/serverbase/module"
+	"github.com/AgileExecutives/ae-framework/serverbase/modules/templates/services"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/core"
 	"github.com/gin-gonic/gin"
 )
 

@@ -6,11 +6,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/AgileExecutives/serverbase/internal/models"
-	tenantrepo "github.com/AgileExecutives/serverbase/modules/tenant/repo"
-	userrepo "github.com/AgileExecutives/serverbase/modules/user/repo"
-	"github.com/AgileExecutives/serverbase/pkg/auth"
-	"github.com/AgileExecutives/serverbase/pkg/testutils"
+	"github.com/AgileExecutives/ae-framework/serverbase/internal/models"
+	tenantrepo "github.com/AgileExecutives/ae-framework/serverbase/modules/tenant/repo"
+	userrepo "github.com/AgileExecutives/ae-framework/serverbase/modules/user/repo"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/auth"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/testutils"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/stretchr/testify/require"
 )

@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/AgileExecutives/shared-modules/booking/entities"
+	"github.com/AgileExecutives/ae-framwork/shared-modules/booking/entities"
 	"gorm.io/gorm"
 )
 

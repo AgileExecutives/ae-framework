@@ -1,14 +1,14 @@
-module github.com/AgileExecutives/shared-modules/calendar/cmd/seed
+module github.com/AgileExecutives/ae-framwork/shared-modules/calendar/cmd/seed
 
 go 1.25.0
 
-replace github.com/AgileExecutives/serverbase => ../../../../serverbase
+replace github.com/AgileExecutives/ae-framework/serverbase => ../../../../serverbase
 
-replace github.com/AgileExecutives/shared-modules/calendar => ../..
+replace github.com/AgileExecutives/ae-framwork/shared-modules/calendar => ../..
 
 require (
-	github.com/AgileExecutives/serverbase v0.0.0
-	github.com/AgileExecutives/shared-modules/calendar v0.0.0-00010101000000-000000000000
+	github.com/AgileExecutives/ae-framework/serverbase v0.0.0
+	github.com/AgileExecutives/ae-framwork/shared-modules/calendar v0.0.0-00010101000000-000000000000
 )
 
 require (

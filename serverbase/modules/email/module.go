@@ -3,12 +3,12 @@ package email
 import (
 	"context"
 
-	"github.com/AgileExecutives/serverbase/modules/email/entities"
-	"github.com/AgileExecutives/serverbase/modules/email/events"
-	"github.com/AgileExecutives/serverbase/modules/email/handlers"
-	"github.com/AgileExecutives/serverbase/modules/email/repo"
-	"github.com/AgileExecutives/serverbase/modules/email/services"
-	"github.com/AgileExecutives/serverbase/pkg/core"
+	"github.com/AgileExecutives/ae-framework/serverbase/modules/email/entities"
+	"github.com/AgileExecutives/ae-framework/serverbase/modules/email/events"
+	"github.com/AgileExecutives/ae-framework/serverbase/modules/email/handlers"
+	"github.com/AgileExecutives/ae-framework/serverbase/modules/email/repo"
+	"github.com/AgileExecutives/ae-framework/serverbase/modules/email/services"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/core"
 )
 
 // EmailModule represents the email module

@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"github.com/AgileExecutives/shared-modules/audit/handlers"
+	"github.com/AgileExecutives/ae-framwork/shared-modules/audit/handlers"
 	"github.com/gin-gonic/gin"
 )
 

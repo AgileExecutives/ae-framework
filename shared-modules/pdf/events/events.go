@@ -1,6 +1,6 @@
 package events
 
-import "github.com/AgileExecutives/serverbase/pkg/core"
+import "github.com/AgileExecutives/ae-framework/serverbase/pkg/core"
 
 type PDFGeneratedHandler struct{ logger core.Logger }
 

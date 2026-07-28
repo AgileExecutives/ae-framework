@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/AgileExecutives/serverbase/pkg/settings/entities"
-	"github.com/AgileExecutives/serverbase/pkg/settings/services"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/settings/entities"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/settings/services"
 	"github.com/gin-gonic/gin"
 )
 

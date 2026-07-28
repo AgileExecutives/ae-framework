@@ -3,7 +3,7 @@ package repo
 import (
 	"context"
 
-	"github.com/AgileExecutives/shared-modules/saas-base/models"
+	"github.com/AgileExecutives/ae-framwork/shared-modules/saas-base/models"
 )
 
 // PlanRepo defines repository methods for plans.

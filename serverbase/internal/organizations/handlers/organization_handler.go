@@ -4,11 +4,11 @@ import (
 	"net/http"
 	"strconv"
 
-	baseAPI "github.com/AgileExecutives/serverbase/api"
-	"github.com/AgileExecutives/serverbase/internal/models"
-	"github.com/AgileExecutives/serverbase/internal/organizations/services"
-	"github.com/AgileExecutives/serverbase/pkg/formatting"
-	"github.com/AgileExecutives/serverbase/pkg/utils"
+	baseAPI "github.com/AgileExecutives/ae-framework/serverbase/api"
+	"github.com/AgileExecutives/ae-framework/serverbase/internal/models"
+	"github.com/AgileExecutives/ae-framework/serverbase/internal/organizations/services"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/formatting"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/utils"
 	"github.com/gin-gonic/gin"
 )
 

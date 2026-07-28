@@ -4,11 +4,11 @@ import (
 	"os"
 	"testing"
 
-	"github.com/AgileExecutives/serverbase/modules/user/repo"
-	"github.com/AgileExecutives/serverbase/modules/user/services"
-	"github.com/AgileExecutives/serverbase/pkg/core"
-	"github.com/AgileExecutives/serverbase/pkg/models"
-	"github.com/AgileExecutives/serverbase/pkg/testutils"
+	"github.com/AgileExecutives/ae-framework/serverbase/modules/user/repo"
+	"github.com/AgileExecutives/ae-framework/serverbase/modules/user/services"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/core"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/models"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/testutils"
 	"github.com/stretchr/testify/require"
 	"golang.org/x/crypto/bcrypt"
 )

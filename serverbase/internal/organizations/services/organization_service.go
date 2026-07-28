@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/AgileExecutives/serverbase/internal/models"
-	orgrepo "github.com/AgileExecutives/serverbase/internal/organizations/repo"
-	templateServices "github.com/AgileExecutives/serverbase/modules/templates/services"
+	"github.com/AgileExecutives/ae-framework/serverbase/internal/models"
+	orgrepo "github.com/AgileExecutives/ae-framework/serverbase/internal/organizations/repo"
+	templateServices "github.com/AgileExecutives/ae-framework/serverbase/modules/templates/services"
 	"gorm.io/gorm"
 )
 

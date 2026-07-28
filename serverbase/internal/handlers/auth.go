@@ -6,12 +6,12 @@ import (
 	"os"
 	"time"
 
-	"github.com/AgileExecutives/serverbase/internal/models"
-	emailServices "github.com/AgileExecutives/serverbase/modules/email/services"
-	usersvc "github.com/AgileExecutives/serverbase/modules/user/services"
-	"github.com/AgileExecutives/serverbase/pkg/auth"
-	"github.com/AgileExecutives/serverbase/pkg/config"
-	"github.com/AgileExecutives/serverbase/pkg/utils"
+	"github.com/AgileExecutives/ae-framework/serverbase/internal/models"
+	emailServices "github.com/AgileExecutives/ae-framework/serverbase/modules/email/services"
+	usersvc "github.com/AgileExecutives/ae-framework/serverbase/modules/user/services"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/auth"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/config"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/utils"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 )

@@ -1,10 +1,10 @@
 package repos
 
 import (
-	"github.com/AgileExecutives/serverbase/modules/customers/repo"
-	emailrepo "github.com/AgileExecutives/serverbase/modules/email/repo"
-	tenantrepo "github.com/AgileExecutives/serverbase/modules/tenant/repo"
-	userrepo "github.com/AgileExecutives/serverbase/modules/user/repo"
+	"github.com/AgileExecutives/ae-framework/serverbase/modules/customers/repo"
+	emailrepo "github.com/AgileExecutives/ae-framework/serverbase/modules/email/repo"
+	tenantrepo "github.com/AgileExecutives/ae-framework/serverbase/modules/tenant/repo"
+	userrepo "github.com/AgileExecutives/ae-framework/serverbase/modules/user/repo"
 	"gorm.io/gorm"
 )
 

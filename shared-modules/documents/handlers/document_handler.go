@@ -6,10 +6,10 @@ import (
 	"strconv"
 	"time"
 
-	baseAPI "github.com/AgileExecutives/serverbase/api"
-	"github.com/AgileExecutives/serverbase/pkg/core"
-	"github.com/AgileExecutives/shared-modules/documents/entities"
-	"github.com/AgileExecutives/shared-modules/documents/services"
+	baseAPI "github.com/AgileExecutives/ae-framework/serverbase/api"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/core"
+	"github.com/AgileExecutives/ae-framwork/shared-modules/documents/entities"
+	"github.com/AgileExecutives/ae-framwork/shared-modules/documents/services"
 	"github.com/gin-gonic/gin"
 )
 

@@ -11,7 +11,7 @@ import (
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 
-	"github.com/AgileExecutives/shared-modules/documents/entities"
+	"github.com/AgileExecutives/ae-framwork/shared-modules/documents/entities"
 )
 
 func setupDocumentDB(t *testing.T) *gorm.DB {

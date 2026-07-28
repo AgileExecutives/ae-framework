@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/AgileExecutives/shared-modules/invoice/entities"
+	"github.com/AgileExecutives/ae-framwork/shared-modules/invoice/entities"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

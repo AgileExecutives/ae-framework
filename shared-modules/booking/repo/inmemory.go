@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/AgileExecutives/shared-modules/booking/entities"
+	"github.com/AgileExecutives/ae-framwork/shared-modules/booking/entities"
 )
 
 type InMemoryBookingRepo struct {

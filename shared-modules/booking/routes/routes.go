@@ -1,11 +1,11 @@
 package routes
 
 import (
-	"github.com/AgileExecutives/serverbase/pkg/core"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/core"
 	"github.com/gin-gonic/gin"
 
-	"github.com/AgileExecutives/shared-modules/booking/handlers"
-	bookingMiddleware "github.com/AgileExecutives/shared-modules/booking/middleware"
+	"github.com/AgileExecutives/ae-framwork/shared-modules/booking/handlers"
+	bookingMiddleware "github.com/AgileExecutives/ae-framwork/shared-modules/booking/middleware"
 )
 
 // RouteProvider provides routing functionality for booking management

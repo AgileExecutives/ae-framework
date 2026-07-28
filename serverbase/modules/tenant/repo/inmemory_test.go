@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/AgileExecutives/serverbase/internal/models"
+	"github.com/AgileExecutives/ae-framework/serverbase/internal/models"
 )
 
 func TestInMemoryTenantRepo_SaveAndFind(t *testing.T) {

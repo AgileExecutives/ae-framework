@@ -7,10 +7,10 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/AgileExecutives/serverbase/internal/models"
-	baseRepo "github.com/AgileExecutives/serverbase/modules/base/repo"
-	baseServices "github.com/AgileExecutives/serverbase/modules/base/services"
-	"github.com/AgileExecutives/serverbase/pkg/testutils"
+	"github.com/AgileExecutives/ae-framework/serverbase/internal/models"
+	baseRepo "github.com/AgileExecutives/ae-framework/serverbase/modules/base/repo"
+	baseServices "github.com/AgileExecutives/ae-framework/serverbase/modules/base/services"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/testutils"
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/require"
 )

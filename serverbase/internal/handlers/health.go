@@ -1,9 +1,9 @@
 package handlers
 
 import (
-	basehandlers "github.com/AgileExecutives/serverbase/modules/base/handlers"
-	"github.com/AgileExecutives/serverbase/pkg/config"
-	"github.com/AgileExecutives/serverbase/pkg/core"
+	basehandlers "github.com/AgileExecutives/ae-framework/serverbase/modules/base/handlers"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/config"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/core"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )

@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/AgileExecutives/serverbase/pkg/core"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/core"
 )
 
 type fakeModule struct {

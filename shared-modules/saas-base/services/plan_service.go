@@ -3,8 +3,8 @@ package services
 import (
 	"context"
 
-	"github.com/AgileExecutives/shared-modules/saas-base/models"
-	"github.com/AgileExecutives/shared-modules/saas-base/repo"
+	"github.com/AgileExecutives/ae-framwork/shared-modules/saas-base/models"
+	"github.com/AgileExecutives/ae-framwork/shared-modules/saas-base/repo"
 )
 
 // PlanService provides business logic for plans.

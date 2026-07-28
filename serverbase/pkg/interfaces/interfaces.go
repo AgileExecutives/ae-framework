@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/AgileExecutives/serverbase/internal/models"
+	"github.com/AgileExecutives/ae-framework/serverbase/internal/models"
 )
 
 // DB is a narrow abstraction over GORM used by modules for migrations and simple ops.

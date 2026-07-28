@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/AgileExecutives/shared-modules/invoice/entities"
+	"github.com/AgileExecutives/ae-framwork/shared-modules/invoice/entities"
 )
 
 type InMemoryInvoiceRepo struct {

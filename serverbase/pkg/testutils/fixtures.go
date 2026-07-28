@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/AgileExecutives/serverbase/internal/models"
+	"github.com/AgileExecutives/ae-framework/serverbase/internal/models"
 	"gorm.io/gorm"
 )
 

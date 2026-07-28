@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/AgileExecutives/serverbase/pkg/settings/entities"
-	"github.com/AgileExecutives/serverbase/pkg/settings/repository"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/settings/entities"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/settings/repository"
 	"gorm.io/datatypes"
 )
 

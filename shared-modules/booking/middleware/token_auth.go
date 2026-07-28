@@ -7,10 +7,10 @@ import (
 	"net/http"
 	"time"
 
-	baseAPI "github.com/AgileExecutives/serverbase/api"
-	"github.com/AgileExecutives/shared-modules/booking/entities"
-	repo "github.com/AgileExecutives/shared-modules/booking/repo"
-	"github.com/AgileExecutives/shared-modules/booking/services"
+	baseAPI "github.com/AgileExecutives/ae-framework/serverbase/api"
+	"github.com/AgileExecutives/ae-framwork/shared-modules/booking/entities"
+	repo "github.com/AgileExecutives/ae-framwork/shared-modules/booking/repo"
+	"github.com/AgileExecutives/ae-framwork/shared-modules/booking/services"
 	"github.com/gin-gonic/gin"
 )
 

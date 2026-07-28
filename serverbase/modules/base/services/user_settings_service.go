@@ -3,8 +3,8 @@ package services
 import (
 	"errors"
 
-	"github.com/AgileExecutives/serverbase/internal/models"
-	"github.com/AgileExecutives/serverbase/modules/base/repo"
+	"github.com/AgileExecutives/ae-framework/serverbase/internal/models"
+	"github.com/AgileExecutives/ae-framework/serverbase/modules/base/repo"
 )
 
 // UserSettingsService provides operations for user settings

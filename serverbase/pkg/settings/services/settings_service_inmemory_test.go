@@ -3,7 +3,7 @@ package services
 import (
 	"testing"
 
-	"github.com/AgileExecutives/serverbase/pkg/settings/repository"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/settings/repository"
 )
 
 func Test_SetAndGetSetting_InMemory(t *testing.T) {

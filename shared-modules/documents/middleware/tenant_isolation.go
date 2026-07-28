@@ -3,8 +3,8 @@ package middleware
 import (
 	"net/http"
 
-	baseAPI "github.com/AgileExecutives/serverbase/api"
-	"github.com/AgileExecutives/shared-modules/documents/entities"
+	baseAPI "github.com/AgileExecutives/ae-framework/serverbase/api"
+	"github.com/AgileExecutives/ae-framwork/shared-modules/documents/entities"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )

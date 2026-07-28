@@ -11,12 +11,12 @@
 package organizations
 
 import (
-	orgdocs "github.com/AgileExecutives/serverbase/internal/organizations/docs"
-	orghandlers "github.com/AgileExecutives/serverbase/internal/organizations/handlers"
-	orgrepo "github.com/AgileExecutives/serverbase/internal/organizations/repo"
-	orgservices "github.com/AgileExecutives/serverbase/internal/organizations/services"
-	"github.com/AgileExecutives/serverbase/module"
-	"github.com/AgileExecutives/serverbase/pkg/core"
+	orgdocs "github.com/AgileExecutives/ae-framework/serverbase/internal/organizations/docs"
+	orghandlers "github.com/AgileExecutives/ae-framework/serverbase/internal/organizations/handlers"
+	orgrepo "github.com/AgileExecutives/ae-framework/serverbase/internal/organizations/repo"
+	orgservices "github.com/AgileExecutives/ae-framework/serverbase/internal/organizations/services"
+	"github.com/AgileExecutives/ae-framework/serverbase/module"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/core"
 	"github.com/gin-gonic/gin"
 )
 

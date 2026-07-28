@@ -3,7 +3,7 @@ package repo
 import (
 	"context"
 
-	"github.com/AgileExecutives/serverbase/pkg/models"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/models"
 	"gorm.io/gorm"
 )
 

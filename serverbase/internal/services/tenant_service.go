@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/AgileExecutives/serverbase/internal/models"
-	"github.com/AgileExecutives/serverbase/modules/tenant/repo"
-	"github.com/AgileExecutives/serverbase/pkg/utils"
+	"github.com/AgileExecutives/ae-framework/serverbase/internal/models"
+	"github.com/AgileExecutives/ae-framework/serverbase/modules/tenant/repo"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/utils"
 )
 
 // TenantService handles tenant operations

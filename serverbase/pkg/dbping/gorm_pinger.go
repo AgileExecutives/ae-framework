@@ -3,7 +3,7 @@ package dbping
 import (
 	"database/sql"
 
-	"github.com/AgileExecutives/serverbase/pkg/interfaces"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/interfaces"
 	"gorm.io/gorm"
 )
 

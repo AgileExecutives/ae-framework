@@ -4,14 +4,14 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/AgileExecutives/serverbase/modules/email/repo"
-	"github.com/AgileExecutives/serverbase/modules/email/services"
-	"github.com/AgileExecutives/serverbase/pkg/config"
-	"github.com/AgileExecutives/serverbase/pkg/core"
-	"github.com/AgileExecutives/serverbase/pkg/middleware"
+	"github.com/AgileExecutives/ae-framework/serverbase/modules/email/repo"
+	"github.com/AgileExecutives/ae-framework/serverbase/modules/email/services"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/config"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/core"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/middleware"
 
-	"github.com/AgileExecutives/serverbase/pkg/models"
-	"github.com/AgileExecutives/serverbase/pkg/utils"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/models"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/utils"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )

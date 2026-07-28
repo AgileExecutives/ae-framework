@@ -5,7 +5,7 @@ import (
 	"errors"
 	"sync"
 
-	"github.com/AgileExecutives/shared-modules/documents/entities"
+	"github.com/AgileExecutives/ae-framwork/shared-modules/documents/entities"
 )
 
 type InMemoryDocumentRepo struct {

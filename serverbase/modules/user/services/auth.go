@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/AgileExecutives/serverbase/internal/models"
-	tenantrepo "github.com/AgileExecutives/serverbase/modules/tenant/repo"
-	userrepo "github.com/AgileExecutives/serverbase/modules/user/repo"
-	"github.com/AgileExecutives/serverbase/pkg/core"
-	"github.com/AgileExecutives/serverbase/pkg/eventbus"
+	"github.com/AgileExecutives/ae-framework/serverbase/internal/models"
+	tenantrepo "github.com/AgileExecutives/ae-framework/serverbase/modules/tenant/repo"
+	userrepo "github.com/AgileExecutives/ae-framework/serverbase/modules/user/repo"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/core"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/eventbus"
 )
 
 // AuthService provides authentication related services
