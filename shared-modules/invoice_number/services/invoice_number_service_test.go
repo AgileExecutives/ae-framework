@@ -8,7 +8,7 @@ import (
 
 	"github.com/AgileExecutives/ae-framework/serverbase/pkg/settings/repository"
 	sbsettings "github.com/AgileExecutives/ae-framework/serverbase/pkg/settings/services"
-	"github.com/AgileExecutives/ae-framwork/shared-modules/invoice_number/entities"
+	"github.com/AgileExecutives/ae-framework/shared-modules/invoice_number/entities"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )

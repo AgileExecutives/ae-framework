@@ -12,8 +12,8 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 
-	"github.com/AgileExecutives/ae-framwork/shared-modules/calendar/entities"
-	"github.com/AgileExecutives/ae-framwork/shared-modules/calendar/services"
+	"github.com/AgileExecutives/ae-framework/shared-modules/calendar/entities"
+	"github.com/AgileExecutives/ae-framework/shared-modules/calendar/services"
 )
 
 var (

@@ -1,10 +1,10 @@
 package audit
 
 import (
-	"github.com/AgileExecutives/ae-framwork/shared-modules/audit/entities"
-	"github.com/AgileExecutives/ae-framwork/shared-modules/audit/handlers"
-	"github.com/AgileExecutives/ae-framwork/shared-modules/audit/routes"
-	"github.com/AgileExecutives/ae-framwork/shared-modules/audit/services"
+	"github.com/AgileExecutives/ae-framework/shared-modules/audit/entities"
+	"github.com/AgileExecutives/ae-framework/shared-modules/audit/handlers"
+	"github.com/AgileExecutives/ae-framework/shared-modules/audit/routes"
+	"github.com/AgileExecutives/ae-framework/shared-modules/audit/services"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )

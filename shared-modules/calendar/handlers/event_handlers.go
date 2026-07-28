@@ -7,8 +7,8 @@ import (
 	"strconv"
 
 	"github.com/AgileExecutives/ae-framework/serverbase/pkg/eventbus"
-	"github.com/AgileExecutives/ae-framwork/shared-modules/calendar/entities"
-	"github.com/AgileExecutives/ae-framwork/shared-modules/calendar/services"
+	"github.com/AgileExecutives/ae-framework/shared-modules/calendar/entities"
+	"github.com/AgileExecutives/ae-framework/shared-modules/calendar/services"
 )
 
 // CalendarEventHandler handles calendar-related events

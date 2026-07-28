@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/AgileExecutives/ae-framework/serverbase/pkg/core"
-	"github.com/AgileExecutives/ae-framwork/shared-modules/organization/entities"
+	"github.com/AgileExecutives/ae-framework/shared-modules/organization/entities"
 )
 
 // Minimal OrganizationModule that only provides the entity to avoid

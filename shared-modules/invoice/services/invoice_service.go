@@ -7,9 +7,9 @@ import (
 
 	sbsettingsrepo "github.com/AgileExecutives/ae-framework/serverbase/pkg/settings/repository"
 	sbsettings "github.com/AgileExecutives/ae-framework/serverbase/pkg/settings/services"
-	"github.com/AgileExecutives/ae-framwork/shared-modules/invoice/entities"
-	repo "github.com/AgileExecutives/ae-framwork/shared-modules/invoice/repo"
-	invoiceNumberService "github.com/AgileExecutives/ae-framwork/shared-modules/invoice_number/services"
+	"github.com/AgileExecutives/ae-framework/shared-modules/invoice/entities"
+	repo "github.com/AgileExecutives/ae-framework/shared-modules/invoice/repo"
+	invoiceNumberService "github.com/AgileExecutives/ae-framework/shared-modules/invoice_number/services"
 	"gorm.io/gorm"
 )
 

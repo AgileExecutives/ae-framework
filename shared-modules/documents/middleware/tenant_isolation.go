@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	baseAPI "github.com/AgileExecutives/ae-framework/serverbase/api"
-	"github.com/AgileExecutives/ae-framwork/shared-modules/documents/entities"
+	"github.com/AgileExecutives/ae-framework/shared-modules/documents/entities"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )

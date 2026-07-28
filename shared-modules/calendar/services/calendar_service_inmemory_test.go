@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/AgileExecutives/ae-framwork/shared-modules/calendar/entities"
-	repo "github.com/AgileExecutives/ae-framwork/shared-modules/calendar/repo"
+	"github.com/AgileExecutives/ae-framework/shared-modules/calendar/entities"
+	repo "github.com/AgileExecutives/ae-framework/shared-modules/calendar/repo"
 	"github.com/stretchr/testify/require"
 )
 

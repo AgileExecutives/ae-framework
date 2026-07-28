@@ -2,7 +2,7 @@ package entities
 
 import (
 	"github.com/AgileExecutives/ae-framework/serverbase/pkg/core"
-	"github.com/AgileExecutives/ae-framwork/shared-modules/saas-base/models"
+	"github.com/AgileExecutives/ae-framework/shared-modules/saas-base/models"
 )
 
 // PlanEntity implements core.Entity for the Plan model.

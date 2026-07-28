@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"github.com/AgileExecutives/ae-framework/serverbase/pkg/core"
-	"github.com/AgileExecutives/ae-framwork/shared-modules/pdf/services"
+	"github.com/AgileExecutives/ae-framework/shared-modules/pdf/services"
 	"github.com/gin-gonic/gin"
 )
 

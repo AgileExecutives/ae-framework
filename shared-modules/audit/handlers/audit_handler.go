@@ -7,8 +7,8 @@ import (
 	"time"
 
 	baseAPI "github.com/AgileExecutives/ae-framework/serverbase/api"
-	"github.com/AgileExecutives/ae-framwork/shared-modules/audit/entities"
-	"github.com/AgileExecutives/ae-framwork/shared-modules/audit/services"
+	"github.com/AgileExecutives/ae-framework/shared-modules/audit/entities"
+	"github.com/AgileExecutives/ae-framework/shared-modules/audit/services"
 	"github.com/gin-gonic/gin"
 )
 

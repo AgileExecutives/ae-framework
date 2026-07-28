@@ -1,7 +1,7 @@
 package services
 
 import (
-	repo "github.com/AgileExecutives/ae-framwork/shared-modules/pdf/repo"
+	repo "github.com/AgileExecutives/ae-framework/shared-modules/pdf/repo"
 )
 
 type PDFGenerator struct {

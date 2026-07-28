@@ -1,4 +1,4 @@
-module github.com/AgileExecutives/ae-framwork/shared-modules/organization
+module github.com/AgileExecutives/ae-framework/shared-modules/organization
 
 go 1.25.0
 

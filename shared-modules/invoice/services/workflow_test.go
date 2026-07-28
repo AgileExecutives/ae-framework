@@ -11,7 +11,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 
-	"github.com/AgileExecutives/ae-framwork/shared-modules/invoice/entities"
+	"github.com/AgileExecutives/ae-framework/shared-modules/invoice/entities"
 )
 
 func setupInvoiceDB(t *testing.T) *gorm.DB {

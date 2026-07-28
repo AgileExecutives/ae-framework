@@ -3,7 +3,7 @@ package static
 import (
 	"github.com/AgileExecutives/ae-framework/serverbase/module"
 	"github.com/AgileExecutives/ae-framework/serverbase/pkg/core"
-	"github.com/AgileExecutives/ae-framwork/shared-modules/static/handlers"
+	"github.com/AgileExecutives/ae-framework/shared-modules/static/handlers"
 	"github.com/gin-gonic/gin"
 )
 

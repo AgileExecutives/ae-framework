@@ -1,4 +1,4 @@
-module github.com/AgileExecutives/ae-framwork/shared-modules/static
+module github.com/AgileExecutives/ae-framework/shared-modules/static
 
 go 1.25.0
 

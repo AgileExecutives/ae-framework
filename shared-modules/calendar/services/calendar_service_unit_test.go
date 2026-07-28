@@ -4,8 +4,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/AgileExecutives/ae-framwork/shared-modules/calendar/entities"
-	"github.com/AgileExecutives/ae-framwork/shared-modules/calendar/repo"
+	"github.com/AgileExecutives/ae-framework/shared-modules/calendar/entities"
+	"github.com/AgileExecutives/ae-framework/shared-modules/calendar/repo"
 )
 
 func TestCalendarService_InMemoryRepo_CreateAndEntry(t *testing.T) {

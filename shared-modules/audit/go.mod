@@ -1,4 +1,4 @@
-module github.com/AgileExecutives/ae-framwork/shared-modules/audit
+module github.com/AgileExecutives/ae-framework/shared-modules/audit
 
 go 1.25.0
 
@@ -72,6 +72,6 @@ require (
 
 replace github.com/AgileExecutives/ae-framework/serverbase => ../../serverbase
 
-replace github.com/AgileExecutives/ae-framwork/shared-modules/invoice_number => ../invoice_number
+replace github.com/AgileExecutives/ae-framework/shared-modules/invoice_number => ../invoice_number
 
-replace github.com/AgileExecutives/ae-framwork/shared-modules/saas-base => ../saas-base
+replace github.com/AgileExecutives/ae-framework/shared-modules/saas-base => ../saas-base

@@ -1,11 +1,11 @@
-module github.com/AgileExecutives/ae-framwork/shared-modules/invoice
+module github.com/AgileExecutives/ae-framework/shared-modules/invoice
 
 go 1.25.0
 
 require (
 	github.com/AgileExecutives/ae-framework/serverbase v0.0.0
-	github.com/AgileExecutives/ae-framwork/shared-modules/invoice_number v0.0.0
-	github.com/AgileExecutives/ae-framwork/shared-modules/pdf v0.0.0-00010101000000-000000000000
+	github.com/AgileExecutives/ae-framework/shared-modules/invoice_number v0.0.0
+	github.com/AgileExecutives/ae-framework/shared-modules/pdf v0.0.0-00010101000000-000000000000
 	github.com/gin-gonic/gin v1.12.0
 	github.com/stretchr/testify v1.11.1
 	github.com/swaggo/swag v1.16.6
@@ -71,6 +71,6 @@ require (
 
 replace github.com/AgileExecutives/ae-framework/serverbase => ../../serverbase
 
-replace github.com/AgileExecutives/ae-framwork/shared-modules/invoice_number => ../invoice_number
+replace github.com/AgileExecutives/ae-framework/shared-modules/invoice_number => ../invoice_number
 
-replace github.com/AgileExecutives/ae-framwork/shared-modules/pdf => ../pdf
+replace github.com/AgileExecutives/ae-framework/shared-modules/pdf => ../pdf

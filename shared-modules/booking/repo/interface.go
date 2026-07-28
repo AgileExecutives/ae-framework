@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/AgileExecutives/ae-framwork/shared-modules/booking/entities"
+	"github.com/AgileExecutives/ae-framework/shared-modules/booking/entities"
 )
 
 // BookingRepo defines persistence operations for booking templates

@@ -1,4 +1,4 @@
-module github.com/AgileExecutives/ae-framwork/shared-modules/calendar
+module github.com/AgileExecutives/ae-framework/shared-modules/calendar
 
 go 1.25.0
 

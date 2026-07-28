@@ -8,8 +8,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/AgileExecutives/ae-framwork/shared-modules/invoice_number/entities"
-	repo "github.com/AgileExecutives/ae-framwork/shared-modules/invoice_number/repo"
+	"github.com/AgileExecutives/ae-framework/shared-modules/invoice_number/entities"
+	repo "github.com/AgileExecutives/ae-framework/shared-modules/invoice_number/repo"
 
 	// optional serverbase settings service
 	sbsettings "github.com/AgileExecutives/ae-framework/serverbase/pkg/settings/services"

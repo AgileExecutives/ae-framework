@@ -5,11 +5,11 @@ import (
 
 	templateServices "github.com/AgileExecutives/ae-framework/serverbase/modules/templates/services"
 	"github.com/AgileExecutives/ae-framework/serverbase/pkg/core"
-	"github.com/AgileExecutives/ae-framwork/shared-modules/documents/entities"
-	repo "github.com/AgileExecutives/ae-framwork/shared-modules/documents/repo"
-	"github.com/AgileExecutives/ae-framwork/shared-modules/documents/routes"
-	"github.com/AgileExecutives/ae-framwork/shared-modules/documents/services"
-	"github.com/AgileExecutives/ae-framwork/shared-modules/documents/services/storage"
+	"github.com/AgileExecutives/ae-framework/shared-modules/documents/entities"
+	repo "github.com/AgileExecutives/ae-framework/shared-modules/documents/repo"
+	"github.com/AgileExecutives/ae-framework/shared-modules/documents/routes"
+	"github.com/AgileExecutives/ae-framework/shared-modules/documents/services"
+	"github.com/AgileExecutives/ae-framework/shared-modules/documents/services/storage"
 	"github.com/redis/go-redis/v9"
 )
 

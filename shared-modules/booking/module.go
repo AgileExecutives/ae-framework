@@ -8,13 +8,13 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"gorm.io/gorm"
 
-	"github.com/AgileExecutives/ae-framwork/shared-modules/booking/docs"
-	"github.com/AgileExecutives/ae-framwork/shared-modules/booking/entities"
-	"github.com/AgileExecutives/ae-framwork/shared-modules/booking/handlers"
-	"github.com/AgileExecutives/ae-framwork/shared-modules/booking/middleware"
-	repo "github.com/AgileExecutives/ae-framwork/shared-modules/booking/repo"
-	"github.com/AgileExecutives/ae-framwork/shared-modules/booking/routes"
-	"github.com/AgileExecutives/ae-framwork/shared-modules/booking/services"
+	"github.com/AgileExecutives/ae-framework/shared-modules/booking/docs"
+	"github.com/AgileExecutives/ae-framework/shared-modules/booking/entities"
+	"github.com/AgileExecutives/ae-framework/shared-modules/booking/handlers"
+	"github.com/AgileExecutives/ae-framework/shared-modules/booking/middleware"
+	repo "github.com/AgileExecutives/ae-framework/shared-modules/booking/repo"
+	"github.com/AgileExecutives/ae-framework/shared-modules/booking/routes"
+	"github.com/AgileExecutives/ae-framework/shared-modules/booking/services"
 )
 
 // Module implements the complete core.Module interface for auto-migration support

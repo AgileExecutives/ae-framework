@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/AgileExecutives/ae-framwork/shared-modules/audit/entities"
-	repo "github.com/AgileExecutives/ae-framwork/shared-modules/audit/repo"
+	"github.com/AgileExecutives/ae-framework/shared-modules/audit/entities"
+	repo "github.com/AgileExecutives/ae-framework/shared-modules/audit/repo"
 	"gorm.io/gorm"
 )
 

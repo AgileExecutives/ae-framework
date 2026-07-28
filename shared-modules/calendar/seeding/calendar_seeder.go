@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/AgileExecutives/ae-framwork/shared-modules/calendar/entities"
+	"github.com/AgileExecutives/ae-framework/shared-modules/calendar/entities"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )

@@ -8,8 +8,8 @@ import (
 
 	baseAPI "github.com/AgileExecutives/ae-framework/serverbase/api"
 	"github.com/AgileExecutives/ae-framework/serverbase/pkg/core"
-	"github.com/AgileExecutives/ae-framwork/shared-modules/documents/entities"
-	"github.com/AgileExecutives/ae-framwork/shared-modules/documents/services"
+	"github.com/AgileExecutives/ae-framework/shared-modules/documents/entities"
+	"github.com/AgileExecutives/ae-framework/shared-modules/documents/services"
 	"github.com/gin-gonic/gin"
 )
 

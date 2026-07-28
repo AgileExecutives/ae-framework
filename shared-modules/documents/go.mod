@@ -1,4 +1,4 @@
-module github.com/AgileExecutives/ae-framwork/shared-modules/documents
+module github.com/AgileExecutives/ae-framework/shared-modules/documents
 
 go 1.25.0
 

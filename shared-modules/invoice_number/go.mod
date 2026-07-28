@@ -1,4 +1,4 @@
-module github.com/AgileExecutives/ae-framwork/shared-modules/invoice_number
+module github.com/AgileExecutives/ae-framework/shared-modules/invoice_number
 
 go 1.25.0
 

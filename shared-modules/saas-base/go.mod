@@ -1,10 +1,10 @@
-module github.com/AgileExecutives/ae-framwork/shared-modules/saas-base
+module github.com/AgileExecutives/ae-framework/shared-modules/saas-base
 
 go 1.25.0
 
 require (
 	github.com/AgileExecutives/ae-framework/serverbase v0.0.0
-	github.com/AgileExecutives/ae-framwork/shared-modules/documents v0.0.0-00010101000000-000000000000
+	github.com/AgileExecutives/ae-framework/shared-modules/documents v0.0.0-00010101000000-000000000000
 	github.com/gin-gonic/gin v1.12.0
 	github.com/swaggo/swag v1.16.6
 	gorm.io/gorm v1.31.2
@@ -78,4 +78,4 @@ require (
 
 replace github.com/AgileExecutives/ae-framework/serverbase => ../../serverbase
 
-replace github.com/AgileExecutives/ae-framwork/shared-modules/documents => ../documents
+replace github.com/AgileExecutives/ae-framework/shared-modules/documents => ../documents

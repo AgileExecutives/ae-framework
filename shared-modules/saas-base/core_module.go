@@ -5,10 +5,10 @@ import (
 
 	custrepo "github.com/AgileExecutives/ae-framework/serverbase/modules/customers/repo"
 	"github.com/AgileExecutives/ae-framework/serverbase/pkg/core"
-	"github.com/AgileExecutives/ae-framwork/shared-modules/saas-base/entities"
-	"github.com/AgileExecutives/ae-framwork/shared-modules/saas-base/handlers"
-	saasrepo "github.com/AgileExecutives/ae-framwork/shared-modules/saas-base/repo"
-	"github.com/AgileExecutives/ae-framwork/shared-modules/saas-base/services"
+	"github.com/AgileExecutives/ae-framework/shared-modules/saas-base/entities"
+	"github.com/AgileExecutives/ae-framework/shared-modules/saas-base/handlers"
+	saasrepo "github.com/AgileExecutives/ae-framework/shared-modules/saas-base/repo"
+	"github.com/AgileExecutives/ae-framework/shared-modules/saas-base/services"
 	"github.com/gin-gonic/gin"
 )
 

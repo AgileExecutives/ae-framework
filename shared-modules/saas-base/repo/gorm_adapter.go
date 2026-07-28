@@ -3,7 +3,7 @@ package repo
 import (
 	"context"
 
-	"github.com/AgileExecutives/ae-framwork/shared-modules/saas-base/models"
+	"github.com/AgileExecutives/ae-framework/shared-modules/saas-base/models"
 	"gorm.io/gorm"
 )
 

@@ -1,4 +1,4 @@
-module github.com/AgileExecutives/ae-framwork/shared-modules/settings
+module github.com/AgileExecutives/ae-framework/shared-modules/settings
 
 go 1.25.0
 

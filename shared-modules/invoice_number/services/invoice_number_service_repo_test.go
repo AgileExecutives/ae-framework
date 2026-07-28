@@ -4,7 +4,7 @@ import (
 	"context"
 	"testing"
 
-	repo "github.com/AgileExecutives/ae-framwork/shared-modules/invoice_number/repo"
+	repo "github.com/AgileExecutives/ae-framework/shared-modules/invoice_number/repo"
 	"github.com/stretchr/testify/require"
 )
 

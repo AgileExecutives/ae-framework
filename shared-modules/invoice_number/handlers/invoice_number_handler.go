@@ -6,7 +6,7 @@ import (
 	"time"
 
 	baseAPI "github.com/AgileExecutives/ae-framework/serverbase/api"
-	"github.com/AgileExecutives/ae-framwork/shared-modules/invoice_number/services"
+	"github.com/AgileExecutives/ae-framework/shared-modules/invoice_number/services"
 
 	// "github.com/AgileExecutives/ae-framework/serverbase/pkg/settings/manager"
 	"github.com/gin-gonic/gin"

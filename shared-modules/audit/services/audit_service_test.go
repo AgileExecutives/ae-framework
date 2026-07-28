@@ -4,8 +4,8 @@ import (
 	"testing"
 
 	"github.com/AgileExecutives/ae-framework/serverbase/pkg/testutils"
-	"github.com/AgileExecutives/ae-framwork/shared-modules/audit/entities"
-	"github.com/AgileExecutives/ae-framwork/shared-modules/audit/services"
+	"github.com/AgileExecutives/ae-framework/shared-modules/audit/entities"
+	"github.com/AgileExecutives/ae-framework/shared-modules/audit/services"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"gorm.io/gorm"

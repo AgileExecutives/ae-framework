@@ -9,8 +9,8 @@ import (
 
 	templateServices "github.com/AgileExecutives/ae-framework/serverbase/modules/templates/services"
 	models "github.com/AgileExecutives/ae-framework/serverbase/pkg/models"
-	"github.com/AgileExecutives/ae-framwork/shared-modules/invoice/entities"
-	pdfgen "github.com/AgileExecutives/ae-framwork/shared-modules/pdf/services"
+	"github.com/AgileExecutives/ae-framework/shared-modules/invoice/entities"
+	pdfgen "github.com/AgileExecutives/ae-framework/shared-modules/pdf/services"
 	"gorm.io/gorm"
 )
 

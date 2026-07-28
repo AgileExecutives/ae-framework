@@ -8,7 +8,7 @@ import (
 
 	"github.com/AgileExecutives/ae-framework/serverbase/pkg/config"
 	"github.com/AgileExecutives/ae-framework/serverbase/pkg/database"
-	calendarSeeding "github.com/AgileExecutives/ae-framwork/shared-modules/calendar/seeding"
+	calendarSeeding "github.com/AgileExecutives/ae-framework/shared-modules/calendar/seeding"
 )
 
 func main() {

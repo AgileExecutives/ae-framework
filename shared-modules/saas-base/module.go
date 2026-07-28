@@ -9,9 +9,9 @@ package saasbase
 // `serverbase/modules/saas.NewSaaSModule()` for runtime registration.
 
 import (
-	"github.com/AgileExecutives/ae-framwork/shared-modules/saas-base/entities"
-	"github.com/AgileExecutives/ae-framwork/shared-modules/saas-base/handlers"
-	"github.com/AgileExecutives/ae-framwork/shared-modules/saas-base/models"
+	"github.com/AgileExecutives/ae-framework/shared-modules/saas-base/entities"
+	"github.com/AgileExecutives/ae-framework/shared-modules/saas-base/handlers"
+	"github.com/AgileExecutives/ae-framework/shared-modules/saas-base/models"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"

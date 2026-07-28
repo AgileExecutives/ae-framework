@@ -8,9 +8,9 @@ import (
 	"time"
 
 	baseAPI "github.com/AgileExecutives/ae-framework/serverbase/api"
-	"github.com/AgileExecutives/ae-framwork/shared-modules/booking/entities"
-	repo "github.com/AgileExecutives/ae-framwork/shared-modules/booking/repo"
-	"github.com/AgileExecutives/ae-framwork/shared-modules/booking/services"
+	"github.com/AgileExecutives/ae-framework/shared-modules/booking/entities"
+	repo "github.com/AgileExecutives/ae-framework/shared-modules/booking/repo"
+	"github.com/AgileExecutives/ae-framework/shared-modules/booking/services"
 	"github.com/gin-gonic/gin"
 )
 

@@ -8,8 +8,8 @@ import (
 
 	sbsettingsrepo "github.com/AgileExecutives/ae-framework/serverbase/pkg/settings/repository"
 	sbsettings "github.com/AgileExecutives/ae-framework/serverbase/pkg/settings/services"
-	"github.com/AgileExecutives/ae-framwork/shared-modules/invoice/entities"
-	invoiceNumberService "github.com/AgileExecutives/ae-framwork/shared-modules/invoice_number/services"
+	"github.com/AgileExecutives/ae-framework/shared-modules/invoice/entities"
+	invoiceNumberService "github.com/AgileExecutives/ae-framework/shared-modules/invoice_number/services"
 )
 
 // FinalizeInvoice finalizes a draft invoice by generating an invoice number and changing status to finalized

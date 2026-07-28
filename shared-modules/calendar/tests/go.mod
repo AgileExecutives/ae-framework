@@ -1,9 +1,9 @@
-module github.com/AgileExecutives/ae-framwork/shared-modules/calendar/tests
+module github.com/AgileExecutives/ae-framework/shared-modules/calendar/tests
 
 go 1.25.0
 
 require (
-	github.com/AgileExecutives/ae-framwork/shared-modules/calendar v0.0.0
+	github.com/AgileExecutives/ae-framework/shared-modules/calendar v0.0.0
 	github.com/stretchr/testify v1.11.1
 	gorm.io/driver/sqlite v1.6.0
 	gorm.io/gorm v1.31.2
@@ -51,6 +51,6 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
-replace github.com/AgileExecutives/ae-framwork/shared-modules/calendar => ../
+replace github.com/AgileExecutives/ae-framework/shared-modules/calendar => ../
 
 replace github.com/AgileExecutives/ae-framework/serverbase => ../../../serverbase

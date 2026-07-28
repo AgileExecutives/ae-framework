@@ -4,7 +4,7 @@ import (
 	"github.com/AgileExecutives/ae-framework/serverbase/pkg/core"
 	"github.com/gin-gonic/gin"
 
-	"github.com/AgileExecutives/ae-framwork/shared-modules/calendar/handlers"
+	"github.com/AgileExecutives/ae-framework/shared-modules/calendar/handlers"
 )
 
 // RouteProvider provides routing functionality for calendar management

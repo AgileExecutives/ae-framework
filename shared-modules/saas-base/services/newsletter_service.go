@@ -3,8 +3,8 @@ package services
 import (
 	"context"
 
-	"github.com/AgileExecutives/ae-framwork/shared-modules/saas-base/models"
-	"github.com/AgileExecutives/ae-framwork/shared-modules/saas-base/repo"
+	"github.com/AgileExecutives/ae-framework/shared-modules/saas-base/models"
+	"github.com/AgileExecutives/ae-framework/shared-modules/saas-base/repo"
 )
 
 // NewsletterService provides business logic for newsletter subscriptions.

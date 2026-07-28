@@ -1,7 +1,7 @@
 package storage
 
 import (
-	docsstorage "github.com/AgileExecutives/ae-framwork/shared-modules/documents/services/storage"
+	docsstorage "github.com/AgileExecutives/ae-framework/shared-modules/documents/services/storage"
 )
 
 // Re-export types and helpers from documents storage to satisfy other modules

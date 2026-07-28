@@ -8,12 +8,12 @@ import (
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 
-	"github.com/AgileExecutives/ae-framwork/shared-modules/calendar/docs"
-	"github.com/AgileExecutives/ae-framwork/shared-modules/calendar/entities"
-	"github.com/AgileExecutives/ae-framwork/shared-modules/calendar/handlers"
-	repo "github.com/AgileExecutives/ae-framwork/shared-modules/calendar/repo"
-	"github.com/AgileExecutives/ae-framwork/shared-modules/calendar/routes"
-	"github.com/AgileExecutives/ae-framwork/shared-modules/calendar/services"
+	"github.com/AgileExecutives/ae-framework/shared-modules/calendar/docs"
+	"github.com/AgileExecutives/ae-framework/shared-modules/calendar/entities"
+	"github.com/AgileExecutives/ae-framework/shared-modules/calendar/handlers"
+	repo "github.com/AgileExecutives/ae-framework/shared-modules/calendar/repo"
+	"github.com/AgileExecutives/ae-framework/shared-modules/calendar/routes"
+	"github.com/AgileExecutives/ae-framework/shared-modules/calendar/services"
 )
 
 // Module implements the complete core.Module interface for auto-migration support

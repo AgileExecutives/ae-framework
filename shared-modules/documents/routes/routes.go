@@ -2,9 +2,9 @@ package routes
 
 import (
 	"github.com/AgileExecutives/ae-framework/serverbase/pkg/core"
-	"github.com/AgileExecutives/ae-framwork/shared-modules/documents/handlers"
-	"github.com/AgileExecutives/ae-framwork/shared-modules/documents/middleware"
-	"github.com/AgileExecutives/ae-framwork/shared-modules/documents/services"
+	"github.com/AgileExecutives/ae-framework/shared-modules/documents/handlers"
+	"github.com/AgileExecutives/ae-framework/shared-modules/documents/middleware"
+	"github.com/AgileExecutives/ae-framework/shared-modules/documents/services"
 	"github.com/gin-gonic/gin"
 )
 

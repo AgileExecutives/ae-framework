@@ -4,8 +4,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/AgileExecutives/ae-framwork/shared-modules/booking/entities"
-	"github.com/AgileExecutives/ae-framwork/shared-modules/booking/services"
+	"github.com/AgileExecutives/ae-framework/shared-modules/booking/entities"
+	"github.com/AgileExecutives/ae-framework/shared-modules/booking/services"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

@@ -1,4 +1,4 @@
-module github.com/AgileExecutives/ae-framwork/shared-modules/booking
+module github.com/AgileExecutives/ae-framework/shared-modules/booking
 
 go 1.25.0
 
