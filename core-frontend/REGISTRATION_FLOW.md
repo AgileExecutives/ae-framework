@@ -6,7 +6,7 @@ This document captures the registration UX flows, API contract mapping, and impl
 - Support a single registration route that adapts to context (tenant slug, registration token, or host configuration).
 - For SAAS: allow creating an organization (tenant) and initial admin user in one flow.
 - For single-tenant: simple user creation for an existing tenant.
-- Clear mapping to `@agile-exec/api-client` endpoints and fallback behaviors.
+- Clear mapping to `@ae/api-client` endpoints and fallback behaviors.
 
 ## Flow Variants
 
@@ -41,7 +41,7 @@ The generated API client should expose endpoints for these operations. Suggested
 - registerWithToken(token, payload) -> `clients.registerWithToken` or `registration.registerWithToken`
 - createUser(payload) -> `users.create` or `clients.createUser`
 
-If any of these are missing in `@agile-exec/api-client`, add them to the audit TODO and implement a local wrapper in `src/lib/api-registration.ts` that translates to the available endpoints.
+If any of these are missing in `@ae/api-client`, add them to the audit TODO and implement a local wrapper in `src/lib/api-registration.ts` that translates to the available endpoints.
 
 ## UI/Router Plan
 - Add route: `/register` and `/register/:token?` (token optional)
@@ -64,7 +64,7 @@ If any of these are missing in `@agile-exec/api-client`, add them to the audit T
 - [ ] Create `RegisterView.vue` with flow orchestration.
 - [ ] Create `RegisterOrgForm.vue`, `RegisterUserForm.vue`, `RegistrationSuccess.vue`.
 - [ ] Add route(s) in router index and shared routes.
-- [ ] Audit `@agile-exec/api-client` for missing endpoints and add wrapper `src/lib/api-registration.ts` if needed.
+- [ ] Audit `@ae/api-client` for missing endpoints and add wrapper `src/lib/api-registration.ts` if needed.
 - [ ] Add unit tests for form validation and integration tests for end-to-end flow mocking API client.
 
 ## Notes

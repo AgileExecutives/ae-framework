@@ -1,6 +1,6 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
-import { ApiError } from '@agile-exec/api-client'
+import type { ApiError } from '@/config/api-config'
 import { getApiClient as getGlobalApiClient } from '@/config/api-config'
 import type * as AuthTypes from './auth-types'
 

@@ -4,7 +4,8 @@
  * Centralized API client configuration using environment variables
  */
 
-import { AESaasApiClient } from '@agile-exec/api-client'
+import { AESaasApiClient } from '@ae/api-client-<name>'
+export type { ApiError } from '@ae/api-client'
 
 export interface ApiConfig {
   baseURL: string

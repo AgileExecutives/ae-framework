@@ -1,5 +1,5 @@
 {
-  "name": "@agile-exec/api-client",
+  "name": "@ae/api-client",
   "version": "0.1.0",
   "description": "Auto-generated Vue-compatible API client for AE SaaS Basic",
   "type": "module",
