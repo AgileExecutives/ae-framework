@@ -24,7 +24,7 @@ const logoUrl = computed(() => {
     <div class="card-body">
       <div class="text-center mb-6 md:mb-8">
         <div class="mx-auto h-10 md:h-12 lg:h-14 w-auto flex justify-center mb-6 md:mb-8">
-          <img class="h-10 md:h-12 lg:h-14 w-auto" :src="logoUrl" alt="Unburdy" />
+          <img class="h-10 md:h-12 lg:h-14 w-auto" :src="logoUrl" alt="Logo" />
         </div>
         <h2 class="card-title text-xl md:text-2xl lg:text-3xl mb-3 md:mb-4 font-bold text-center break-words justify-center">
           {{ title }}

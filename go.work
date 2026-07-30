@@ -1,6 +1,7 @@
 go 1.25.0
 
 use (
+	./ae-cli/myproj/backend
 	./server-test
 	./serverbase
 	./shared-modules/audit

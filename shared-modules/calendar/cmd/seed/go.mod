@@ -2,14 +2,7 @@ module github.com/AgileExecutives/ae-framework/shared-modules/calendar/cmd/seed
 
 go 1.25.0
 
-replace github.com/AgileExecutives/ae-framework/serverbase => ../../../../serverbase
-
-replace github.com/AgileExecutives/ae-framework/shared-modules/calendar => ../..
-
-require (
-	github.com/AgileExecutives/ae-framework/serverbase v0.0.0
-	github.com/AgileExecutives/ae-framework/shared-modules/calendar v0.0.0-00010101000000-000000000000
-)
+// workspace modules provided by go.work
 
 require (
 	github.com/bytedance/gopkg v0.1.3 // indirect

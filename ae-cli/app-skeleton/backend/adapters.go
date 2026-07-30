@@ -1,4 +1,4 @@
-package main
+package <name>
 
 import (
 	"log"
@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
-	models "github.com/AgileExecutives/ae-framework/serverbase/internal/models"
 	"github.com/AgileExecutives/ae-framework/serverbase/pkg/auth"
+	models "github.com/AgileExecutives/ae-framework/serverbase/pkg/models"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )

@@ -10,7 +10,7 @@ require (
 )
 
 require (
-	github.com/AgileExecutives/ae-framework/serverbase v0.0.0-20260728055225-ce8b3e338f45 // indirect
+	// serverbase is provided by the workspace go.work
 	github.com/bytedance/gopkg v0.1.3 // indirect
 	github.com/bytedance/sonic v1.15.0 // indirect
 	github.com/bytedance/sonic/loader v0.5.0 // indirect
@@ -52,5 +52,3 @@ require (
 )
 
 replace github.com/AgileExecutives/ae-framework/shared-modules/calendar => ../
-
-replace github.com/AgileExecutives/ae-framework/serverbase => ../../../serverbase

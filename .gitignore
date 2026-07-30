@@ -1,4 +1,7 @@
 .DS_Store
+ae-cli/myproj
+ae-cli/main
+ae-cli/ae-cli
 server-test/test_results/00_quick_integration.json
 server-test/test_results/01_health.json
 server-test/test_results/02_auth.json
