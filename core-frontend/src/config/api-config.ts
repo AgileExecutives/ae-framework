@@ -4,8 +4,8 @@
  * Centralized API client configuration using environment variables
  */
 
-import { AESaasApiClient } from '@ae/api-client'
-export type { ApiError } from '@ae/api-client'
+import { AESaasApiClient } from '@ae/api-client-test'
+export type { ApiError } from '@ae/api-client-test'
 
 export interface ApiConfig {
   baseURL: string

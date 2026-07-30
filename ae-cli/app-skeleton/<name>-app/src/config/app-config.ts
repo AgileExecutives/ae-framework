@@ -6,8 +6,8 @@
  */
 
 // Logo imports - these should be overridden in each app
-const defaultLogo = '/logo.svg'
-const defaultLogoDark = '/logo.svg'
+const defaultLogo = '@assets/logo-light.svg'
+const defaultLogoDark = '@assets/logo-dark.svg'
 
 export interface AppConfig {
   // Logos

@@ -73,7 +73,7 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
-    "@ae/api-client": "file:../api-client",
+    "@ae/api-client-test": "file:../api-client-test",
     "@vee-validate/zod": "^4.15.1",
     "@vueuse/core": "^13.9.0",
     "axios": "^1.12.2",

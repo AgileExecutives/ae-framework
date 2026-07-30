@@ -1,5 +1,5 @@
 {
-  "name": "@ae/api-client",
+  "name": "@ae/api-client-test",
   "version": "0.1.0",
   "description": "Auto-generated Vue-compatible API client for AE SaaS Basic",
   "type": "module",
@@ -30,7 +30,7 @@
     "buildOnly": "tsup",
     "build-watch": "tsup --watch",
     "dev": "tsup --watch",
-    "prepublishOnly": "npm run generate-and-fix && npm run build",
+    "prepublishOnly": "npm run generate && npm run post-generate && npm run build",
     "test": "vitest",
     "typecheck": "tsc --noEmit"
   },

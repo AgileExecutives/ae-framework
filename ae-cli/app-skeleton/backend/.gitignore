@@ -1,0 +1,9 @@
+.env
+server-test-bin
+tmp/*
+test_results
+.DS_Store
+server.log
+tests/hurl/processed/*.hurl
+tmp
+

@@ -10,7 +10,7 @@ export default defineConfig({
     tailwindcss(),
   ],
   server: {
-    port: 3003,
+    port: 3000,
     host: '0.0.0.0',
     allowedHosts: [process.env.ALLOWED_HOST || 'localhost'],
     proxy: {
