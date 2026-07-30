@@ -1,31 +1,34 @@
-module <name>
+module myproj
 
 go 1.25.0
 
 replace (
 	github.com/AgileExecutives/ae-framework/serverbase => ../../../serverbase
-	github.com/AgileExecutives/ae-framework/serverbase/server-test => ../../../server-test
+	github.com/AgileExecutives/ae-framework/shared-modules/organization => ../../../shared-modules/organization
+	github.com/AgileExecutives/ae-framework/shared-modules/pdf => ../../../shared-modules/pdf
+	github.com/AgileExecutives/ae-framework/shared-modules/saas-base => ../../../shared-modules/saas-base
+	github.com/AgileExecutives/ae-framework/shared-modules/static => ../../../shared-modules/static
 )
 
 // Replace local modules to workspace copies
 
 require (
 	github.com/gin-gonic/gin v1.12.0
-	golang.org/x/crypto v0.51.0 // indirect
+	golang.org/x/crypto v0.51.0
 	gorm.io/gorm v1.31.2
 )
 
 require (
 	github.com/AgileExecutives/ae-framework/serverbase v0.0.0
-	github.com/AgileExecutives/ae-framework/serverbase/server-test v0.0.0-00010101000000-000000000000
-	github.com/AgileExecutives/ae-framework/shared-modules/organization v0.0.0-20260730164807-61cd5bf5640f
-	github.com/AgileExecutives/ae-framework/shared-modules/pdf v0.0.0-20260730164807-61cd5bf5640f
-	github.com/AgileExecutives/ae-framework/shared-modules/static v0.0.0-20260730164807-61cd5bf5640f
+	github.com/AgileExecutives/ae-framework/shared-modules/organization v0.0.0
+	github.com/AgileExecutives/ae-framework/shared-modules/pdf v0.0.0
+	github.com/AgileExecutives/ae-framework/shared-modules/saas-base v0.0.0
+	github.com/AgileExecutives/ae-framework/shared-modules/static v0.0.0
+	gorm.io/datatypes v1.2.7
 )
 
 require (
 	filippo.io/edwards25519 v1.1.0 // indirect
-	github.com/AgileExecutives/ae-framework/shared-modules/saas-base v0.0.0-20260728055225-ce8b3e338f45 // indirect
 	github.com/KyleBanks/depth v1.2.1 // indirect
 	github.com/PuerkitoBio/purell v1.1.1 // indirect
 	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
@@ -80,7 +83,6 @@ require (
 	golang.org/x/tools v0.44.0 // indirect
 	google.golang.org/protobuf v1.36.10 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
-	gorm.io/datatypes v1.2.7 // indirect
 	gorm.io/driver/mysql v1.5.6 // indirect
 	gorm.io/driver/postgres v1.6.0 // indirect
 	gorm.io/driver/sqlite v1.6.0 // indirect

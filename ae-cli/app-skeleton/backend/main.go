@@ -1,4 +1,4 @@
-package <name>
+package main
 
 import (
 	"log"
@@ -18,7 +18,7 @@ import (
 	"github.com/AgileExecutives/ae-framework/serverbase/pkg/core"
 	"github.com/AgileExecutives/ae-framework/serverbase/pkg/database"
 	"github.com/AgileExecutives/ae-framework/serverbase/pkg/swagger"
-	servertestseed "github.com/AgileExecutives/ae-framework/serverbase/server-test/seed"
+	"github.com/AgileExecutives/ae-framework/serverbase/server-test/seed"
 	minimalorg "github.com/AgileExecutives/ae-framework/shared-modules/organization"
 	pdf "github.com/AgileExecutives/ae-framework/shared-modules/pdf"
 	static "github.com/AgileExecutives/ae-framework/shared-modules/static"
@@ -90,7 +90,7 @@ func main() {
 	server.RegisterRoute("/", ginEngine)
 
 	// Seed test data used by HURL tests and the harness when the DB is empty.
-	if err := servertestseed.RunIfEmpty(db); err != nil {
+	if err := seed.RunIfEmpty(db); err != nil {
 		log.Fatalf("server-test seed failed: %v", err)
 	}
 
