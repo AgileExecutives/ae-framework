@@ -11,11 +11,11 @@ require (
 )
 
 require (
-	github.com/AgileExecutives/ae-framework/serverbase v0.0.0
-	github.com/AgileExecutives/ae-framework/shared-modules/organization v0.0.0
-	github.com/AgileExecutives/ae-framework/shared-modules/pdf v0.0.0
-	github.com/AgileExecutives/ae-framework/shared-modules/saas-base v0.0.0
-	github.com/AgileExecutives/ae-framework/shared-modules/static v0.0.0
+	github.com/AgileExecutives/ae-framework/serverbase v0.1.0
+	github.com/AgileExecutives/ae-framework/shared-modules/organization v0.1.0
+	github.com/AgileExecutives/ae-framework/shared-modules/pdf v0.1.0
+	github.com/AgileExecutives/ae-framework/shared-modules/saas-base v0.1.0
+	github.com/AgileExecutives/ae-framework/shared-modules/static v0.1.0
 	gorm.io/datatypes v1.2.7
 )
 

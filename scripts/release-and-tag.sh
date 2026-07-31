@@ -14,11 +14,21 @@ EOF
   exit 1
 }
 
-if [ "$#" -ne 1 ]; then
+DRY_RUN=0
+if [ "$#" -lt 1 ]; then
   usage
 fi
 
-VERSION="$1"
+# simple arg parsing: allow --dry-run as optional first arg
+if [ "$#" -eq 2 ] && [ "$1" = "--dry-run" -o "$1" = "-n" ]; then
+  DRY_RUN=1
+  VERSION="$2"
+elif [ "$#" -eq 1 ]; then
+  VERSION="$1"
+else
+  usage
+fi
+
 if [[ ! "$VERSION" =~ ^v[0-9]+(\.[0-9]+)*$ ]]; then
   echo "Error: version must be of form vMAJOR.MINOR.PATCH (e.g. v0.1.0)"
   exit 1
@@ -27,11 +37,13 @@ fi
 REPO_ROOT=$(git rev-parse --show-toplevel)
 cd "$REPO_ROOT"
 
-# Ensure clean working tree
-if [ -n "$(git status --porcelain)" ]; then
-  echo "Please commit or stash your changes before running this script."
-  git status --porcelain
-  exit 1
+# Ensure clean working tree unless dry-run
+if [ "$DRY_RUN" -eq 0 ]; then
+  if [ -n "$(git status --porcelain)" ]; then
+    echo "Please commit or stash your changes before running this script."
+    git status --porcelain
+    exit 1
+  fi
 fi
 
 echo "Repo root: $REPO_ROOT"
@@ -110,20 +122,47 @@ done
 if [ ${#changed[@]} -gt 0 ]; then
   echo "Committing changes to go.mod files:"
   for f in "${changed[@]}"; do echo "- $f"; done
-  git add "${changed[@]}"
-  git commit -m "bump internal modules to ${VERSION}"
+  if [ "$DRY_RUN" -eq 0 ]; then
+    git add "${changed[@]}"
+    git commit -m "bump internal modules to ${VERSION}"
+  else
+    echo "DRY RUN: would git add and commit the changed go.mod files"
+  fi
 else
   echo "No go.mod changes necessary"
 fi
 
 # Create annotated tags for each module directory
+created_tags=()
 for dir in "${MODULE_DIRS[@]}"; do
   tag="${dir}/${VERSION}"
+  # skip if tag already exists locally
+  if git rev-parse -q --verify "refs/tags/$tag" >/dev/null; then
+    echo "Tag already exists locally: $tag -- skipping"
+    continue
+  fi
   echo "Creating tag: $tag"
-  git tag -a "$tag" -m "release ${dir} ${VERSION}"
+  if [ "$DRY_RUN" -eq 0 ]; then
+    git tag -a "$tag" -m "release ${dir} ${VERSION}"
+    created_tags+=("$tag")
+  else
+    echo "DRY RUN: would create tag $tag"
+    created_tags+=("$tag")
+  fi
 done
 
-echo "Pushing tags to origin..."
-git push origin --tags
+if [ "$DRY_RUN" -eq 0 ]; then
+  if [ ${#created_tags[@]} -gt 0 ]; then
+    echo "Pushing created tags to origin..."
+    # push only the created tags to avoid pushing unrelated tags
+    for t in "${created_tags[@]}"; do
+      git push origin "refs/tags/$t:refs/tags/$t"
+    done
+  else
+    echo "No new tags to push."
+  fi
+else
+  echo "DRY RUN: would push tags: ${created_tags[*]}"
+fi
 
 echo "Done."
