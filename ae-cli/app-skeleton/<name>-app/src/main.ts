@@ -3,7 +3,7 @@ import { createBaseApp } from '@@/init.ts'
 import { createApiClient } from './config/api-config.ts'
 import { useAuthStore } from '@/framework/stores/auth.ts'
 import MainApp from './App.vue'
-import { routes } from './router/routes.ts'
+import routes from '@/router/routes.ts'
 import './style.css'
 
 // Initialize the global API client (default to relative path so Vite proxy applies in dev)
