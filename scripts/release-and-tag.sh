@@ -80,6 +80,11 @@ while IFS= read -r f; do
   GOMODS+=("$f")
 done < <(git ls-files -- '*.go.mod')
 
+if [ ${#GOMODS[@]} -eq 0 ]; then
+  echo "No go.mod files tracked by git were found; nothing to update."
+  exit 0
+fi
+
 changed=()
 for gomod in "${GOMODS[@]}"; do
   tmpfile=$(mktemp)
