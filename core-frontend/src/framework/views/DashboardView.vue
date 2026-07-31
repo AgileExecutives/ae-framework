@@ -215,28 +215,6 @@ const formatDate = (dateString: string) => {
 const loadDashboardData = async () => {
   loading.value = true
   try {
-    // Load plans data
-    try {
-      const plansResponse = await apiClient.getPlans()
-      // Handle wrapped API response
-      const plansData = (plansResponse?.success && plansResponse?.data) ? plansResponse.data : plansResponse?.data
-      dashboardData.value.plans.count = Array.isArray(plansData) ? plansData.length : 0
-      dashboardData.value.plans.recent = (Array.isArray(plansData) ? plansData : []).slice(0, 5)
-    } catch (error) {
-      console.warn('Could not load plans data:', error)
-    }
-
-    // Load customers data
-    try {
-      const customersResponse = await apiClient.getCustomers()
-      // Handle wrapped API response
-      const customersData = (customersResponse?.success && customersResponse?.data) ? customersResponse.data : customersResponse?.data
-      dashboardData.value.customers.count = Array.isArray(customersData) ? customersData.length : 0
-      dashboardData.value.customers.recent = (Array.isArray(customersData) ? customersData : []).slice(0, 5)
-    } catch (error) {
-      console.warn('Could not load customers data:', error)
-    }
-
     // Load email stats
     try {
       const emailStatsResponse = await apiClient.getEmailStats()
