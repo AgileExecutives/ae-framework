@@ -93,31 +93,34 @@ while IFS= read -r f; do
 done < <(git ls-files -- '*.go.mod')
 
 if [ ${#GOMODS[@]} -eq 0 ]; then
-  echo "No go.mod files tracked by git were found; nothing to update."
-  exit 0
+  echo "No go.mod files tracked by git were found; skipping go.mod updates and continuing to tagging."
+else
+  echo "Found ${#GOMODS[@]} go.mod files; will update versions where necessary."
 fi
 
 changed=()
-for gomod in "${GOMODS[@]}"; do
-  tmpfile=$(mktemp)
-  cp "$gomod" "$tmpfile"
+if [ ${#GOMODS[@]} -gt 0 ]; then
+  for gomod in "${GOMODS[@]}"; do
+    tmpfile=$(mktemp)
+    cp "$gomod" "$tmpfile"
 
-  for i in "${!MODPATHS[@]}"; do
-    mod=${MODPATHS[$i]}
-    # escape slashes for regex
-    esc_mod=$(printf '%s' "$mod" | sed 's/\//\\\//g')
-    # replace version tokens for the exact module path
-    # match lines like: <whitespace>github.com/AgileExecutives/ae-framework/... <version>
-    perl -0777 -pe "s/(^\s*${esc_mod}\s+)\S+/$1${VERSION}/mg" "$tmpfile" > "${tmpfile}.2" && mv "${tmpfile}.2" "$tmpfile"
+    for i in "${!MODPATHS[@]}"; do
+      mod=${MODPATHS[$i]}
+      # escape slashes for regex
+      esc_mod=$(printf '%s' "$mod" | sed 's/\//\\\//g')
+      # replace version tokens for the exact module path
+      # match lines like: <whitespace>github.com/AgileExecutives/ae-framework/... <version>
+      perl -0777 -pe "s/(^\s*${esc_mod}\s+)\S+/$1${VERSION}/mg" "$tmpfile" > "${tmpfile}.2" && mv "${tmpfile}.2" "$tmpfile"
+    done
+
+    if ! cmp -s "$gomod" "$tmpfile"; then
+      mv "$tmpfile" "$gomod"
+      changed+=("$gomod")
+    else
+      rm "$tmpfile"
+    fi
   done
-
-  if ! cmp -s "$gomod" "$tmpfile"; then
-    mv "$tmpfile" "$gomod"
-    changed+=("$gomod")
-  else
-    rm "$tmpfile"
-  fi
-done
+fi
 
 if [ ${#changed[@]} -gt 0 ]; then
   echo "Committing changes to go.mod files:"
