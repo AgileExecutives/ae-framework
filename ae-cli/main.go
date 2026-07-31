@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"io"
@@ -10,7 +11,25 @@ import (
 	"strings"
 )
 
-const frameworkRepo = "git@github.com:AgileExecutives/ae-framework.git"
+type Version struct {
+	Tag  string `json:"tag"`
+	Date string `json:"date"`
+}
+
+type ProjectInfo struct {
+	Name             string `json:"name"`
+	FrameworkVersion string `json:"frameworkVersion"`
+	FrameworkDate    string `json:"frameworkDate"`
+}
+
+const (
+	frameworkRepo = "git@github.com:AgileExecutives/ae-framework.git"
+
+	versionFile = "version.json"
+
+	projectMetaDir  = ".ae"
+	projectMetaFile = "project.json"
+)
 
 func main() {
 	baseDir := flag.String("b", ".", "base directory")
@@ -18,17 +37,50 @@ func main() {
 
 	args := flag.Args()
 
-	if len(args) < 2 {
+	if len(args) < 1 {
 		usage()
 		os.Exit(1)
 	}
 
 	command := args[0]
-	project := args[1]
+	project := ""
+	if len(args) > 1 {
+		project = args[1]
+	}
 
 	switch command {
 	case "init":
+		if project == "" {
+			usage()
+			os.Exit(1)
+		}
 		if err := initProject(*baseDir, project); err != nil {
+			fmt.Println("ERROR:", err)
+			os.Exit(1)
+		}
+	case "version":
+		tmp, err := CloneFramework()
+		if err != nil {
+			fmt.Println("ERROR:", err)
+			os.Exit(1)
+		}
+		defer os.RemoveAll(tmp)
+
+		version, err := ReadVersion(tmp)
+		if err != nil {
+			fmt.Println("ERROR:", err)
+			os.Exit(1)
+		}
+
+		fmt.Printf("%s (%s)\n", version.Tag, version.Date)
+
+	case "update":
+		if project == "" {
+			usage()
+			os.Exit(1)
+		}
+		projectDir := filepath.Join(*baseDir, project)
+		if err := updateProject(projectDir); err != nil {
 			fmt.Println("ERROR:", err)
 			os.Exit(1)
 		}
@@ -42,11 +94,13 @@ func usage() {
 	fmt.Println(`
 Usage:
 
-  ae -b <basedir> init <projekt>
+	ae -b <basedir> <command> <project>
 
 Commands:
 
-  init     create new project
+	init     create new project
+	version  show current framework version
+	update   update an existing project to latest framework
 `)
 }
 
@@ -58,23 +112,11 @@ func initProject(baseDir, project string) error {
 		return fmt.Errorf("project already exists: %s", target)
 	}
 
-	tmp, err := os.MkdirTemp("", "ae-framework-*")
+	tmp, err := CloneFramework()
 	if err != nil {
 		return err
 	}
-
 	defer os.RemoveAll(tmp)
-
-	fmt.Println("Cloning framework...")
-
-	if err := run(
-		"git",
-		"clone",
-		frameworkRepo,
-		tmp,
-	); err != nil {
-		return err
-	}
 
 	fmt.Println("Creating project:", target)
 
@@ -175,6 +217,16 @@ func initProject(baseDir, project string) error {
 	fmt.Println()
 	fmt.Println("Project created successfully:")
 	fmt.Println(target)
+
+	// write project metadata with framework version
+	version, err := ReadVersion(tmp)
+	if err == nil {
+		_ = WriteProjectInfo(target, &ProjectInfo{
+			Name:             project,
+			FrameworkVersion: version.Tag,
+			FrameworkDate:    version.Date,
+		})
+	}
 
 	return nil
 }
@@ -345,4 +397,110 @@ func runInDir(dir, cmd string, args ...string) error {
 	c.Stderr = os.Stderr
 
 	return c.Run()
+}
+
+func CloneFramework() (string, error) {
+	tmp, err := os.MkdirTemp("", "ae-framework-*")
+	if err != nil {
+		return "", err
+	}
+
+	err = run(
+		"git",
+		"clone",
+		frameworkRepo,
+		tmp,
+	)
+
+	if err != nil {
+		os.RemoveAll(tmp)
+		return "", err
+	}
+
+	return tmp, nil
+}
+
+func ReadVersion(repo string) (*Version, error) {
+	file := filepath.Join(repo, versionFile)
+	b, err := os.ReadFile(file)
+	if err != nil {
+		return nil, err
+	}
+
+	var v Version
+	if err := json.Unmarshal(b, &v); err != nil {
+		return nil, err
+	}
+
+	return &v, nil
+}
+
+func WriteProjectInfo(projectDir string, info *ProjectInfo) error {
+	metaDir := filepath.Join(projectDir, projectMetaDir)
+	if err := os.MkdirAll(metaDir, 0755); err != nil {
+		return err
+	}
+
+	file := filepath.Join(metaDir, projectMetaFile)
+	b, err := json.MarshalIndent(info, "", "  ")
+	if err != nil {
+		return err
+	}
+
+	return os.WriteFile(file, b, 0644)
+}
+
+func ReadProjectInfo(projectDir string) (*ProjectInfo, error) {
+	file := filepath.Join(projectDir, projectMetaDir, projectMetaFile)
+	b, err := os.ReadFile(file)
+	if err != nil {
+		return nil, err
+	}
+
+	var info ProjectInfo
+	if err := json.Unmarshal(b, &info); err != nil {
+		return nil, err
+	}
+
+	return &info, nil
+}
+
+func updateProject(projectDir string) error {
+	info, err := ReadProjectInfo(projectDir)
+	if err != nil {
+		return err
+	}
+
+	tmp, err := CloneFramework()
+	if err != nil {
+		return err
+	}
+	defer os.RemoveAll(tmp)
+
+	version, err := ReadVersion(tmp)
+	if err != nil {
+		return err
+	}
+
+	if info.FrameworkVersion == version.Tag {
+		fmt.Println("Already up to date.")
+		return nil
+	}
+
+	fmt.Printf("Updating %s -> %s\n", info.FrameworkVersion, version.Tag)
+
+	frameworkSrc := filepath.Join(tmp, "core-frontend", "src", "framework")
+
+	frameworkDst := filepath.Join(projectDir, info.Name+"-app", "src", "framework")
+
+	os.RemoveAll(frameworkDst)
+
+	if err := copyDir(frameworkSrc, frameworkDst); err != nil {
+		return err
+	}
+
+	info.FrameworkVersion = version.Tag
+	info.FrameworkDate = version.Date
+
+	return WriteProjectInfo(projectDir, info)
 }

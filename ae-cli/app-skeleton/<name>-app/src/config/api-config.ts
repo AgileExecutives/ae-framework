@@ -5,7 +5,7 @@
  */
 
 import { AESaasApiClient } from '@ae/api-client-<name>'
-export type { ApiError } from '@ae/api-client'
+export type { ApiError } from '@ae/api-client-<name>'
 
 export interface ApiConfig {
   baseURL: string

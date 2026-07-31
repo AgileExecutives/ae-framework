@@ -48,6 +48,23 @@ fi
 
 echo "Repo root: $REPO_ROOT"
 
+# Create version.json and commit it (so the repo has a record of this release)
+VERSION_FILE="$REPO_ROOT/version.json"
+ISO_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+echo "Writing $VERSION_FILE with tag=$VERSION date=$ISO_DATE"
+cat > "$VERSION_FILE" <<JSON
+{
+  "tag": "${VERSION}",
+  "date": "${ISO_DATE}"
+}
+JSON
+if [ "$DRY_RUN" -eq 0 ]; then
+  git add "$VERSION_FILE"
+  git commit -m "release: version.json ${VERSION}" || true
+else
+  echo "DRY RUN: would git add and commit $VERSION_FILE"
+fi
+
 # Build list of module directories to tag
 MODULE_DIRS=(serverbase)
 if [ -d shared-modules ]; then
