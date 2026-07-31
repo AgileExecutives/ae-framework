@@ -46,12 +46,16 @@ if [ -d shared-modules ]; then
   done
 fi
 
-declare -A MODULE_PATHS
+
+# Build parallel arrays of module paths and directories (avoid associative arrays for macOS bash)
+MODPATHS=()
+MODDIRS=()
 for dir in "${MODULE_DIRS[@]}"; do
   if [ -f "$dir/go.mod" ]; then
     modpath=$(sed -n '1,40p' "$dir/go.mod" | awk '/^module /{print $2; exit}')
     if [ -n "$modpath" ]; then
-      MODULE_PATHS["$modpath"]="$dir"
+      MODPATHS+=("$modpath")
+      MODDIRS+=("$dir")
     else
       echo "Warning: no module path found in $dir/go.mod; skipping"
     fi
@@ -60,25 +64,29 @@ for dir in "${MODULE_DIRS[@]}"; do
   fi
 done
 
-if [ ${#MODULE_PATHS[@]} -eq 0 ]; then
+if [ ${#MODPATHS[@]} -eq 0 ]; then
   echo "No internal modules found to process."
   exit 1
 fi
 
 echo "Internal modules to tag:"
-for m in "${!MODULE_PATHS[@]}"; do
-  echo "- $m -> ${MODULE_PATHS[$m]}"
+for i in "${!MODPATHS[@]}"; do
+  echo "- ${MODPATHS[$i]} -> ${MODDIRS[$i]}"
 done
 
 # Find all go.mod files tracked by git
-mapfile -t GOMODS < <(git ls-files -- '*.go.mod')
+GOMODS=()
+while IFS= read -r f; do
+  GOMODS+=("$f")
+done < <(git ls-files -- '*.go.mod')
 
 changed=()
 for gomod in "${GOMODS[@]}"; do
   tmpfile=$(mktemp)
   cp "$gomod" "$tmpfile"
 
-  for mod in "${!MODULE_PATHS[@]}"; do
+  for i in "${!MODPATHS[@]}"; do
+    mod=${MODPATHS[$i]}
     # escape slashes for regex
     esc_mod=$(printf '%s' "$mod" | sed 's/\//\\\//g')
     # replace version tokens for the exact module path
