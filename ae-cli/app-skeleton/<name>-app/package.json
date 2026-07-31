@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@ae/api-client-myproj": "file:../api-client-myproj",
+    "@ae/api-client-<name>": "file:../api-client-<name>",
     "@tailwindcss/vite": "^4.3.3",
     "daisyui": "^5.7.0",
     "tailwindcss": "^4.3.3",
