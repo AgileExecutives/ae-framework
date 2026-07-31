@@ -46,6 +46,8 @@ dmitri.shuralyov.com/gpu/mtl v0.0.0-20190408044501-666a987793e9/go.mod h1:H6x//7
 github.com/4meepo/tagalign v1.4.3/go.mod h1:00WwRjiuSbrRJnSVeGWPLp2epS5Q/l4UEy0apLLS37c=
 github.com/Abirdcfly/dupword v0.1.7/go.mod h1:K0DkBeOebJ4VyOICFdppB23Q0YMOgVafM0zYW0n9lF4=
 github.com/AdminBenni/iota-mixing v1.0.0/go.mod h1:i4+tpAaB+qMVIV9OK3m4/DAynOd5bQFaOu+2AhtBCNY=
+github.com/AgileExecutives/ae-framework/serverbase v0.0.0-20260730190643-2ba1a904140d/go.mod h1:y15sVNh0wb8BIoKzcZsUKY0kgvwt2dDvmsr3UYukJCw=
+github.com/AgileExecutives/ae-framework/shared-modules/organization v0.0.0-20260730190643-2ba1a904140d/go.mod h1:o1btnOuiVQughV7KBpTcvF85vmc9cQ+1v9j8LTmen5U=
 github.com/AlwxSin/noinlineerr v1.0.5/go.mod h1:+QgkkoYrMH7RHvcdxdlI7vYYEdgeoFOVjU9sUhw/rQc=
 github.com/Antonboom/errname v1.1.1/go.mod h1:gjhe24xoxXp0ScLtHzjiXp0Exi1RFLKJb0bVBtWKCWQ=
 github.com/Antonboom/nilnil v1.1.1/go.mod h1:yCyAmSw3doopbOWhJlVci+HuyNRuHJKIv6V2oYQa8II=
@@ -317,8 +319,6 @@ github.com/lufia/plan9stats v0.0.0-20211012122336-39d0f177ccd0/go.mod h1:zJYVVT2
 github.com/macabu/inamedparam v0.2.0/go.mod h1:+Pee9/YfGe5LJ62pYXqB89lJ+0k5bsR8Wgz/C0Zlq3U=
 github.com/magefile/mage v1.14.0/go.mod h1:z5UZb/iS3GoOSn0JgWuiw7dxlurVYTu+/jHXqQg881A=
 github.com/magiconair/properties v1.8.6/go.mod h1:y3VJvCyxH9uVvJTWEGAELF3aiYNyPKd5NZ3oSwXrF60=
-github.com/mailru/easyjson v0.7.7 h1:UGYAvKxe3sBsEDzO8ZeWOSlIQfWFlxbzLZe7hwFURr0=
-github.com/mailru/easyjson v0.7.7/go.mod h1:xzfreul335JAWq5oZzymOObrkdz5UnU4kGfJJLY9Nlc=
 github.com/manuelarte/embeddedstructfieldcheck v0.4.0/go.mod h1:z8dFSyXqp+fC6NLDSljRJeNQJJDWnY7RoWFzV3PC6UM=
 github.com/manuelarte/funcorder v0.6.0/go.mod h1:id3NDhXdQBmeqXH7eVC6Z89xS6JxvZ8kF9xUxpArU/g=
 github.com/maratori/testableexamples v1.0.1/go.mod h1:XE2F/nQs7B9N08JgyRmdGjYVGqxWwClLPCGSQhXQSrQ=

@@ -2,14 +2,6 @@ module myproj
 
 go 1.25.0
 
-replace (
-	github.com/AgileExecutives/ae-framework/serverbase => ../../../serverbase
-	github.com/AgileExecutives/ae-framework/shared-modules/organization => ../../../shared-modules/organization
-	github.com/AgileExecutives/ae-framework/shared-modules/pdf => ../../../shared-modules/pdf
-	github.com/AgileExecutives/ae-framework/shared-modules/saas-base => ../../../shared-modules/saas-base
-	github.com/AgileExecutives/ae-framework/shared-modules/static => ../../../shared-modules/static
-)
-
 // Replace local modules to workspace copies
 
 require (
