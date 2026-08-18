@@ -92,8 +92,19 @@ func main() {
 	if err := sbmodule.RegisterCoreModules(mr, modules, db, coreCtx); err != nil {
 		log.Fatalf("module registration failed: %v", err)
 	}
-	cfg := sbconfig.Config{Addr: ":8080"}
-
+	// Determine server bind address from environment with sensible fallbacks.
+	addr := ":8080"
+	// Prefer explicit SERVER_ADDR if provided (allows host:port or :port)
+	if v := strings.TrimSpace(os.Getenv("SERVER_ADDR")); v != "" {
+		addr = v
+	} else if p := strings.TrimSpace(os.Getenv("PORT")); p != "" {
+		if strings.HasPrefix(p, ":") {
+			addr = p
+		} else {
+			addr = ":" + p
+		}
+	}
+	cfg := sbconfig.Config{Addr: addr}
 	server := sbhttp.New(cfg.Addr)
 
 	// Mount ginEngine handlers under serverbase's http handler by using

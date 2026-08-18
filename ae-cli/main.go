@@ -91,10 +91,14 @@ func main() {
 }
 
 func usage() {
-	fmt.Println(`
+		fmt.Println(`
 Usage:
 
 	ae -b <basedir> <command> <project>
+
+Options:
+
+	-b <basedir>   Base directory where projects are located or created (default: .)
 
 Commands:
 
