@@ -85,6 +85,8 @@ process_template() {
         -e "s|{{UNIQUE_CUSTOMER}}|${UNIQUE_CUSTOMER}|g" \
         -e "s|{{UNIQUE_ORG}}|${UNIQUE_ORG}|g" \
         -e "s|{{UNIQUE_PASSWORD}}|${UNIQUE_PASSWORD}|g" \
+        -e "s|testuser@unburdy.de|${UNIQUE_EMAIL}|g" \
+        -e "s|newpass123|${UNIQUE_PASSWORD}|g" \
         -e "s|{{HOST}}|${HOST}|g" \
         -e "s|{{host}}|${HOST}|g" \
         "$template_file" > "$output_file"
