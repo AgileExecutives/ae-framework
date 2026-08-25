@@ -95,10 +95,10 @@ process_template() {
     # so the initial login in some tests (which expects a pre-seeded admin) still works.
     # Replace only the first match in the file.
     if [ -n "${UNIQUE_EMAIL}" ]; then
-        awk -v a="${UNIQUE_EMAIL}" -v b="testuser@unburdy.de" 'BEGIN{done=0} { if (!done && index($0,a)) { gsub(a,b); done=1 } print }' "$output_file" > "${output_file}.tmp" && mv "${output_file}.tmp" "$output_file" || true
+        awk -v a="${UNIQUE_EMAIL}" -v b="testuser@unburdy.de" 'BEGIN{done=0;inlogin=0} { if (!done && inlogin && index($0,a)) { gsub(a,b); done=1 } if (!inlogin && $0 ~ /POST .*\/api\/v1\/auth\/login/) { inlogin=1 } if (inlogin && $0 == "") inlogin=0; print }' "$output_file" > "${output_file}.tmp" && mv "${output_file}.tmp" "$output_file" || true
     fi
     if [ -n "${UNIQUE_PASSWORD}" ]; then
-        awk -v a="${UNIQUE_PASSWORD}" -v b="newpass123" 'BEGIN{done=0} { if (!done && index($0,a)) { gsub(a,b); done=1 } print }' "$output_file" > "${output_file}.tmp" && mv "${output_file}.tmp" "$output_file" || true
+        awk -v a="${UNIQUE_PASSWORD}" -v b="newpass123" 'BEGIN{done=0;inlogin=0} { if (!done && inlogin && index($0,a)) { gsub(a,b); done=1 } if (!inlogin && $0 ~ /POST .*\/api\/v1\/auth\/login/) { inlogin=1 } if (inlogin && $0 == "") inlogin=0; print }' "$output_file" > "${output_file}.tmp" && mv "${output_file}.tmp" "$output_file" || true
     fi
 }
 
