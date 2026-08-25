@@ -4,6 +4,12 @@
 # Runs comprehensive API tests using HURL with unique identifiers per run
 # Usage: ./run-hurl-tests.sh [test_number]
 # Example: ./run-hurl-tests.sh 02   # Runs all tests starting with "02"
+#
+# Environment:
+# - SKIP_REDUNDANT_HURL: set to "true" or "1" to skip HURL tests that are
+#   covered by Go integration tests. If unset, this script defaults it to
+#   "true" to prefer the deterministic Go integration suite. Set to "false"
+#   to run all HURL tests.
 
 set -e
 
@@ -21,6 +27,11 @@ HURL_DIR="tests/hurl"
 TEMPLATES_DIR="tests/hurl/templates"
 PROCESSED_DIR="tests/hurl/processed"
 RESULTS_DIR="test_results"
+
+# Default to skipping redundant HURL tests unless explicitly disabled
+if [ -z "${SKIP_REDUNDANT_HURL+x}" ]; then
+    export SKIP_REDUNDANT_HURL="true"
+fi
 
 # Enable nullglob so globs that match nothing expand to empty
 shopt -s nullglob
@@ -348,6 +359,39 @@ unset IFS
 if [ ${#test_files[@]} -gt 0 ]; then
     IFS=$'\n' test_files=($(printf '%s\n' "${test_files[@]}" | awk -F/ '!seen[$NF]++ {print}'))
     unset IFS
+fi
+
+# Optionally skip redundant HURL tests that are covered by Go integration tests.
+# Set SKIP_REDUNDANT_HURL=1 or true to enable.
+if [ "${SKIP_REDUNDANT_HURL}" = "1" ] || [ "${SKIP_REDUNDANT_HURL}" = "true" ]; then
+    echo -e "${YELLOW}ℹ️  SKIP_REDUNDANT_HURL is set — filtering out redundant HURL tests${NC}"
+    skip_basenames=(
+        "template_rendering.hurl"
+        "template_crud.hurl"
+        "template_contracts.hurl"
+        "templates.hurl"
+        "02_password_reset_full.hurl"
+        "02_password_reset_flow.hurl"
+        "02_auth.hurl"
+        "03_plans.hurl"
+    )
+    filtered_tests=()
+    for f in "${test_files[@]}"; do
+        base=$(basename "$f")
+        skip=false
+        for s in "${skip_basenames[@]}"; do
+            if [ "$base" = "$s" ]; then
+                skip=true
+                break
+            fi
+        done
+        if [ "$skip" = false ]; then
+            filtered_tests+=("$f")
+        else
+            echo -e "${YELLOW}⤷ Skipping ${base}${NC}"
+        fi
+    done
+    test_files=("${filtered_tests[@]}")
 fi
 
 echo -e "${GREEN}🚀 Starting test execution...${NC}"

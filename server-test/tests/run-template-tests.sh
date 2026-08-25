@@ -93,6 +93,12 @@ main() {
     check_server
     setup_auth
     setup_reports
+
+    # Optionally skip template HURL tests if integration tests cover them
+    if [ "${SKIP_REDUNDANT_HURL}" = "1" ] || [ "${SKIP_REDUNDANT_HURL}" = "true" ]; then
+        echo -e "${YELLOW}ℹ️  SKIP_REDUNDANT_HURL is set — skipping template HURL tests (integration tests cover these scenarios).${NC}"
+        exit 0
+    fi
     
     echo ""
     echo -e "${BLUE}=== Running Template API Tests ===${NC}"

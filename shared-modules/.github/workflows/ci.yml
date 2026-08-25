@@ -32,6 +32,7 @@ jobs:
       DB_USER: testuser
       DB_PASSWORD: testpass
       DB_NAME: testdb
+      SKIP_REDUNDANT_HURL: "true"
 
     steps:
       - uses: actions/checkout@v4

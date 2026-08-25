@@ -6,8 +6,8 @@
 POST http://localhost:8080/api/v1/auth/login
 Content-Type: application/json
 {
-  "email": "test_1787658406_d0cc1cb7@example.com",
-  "password": "Pass123_d0cc1cb7"
+  "email": "testuser@unburdy.de",
+  "password": "newpass123"
 }
 
 HTTP 200
