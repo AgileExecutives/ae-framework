@@ -20,11 +20,20 @@ type tenantBucketAPI interface {
 type TenantService struct {
 	repo                repo.TenantRepo
 	tenantBucketService tenantBucketAPI
+	postCreate          func(tenantID uint) error
 }
 
 // NewTenantService creates a new tenant service using a TenantRepo implementation
 func NewTenantService(r repo.TenantRepo, tenantBucketService tenantBucketAPI) *TenantService {
 	return &TenantService{repo: r, tenantBucketService: tenantBucketService}
+}
+
+// SetPostCreateHook sets a hook that will be invoked after a tenant is created.
+// The hook receives the numeric tenant ID and may perform non-critical side effects
+// such as contract registration or bucket provisioning. Errors from the hook are
+// logged but do not fail tenant creation.
+func (s *TenantService) SetPostCreateHook(h func(tenantID uint) error) {
+	s.postCreate = h
 }
 
 // CreateTenant creates a new tenant and its MinIO bucket
@@ -61,6 +70,13 @@ func (s *TenantService) CreateTenant(ctx context.Context, req models.TenantCreat
 		if err := s.tenantBucketService.CreateTenantBucket(ctx, tenant.ID); err != nil {
 			log.Printf("❌ Warning: Failed to create MinIO bucket for tenant %d: %v", tenant.ID, err)
 			// Don't fail tenant creation if bucket creation fails
+		}
+	}
+
+	// Invoke post-create hook (e.g., register contracts) if provided. Do not fail tenant creation on hook errors.
+	if s.postCreate != nil {
+		if err := s.postCreate(tenant.ID); err != nil {
+			log.Printf("❌ Warning: Post-create hook failed for tenant %d: %v", tenant.ID, err)
 		}
 	}
 

@@ -1,3 +1,5 @@
+github.com/AgileExecutives/ae-framework/serverbase v0.1.0 h1:Zc8lDHxJIz3N8z9gC70WxdHvPY9w3nvWoO3bV4Xo8Bk=
+github.com/AgileExecutives/ae-framework/serverbase v0.1.0/go.mod h1:y15sVNh0wb8BIoKzcZsUKY0kgvwt2dDvmsr3UYukJCw=
 github.com/KyleBanks/depth v1.2.1 h1:5h8fQADFrWtarTdtDudMmGsC7GPbOAu6RVB3ffsVFHc=
 github.com/KyleBanks/depth v1.2.1/go.mod h1:jzSb9d0L43HxTQfT+oSA1EEp2q+ne2uh6XgeJcm8brE=
 github.com/PuerkitoBio/purell v1.1.1 h1:WEQqlqaGbrPkxLJWfBwQmfEAE1Z7ONdDLqrN38tNFfI=

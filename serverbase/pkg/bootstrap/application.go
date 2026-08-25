@@ -94,17 +94,17 @@ func (app *Application) Initialize() error {
 		return fmt.Errorf("failed to run migrations: %w", err)
 	}
 
-	// 3.5. Register contracts BEFORE seeding so contracts exist when templates are seeded
-	app.logger.Info("Registering template contracts...")
-	if err := app.registerContracts(); err != nil {
-		app.logger.Warn("Failed to register contracts:", err)
-		// Don't fail startup, contracts can be registered later
-	}
-
 	// 4. Seed database
 	app.logger.Info("Seeding database...")
 	if err := app.seedDatabase(); err != nil {
 		return fmt.Errorf("failed to seed database: %w", err)
+	}
+
+	// 4.5 Register contracts AFTER seeding so tenant records exist when registering
+	app.logger.Info("Registering template contracts...")
+	if err := app.registerContracts(); err != nil {
+		app.logger.Warn("Failed to register contracts:", err)
+		// Don't fail startup, contracts can be registered later
 	}
 
 	app.logger.Info("Application initialization completed")

@@ -3,6 +3,7 @@ package templates
 // Package templates provides a lightweight templates module used by tests and
 // optionally by apps that want an in-process templates provider.
 import (
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -11,22 +12,124 @@ import (
 	"sync"
 
 	"github.com/AgileExecutives/ae-framework/serverbase/module"
+	templateentities "github.com/AgileExecutives/ae-framework/serverbase/modules/templates/entities"
 	"github.com/AgileExecutives/ae-framework/serverbase/modules/templates/services"
 	"github.com/AgileExecutives/ae-framework/serverbase/pkg/core"
 	"github.com/gin-gonic/gin"
+	"gorm.io/datatypes"
+	"gorm.io/gorm"
 )
 
 // NewTemplatesModule returns a minimal module that exposes template endpoints
 // under /templates. It keeps an in-memory store suitable for the test harness.
 func NewTemplatesModule() core.Module {
 	return module.NewAdapterModule("templates", "0.1.0", []string{},
+		module.WithEntities(&templateEntity{}, &templateContractEntity{}),
 		module.WithRoutes(&templatesRouteProvider{}),
 		module.WithServices(
 			&templateServiceProvider{},
 			&contractRegistrarProvider{},
 		),
+		module.WithInit(func(ctx core.ModuleContext) error {
+			return ensureStandardTemplates(ctx.DB)
+		}),
 	)
 }
+
+type templateEntity struct{}
+
+func (e *templateEntity) TableName() string               { return "templates" }
+func (e *templateEntity) GetModel() interface{}           { return &templateentities.Template{} }
+func (e *templateEntity) GetMigrations() []core.Migration { return nil }
+
+type templateContractEntity struct{}
+
+func (e *templateContractEntity) TableName() string               { return "template_contracts" }
+func (e *templateContractEntity) GetModel() interface{}           { return &templateentities.TemplateContract{} }
+func (e *templateContractEntity) GetMigrations() []core.Migration { return nil }
+
+func ensureStandardTemplates(db *gorm.DB) error {
+	if db == nil {
+		return nil
+	}
+	if err := db.AutoMigrate(&templateentities.Template{}, &templateentities.TemplateContract{}); err != nil {
+		return fmt.Errorf("migrate template tables: %w", err)
+	}
+
+	seedTemplates := []templateentities.Template{
+		{
+			Module:       "user",
+			TemplateKey:  "welcome",
+			Channel:      templateentities.ChannelEmail,
+			Name:         "Welcome Email",
+			Description:  "Default welcome email",
+			StorageKey:   "server-test/templates/welcome.html",
+			Version:      1,
+			IsActive:     true,
+			IsDefault:    true,
+			Variables:    datatypes.JSON([]byte(`["FirstName","LastName","OrganizationName"]`)),
+			SampleData:   datatypes.JSON([]byte(`{"FirstName":"Test","LastName":"User","OrganizationName":"Server Test Organization"}`)),
+			TemplateType: "email",
+			Subject:      strPtr("Welcome to our service"),
+		},
+		{
+			Module:       "user",
+			TemplateKey:  "password_reset",
+			Channel:      templateentities.ChannelEmail,
+			Name:         "Password Reset Email",
+			Description:  "Default password reset email",
+			StorageKey:   "server-test/templates/password_reset.html",
+			Version:      1,
+			IsActive:     true,
+			IsDefault:    true,
+			Variables:    datatypes.JSON([]byte(`["FirstName","ResetURL"]`)),
+			SampleData:   datatypes.JSON([]byte(`{"FirstName":"Test","ResetURL":"http://localhost:5173/reset"}`)),
+			TemplateType: "email",
+			Subject:      strPtr("Reset your password"),
+		},
+	}
+
+	for _, template := range seedTemplates {
+		var existing templateentities.Template
+		if err := db.Where("template_key = ? AND module = ?", template.TemplateKey, template.Module).First(&existing).Error; err != nil {
+			if !errors.Is(err, gorm.ErrRecordNotFound) {
+				return fmt.Errorf("lookup template %s: %w", template.TemplateKey, err)
+			}
+			if err := db.Create(&template).Error; err != nil {
+				return fmt.Errorf("create template %s: %w", template.TemplateKey, err)
+			}
+		}
+	}
+
+	contracts := []templateentities.TemplateContract{
+		{
+			Module:            "user",
+			TemplateKey:       "welcome",
+			VariableSchema:    datatypes.JSON([]byte(`{"type":"object","properties":{"FirstName":{"type":"string"},"LastName":{"type":"string"},"OrganizationName":{"type":"string"}}}`)),
+			DefaultSampleData: datatypes.JSON([]byte(`{"FirstName":"Test","LastName":"User","OrganizationName":"Server Test Organization"}`)),
+		},
+		{
+			Module:            "user",
+			TemplateKey:       "password_reset",
+			VariableSchema:    datatypes.JSON([]byte(`{"type":"object","properties":{"FirstName":{"type":"string"},"ResetURL":{"type":"string"}}}`)),
+			DefaultSampleData: datatypes.JSON([]byte(`{"FirstName":"Test","ResetURL":"http://localhost:5173/reset"}`)),
+		},
+	}
+	for _, contract := range contracts {
+		var existing templateentities.TemplateContract
+		if err := db.Where("template_key = ? AND module = ?", contract.TemplateKey, contract.Module).First(&existing).Error; err != nil {
+			if !errors.Is(err, gorm.ErrRecordNotFound) {
+				return fmt.Errorf("lookup template contract %s: %w", contract.TemplateKey, err)
+			}
+			if err := db.Create(&contract).Error; err != nil {
+				return fmt.Errorf("create template contract %s: %w", contract.TemplateKey, err)
+			}
+		}
+	}
+	return nil
+}
+
+func strPtr(s string) *string { return &s }
 
 // Service providers to expose TemplateService and ContractRegistrar via the
 // central service registry so other modules (e.g., client_management) can look them up.
@@ -56,7 +159,7 @@ func (p *contractRegistrarProvider) ServiceInterface() interface{} {
 }
 
 func (p *contractRegistrarProvider) Factory(ctx core.ModuleContext) (interface{}, error) {
-	r := services.NewContractRegistrar()
+	r := services.NewContractRegistrar(ctx.DB)
 	return r, nil
 }
 
@@ -93,6 +196,71 @@ func (r *templatesRouteProvider) RegisterRoutes(router *gin.RouterGroup, ctx cor
 	}
 
 	templates := router.Group("/templates")
+
+	// Compatibility endpoint: render by template_key (used by hurl tests)
+	templates.POST("/render", func(c *gin.Context) {
+		var payload map[string]interface{}
+		if err := c.ShouldBindJSON(&payload); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid json"})
+			return
+		}
+
+		key, _ := payload["template_key"].(string)
+		if key == "" {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "template_key required"})
+			return
+		}
+
+		// find template by key in in-memory store
+		mu.Lock()
+		var foundID uint
+		var rec map[string]interface{}
+		for id, r := range store {
+			if tk, ok := r["template_key"].(string); ok && tk == key {
+				foundID = id
+				rec = r
+				break
+			}
+		}
+		mu.Unlock()
+
+		if foundID == 0 {
+			c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
+			return
+		}
+
+		// reuse the existing render logic by calling the :id render handler flow
+		// Prepare dataMap
+		dataMap := map[string]string{}
+		if d, ok := payload["data"].(map[string]interface{}); ok {
+			for k, v := range d {
+				dataMap[k] = fmt.Sprintf("%v", v)
+			}
+		}
+		contentI, _ := rec["content"]
+		content, _ := contentI.(string)
+		content = strings.ReplaceAll(content, "\\{\\{", "{{")
+		content = strings.ReplaceAll(content, "\\}\\}", "}}")
+		re := regexp.MustCompile(`\{\{\s*\.([A-Za-z0-9_]+)\s*\}\}`)
+		rendered := re.ReplaceAllStringFunc(content, func(m string) string {
+			parts := re.FindStringSubmatch(m)
+			if len(parts) >= 2 {
+				key := parts[1]
+				if v, ok := dataMap[key]; ok {
+					return v
+				}
+				return ""
+			}
+			return ""
+		})
+
+		if strings.TrimSpace(rendered) == "" {
+			html, _ := svc.RenderTemplate(c.Request.Context(), 1, foundID, payload["data"])
+			rendered = html
+		}
+
+		c.JSON(http.StatusOK, gin.H{"data": gin.H{"content": rendered}})
+	})
 
 	templates.GET("", func(c *gin.Context) {
 		mu.Lock()

@@ -15,6 +15,7 @@ import (
 	"github.com/AgileExecutives/ae-framework/serverbase/pkg/core"
 	"github.com/AgileExecutives/ae-framework/serverbase/pkg/repos"
 	settingsentities "github.com/AgileExecutives/ae-framework/serverbase/pkg/settings/entities"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/startup"
 )
 
 // UserModule provides core authentication, user management, and contact functionality
@@ -58,6 +59,9 @@ func (m *UserModule) Initialize(ctx core.ModuleContext) error {
 	m.authService = services.NewAuthServiceWithRepo(userRepo, tenantRepo, rf.NewsletterRepo(), rf.TokenBlacklistRepo(), ctx.Logger)
 	// Wire internal tenant service into auth service to centralize tenant creation
 	tenantSvc := internalTenantSvc.NewTenantService(tenantRepo, nil)
+	tenantSvc.SetPostCreateHook(func(tid uint) error {
+		return startup.RegisterContractsForTenant(ctx.DB, tid)
+	})
 	m.authService.SetTenantService(tenantSvc)
 	m.authHandlers = handlers.NewAuthHandlers(ctx, m.authService, ctx.Logger)
 	contactRepo := rf.ContactRepo()

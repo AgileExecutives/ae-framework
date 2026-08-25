@@ -68,4 +68,6 @@ require (
 	gorm.io/driver/mysql v1.5.6 // indirect
 )
 
- 
+require github.com/AgileExecutives/ae-framework/serverbase v0.0.0
+
+replace github.com/AgileExecutives/ae-framework/serverbase => ../../serverbase

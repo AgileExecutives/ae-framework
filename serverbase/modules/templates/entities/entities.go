@@ -41,6 +41,7 @@ type Template struct {
 // TemplateContract represents a contract for a template (variables + sample data)
 type TemplateContract struct {
 	ID                uint           `json:"id" gorm:"primaryKey"`
+	TenantID          uint           `json:"tenant_id" gorm:"index"`
 	Module            string         `json:"module" gorm:"index"`
 	TemplateKey       string         `json:"template_key" gorm:"index"`
 	VariableSchema    datatypes.JSON `json:"variable_schema"`

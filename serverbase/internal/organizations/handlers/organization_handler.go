@@ -129,7 +129,13 @@ func (h *OrganizationHandler) GetAllOrganizations(c *gin.Context) {
 		responses[i] = org.ToResponse()
 	}
 
-	c.JSON(http.StatusOK, baseAPI.SuccessListResponse(responses, page, limit, int(total)))
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data":    responses,
+		"page":    page,
+		"limit":   limit,
+		"total":   int(total),
+	})
 }
 
 // UpdateOrganization handles updating an organization

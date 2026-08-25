@@ -5,12 +5,20 @@ go 1.25.0
 // local workspace modules are provided by go.work
 
 require (
+	github.com/AgileExecutives/ae-framework/serverbase v0.1.0
+	github.com/AgileExecutives/ae-framework/shared-modules/audit v0.1.0
+	github.com/AgileExecutives/ae-framework/shared-modules/booking v0.1.0
+	github.com/AgileExecutives/ae-framework/shared-modules/calendar v0.1.0
+	github.com/AgileExecutives/ae-framework/shared-modules/organization v0.1.0
+	github.com/AgileExecutives/ae-framework/shared-modules/pdf v0.1.0
+	github.com/AgileExecutives/ae-framework/shared-modules/saas-base v0.1.0
+	github.com/AgileExecutives/ae-framework/shared-modules/static v0.1.0
 	github.com/gin-gonic/gin v1.12.0
-	golang.org/x/crypto v0.51.0
-	gorm.io/gorm v1.31.2
 	github.com/stretchr/testify v1.11.1
+	golang.org/x/crypto v0.51.0
 	gorm.io/datatypes v1.2.7
 	gorm.io/driver/sqlite v1.6.0
+	gorm.io/gorm v1.31.2
 )
 
 require (

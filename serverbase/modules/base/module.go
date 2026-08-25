@@ -19,6 +19,7 @@ import (
 	"github.com/AgileExecutives/ae-framework/serverbase/pkg/core"
 	"github.com/AgileExecutives/ae-framework/serverbase/pkg/repos"
 	settingsentities "github.com/AgileExecutives/ae-framework/serverbase/pkg/settings/entities"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/startup"
 )
 
 // BaseModule provides core authentication, user management, and contact functionality
@@ -65,6 +66,10 @@ func (m *BaseModule) Initialize(ctx core.ModuleContext) error {
 	// side-effects (buckets, etc.) are centralized.
 	rf := repos.NewGormRepoFactory(ctx.DB)
 	tenantSvc := internalTenantSvc.NewTenantService(rf.TenantRepo(), nil)
+	// Register post-create hook to register template contracts for the new tenant
+	tenantSvc.SetPostCreateHook(func(tid uint) error {
+		return startup.RegisterContractsForTenant(ctx.DB, tid)
+	})
 	m.authService.SetTenantService(tenantSvc)
 
 	// Initialize handlers (pass authService for newer handler constructors)

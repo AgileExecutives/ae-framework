@@ -1,13 +1,14 @@
 package services
 
-import (
-	"path/filepath"
+import "path/filepath"
 
-	templateServices "github.com/AgileExecutives/ae-framework/serverbase/modules/templates/services"
-)
+// Registrar is the minimal interface required for registering contracts.
+type Registrar interface {
+	RegisterContractFromFile(tenantID uint, module string, path string) error
+}
 
 // RegisterBaseContracts registers all base template contracts with the template system
-func RegisterBaseContracts(contractRegistrar *templateServices.ContractRegistrar, tenantID uint) error {
+func RegisterBaseContracts(contractRegistrar Registrar, tenantID uint) error {
 	// Get the module's contracts directory
 	contractsDir := "modules/base/contracts"
 

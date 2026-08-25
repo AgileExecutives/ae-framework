@@ -5,6 +5,7 @@ go 1.25.0
 // serverbase provided by workspace go.work
 
 require (
+	github.com/AgileExecutives/ae-framework/serverbase v0.1.0
 	github.com/gin-gonic/gin v1.12.0
 	github.com/swaggo/swag v1.16.6
 )

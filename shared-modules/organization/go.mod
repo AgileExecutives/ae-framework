@@ -3,6 +3,7 @@ module github.com/AgileExecutives/ae-framework/shared-modules/organization
 go 1.25.0
 
 require (
+	github.com/AgileExecutives/ae-framework/serverbase v0.1.0
 	github.com/swaggo/swag v1.16.6
 	gorm.io/gorm v1.31.2
 )
@@ -60,5 +61,3 @@ require (
 	gorm.io/datatypes v1.2.7 // indirect
 	gorm.io/driver/mysql v1.5.6 // indirect
 )
-
- 

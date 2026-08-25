@@ -93,3 +93,7 @@ require (
 )
 
 replace github.com/AgileExecutives/ae-framework/shared-modules/saas-base => ../shared-modules/saas-base
+
+replace github.com/AgileExecutives/ae-framework/shared-modules/invoice => ../shared-modules/invoice
+
+replace github.com/AgileExecutives/ae-framework/shared-modules/booking => ../shared-modules/booking
