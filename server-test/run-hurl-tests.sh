@@ -95,12 +95,11 @@ process_template() {
     # so the initial login in some tests (which expects a pre-seeded admin) still works.
     # Replace only the first match in the file.
     if [ -n "${UNIQUE_EMAIL}" ]; then
-        sed -i.bak "0,/${UNIQUE_EMAIL}/s|${UNIQUE_EMAIL}|testuser@unburdy.de|" "$output_file" || true
+        awk -v a="${UNIQUE_EMAIL}" -v b="testuser@unburdy.de" 'BEGIN{done=0} { if (!done && index($0,a)) { gsub(a,b); done=1 } print }' "$output_file" > "${output_file}.tmp" && mv "${output_file}.tmp" "$output_file" || true
     fi
     if [ -n "${UNIQUE_PASSWORD}" ]; then
-        sed -i.bak "0,/${UNIQUE_PASSWORD}/s|${UNIQUE_PASSWORD}|newpass123|" "$output_file" || true
+        awk -v a="${UNIQUE_PASSWORD}" -v b="newpass123" 'BEGIN{done=0} { if (!done && index($0,a)) { gsub(a,b); done=1 } print }' "$output_file" > "${output_file}.tmp" && mv "${output_file}.tmp" "$output_file" || true
     fi
-    rm -f "${output_file}.bak" || true
 }
 
 # Function to check server availability
