@@ -72,6 +72,6 @@ replace github.com/AgileExecutives/ae-framework/shared-modules/invoice_number =>
 
 replace github.com/AgileExecutives/ae-framework/shared-modules/pdf => ../pdf
 
-require github.com/AgileExecutives/ae-framework/serverbase v0.0.0
+require github.com/AgileExecutives/ae-framework/serverbase v0.1.0
 
 replace github.com/AgileExecutives/ae-framework/serverbase => ../../serverbase
