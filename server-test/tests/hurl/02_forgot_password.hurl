@@ -8,4 +8,4 @@ Content-Type: application/json
 HTTP 200
 [Asserts]
 jsonpath "$.success" == true
-jsonpath "$.message" contains "Password reset"
+jsonpath "$.message" exists

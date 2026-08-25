@@ -1,12 +1,12 @@
 # Plans Tests
 # Test plan management endpoints (public and admin)
 
-# Create fresh auth session for these tests
+# Create fresh auth session for these tests (use the generated unique user)
 POST {{host}}/api/v1/auth/login
 Content-Type: application/json
 {
-  "email": "testuser@unburdy.de",
-  "password": "newpass123"
+  "email": "{{UNIQUE_EMAIL}}",
+  "password": "{{UNIQUE_PASSWORD}}"
 }
 
 HTTP 200

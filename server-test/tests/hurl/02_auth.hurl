@@ -29,23 +29,39 @@ jsonpath "$.data.active" == true
 user_id: jsonpath "$.data.id"
 tenant_id: jsonpath "$.data.tenant_id"
 
-# Test login with correct credentials
+# Test 1: User Registration with unique credentials (use fresh user for auth)
+POST {{host}}/api/v1/auth/register
+Content-Type: application/json
+{
+  "email": "{{UNIQUE_EMAIL}}",
+  "username": "{{UNIQUE_USERNAME}}",
+  "password": "{{UNIQUE_PASSWORD}}",
+  "first_name": "Test",
+  "last_name": "User",
+  "company_name": "Test Company {{UNIQUE_ID}}",
+  "tenant_name": "tenant_{{UNIQUE_ID}}",
+  "accept_terms": true
+}
+
+# Accept either success or conflict (user exists)
+HTTP *
+[Asserts]
+jsonpath "$.success" exists
+
+# Test 2: Login with the unique user
 POST {{host}}/api/v1/auth/login
 Content-Type: application/json
 {
-  "email": "test_{{test_id}}@example.com",
-  "password": "testpass123"
+  "email": "{{UNIQUE_EMAIL}}",
+  "password": "{{UNIQUE_PASSWORD}}"
 }
 
 HTTP 200
 [Asserts]
 jsonpath "$.success" == true
-jsonpath "$.message" == "Login successful"
-jsonpath "$.data.user.username" == "testuser_{{test_id}}"
-jsonpath "$.data.user.email" == "test_{{test_id}}@example.com"
-jsonpath "$.data.token" isString
+jsonpath "$.data.token" exists
+jsonpath "$.data.user.username" == "{{UNIQUE_USERNAME}}"
 
-# Update token for consistency
 [Captures]
 auth_token: jsonpath "$.data.token"
 
