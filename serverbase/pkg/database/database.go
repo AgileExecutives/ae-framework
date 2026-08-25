@@ -122,6 +122,15 @@ func ConnectWithAutoCreate(config Config) (*gorm.DB, error) {
 		if err != nil {
 			return nil, fmt.Errorf("failed to open in-memory sqlite DB (%s): %w", dsn, err)
 		}
+
+		// Enable WAL journal mode to reduce locking contention during concurrent
+		// reads/writes. This helps the in-memory shared-cache SQLite instance used
+		// by the test harness avoid "database is locked" errors.
+		if execErr := db.Exec("PRAGMA journal_mode = WAL;").Error; execErr != nil {
+			log.Printf("warning: failed to set sqlite PRAGMA journal_mode=WAL: %v", execErr)
+		} else {
+			log.Printf("sqlite: set PRAGMA journal_mode=WAL on %s", dsn)
+		}
 		return db, nil
 	}
 
