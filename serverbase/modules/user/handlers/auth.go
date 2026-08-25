@@ -5,6 +5,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"net/mail"
 	"os"
 	"time"
 
@@ -68,6 +69,14 @@ func (h *AuthHandlers) Login(c *gin.Context) {
 	if payload.Email == "" && payload.Username == "" {
 		c.JSON(http.StatusBadRequest, models.ErrorResponseFunc("Invalid request", "email or username is required"))
 		return
+	}
+
+	// If an email was provided, validate its format and return 400 for bad format
+	if payload.Email != "" {
+		if _, err := mail.ParseAddress(payload.Email); err != nil {
+			c.JSON(http.StatusBadRequest, models.ErrorResponseFunc("Invalid request", "Invalid email format"))
+			return
+		}
 	}
 
 	identifier := payload.Email
