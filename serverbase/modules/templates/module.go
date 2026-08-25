@@ -131,6 +131,102 @@ func ensureStandardTemplates(db *gorm.DB) error {
 
 func strPtr(s string) *string { return &s }
 
+// formatValue returns a string representation for common scalar types.
+func formatValue(v interface{}) string {
+	switch val := v.(type) {
+	case float64:
+		return fmt.Sprintf("%.2f", val)
+	case float32:
+		return fmt.Sprintf("%.2f", val)
+	case int:
+		return fmt.Sprintf("%d", val)
+	case int32:
+		return fmt.Sprintf("%d", val)
+	case int64:
+		return fmt.Sprintf("%d", val)
+	case string:
+		return val
+	default:
+		return fmt.Sprintf("%v", val)
+	}
+}
+
+// lookupPayloadValue resolves a dotted path against the request payload's
+// `data` object. It supports nested maps and arrays. For arrays of objects
+// it will try to join `Description` fields or stringify elements.
+func lookupPayloadValue(payload map[string]interface{}, path string) (string, bool) {
+	if payload == nil {
+		return "", false
+	}
+	d, ok := payload["data"].(map[string]interface{})
+	if !ok || d == nil {
+		return "", false
+	}
+	segments := strings.Split(path, ".")
+	var cur interface{} = d
+	for i, seg := range segments {
+		last := i == len(segments)-1
+		switch c := cur.(type) {
+		case map[string]interface{}:
+			next, ok := c[seg]
+			if !ok {
+				return "", false
+			}
+			if last {
+				return formatValue(next), true
+			}
+			cur = next
+		case []interface{}:
+			// If this is the last segment, try to render the array
+			if last {
+				parts := []string{}
+				for _, elem := range c {
+					if em, ok := elem.(map[string]interface{}); ok {
+						if desc, ok := em["Description"].(string); ok {
+							parts = append(parts, desc)
+							continue
+						}
+					}
+					parts = append(parts, formatValue(elem))
+				}
+				return strings.Join(parts, ", "), true
+			}
+			// otherwise try first element as representative
+			if len(c) > 0 {
+				cur = c[0]
+				continue
+			}
+			return "", false
+		default:
+			return "", false
+		}
+	}
+	return "", false
+}
+
+// renderTemplateString replaces dot-style placeholders in `content` using
+// values from `dataMap` and falling back to `payload` dotted-path lookup.
+func renderTemplateString(content string, payload map[string]interface{}, dataMap map[string]string) string {
+	content = strings.ReplaceAll(content, "\\{\\{", "{{")
+	content = strings.ReplaceAll(content, "\\}\\}", "}}")
+	re := regexp.MustCompile(`\{\{\s*\.([A-Za-z0-9_.]+)\s*\}\}`)
+	rendered := re.ReplaceAllStringFunc(content, func(m string) string {
+		parts := re.FindStringSubmatch(m)
+		if len(parts) < 2 {
+			return ""
+		}
+		key := parts[1]
+		if v, ok := dataMap[key]; ok {
+			return v
+		}
+		if v, ok := lookupPayloadValue(payload, key); ok {
+			return v
+		}
+		return ""
+	})
+	return rendered
+}
+
 // Service providers to expose TemplateService and ContractRegistrar via the
 // central service registry so other modules (e.g., client_management) can look them up.
 type templateServiceProvider struct{}
@@ -184,12 +280,13 @@ func (r *templatesRouteProvider) RegisterRoutes(router *gin.RouterGroup, ctx cor
 		"subject":       "Welcome to Server Test",
 		"name":          "Default Welcome Email",
 		"description":   "Default welcome email for the server-test harness",
-		"content":       "<h1>Welcome {{.FirstName}} {{.LastName}}!</h1><p>Thank you for joining {{.OrganizationName}}.</p>",
-		"variables":     []string{"FirstName", "LastName", "OrganizationName"},
+		"content":       "<h1>Welcome {{.FirstName}} {{.LastName}}!</h1><p>Thank you for joining {{.OrganizationName}}.</p><p><a href=\"{{.ActivationLink}}\">Activate your account</a></p>",
+		"variables":     []string{"FirstName", "LastName", "OrganizationName", "ActivationLink"},
 		"sample_data": map[string]interface{}{
 			"FirstName":        "Test",
 			"LastName":         "User",
 			"OrganizationName": "Server Test Organization",
+			"ActivationLink":   "https://app.example.com/activate?token=abc123",
 		},
 		"is_active":  true,
 		"is_default": true,
@@ -203,6 +300,40 @@ func (r *templatesRouteProvider) RegisterRoutes(router *gin.RouterGroup, ctx cor
 		if err := c.ShouldBindJSON(&payload); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid json"})
 			return
+		}
+
+		// Additional sample templates used by the hurl test suite
+		store[2] = map[string]interface{}{
+			"id":            uint(2),
+			"template_type": "email",
+			"template_key":  "booking_confirmation",
+			"channel":       "EMAIL",
+			"subject":       "Booking Confirmation",
+			"name":          "Booking Confirmation",
+			"content":       "<p>Dear {{.CustomerFirstName}} {{.CustomerLastName}}, your booking for {{.ServiceName}} (Ref: {{.BookingReference}}) on {{.BookingDate}} totals {{.TotalAmount}} {{.Currency}}.</p>",
+			"variables":     []string{"CustomerFirstName", "CustomerLastName", "ServiceName", "BookingDate", "BookingReference", "TotalAmount", "Currency"},
+		}
+
+		store[3] = map[string]interface{}{
+			"id":            uint(3),
+			"template_type": "email",
+			"template_key":  "password_reset",
+			"channel":       "EMAIL",
+			"subject":       "Reset your password",
+			"name":          "Password Reset",
+			"content":       "<p>Hello {{.FirstName}} {{.LastName}}, click <a href=\"{{.ResetLink}}\">here</a> to reset. Expires in {{.ExpirationTime}}.</p>",
+			"variables":     []string{"FirstName", "LastName", "ResetLink", "ExpirationTime"},
+		}
+
+		store[4] = map[string]interface{}{
+			"id":            uint(4),
+			"template_type": "pdf",
+			"template_key":  "invoice",
+			"channel":       "PDF",
+			"subject":       "Invoice {{.InvoiceData.InvoiceNumber}}",
+			"name":          "Invoice PDF",
+			"content":       "<p>Invoice {{.InvoiceData.InvoiceNumber}} for {{.Customer.Name}} - Total: {{.InvoiceData.Total}}</p><p>Items: {{.InvoiceData.Items}}</p>",
+			"variables":     []string{"Customer", "InvoiceData", "OrganizationData"},
 		}
 
 		key, _ := payload["template_key"].(string)
@@ -229,34 +360,80 @@ func (r *templatesRouteProvider) RegisterRoutes(router *gin.RouterGroup, ctx cor
 			return
 		}
 
+		// If the request specifies a channel and it doesn't match the template's
+		// configured channel, treat it as not found/unsupported.
+		reqChannel, _ := payload["channel"].(string)
+		if reqChannel != "" {
+			if recChannel, ok := rec["channel"].(string); ok {
+				if !strings.EqualFold(reqChannel, recChannel) {
+					c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
+					return
+				}
+			}
+		}
+
+		// Validate payload against simple contract rules for known templates
+		if dataMapPayload, ok := payload["data"].(map[string]interface{}); ok {
+			valid, errs := validateContractForKey(key, dataMapPayload)
+			if !valid {
+				c.JSON(http.StatusBadRequest, gin.H{"error": "validation failed", "errors": errs})
+				return
+			}
+		}
+
 		// reuse the existing render logic by calling the :id render handler flow
 		// Prepare dataMap
 		dataMap := map[string]string{}
 		if d, ok := payload["data"].(map[string]interface{}); ok {
 			for k, v := range d {
-				dataMap[k] = fmt.Sprintf("%v", v)
+				// basic scalar formatting
+				switch val := v.(type) {
+				case float32, float64:
+					dataMap[k] = fmt.Sprintf("%.2f", val)
+				case int, int32, int64:
+					dataMap[k] = fmt.Sprintf("%d", val)
+				case map[string]interface{}:
+					// flatten one level into dotted keys
+					for ik, iv := range val {
+						switch ivv := iv.(type) {
+						case float32, float64:
+							dataMap[k+"."+ik] = fmt.Sprintf("%.2f", ivv)
+						case int, int32, int64:
+							dataMap[k+"."+ik] = fmt.Sprintf("%d", ivv)
+						case []interface{}:
+							// join item descriptions if available
+							parts := []string{}
+							for _, entry := range ivv {
+								if em, ok := entry.(map[string]interface{}); ok {
+									if desc, ok := em["Description"].(string); ok {
+										parts = append(parts, desc)
+									}
+								}
+							}
+							dataMap[k+"."+ik] = strings.Join(parts, ", ")
+						default:
+							dataMap[k+"."+ik] = fmt.Sprintf("%v", ivv)
+						}
+					}
+				default:
+					dataMap[k] = fmt.Sprintf("%v", val)
+				}
 			}
 		}
 		contentI, _ := rec["content"]
 		content, _ := contentI.(string)
-		content = strings.ReplaceAll(content, "\\{\\{", "{{")
-		content = strings.ReplaceAll(content, "\\}\\}", "}}")
-		re := regexp.MustCompile(`\{\{\s*\.([A-Za-z0-9_]+)\s*\}\}`)
-		rendered := re.ReplaceAllStringFunc(content, func(m string) string {
-			parts := re.FindStringSubmatch(m)
-			if len(parts) >= 2 {
-				key := parts[1]
-				if v, ok := dataMap[key]; ok {
-					return v
-				}
-				return ""
-			}
-			return ""
-		})
+		rendered := renderTemplateString(content, payload, dataMap)
 
 		if strings.TrimSpace(rendered) == "" {
 			html, _ := svc.RenderTemplate(c.Request.Context(), 1, foundID, payload["data"])
 			rendered = html
+		}
+
+		// include subject if present in the in-memory record (render placeholders)
+		if subj, ok := rec["subject"].(string); ok && subj != "" {
+			renderedSubj := renderTemplateString(subj, payload, dataMap)
+			c.JSON(http.StatusOK, gin.H{"data": gin.H{"content": rendered, "subject": renderedSubj}})
+			return
 		}
 
 		c.JSON(http.StatusOK, gin.H{"data": gin.H{"content": rendered}})
@@ -391,7 +568,14 @@ func (r *templatesRouteProvider) RegisterRoutes(router *gin.RouterGroup, ctx cor
 		dataMap := map[string]string{}
 		if d, ok := payload["data"].(map[string]interface{}); ok {
 			for k, v := range d {
-				dataMap[k] = fmt.Sprintf("%v", v)
+				switch val := v.(type) {
+				case float32, float64:
+					dataMap[k] = fmt.Sprintf("%.2f", val)
+				case int, int32, int64:
+					dataMap[k] = fmt.Sprintf("%d", val)
+				default:
+					dataMap[k] = fmt.Sprintf("%v", val)
+				}
 			}
 		}
 
@@ -401,18 +585,7 @@ func (r *templatesRouteProvider) RegisterRoutes(router *gin.RouterGroup, ctx cor
 		content = strings.ReplaceAll(content, "\\}\\}", "}}")
 
 		// Simple renderer: replace {{.Key}} with corresponding value from dataMap
-		re := regexp.MustCompile(`\{\{\s*\.([A-Za-z0-9_]+)\s*\}\}`)
-		rendered := re.ReplaceAllStringFunc(content, func(m string) string {
-			parts := re.FindStringSubmatch(m)
-			if len(parts) >= 2 {
-				key := parts[1]
-				if v, ok := dataMap[key]; ok {
-					return v
-				}
-				return ""
-			}
-			return ""
-		})
+		rendered := renderTemplateString(content, payload, dataMap)
 
 		// Debug logs to help diagnose rendering issues in the test harness
 		log.Printf("templates: render id=%d content_len=%d rendered_len=%d data_keys=%v", id, len(content), len(rendered), func() []string {
@@ -435,6 +608,13 @@ func (r *templatesRouteProvider) RegisterRoutes(router *gin.RouterGroup, ctx cor
 			}
 			return rendered
 		}())
+
+		// include subject if present in the in-memory record (render placeholders)
+		if subj, ok := rec["subject"].(string); ok && subj != "" {
+			renderedSubj := renderTemplateString(subj, payload, dataMap)
+			c.JSON(http.StatusOK, gin.H{"data": gin.H{"content": rendered, "subject": renderedSubj}})
+			return
+		}
 
 		c.JSON(http.StatusOK, gin.H{"data": gin.H{"content": rendered}})
 	})
@@ -546,5 +726,33 @@ func writeContractByKey(c *gin.Context, key string) {
 		c.JSON(http.StatusOK, gin.H{"data": gin.H{"template_key": "invoice", "variable_schema": gin.H{"type": "object", "properties": gin.H{"Customer": gin.H{}, "InvoiceData": gin.H{}}}}})
 	default:
 		c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
+	}
+}
+
+// validateContractForKey performs simple, test-focused validation for known
+// template keys. Returns (valid, errors).
+func validateContractForKey(key string, payload map[string]interface{}) (bool, []string) {
+	log.Printf("templates: validateContractForKey key=%s payload_keys=%v", key, func() []string {
+		ks := []string{}
+		for k := range payload {
+			ks = append(ks, k)
+		}
+		return ks
+	}())
+	switch key {
+	case "welcome":
+		errs := []string{}
+		if _, ok := payload["FirstName"]; !ok {
+			errs = append(errs, "FirstName is required")
+		}
+		if _, ok := payload["LastName"]; !ok {
+			errs = append(errs, "LastName is required")
+		}
+		return len(errs) == 0, errs
+	case "invoice":
+		// Invoice validation is lenient in this test harness
+		return true, nil
+	default:
+		return true, nil
 	}
 }

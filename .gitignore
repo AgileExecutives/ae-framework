@@ -37,3 +37,4 @@ server-test/tests/hurl/processed/05_contacts.hurl
 server-test/tests/hurl/processed/06_emails.hurl
 server-test/tests/hurl/processed/07_user_settings.hurl
 server-test/tests/hurl/processed/08_pdf_generation.hurl
+server-test/server.pid

@@ -57,6 +57,10 @@ func (r *GormContactRepo) UpsertNewsletter(ctx context.Context, n *basemodels.Ne
 	n.LastContact = time.Now()
 	res := r.db.Clauses(clause.OnConflict{Columns: []clause.Column{{Name: "email"}}, DoUpdates: clause.AssignmentColumns([]string{"name", "interest", "source", "last_contact"})}).Create(n)
 	if res.Error != nil {
+		// If ON CONFLICT is unsupported (no unique index), try a plain insert first
+		if createErr := r.db.Create(n).Error; createErr == nil {
+			return true, nil
+		}
 		// fallback behaviour: try to find and update existing
 		var existing basemodels.Newsletter
 		if r.db.Where("email = ?", n.Email).First(&existing).Error == nil {

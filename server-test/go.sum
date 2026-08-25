@@ -1,7 +1,5 @@
 filippo.io/edwards25519 v1.1.0 h1:FNf4tywRC1HmFuKW5xopWpigGjJKiJSV0Cqo0cJWDaA=
 filippo.io/edwards25519 v1.1.0/go.mod h1:BxyFTGdWcka3PhytdK4V28tE5sGfRvvvRV7EaN4VDT4=
-github.com/AgileExecutives/ae-framework/serverbase v0.1.0 h1:Zc8lDHxJIz3N8z9gC70WxdHvPY9w3nvWoO3bV4Xo8Bk=
-github.com/AgileExecutives/ae-framework/serverbase v0.1.0/go.mod h1:y15sVNh0wb8BIoKzcZsUKY0kgvwt2dDvmsr3UYukJCw=
 github.com/AgileExecutives/ae-framework/shared-modules/audit v0.1.0 h1:wE9dbuv5VBIPsmxLr3jnfW4zG+arBuW9sK6rooTfy+8=
 github.com/AgileExecutives/ae-framework/shared-modules/audit v0.1.0/go.mod h1:f7drrXcmJR4HsSfGBFC5WK5MWjrMUOSDRl/AVqmRDQQ=
 github.com/AgileExecutives/ae-framework/shared-modules/booking v0.1.0 h1:w5H7BpQbgF/bHTnk28AnCfje3ebNYiiFqQ9BlLWFBSM=

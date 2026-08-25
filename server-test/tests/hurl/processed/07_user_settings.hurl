@@ -5,13 +5,13 @@
 POST http://localhost:8080/api/v1/auth/register
 Content-Type: application/json
 {
-  "email": "test_1783619998_d5e76e73@example.com",
-  "username": "user_1783619998_d5e76e73",
-  "password": "Pass123_d5e76e73",
+  "email": "test_1787649473_da8274b4@example.com",
+  "username": "user_1787649473_da8274b4",
+  "password": "Pass123_da8274b4",
   "first_name": "Settings",
   "last_name": "Tester",
-  "company_name": "Settings Test Company 1783619998_d5e76e73",
-  "tenant_name": "tenant_1783619998_d5e76e73",
+  "company_name": "Settings Test Company 1787649473_da8274b4",
+  "tenant_name": "tenant_1787649473_da8274b4",
   "accept_terms": true
 }
 
@@ -22,8 +22,8 @@ HTTP *
 POST http://localhost:8080/api/v1/auth/login
 Content-Type: application/json
 {
-  "email": "test_1783619998_d5e76e73@example.com",
-  "password": "Pass123_d5e76e73"
+  "email": "test_1787649473_da8274b4@example.com",
+  "password": "Pass123_da8274b4"
 }
 
 HTTP 200
@@ -51,7 +51,7 @@ Content-Type: application/json
   "language": "de",
   "timezone": "Europe/Berlin",
   "theme": "dark",
-  "settings": "{\"email_notifications\": true, \"push_notifications\": false, \"unique_preference\": \"1783619998_d5e76e73\"}"
+  "settings": "{\"email_notifications\": true, \"push_notifications\": false, \"unique_preference\": \"1787649473_da8274b4\"}"
 }
 
 HTTP 200
@@ -92,7 +92,7 @@ PUT http://localhost:8080/api/v1/user-settings
 Authorization: Bearer {{auth_token}}
 Content-Type: application/json
 {
-  "language": "invalid_language_code_1783619998_d5e76e73"
+  "language": "invalid_language_code_1787649473_da8274b4"
 }
 
 # Accept various status codes as validation rules may vary

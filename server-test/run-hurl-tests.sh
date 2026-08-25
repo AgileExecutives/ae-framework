@@ -39,6 +39,9 @@ fi
 # Generate unique identifiers for this test run
 TIMESTAMP=$(date +%s)
 NANO_PART=$(date +%N | cut -c1-6)  # Get microseconds
+    # Move password reset full test to the end to avoid changing global admin password early
+    reordered_files=()
+    reset_file=""
 PROCESS_ID=$$  # Current process ID
 RANDOM_PART=$RANDOM
 RANDOM_ID=$(echo "${TIMESTAMP}${NANO_PART}${PROCESS_ID}${RANDOM_PART}" | shasum | cut -c1-8)
@@ -100,6 +103,33 @@ check_server() {
     fi
 }
 
+# Wait until server reports healthy for N consecutive checks to avoid startup races
+wait_for_stable_health() {
+    local attempts=0
+    local consecutive=0
+    local needed=3
+    local max_attempts=30
+
+    echo -e "${YELLOW}⏳ Waiting for stable server readiness...${NC}"
+    while [ $attempts -lt $max_attempts ] && [ $consecutive -lt $needed ]; do
+        if curl -s --max-time 2 "${HOST}/api/v1/health" > /dev/null 2>&1; then
+            consecutive=$((consecutive+1))
+        else
+            consecutive=0
+        fi
+        attempts=$((attempts+1))
+        sleep 1
+    done
+
+    if [ $consecutive -ge $needed ]; then
+        echo -e "${GREEN}✅ Server readiness confirmed${NC}"
+        return 0
+    else
+        echo -e "${RED}⚠️ Server did not become stable in time (gave up after ${attempts} attempts)${NC}"
+        return 1
+    fi
+}
+
 # Function to run a single test
 run_test() {
     local test_file="$1"
@@ -138,18 +168,27 @@ run_test() {
             --variable "host=${HOST}" \
             --variable "base_url=${HOST}" \
             --variable "auth_token=${AUTH_TOKEN}" \
+            --jobs 1 \
             --test \
-            --verbose 2>&1); then
+            --verbose \
+            --report-json "$RESULTS_DIR" 2>&1); then
             echo -e "${GREEN}✅ ${test_name}.hurl passed${NC}"
             echo -e "${BLUE}📋 Test output:${NC}"
             echo "$hurl_output"
             echo ""
+            # Move the generated report.json to a test-specific file for consistency
+            if [ -f "$RESULTS_DIR/report.json" ]; then
+                mv "$RESULTS_DIR/report.json" "$RESULTS_DIR/${test_name}.json"
+            fi
             return 0
         else
             echo -e "${RED}❌ ${test_name}.hurl failed${NC}"
             echo -e "${RED}📝 Full error output:${NC}"
             echo "$hurl_output"
             echo ""
+            if [ -f "$RESULTS_DIR/report.json" ]; then
+                mv "$RESULTS_DIR/report.json" "$RESULTS_DIR/${test_name}.json"
+            fi
             return 1
         fi
     else
@@ -158,6 +197,7 @@ run_test() {
             --variable "host=${HOST}" \
             --variable "base_url=${HOST}" \
             --variable "auth_token=${AUTH_TOKEN}" \
+            --jobs 1 \
             --test \
             --json > "$RESULTS_DIR/${test_name}.json" 2>/dev/null || true
 
@@ -195,6 +235,11 @@ if [ -z "$AUTH_TOKEN" ]; then
     echo -e "${RED}⚠️  Failed to obtain auth token; some template tests may fail${NC}"
 else
     echo -e "${GREEN}✅ Obtained auth token${NC}"
+fi
+
+# Ensure the server is stable before running tests to avoid transient 404s
+if ! wait_for_stable_health; then
+    echo -e "${YELLOW}⚠️  Continuing despite unstable server; tests may record transient failures${NC}"
 fi
 
 echo ""
@@ -277,13 +322,34 @@ fi
 IFS=$'\n' test_files=($(sort <<<"${test_files[*]}"))
 unset IFS
 
+# Deduplicate files by basename to avoid running the same test twice (portable)
+if [ ${#test_files[@]} -gt 0 ]; then
+    IFS=$'\n' test_files=($(printf '%s\n' "${test_files[@]}" | awk -F/ '!seen[$NF]++ {print}'))
+    unset IFS
+fi
+
 echo -e "${GREEN}🚀 Starting test execution...${NC}"
 echo ""
+
+# Move password reset full test to the end to avoid changing global admin password early
+reordered_files=()
+reset_file=""
+for f in "${test_files[@]}"; do
+    if [[ "$(basename "$f")" == *"password_reset_full"* ]]; then
+        reset_file="$f"
+    else
+        reordered_files+=("$f")
+    fi
+done
+if [ -n "$reset_file" ]; then
+    reordered_files+=("$reset_file")
+fi
+test_files=("${reordered_files[@]}")
 
 # Run tests
 for test_file in "${test_files[@]}"; do
     total_tests=$((total_tests + 1))
-    
+
     if run_test "$test_file"; then
         passed_tests=$((passed_tests + 1))
     else
@@ -292,6 +358,7 @@ for test_file in "${test_files[@]}"; do
     fi
     echo ""
 done
+
 
 # Print summary
 echo -e "${BLUE}📊 Test Summary${NC}"

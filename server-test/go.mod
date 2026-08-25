@@ -21,6 +21,9 @@ require (
 	gorm.io/gorm v1.31.2
 )
 
+// Use local workspace copy of serverbase during development
+replace github.com/AgileExecutives/ae-framework/serverbase => ../serverbase
+
 require (
 	filippo.io/edwards25519 v1.1.0 // indirect
 	github.com/KyleBanks/depth v1.2.1 // indirect

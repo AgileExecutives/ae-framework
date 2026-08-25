@@ -5,6 +5,12 @@ import (
 )
 
 // Provide lightweight local constructors to avoid importing shared-modules during migration.
-func NewGormPlanRepo(db *gorm.DB) PlanRepo { return NewInMemoryPlanRepo() }
+// Use a real Gorm-backed repo when a DB is provided; otherwise fall back to in-memory.
+func NewGormPlanRepo(db *gorm.DB) PlanRepo {
+    if db != nil {
+        return newGormPlanRepo(db)
+    }
+    return NewInMemoryPlanRepo()
+}
 
 func NewGormNewsletterRepo(db *gorm.DB) NewsletterRepo { return nil }
