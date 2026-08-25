@@ -233,13 +233,22 @@ if ! wait_for_stable_health; then
     echo -e "${YELLOW}⚠️  Continuing despite unstable server; tests may record transient failures${NC}"
 fi
 
-# Perform a quick login to obtain a reusable auth token for template tests
+# Perform a quick registration+login to obtain a reusable auth token for template tests
 echo -e "${YELLOW}🔑 Obtaining reusable auth token for template tests...${NC}"
-AUTH_TOKEN=$(curl -s -X POST "${HOST}/api/v1/auth/login" -H 'Content-Type: application/json' -d '{"email":"testuser@unburdy.de","password":"newpass123"}' | jq -r '.data.token // empty')
-if [ -z "$AUTH_TOKEN" ]; then
-    echo -e "${RED}⚠️  Failed to obtain auth token; some template tests may fail${NC}"
+# Try to register a fresh unique user (ignore errors such as already exists)
+curl -s -X POST "${HOST}/api/v1/auth/register" -H 'Content-Type: application/json' -d "{\"email\": \"${UNIQUE_EMAIL}\", \"username\": \"${UNIQUE_USERNAME}\", \"password\": \"${UNIQUE_PASSWORD}\", \"first_name\": \"Test\", \"last_name\": \"User\", \"company_name\": \"Test Company\", \"tenant_name\": \"tenant_${UNIQUE_ID}\", \"accept_terms\": true}" > /dev/null 2>&1 || true
+# Then login with the unique user to get a token
+AUTH_TOKEN=$(curl -s -X POST "${HOST}/api/v1/auth/login" -H 'Content-Type: application/json' -d "{\"email\": \"${UNIQUE_EMAIL}\", \"password\": \"${UNIQUE_PASSWORD}\"}" | jq -r '.data.token // empty')
+if [ -n "$AUTH_TOKEN" ]; then
+    echo -e "${GREEN}✅ Obtained auth token via unique test user ${UNIQUE_EMAIL}${NC}"
 else
-    echo -e "${GREEN}✅ Obtained auth token${NC}"
+    # Fallback: try seeded admin user
+    AUTH_TOKEN=$(curl -s -X POST "${HOST}/api/v1/auth/login" -H 'Content-Type: application/json' -d '{"email":"testuser@unburdy.de","password":"newpass123"}' | jq -r '.data.token // empty')
+    if [ -z "$AUTH_TOKEN" ]; then
+        echo -e "${RED}⚠️  Failed to obtain auth token; some template tests may fail${NC}"
+    else
+        echo -e "${GREEN}✅ Obtained auth token via seeded admin user${NC}"
+    fi
 fi
 
 echo ""
