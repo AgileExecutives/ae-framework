@@ -91,7 +91,16 @@ process_template() {
         -e "s|{{host}}|${HOST}|g" \
         "$template_file" > "$output_file"
 
-    # (no post-processing reverts — tests are updated to use unique creds)
+    # Revert the first occurrence of the unique creds back to the seeded admin
+    # so the initial login in some tests (which expects a pre-seeded admin) still works.
+    # Replace only the first match in the file.
+    if [ -n "${UNIQUE_EMAIL}" ]; then
+        sed -i.bak "0,/${UNIQUE_EMAIL}/s|${UNIQUE_EMAIL}|testuser@unburdy.de|" "$output_file" || true
+    fi
+    if [ -n "${UNIQUE_PASSWORD}" ]; then
+        sed -i.bak "0,/${UNIQUE_PASSWORD}/s|${UNIQUE_PASSWORD}|newpass123|" "$output_file" || true
+    fi
+    rm -f "${output_file}.bak" || true
 }
 
 # Function to check server availability
