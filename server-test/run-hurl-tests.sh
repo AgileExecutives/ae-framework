@@ -92,20 +92,15 @@ process_template() {
         "$template_file" > "$output_file"
 
     # Revert the first occurrence of the unique creds back to the seeded admin
-    # so the initial login in some tests (which expects a pre-seeded admin) still works.
+    # so tests that expect the seeded admin (e.g., initial login checks) still work.
     # Replace only the first match in the file.
     if [ -n "${UNIQUE_EMAIL}" ]; then
-        awk -v a="${UNIQUE_EMAIL}" -v b="testuser@unburdy.de" 'BEGIN{done=0;inlogin=0} { if (!done && inlogin && index($0,a)) { gsub(a,b); done=1 } if (!inlogin && $0 ~ /POST .*\/api\/v1\/auth\/login/) { inlogin=1 } if (inlogin && $0 == "") inlogin=0; print }' "$output_file" > "${output_file}.tmp" && mv "${output_file}.tmp" "$output_file" || true
+        sed -i.bak "0,/${UNIQUE_EMAIL}/s|${UNIQUE_EMAIL}|testuser@unburdy.de|" "$output_file" || true
     fi
     if [ -n "${UNIQUE_PASSWORD}" ]; then
-        awk -v a="${UNIQUE_PASSWORD}" -v b="newpass123" 'BEGIN{done=0;inlogin=0} { if (!done && inlogin && index($0,a)) { gsub(a,b); done=1 } if (!inlogin && $0 ~ /POST .*\/api\/v1\/auth\/login/) { inlogin=1 } if (inlogin && $0 == "") inlogin=0; print }' "$output_file" > "${output_file}.tmp" && mv "${output_file}.tmp" "$output_file" || true
+        sed -i.bak "0,/${UNIQUE_PASSWORD}/s|${UNIQUE_PASSWORD}|newpass123|" "$output_file" || true
     fi
-
-    # Special-case: for the full password-reset flow, ensure the forgot-password
-    # request targets the seeded admin so the final login step matches expectations.
-    if [[ "$(basename "$output_file")" == "02_password_reset_full.hurl" ]]; then
-        awk -v a="${UNIQUE_EMAIL}" -v b="testuser@unburdy.de" 'BEGIN{inforgot=0;done=0} { if (!done && inforgot && index($0,a)) { gsub(a,b); done=1 } if (!inforgot && $0 ~ /POST .*\/api\/v1\/auth\/forgot-password/) { inforgot=1 } if (inforgot && $0 == "") inforgot=0; print }' "$output_file" > "${output_file}.tmp" && mv "${output_file}.tmp" "$output_file" || true
-    fi
+    rm -f "${output_file}.bak" || true
 }
 
 # Function to check server availability
@@ -253,17 +248,13 @@ fi
 
 # Perform a quick registration+login to obtain a reusable auth token for template tests
 echo -e "${YELLOW}🔑 Obtaining reusable auth token for template tests...${NC}"
-# Try to register a fresh unique user and login (retry a few times)
-for i in 1 2 3; do
-    curl -s -X POST "${HOST}/api/v1/auth/register" -H 'Content-Type: application/json' -d "{\"email\": \"${UNIQUE_EMAIL}\", \"username\": \"${UNIQUE_USERNAME}\", \"password\": \"${UNIQUE_PASSWORD}\", \"first_name\": \"Test\", \"last_name\": \"User\", \"company_name\": \"Test Company\", \"tenant_name\": \"tenant_${UNIQUE_ID}\", \"accept_terms\": true}" > /dev/null 2>&1 || true
-    AUTH_TOKEN=$(curl -s -X POST "${HOST}/api/v1/auth/login" -H 'Content-Type: application/json' -d "{\"email\": \"${UNIQUE_EMAIL}\", \"password\": \"${UNIQUE_PASSWORD}\"}" | jq -r '.data.token // empty')
-    if [ -n "$AUTH_TOKEN" ]; then
-        echo -e "${GREEN}✅ Obtained auth token via unique test user ${UNIQUE_EMAIL}${NC}"
-        break
-    fi
-    sleep 1
-done
-if [ -z "$AUTH_TOKEN" ]; then
+# Try to register a fresh unique user (ignore errors such as already exists)
+curl -s -X POST "${HOST}/api/v1/auth/register" -H 'Content-Type: application/json' -d "{\"email\": \"${UNIQUE_EMAIL}\", \"username\": \"${UNIQUE_USERNAME}\", \"password\": \"${UNIQUE_PASSWORD}\", \"first_name\": \"Test\", \"last_name\": \"User\", \"company_name\": \"Test Company\", \"tenant_name\": \"tenant_${UNIQUE_ID}\", \"accept_terms\": true}" > /dev/null 2>&1 || true
+# Then login with the unique user to get a token
+AUTH_TOKEN=$(curl -s -X POST "${HOST}/api/v1/auth/login" -H 'Content-Type: application/json' -d "{\"email\": \"${UNIQUE_EMAIL}\", \"password\": \"${UNIQUE_PASSWORD}\"}" | jq -r '.data.token // empty')
+if [ -n "$AUTH_TOKEN" ]; then
+    echo -e "${GREEN}✅ Obtained auth token via unique test user ${UNIQUE_EMAIL}${NC}"
+else
     # Fallback: try seeded admin user
     AUTH_TOKEN=$(curl -s -X POST "${HOST}/api/v1/auth/login" -H 'Content-Type: application/json' -d '{"email":"testuser@unburdy.de","password":"newpass123"}' | jq -r '.data.token // empty')
     if [ -z "$AUTH_TOKEN" ]; then
