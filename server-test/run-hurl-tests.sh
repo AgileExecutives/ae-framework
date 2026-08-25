@@ -100,6 +100,12 @@ process_template() {
     if [ -n "${UNIQUE_PASSWORD}" ]; then
         awk -v a="${UNIQUE_PASSWORD}" -v b="newpass123" 'BEGIN{done=0;inlogin=0} { if (!done && inlogin && index($0,a)) { gsub(a,b); done=1 } if (!inlogin && $0 ~ /POST .*\/api\/v1\/auth\/login/) { inlogin=1 } if (inlogin && $0 == "") inlogin=0; print }' "$output_file" > "${output_file}.tmp" && mv "${output_file}.tmp" "$output_file" || true
     fi
+
+    # Special-case: for the full password-reset flow, ensure the forgot-password
+    # request targets the seeded admin so the final login step matches expectations.
+    if [[ "$(basename "$output_file")" == "02_password_reset_full.hurl" ]]; then
+        awk -v a="${UNIQUE_EMAIL}" -v b="testuser@unburdy.de" 'BEGIN{inforgot=0;done=0} { if (!done && inforgot && index($0,a)) { gsub(a,b); done=1 } if (!inforgot && $0 ~ /POST .*\/api\/v1\/auth\/forgot-password/) { inforgot=1 } if (inforgot && $0 == "") inforgot=0; print }' "$output_file" > "${output_file}.tmp" && mv "${output_file}.tmp" "$output_file" || true
+    fi
 }
 
 # Function to check server availability
