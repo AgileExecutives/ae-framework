@@ -228,6 +228,11 @@ if ! check_server; then
     exit 1
 fi
 
+# Ensure the server is stable before running tests to avoid transient 404s
+if ! wait_for_stable_health; then
+    echo -e "${YELLOW}⚠️  Continuing despite unstable server; tests may record transient failures${NC}"
+fi
+
 # Perform a quick login to obtain a reusable auth token for template tests
 echo -e "${YELLOW}🔑 Obtaining reusable auth token for template tests...${NC}"
 AUTH_TOKEN=$(curl -s -X POST "${HOST}/api/v1/auth/login" -H 'Content-Type: application/json' -d '{"email":"testuser@unburdy.de","password":"newpass123"}' | jq -r '.data.token // empty')
@@ -235,11 +240,6 @@ if [ -z "$AUTH_TOKEN" ]; then
     echo -e "${RED}⚠️  Failed to obtain auth token; some template tests may fail${NC}"
 else
     echo -e "${GREEN}✅ Obtained auth token${NC}"
-fi
-
-# Ensure the server is stable before running tests to avoid transient 404s
-if ! wait_for_stable_health; then
-    echo -e "${YELLOW}⚠️  Continuing despite unstable server; tests may record transient failures${NC}"
 fi
 
 echo ""
