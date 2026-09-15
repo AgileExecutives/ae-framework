@@ -2,6 +2,7 @@ package documents
 
 import (
 	"context"
+	"fmt"
 
 	templateServices "github.com/AgileExecutives/ae-framework/serverbase/modules/templates/services"
 	"github.com/AgileExecutives/ae-framework/serverbase/pkg/core"
@@ -133,7 +134,61 @@ func (m *CoreModule) Routes() []core.RouteProvider {
 
 // EventHandlers returns event handlers for the module
 func (m *CoreModule) EventHandlers() []core.EventHandler {
-	return []core.EventHandler{}
+	return []core.EventHandler{
+		&tenantCreatedHandler{module: m},
+	}
+}
+
+// tenantCreatedHandler reacts to tenant.created events and ensures the
+// tenant's MinIO bucket exists by writing a small initialization object.
+type tenantCreatedHandler struct {
+	module *CoreModule
+}
+
+func (h *tenantCreatedHandler) EventType() string { return "tenant.created" }
+
+func (h *tenantCreatedHandler) Priority() int { return 0 }
+
+func (h *tenantCreatedHandler) Handle(event interface{}) error {
+	// Extract tenant id from payload. We expect a uint or numeric type.
+	var tid uint
+	switch v := event.(type) {
+	case uint:
+		tid = v
+	case int:
+		tid = uint(v)
+	case int64:
+		tid = uint(v)
+	case float64:
+		tid = uint(v)
+	default:
+		return nil // unknown payload; ignore
+	}
+
+	// Ensure storage present
+	if h.module.minioStorage == nil {
+		return nil
+	}
+
+	// Create a small init object to force bucket creation
+	req := storage.StoreRequest{
+		Bucket:      fmt.Sprintf("tenant-%04d", tid),
+		Key:         ".tenant-init",
+		Data:        []byte(fmt.Sprintf("Tenant %d initialized", tid)),
+		ContentType: "text/plain",
+		Metadata: map[string]string{
+			"tenant-id": fmt.Sprintf("%d", tid),
+		},
+	}
+
+	// Use background context for startup-time handler
+	ctx := context.Background()
+	_, err := h.module.minioStorage.Store(ctx, req)
+	if err != nil {
+		h.module.templateService = h.module.templateService // noop to use module reference
+		return err
+	}
+	return nil
 }
 
 // Middleware returns middleware providers

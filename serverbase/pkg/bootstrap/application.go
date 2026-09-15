@@ -2,6 +2,7 @@ package bootstrap
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"os"
@@ -10,11 +11,18 @@ import (
 	"time"
 
 	internalDB "github.com/AgileExecutives/ae-framework/serverbase/internal/database"
+	"github.com/AgileExecutives/ae-framework/serverbase/internal/models"
+	orgrepo "github.com/AgileExecutives/ae-framework/serverbase/internal/organizations/repo"
+	orgservices "github.com/AgileExecutives/ae-framework/serverbase/internal/organizations/services"
+	internalTenantSvc "github.com/AgileExecutives/ae-framework/serverbase/internal/services"
+	templateServices "github.com/AgileExecutives/ae-framework/serverbase/modules/templates/services"
 	"github.com/AgileExecutives/ae-framework/serverbase/pkg/auth"
 	"github.com/AgileExecutives/ae-framework/serverbase/pkg/config"
 	"github.com/AgileExecutives/ae-framework/serverbase/pkg/core"
 	"github.com/AgileExecutives/ae-framework/serverbase/pkg/database"
 	pkgMiddleware "github.com/AgileExecutives/ae-framework/serverbase/pkg/middleware"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/repos"
+	settings "github.com/AgileExecutives/ae-framework/serverbase/pkg/settings"
 	"github.com/AgileExecutives/ae-framework/serverbase/pkg/startup"
 
 	// internalHandlers removed — modules register internal handlers themselves
@@ -324,7 +332,96 @@ func (app *Application) registerContracts() error {
 
 // seedDatabase seeds the configured initial admin user.
 func (app *Application) seedDatabase() error {
+	// Ensure a default tenant and organization exist before creating the
+	// initial admin user (which expects tenant ID 1 / organization ID 1).
+	if err := app.ensureInitialTenantAndOrganization(); err != nil {
+		return fmt.Errorf("failed to ensure initial tenant/org: %w", err)
+	}
+
 	return internalDB.SeedInitialAdminUser(app.context.DB)
+}
+
+// ensureInitialTenantAndOrganization makes sure a tenant with ID 1 and an
+// organization with ID 1 exist. It's conservative: if the records already
+// exist nothing is changed. This keeps the initial admin seed consistent.
+func (app *Application) ensureInitialTenantAndOrganization() error {
+	db := app.context.DB
+
+	var t models.Tenant
+	if err := db.First(&t, 1).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			// Use TenantService to create the tenant so module logic (if any)
+			// can be reused. We do not create a bucket here (initialization
+			// is handled by the documents module reacting to tenant.created).
+			rf := repos.NewGormRepoFactory(db)
+			tenantSvc := internalTenantSvc.NewTenantService(rf.TenantRepo(), nil)
+			if app.context.EventBus != nil {
+				tenantSvc.SetEventBus(app.context.EventBus)
+			}
+
+			req := models.TenantCreateRequest{CustomerID: 1, Name: "Default Tenant", Slug: "default"}
+			created, err := tenantSvc.CreateTenantWithoutBucket(context.Background(), req)
+			if err != nil {
+				return fmt.Errorf("create default tenant via TenantService: %w", err)
+			}
+			t = *created
+			app.logger.Info("Created default tenant via TenantService", "id", t.ID)
+
+			// Register contracts for the new tenant (centralized) to ensure
+			// template contracts exist before further initialization.
+			if err := startup.RegisterContractsForTenant(app.context, t.ID); err != nil {
+				app.logger.Warn("Failed to register contracts for initial tenant", "err", err)
+			}
+		} else {
+			return fmt.Errorf("lookup tenant id=1: %w", err)
+		}
+	}
+
+	var o models.Organization
+	if err := db.First(&o, 1).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			// Prefer using the OrganizationService so any template copying or
+			// related initialization happens consistently.
+			orgRepo := orgrepo.NewGormOrganizationRepo(db)
+			orgSvc := orgservices.NewOrganizationServiceWithRepo(orgRepo)
+			// If a template service is available in the app service registry,
+			// plug it in so CreateOrganization can copy templates.
+			if svc, ok := app.context.Services.Get("template_service"); ok {
+				if templateSvc, ok := svc.(*templateServices.TemplateService); ok {
+					orgSvc.SetTemplateService(templateSvc)
+				}
+			}
+
+			// Ensure organization service has template and settings services wired
+			if svc, ok := app.context.Services.Get("template_service"); ok {
+				if templateSvc, ok := svc.(*templateServices.TemplateService); ok {
+					orgSvc.SetTemplateService(templateSvc)
+				}
+			}
+			// Try to get settings service from registry; if not present, create a local one
+			if svc, ok := app.context.Services.Get("settings_service"); ok {
+				if settingsSrv, ok := svc.(*settings.SettingsSystem); ok {
+					orgSvc.SetSettingsService(settingsSrv.Service)
+				}
+			} else {
+				if ss, serr := settings.NewSettingsSystem(db); serr == nil {
+					orgSvc.SetSettingsService(ss.Service)
+				}
+			}
+
+			req := models.CreateOrganizationRequest{Name: "Default Organization"}
+			created, err := orgSvc.CreateOrganization(req, t.ID)
+			if err != nil {
+				return fmt.Errorf("create default organization via service: %w", err)
+			}
+			o = *created
+			app.logger.Info("Created default organization via OrganizationService", "id", o.ID, "tenant", o.TenantID)
+		} else {
+			return fmt.Errorf("lookup organization id=1: %w", err)
+		}
+	}
+
+	return nil
 }
 
 // corsMiddleware adds CORS headers

@@ -4,10 +4,12 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strconv"
 
 	"github.com/AgileExecutives/ae-framework/serverbase/internal/models"
 	orgrepo "github.com/AgileExecutives/ae-framework/serverbase/internal/organizations/repo"
 	templateServices "github.com/AgileExecutives/ae-framework/serverbase/modules/templates/services"
+	settingsSvc "github.com/AgileExecutives/ae-framework/serverbase/pkg/settings/services"
 	"gorm.io/gorm"
 )
 
@@ -15,6 +17,7 @@ import (
 type OrganizationService struct {
 	repo            orgrepo.OrganizationRepo
 	templateService *templateServices.TemplateService
+	settingsService *settingsSvc.SettingsService
 }
 
 // NewOrganizationService creates a new organization service backed by GORM DB (compat)
@@ -30,6 +33,11 @@ func NewOrganizationServiceWithRepo(r orgrepo.OrganizationRepo) *OrganizationSer
 // SetTemplateService sets the template service for copying templates
 func (s *OrganizationService) SetTemplateService(templateService *templateServices.TemplateService) {
 	s.templateService = templateService
+}
+
+// SetSettingsService sets the settings service for initializing defaults
+func (s *OrganizationService) SetSettingsService(settings *settingsSvc.SettingsService) {
+	s.settingsService = settings
 }
 
 // CreateOrganization creates a new organization
@@ -72,6 +80,18 @@ func (s *OrganizationService) CreateOrganization(req models.CreateOrganizationRe
 		}
 	}
 
+	// Initialize default settings for the new organization if settings service available
+	if s.settingsService != nil {
+		orgStr := strconv.FormatUint(uint64(organization.ID), 10)
+		// Company defaults
+		if err := s.settingsService.SetSetting(tenantID, orgStr, "company", "name", organization.Name, "string"); err != nil {
+			log.Printf("⚠️ Warning: failed to set default company name for org %d: %v", organization.ID, err)
+		}
+		// Billing defaults
+		if err := s.settingsService.SetSetting(tenantID, orgStr, "billing", "rate", "19", "string"); err != nil {
+			log.Printf("⚠️ Warning: failed to set default billing rate for org %d: %v", organization.ID, err)
+		}
+	}
 	return &organization, nil
 }
 

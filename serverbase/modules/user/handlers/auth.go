@@ -90,11 +90,13 @@ func (h *AuthHandlers) Login(c *gin.Context) {
 		return
 	}
 	user := *userPtr
+	log.Printf("DEBUG Login: RequireEmailVerification=%v, user.EmailVerified=%v, user.Email=%s", config.Load().Email.RequireEmailVerification, user.EmailVerified, user.Email)
 	if !user.Active {
 		c.JSON(http.StatusUnauthorized, models.ErrorResponseFunc("Account disabled", "User account is not active"))
 		return
 	}
-	if h.cfg.Email.RequireEmailVerification && !user.EmailVerified {
+	if config.Load().Email.RequireEmailVerification && !user.EmailVerified {
+		log.Printf("AUTH REJECT: RequireEmailVerification=%v user.EmailVerified=%v user.Email=%s user.ID=%d", config.Load().Email.RequireEmailVerification, user.EmailVerified, user.Email, user.ID)
 		c.JSON(http.StatusUnauthorized, models.ErrorResponseFunc("Email not verified", "Please verify your email address before logging in"))
 		return
 	}

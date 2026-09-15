@@ -96,6 +96,7 @@ func (h *AuthHandlers) Login(c *gin.Context) {
 	}
 
 	// Check if email is verified (only if email verification is required)
+	log.Printf("DEBUG base.Login: RequireEmailVerification=%v, user.EmailVerified=%v, user.Email=%s", h.cfg.Email.RequireEmailVerification, user.EmailVerified, user.Email)
 	if h.cfg.Email.RequireEmailVerification && !user.EmailVerified {
 		c.JSON(http.StatusUnauthorized, models.ErrorResponseFunc("Email not verified", "Please verify your email address before logging in"))
 		return

@@ -67,6 +67,10 @@ func (m *BaseModule) Initialize(ctx core.ModuleContext) error {
 	// side-effects (buckets, etc.) are centralized.
 	rf := repos.NewGormRepoFactory(ctx.DB)
 	tenantSvc := internalTenantSvc.NewTenantService(rf.TenantRepo(), nil)
+	// Wire event bus into tenant service so it can publish tenant lifecycle events
+	if ctx.EventBus != nil {
+		tenantSvc.SetEventBus(ctx.EventBus)
+	}
 	// Register post-create hook to register template contracts for the new tenant.
 	// Delegate to the startup package so registration logic is centralized and
 	// can be reused by admin endpoints or CLI commands.
@@ -75,8 +79,18 @@ func (m *BaseModule) Initialize(ctx core.ModuleContext) error {
 		// errors to the caller but do not convert them into creation failures.
 		if err := startup.RegisterContractsForTenant(m.moduleContext, tid); err != nil {
 			m.moduleContext.Logger.Warn("post-create contract registration failed", "tenant", tid, "err", err)
-			return err
+			// continue to publish event even if contract registration failed
 		}
+
+		// Publish a standard tenant created event on the module event bus so
+		// other modules (e.g., documents) can react (create buckets, etc.).
+		if m.moduleContext.EventBus != nil {
+			// publish tenant ID as numeric payload
+			if err := m.moduleContext.EventBus.Publish("tenant.created", tid); err != nil {
+				m.moduleContext.Logger.Warn("failed to publish tenant.created event", "tenant", tid, "err", err)
+			}
+		}
+
 		return nil
 	})
 	m.authService.SetTenantService(tenantSvc)

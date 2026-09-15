@@ -7,6 +7,7 @@ import (
 
 	"github.com/AgileExecutives/ae-framework/serverbase/internal/models"
 	"github.com/AgileExecutives/ae-framework/serverbase/modules/tenant/repo"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/core"
 	"github.com/AgileExecutives/ae-framework/serverbase/pkg/utils"
 )
 
@@ -21,11 +22,17 @@ type TenantService struct {
 	repo                repo.TenantRepo
 	tenantBucketService tenantBucketAPI
 	postCreate          func(tenantID uint) error
+	eventBus            core.EventBus
 }
 
 // NewTenantService creates a new tenant service using a TenantRepo implementation
 func NewTenantService(r repo.TenantRepo, tenantBucketService tenantBucketAPI) *TenantService {
 	return &TenantService{repo: r, tenantBucketService: tenantBucketService}
+}
+
+// SetEventBus sets an EventBus so the service can publish tenant lifecycle events.
+func (s *TenantService) SetEventBus(b core.EventBus) {
+	s.eventBus = b
 }
 
 // SetPostCreateHook sets a hook that will be invoked after a tenant is created.
@@ -80,6 +87,13 @@ func (s *TenantService) CreateTenant(ctx context.Context, req models.TenantCreat
 		}
 	}
 
+	// Publish tenant.created event if event bus available. Do not fail creation on publish errors.
+	if s.eventBus != nil {
+		if err := s.eventBus.Publish("tenant.created", tenant.ID); err != nil {
+			log.Printf("❌ Warning: failed to publish tenant.created for %d: %v", tenant.ID, err)
+		}
+	}
+
 	return &tenant, nil
 }
 
@@ -93,6 +107,19 @@ func (s *TenantService) CreateTenantWithoutBucket(ctx context.Context, req model
 
 	if err := s.repo.Save(ctx, &tenant); err != nil {
 		return nil, fmt.Errorf("failed to create tenant: %w", err)
+	}
+	// Invoke post-create hook if set
+	if s.postCreate != nil {
+		if err := s.postCreate(tenant.ID); err != nil {
+			log.Printf("❌ Warning: Post-create hook failed for tenant %d: %v", tenant.ID, err)
+		}
+	}
+
+	// Publish tenant.created event if event bus available
+	if s.eventBus != nil {
+		if err := s.eventBus.Publish("tenant.created", tenant.ID); err != nil {
+			log.Printf("❌ Warning: failed to publish tenant.created for %d: %v", tenant.ID, err)
+		}
 	}
 
 	return &tenant, nil

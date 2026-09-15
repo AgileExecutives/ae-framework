@@ -38,6 +38,8 @@ func main() {
 	// Ensure email verification is disabled for the test harness so
 	// registration -> login works without external email flows.
 	os.Setenv("FEATURE_EMAIL_VERIFICATION", "false")
+	// Debug: print resolved config for email verification to help debug test failures
+	log.Printf("DEBUG: FEATURE_EMAIL_VERIFICATION resolved to %v", pkgconfig.Load().Email.RequireEmailVerification)
 	ginEngine := gin.New()
 	// Do not auto-redirect requests that differ only by trailing slash — tests
 	// expect exact behavior for `/api/v1/static` vs `/api/v1/static/`.
