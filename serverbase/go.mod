@@ -97,3 +97,8 @@ replace github.com/AgileExecutives/ae-framework/shared-modules/saas-base => ../s
 replace github.com/AgileExecutives/ae-framework/shared-modules/invoice => ../shared-modules/invoice
 
 replace github.com/AgileExecutives/ae-framework/shared-modules/booking => ../shared-modules/booking
+
+// Local shared-modules used during development
+require github.com/AgileExecutives/ae-framework/shared-modules/organization v0.0.0
+
+replace github.com/AgileExecutives/ae-framework/shared-modules/organization => ../shared-modules/organization

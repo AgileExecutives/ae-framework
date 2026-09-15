@@ -215,12 +215,14 @@ func seedEmailTemplates(db *gorm.DB, tenantID, organizationID uint) error {
 
 	contracts := []templateentities.TemplateContract{
 		{
+			TenantID:          tenantID,
 			Module:            "user",
 			TemplateKey:       "welcome",
 			VariableSchema:    datatypes.JSON([]byte(`{"type":"object","properties":{"FirstName":{"type":"string"},"LastName":{"type":"string"},"OrganizationName":{"type":"string"}}}`)),
 			DefaultSampleData: datatypes.JSON([]byte(`{"FirstName":"Test","LastName":"User","OrganizationName":"Server Test Organization"}`)),
 		},
 		{
+			TenantID:          tenantID,
 			Module:            "user",
 			TemplateKey:       "password_reset",
 			VariableSchema:    datatypes.JSON([]byte(`{"type":"object","properties":{"FirstName":{"type":"string"},"ResetURL":{"type":"string"}}}`)),

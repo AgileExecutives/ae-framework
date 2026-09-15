@@ -24,28 +24,34 @@ func RegisterAllContracts(ctx core.ModuleContext) error {
 
 	fmt.Printf("Found %d tenants for contract registration\n", len(tenants))
 
-	// Prepare fallback shared-module contract files map (scan once)
+	// Prepare fallback contract files map (scan shared-modules and modules directories)
 	contractFiles := map[string][]string{}
-	entries, _ := os.ReadDir("shared-modules")
-	for _, e := range entries {
-		if !e.IsDir() {
-			continue
-		}
-		modName := e.Name()
-		contractsDir := filepath.Join("shared-modules", modName, "contracts")
-		files, err := os.ReadDir(contractsDir)
-		if err != nil {
-			continue
-		}
-		for _, f := range files {
-			if f.IsDir() {
+	// helper to scan a base directory for <module>/contracts/*.json
+	scanContracts := func(baseDir string) {
+		entries, _ := os.ReadDir(baseDir)
+		for _, e := range entries {
+			if !e.IsDir() {
 				continue
 			}
-			if strings.HasSuffix(f.Name(), ".json") {
-				contractFiles[modName] = append(contractFiles[modName], filepath.Join(contractsDir, f.Name()))
+			modName := e.Name()
+			contractsDir := filepath.Join(baseDir, modName, "contracts")
+			files, err := os.ReadDir(contractsDir)
+			if err != nil {
+				continue
+			}
+			for _, f := range files {
+				if f.IsDir() {
+					continue
+				}
+				if strings.HasSuffix(f.Name(), ".json") {
+					contractFiles[modName] = append(contractFiles[modName], filepath.Join(contractsDir, f.Name()))
+				}
 			}
 		}
 	}
+
+	scanContracts("shared-modules")
+	scanContracts("modules")
 
 	// Iterate tenants and invoke per-module registration when implemented.
 	for _, tenant := range tenants {
@@ -63,7 +69,7 @@ func RegisterAllContracts(ctx core.ModuleContext) error {
 			}
 		}
 
-		// Fallback: register any shared-modules contract files found on disk
+		// Fallback: register any contract files found on disk (shared-modules or modules)
 		registrar := templateServices.NewContractRegistrar(db)
 		for moduleName, files := range contractFiles {
 			for _, f := range files {
@@ -99,29 +105,39 @@ func RegisterContractsForTenant(ctx core.ModuleContext, tenantID uint) error {
 		}
 	}
 
-	// Fallback: scan shared-modules/<mod>/contracts for JSON files
+	// Fallback: scan both shared-modules and modules for JSON contract files
 	registrar := templateServices.NewContractRegistrar(db)
-	entries, _ := os.ReadDir("shared-modules")
-	for _, e := range entries {
-		if !e.IsDir() {
-			continue
-		}
-		modName := e.Name()
-		contractsDir := filepath.Join("shared-modules", modName, "contracts")
-		files, err := os.ReadDir(contractsDir)
-		if err != nil {
-			continue
-		}
-		for _, f := range files {
-			if f.IsDir() {
+	scanContracts := func(baseDir string) error {
+		entries, _ := os.ReadDir(baseDir)
+		for _, e := range entries {
+			if !e.IsDir() {
 				continue
 			}
-			if strings.HasSuffix(f.Name(), ".json") {
-				if err := registrar.RegisterContractFromFile(tenantID, modName, filepath.Join(contractsDir, f.Name())); err != nil {
-					return fmt.Errorf("register contract %s for module %s tenant %d: %w", f.Name(), modName, tenantID, err)
+			modName := e.Name()
+			contractsDir := filepath.Join(baseDir, modName, "contracts")
+			files, err := os.ReadDir(contractsDir)
+			if err != nil {
+				continue
+			}
+			for _, f := range files {
+				if f.IsDir() {
+					continue
+				}
+				if strings.HasSuffix(f.Name(), ".json") {
+					if err := registrar.RegisterContractFromFile(tenantID, modName, filepath.Join(contractsDir, f.Name())); err != nil {
+						return fmt.Errorf("register contract %s for module %s tenant %d: %w", filepath.Join(contractsDir, f.Name()), modName, tenantID, err)
+					}
 				}
 			}
 		}
+		return nil
+	}
+
+	if err := scanContracts("shared-modules"); err != nil {
+		return err
+	}
+	if err := scanContracts("modules"); err != nil {
+		return err
 	}
 
 	return nil

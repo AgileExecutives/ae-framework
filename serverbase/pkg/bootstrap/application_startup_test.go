@@ -59,8 +59,13 @@ func TestApplication_RegisterContracts_EndToEnd(t *testing.T) {
 		t.Fatalf("run migrations: %v", err)
 	}
 
-	// Insert tenants so contract registration has targets
+	// Insert tenants so contract registration has targets. Clear any existing
+	// tenants first to ensure deterministic test runs in a shared in-memory
+	// database during the test suite.
 	db := app.DB()
+	if err := db.Exec(`DELETE FROM tenants`).Error; err != nil {
+		t.Fatalf("clear tenants: %v", err)
+	}
 	if err := db.Exec(`INSERT INTO tenants (id, customer_id, name, slug) VALUES (1,1,'t1','t1'), (2,1,'t2','t2')`).Error; err != nil {
 		t.Fatalf("insert tenants: %v", err)
 	}

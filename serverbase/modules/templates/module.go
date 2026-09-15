@@ -31,7 +31,14 @@ func NewTemplatesModule() core.Module {
 			&contractRegistrarProvider{},
 		),
 		module.WithInit(func(ctx core.ModuleContext) error {
+			// Ensure tables exist but do not seed tenant-scoped template rows here.
+			// Per-tenant template seeding happens via RegisterContracts callback
+			// (invoked by the tenant post-create hook or startup bootstrap).
 			return ensureStandardTemplates(ctx.DB)
+		}),
+		// Register contracts and per-tenant templates when a tenant is created.
+		module.WithContractRegistration(func(ctx core.ModuleContext, tenantID uint) error {
+			return registerTemplatesForTenant(ctx, tenantID)
 		}),
 	)
 }
@@ -55,9 +62,31 @@ func ensureStandardTemplates(db *gorm.DB) error {
 	if err := db.AutoMigrate(&templateentities.Template{}, &templateentities.TemplateContract{}); err != nil {
 		return fmt.Errorf("migrate template tables: %w", err)
 	}
+	// Do not create tenant-scoped template rows here. Per-tenant seeding
+	// happens in `RegisterContractsForTenant` via the module's
+	// RegisterContracts callback.
+
+	// Template contracts are registered per-tenant during startup using the
+	// centralized contract registration logic. Do not seed tenant-scoped
+	// `template_contracts` rows here (they would be tenantless/zero-valued).
+	// Modules that own contracts should implement `RegisterContracts` or
+	// provide contract files under `modules/*/contracts` or
+	// `shared-modules/*/contracts` so `RegisterAllContracts` can register
+	// them for each tenant.
+	return nil
+}
+
+// registerTemplatesForTenant ensures the standard templates exist for the
+// given tenant. It is invoked as part of per-tenant contract registration.
+func registerTemplatesForTenant(ctx core.ModuleContext, tenantID uint) error {
+	db := ctx.DB
+	if db == nil {
+		return nil
+	}
 
 	seedTemplates := []templateentities.Template{
 		{
+			TenantID:     tenantID,
 			Module:       "user",
 			TemplateKey:  "welcome",
 			Channel:      templateentities.ChannelEmail,
@@ -73,6 +102,7 @@ func ensureStandardTemplates(db *gorm.DB) error {
 			Subject:      strPtr("Welcome to our service"),
 		},
 		{
+			TenantID:     tenantID,
 			Module:       "user",
 			TemplateKey:  "password_reset",
 			Channel:      templateentities.ChannelEmail,
@@ -89,40 +119,14 @@ func ensureStandardTemplates(db *gorm.DB) error {
 		},
 	}
 
-	for _, template := range seedTemplates {
+	for _, t := range seedTemplates {
 		var existing templateentities.Template
-		if err := db.Where("template_key = ? AND module = ?", template.TemplateKey, template.Module).First(&existing).Error; err != nil {
+		if err := db.Where("tenant_id = ? AND template_key = ? AND module = ?", tenantID, t.TemplateKey, t.Module).First(&existing).Error; err != nil {
 			if !errors.Is(err, gorm.ErrRecordNotFound) {
-				return fmt.Errorf("lookup template %s: %w", template.TemplateKey, err)
+				return fmt.Errorf("lookup tenant %d template %s: %w", tenantID, t.TemplateKey, err)
 			}
-			if err := db.Create(&template).Error; err != nil {
-				return fmt.Errorf("create template %s: %w", template.TemplateKey, err)
-			}
-		}
-	}
-
-	contracts := []templateentities.TemplateContract{
-		{
-			Module:            "user",
-			TemplateKey:       "welcome",
-			VariableSchema:    datatypes.JSON([]byte(`{"type":"object","properties":{"FirstName":{"type":"string"},"LastName":{"type":"string"},"OrganizationName":{"type":"string"}}}`)),
-			DefaultSampleData: datatypes.JSON([]byte(`{"FirstName":"Test","LastName":"User","OrganizationName":"Server Test Organization"}`)),
-		},
-		{
-			Module:            "user",
-			TemplateKey:       "password_reset",
-			VariableSchema:    datatypes.JSON([]byte(`{"type":"object","properties":{"FirstName":{"type":"string"},"ResetURL":{"type":"string"}}}`)),
-			DefaultSampleData: datatypes.JSON([]byte(`{"FirstName":"Test","ResetURL":"http://localhost:5173/reset"}`)),
-		},
-	}
-	for _, contract := range contracts {
-		var existing templateentities.TemplateContract
-		if err := db.Where("template_key = ? AND module = ?", contract.TemplateKey, contract.Module).First(&existing).Error; err != nil {
-			if !errors.Is(err, gorm.ErrRecordNotFound) {
-				return fmt.Errorf("lookup template contract %s: %w", contract.TemplateKey, err)
-			}
-			if err := db.Create(&contract).Error; err != nil {
-				return fmt.Errorf("create template contract %s: %w", contract.TemplateKey, err)
+			if err := db.Create(&t).Error; err != nil {
+				return fmt.Errorf("create tenant %d template %s: %w", tenantID, t.TemplateKey, err)
 			}
 		}
 	}

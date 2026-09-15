@@ -8,6 +8,7 @@ import (
 	"github.com/AgileExecutives/ae-framework/serverbase/modules/base"
 	"github.com/AgileExecutives/ae-framework/serverbase/modules/templates"
 	pkgconfig "github.com/AgileExecutives/ae-framework/serverbase/pkg/config"
+	minimalorg "github.com/AgileExecutives/ae-framework/shared-modules/organization"
 )
 
 // Test that after startup/registering contracts the important contracts are
@@ -25,9 +26,12 @@ func TestContractsAreRegisteredForTenant1(t *testing.T) {
 
 	app := NewApplication(cfg)
 
-	// Register base and templates modules (templates seeds standard contracts)
+	// Register base, organizations and templates modules (templates seeds standard contracts)
 	if err := app.RegisterModule(base.NewBaseModule()); err != nil {
 		t.Fatalf("register base module: %v", err)
+	}
+	if err := app.RegisterModule(minimalorg.NewOrganizationModule()); err != nil {
+		t.Fatalf("register minimal organization module: %v", err)
 	}
 	if err := app.RegisterModule(templates.NewTemplatesModule()); err != nil {
 		t.Fatalf("register templates module: %v", err)
@@ -64,17 +68,17 @@ func TestContractsAreRegisteredForTenant1(t *testing.T) {
 		t.Fatalf("write invoice contract: %v", err)
 	}
 
-	// Perform seeding which will create tenant 1 and call tenant-level registration
-	if err := app.seedDatabase(); err != nil {
-		t.Fatalf("seed database: %v", err)
+	// Insert a tenant record so contract registration has a target (avoid
+	// calling app.seedDatabase which would require the organizations table).
+	db := app.DB()
+	if err := db.Exec(`INSERT INTO tenants (id, customer_id, name, slug) VALUES (1,1,'t1','t1')`).Error; err != nil {
+		t.Fatalf("insert tenant: %v", err)
 	}
 
 	// Now register all contracts (mirrors Application.Initialize ordering)
 	if err := app.registerContracts(); err != nil {
 		t.Fatalf("register contracts: %v", err)
 	}
-
-	db := app.DB()
 
 	// Check that expected keys have at least one contract with tenant_id = 1
 	keys := []struct{ module, key string }{
@@ -91,6 +95,18 @@ func TestContractsAreRegisteredForTenant1(t *testing.T) {
 		}
 		if cnt == 0 {
 			t.Fatalf("expected contract %s/%s to be registered for tenant 1, none found", k.module, k.key)
+		}
+	}
+
+	// Additionally ensure tenant-scoped templates were created for tenant 1
+	templates := []string{"welcome", "password_reset"}
+	for _, key := range templates {
+		var cnt int64
+		if err := db.Table("templates").Where("tenant_id = ? AND module = ? AND template_key = ?", 1, "user", key).Count(&cnt).Error; err != nil {
+			t.Fatalf("count template user/%s: %v", key, err)
+		}
+		if cnt == 0 {
+			t.Fatalf("expected template user/%s to be created for tenant 1, none found", key)
 		}
 	}
 }
