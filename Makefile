@@ -62,9 +62,9 @@ integration:
 		(cd "$$d" && go test ./...) || { echo "INTEGRATION TEST FAILED: $$d"; exit 1; }; \
 	done; \
 	echo "=== Running HURL integration tests (CI runner) ==="; \
-	./server-test/scripts/run-hurl-ci.sh || { echo "HURL TESTS FAILED"; exit 1; }; \
+	./server-test/run-hurl-ci.sh || { echo "HURL TESTS FAILED"; exit 1; }; \
 	echo "ALL INTEGRATION TESTS SUCCEEDED"
 
 clean:
 	@echo "Cleaning build artifacts..."; \
-	-rm -f server-test/server-test-bin
+	rm -f server-test/server-test-bin
