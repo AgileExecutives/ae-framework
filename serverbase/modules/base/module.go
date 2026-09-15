@@ -6,9 +6,6 @@ package base
 
 import (
 	"context"
-	"os"
-	"path/filepath"
-	"strings"
 
 	internalTenantSvc "github.com/AgileExecutives/ae-framework/serverbase/internal/services"
 	basedocs "github.com/AgileExecutives/ae-framework/serverbase/modules/base/docs"
@@ -23,6 +20,7 @@ import (
 	"github.com/AgileExecutives/ae-framework/serverbase/pkg/core"
 	"github.com/AgileExecutives/ae-framework/serverbase/pkg/repos"
 	settingsentities "github.com/AgileExecutives/ae-framework/serverbase/pkg/settings/entities"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/startup"
 )
 
 // BaseModule provides core authentication, user management, and contact functionality
@@ -70,60 +68,15 @@ func (m *BaseModule) Initialize(ctx core.ModuleContext) error {
 	rf := repos.NewGormRepoFactory(ctx.DB)
 	tenantSvc := internalTenantSvc.NewTenantService(rf.TenantRepo(), nil)
 	// Register post-create hook to register template contracts for the new tenant.
-	// Use a lightweight registrar to register any contract files found under
-	// modules/*/contracts and shared-modules/*/contracts for the new tenant.
+	// Delegate to the startup package so registration logic is centralized and
+	// can be reused by admin endpoints or CLI commands.
 	tenantSvc.SetPostCreateHook(func(tid uint) error {
-		// Prefer module-owned registration: iterate registered modules and
-		// invoke their optional RegisterContracts(ctx, tenantID) method.
-		// Fall back to filesystem scanning for modules that don't implement it.
-		registrar := templateServices.NewContractRegistrar(ctx.DB)
-
-		modules := ctx.ModuleRegistry.GetAll()
-		for _, m := range modules {
-			if rc, ok := m.(interface {
-				RegisterContracts(core.ModuleContext, uint) error
-			}); ok {
-				if err := rc.RegisterContracts(ctx, tid); err != nil {
-					return err
-				}
-				continue
-			}
-
-			// Fallback: scan modules/<mod>/contracts and shared-modules/<mod>/contracts
-			modName := m.Name()
-			// modules/<mod>/contracts
-			contractsDir := filepath.Join("modules", modName, "contracts")
-			files, err := os.ReadDir(contractsDir)
-			if err == nil {
-				for _, f := range files {
-					if f.IsDir() {
-						continue
-					}
-					if strings.HasSuffix(f.Name(), ".json") {
-						if err := registrar.RegisterContractFromFile(tid, modName, filepath.Join(contractsDir, f.Name())); err != nil {
-							return err
-						}
-					}
-				}
-			}
-
-			// shared-modules/<mod>/contracts
-			sContractsDir := filepath.Join("shared-modules", modName, "contracts")
-			sfiles, serr := os.ReadDir(sContractsDir)
-			if serr == nil {
-				for _, f := range sfiles {
-					if f.IsDir() {
-						continue
-					}
-					if strings.HasSuffix(f.Name(), ".json") {
-						if err := registrar.RegisterContractFromFile(tid, modName, filepath.Join(sContractsDir, f.Name())); err != nil {
-							return err
-						}
-					}
-				}
-			}
+		// Note: Post-create hook must not fail tenant creation, so log/return
+		// errors to the caller but do not convert them into creation failures.
+		if err := startup.RegisterContractsForTenant(m.moduleContext, tid); err != nil {
+			m.moduleContext.Logger.Warn("post-create contract registration failed", "tenant", tid, "err", err)
+			return err
 		}
-
 		return nil
 	})
 	m.authService.SetTenantService(tenantSvc)
