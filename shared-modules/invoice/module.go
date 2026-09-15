@@ -6,13 +6,13 @@ import (
 	"path/filepath"
 	"strings"
 
+	templateServices "github.com/AgileExecutives/ae-framework/serverbase/modules/templates/services"
 	"github.com/AgileExecutives/ae-framework/serverbase/pkg/core"
 	"github.com/AgileExecutives/ae-framework/shared-modules/invoice/entities"
 	"github.com/AgileExecutives/ae-framework/shared-modules/invoice/handlers"
 	repo "github.com/AgileExecutives/ae-framework/shared-modules/invoice/repo"
 	"github.com/AgileExecutives/ae-framework/shared-modules/invoice/routes"
 	"github.com/AgileExecutives/ae-framework/shared-modules/invoice/services"
-	templateServices "github.com/AgileExecutives/ae-framework/serverbase/modules/templates/services"
 )
 
 // CoreModule implements the core.Module interface for the invoice module

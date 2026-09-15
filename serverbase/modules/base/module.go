@@ -14,12 +14,12 @@ import (
 	basedocs "github.com/AgileExecutives/ae-framework/serverbase/modules/base/docs"
 	baseRepo "github.com/AgileExecutives/ae-framework/serverbase/modules/base/repo"
 	baseServices "github.com/AgileExecutives/ae-framework/serverbase/modules/base/services"
+	templateServices "github.com/AgileExecutives/ae-framework/serverbase/modules/templates/services"
 	"github.com/AgileExecutives/ae-framework/serverbase/modules/user/entities"
 	"github.com/AgileExecutives/ae-framework/serverbase/modules/user/events"
 	"github.com/AgileExecutives/ae-framework/serverbase/modules/user/handlers"
 	"github.com/AgileExecutives/ae-framework/serverbase/modules/user/middleware"
 	"github.com/AgileExecutives/ae-framework/serverbase/modules/user/services"
-	templateServices "github.com/AgileExecutives/ae-framework/serverbase/modules/templates/services"
 	"github.com/AgileExecutives/ae-framework/serverbase/pkg/core"
 	"github.com/AgileExecutives/ae-framework/serverbase/pkg/repos"
 	settingsentities "github.com/AgileExecutives/ae-framework/serverbase/pkg/settings/entities"
@@ -80,7 +80,9 @@ func (m *BaseModule) Initialize(ctx core.ModuleContext) error {
 
 		modules := ctx.ModuleRegistry.GetAll()
 		for _, m := range modules {
-			if rc, ok := m.(interface{ RegisterContracts(core.ModuleContext, uint) error }); ok {
+			if rc, ok := m.(interface {
+				RegisterContracts(core.ModuleContext, uint) error
+			}); ok {
 				if err := rc.RegisterContracts(ctx, tid); err != nil {
 					return err
 				}

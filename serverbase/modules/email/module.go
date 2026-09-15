@@ -11,8 +11,8 @@ import (
 	"github.com/AgileExecutives/ae-framework/serverbase/modules/email/handlers"
 	"github.com/AgileExecutives/ae-framework/serverbase/modules/email/repo"
 	"github.com/AgileExecutives/ae-framework/serverbase/modules/email/services"
-	"github.com/AgileExecutives/ae-framework/serverbase/pkg/core"
 	templateServices "github.com/AgileExecutives/ae-framework/serverbase/modules/templates/services"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/core"
 )
 
 // EmailModule represents the email module
