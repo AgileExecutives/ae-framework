@@ -6,15 +6,14 @@ import (
 	"path/filepath"
 	"strings"
 
-	baseServices "github.com/AgileExecutives/ae-framework/serverbase/modules/base/services"
-	emailServices "github.com/AgileExecutives/ae-framework/serverbase/modules/email/services"
 	templateServices "github.com/AgileExecutives/ae-framework/serverbase/modules/templates/services"
-	userServices "github.com/AgileExecutives/ae-framework/serverbase/modules/user/services"
-	"gorm.io/gorm"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/core"
 )
 
-// RegisterAllContracts registers all module contracts with the template system
-func RegisterAllContracts(db *gorm.DB) error {
+// RegisterAllContracts registers all module contracts with the template system.
+// Variant 2: modules may implement an optional method `RegisterContracts(ctx core.ModuleContext, tenantID uint) error`.
+func RegisterAllContracts(ctx core.ModuleContext) error {
+	db := ctx.DB
 	fmt.Println("🔧 Registering template contracts for all tenants...")
 
 	// Get all tenants from database
@@ -25,40 +24,7 @@ func RegisterAllContracts(db *gorm.DB) error {
 
 	fmt.Printf("Found %d tenants for contract registration\n", len(tenants))
 
-	// Register for each tenant using the single-tenant helper
-	for _, tenant := range tenants {
-		fmt.Printf("📝 Registering contracts for tenant ID: %d\n", tenant.ID)
-		if err := RegisterContractsForTenant(db, tenant.ID); err != nil {
-			return fmt.Errorf("failed to register contracts for tenant %d: %w", tenant.ID, err)
-		}
-	}
-
-	// Verify contracts were created
-	var contractCount int64
-	db.Table("template_contracts").Count(&contractCount)
-	fmt.Printf("✅ All contracts registered successfully - Total contracts in database: %d\n", contractCount)
-	return nil
-}
-
-// RegisterContractsForTenant registers all discovered JSON contract files for a single tenant.
-// It scans `modules/*/contracts/*.json` and `shared-modules/*/contracts/*.json` and
-// calls the ContractRegistrar for each file.
-func RegisterContractsForTenant(db *gorm.DB, tenantID uint) error {
-	registrar := templateServices.NewContractRegistrar(db)
-
-	// Prefer module-level registration functions. Each module should register
-	// its own contracts using the provided registrar. Fall back to no-ops.
-	if err := baseServices.RegisterBaseContracts(registrar, tenantID); err != nil {
-		return fmt.Errorf("base module register contracts: %w", err)
-	}
-	if err := emailServices.RegisterEmailContracts(registrar, tenantID); err != nil {
-		return fmt.Errorf("email module register contracts: %w", err)
-	}
-	if err := userServices.RegisterUserContracts(registrar, tenantID); err != nil {
-		return fmt.Errorf("user module register contracts: %w", err)
-	}
-
-	// For shared-modules, fall back to scanning their contracts directories.
+	// Prepare fallback shared-module contract files map (scan once)
 	contractFiles := map[string][]string{}
 	entries, _ := os.ReadDir("shared-modules")
 	for _, e := range entries {
@@ -81,13 +47,36 @@ func RegisterContractsForTenant(db *gorm.DB, tenantID uint) error {
 		}
 	}
 
-	for moduleName, files := range contractFiles {
-		for _, f := range files {
-			if err := registrar.RegisterContractFromFile(tenantID, moduleName, f); err != nil {
-				return fmt.Errorf("register contract %s for module %s tenant %d: %w", f, moduleName, tenantID, err)
+	// Iterate tenants and invoke per-module registration when implemented.
+	for _, tenant := range tenants {
+		fmt.Printf("📝 Registering contracts for tenant ID: %d\n", tenant.ID)
+
+		// Iterate all registered modules and call RegisterContracts if available
+		modules := ctx.ModuleRegistry.GetAll()
+		for _, mod := range modules {
+			if rc, ok := mod.(interface {
+				RegisterContracts(core.ModuleContext, uint) error
+			}); ok {
+				if err := rc.RegisterContracts(ctx, tenant.ID); err != nil {
+					return fmt.Errorf("module %s RegisterContracts: %w", mod.Name(), err)
+				}
+			}
+		}
+
+		// Fallback: register any shared-modules contract files found on disk
+		registrar := templateServices.NewContractRegistrar(db)
+		for moduleName, files := range contractFiles {
+			for _, f := range files {
+				if err := registrar.RegisterContractFromFile(tenant.ID, moduleName, f); err != nil {
+					return fmt.Errorf("register contract %s for module %s tenant %d: %w", f, moduleName, tenant.ID, err)
+				}
 			}
 		}
 	}
 
+	// Verify contracts were created
+	var contractCount int64
+	db.Table("template_contracts").Count(&contractCount)
+	fmt.Printf("✅ All contracts registered successfully - Total contracts in database: %d\n", contractCount)
 	return nil
 }

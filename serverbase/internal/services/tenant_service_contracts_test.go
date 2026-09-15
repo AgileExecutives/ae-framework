@@ -4,10 +4,11 @@ import (
 	"context"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/AgileExecutives/ae-framework/serverbase/internal/models"
-	"github.com/AgileExecutives/ae-framework/serverbase/pkg/startup"
+	templateServices "github.com/AgileExecutives/ae-framework/serverbase/modules/templates/services"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
@@ -64,7 +65,57 @@ func TestTenantCreateTriggersContractRegistration(t *testing.T) {
 	repo := &fakeTenantRepo{nextID: 0}
 	tenantSvc := NewTenantService(repo, nil)
 	tenantSvc.SetPostCreateHook(func(tid uint) error {
-		return startup.RegisterContractsForTenant(db, tid)
+		registrar := templateServices.NewContractRegistrar(db)
+
+		// scan modules/*/contracts
+		entries, _ := os.ReadDir("modules")
+		for _, e := range entries {
+			if !e.IsDir() {
+				continue
+			}
+			modName := e.Name()
+			contractsDir := filepath.Join("modules", modName, "contracts")
+			files, err := os.ReadDir(contractsDir)
+			if err != nil {
+				continue
+			}
+			for _, f := range files {
+				if f.IsDir() {
+					continue
+				}
+				if strings.HasSuffix(f.Name(), ".json") {
+					if err := registrar.RegisterContractFromFile(tid, modName, filepath.Join(contractsDir, f.Name())); err != nil {
+						return err
+					}
+				}
+			}
+		}
+
+		// scan shared-modules/*/contracts as fallback
+		sentries, _ := os.ReadDir("shared-modules")
+		for _, e := range sentries {
+			if !e.IsDir() {
+				continue
+			}
+			modName := e.Name()
+			contractsDir := filepath.Join("shared-modules", modName, "contracts")
+			files, err := os.ReadDir(contractsDir)
+			if err != nil {
+				continue
+			}
+			for _, f := range files {
+				if f.IsDir() {
+					continue
+				}
+				if strings.HasSuffix(f.Name(), ".json") {
+					if err := registrar.RegisterContractFromFile(tid, modName, filepath.Join(contractsDir, f.Name())); err != nil {
+						return err
+					}
+				}
+			}
+		}
+
+		return nil
 	})
 
 	tnt, err := tenantSvc.CreateTenant(context.Background(), models.TenantCreateRequest{Name: "Acme"})

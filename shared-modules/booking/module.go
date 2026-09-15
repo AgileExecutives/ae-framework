@@ -2,6 +2,9 @@ package booking
 
 import (
 	"context"
+	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/AgileExecutives/ae-framework/serverbase/pkg/core"
 	"github.com/gin-gonic/gin"
@@ -15,6 +18,7 @@ import (
 	repo "github.com/AgileExecutives/ae-framework/shared-modules/booking/repo"
 	"github.com/AgileExecutives/ae-framework/shared-modules/booking/routes"
 	"github.com/AgileExecutives/ae-framework/shared-modules/booking/services"
+	templateServices "github.com/AgileExecutives/ae-framework/serverbase/modules/templates/services"
 )
 
 // Module implements the complete core.Module interface for auto-migration support
@@ -171,6 +175,46 @@ func (m *Module) Routes() []core.RouteProvider {
 			provider: m.routeProvider,
 		},
 	}
+}
+
+// RegisterContracts implements the optional module contract registration
+// API. It will register any contract JSON files placed under
+// `shared-modules/booking/contracts` for the provided tenant.
+func (m *Module) RegisterContracts(ctx core.ModuleContext, tenantID uint) error {
+	registrar := templateServices.NewContractRegistrar(ctx.DB)
+	// Check shared-modules/booking/contracts
+	contractsDir := filepath.Join("shared-modules", "booking", "contracts")
+	files, err := os.ReadDir(contractsDir)
+	if err == nil {
+		for _, f := range files {
+			if f.IsDir() {
+				continue
+			}
+			if strings.HasSuffix(f.Name(), ".json") {
+				if err := registrar.RegisterContractFromFile(tenantID, "booking", filepath.Join(contractsDir, f.Name())); err != nil {
+					return err
+				}
+			}
+		}
+	}
+
+	// Also check modules/booking/contracts to support modules-owned contracts
+	altDir := filepath.Join("modules", "booking", "contracts")
+	afiles, aerr := os.ReadDir(altDir)
+	if aerr == nil {
+		for _, f := range afiles {
+			if f.IsDir() {
+				continue
+			}
+			if strings.HasSuffix(f.Name(), ".json") {
+				if err := registrar.RegisterContractFromFile(tenantID, "booking", filepath.Join(altDir, f.Name())); err != nil {
+					return err
+				}
+			}
+		}
+	}
+
+	return nil
 }
 
 // EventHandlers returns event handlers

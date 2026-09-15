@@ -314,8 +314,7 @@ func (app *Application) runMigrations() error {
 // registerContracts registers all template contracts from modules
 func (app *Application) registerContracts() error {
 	app.logger.Info("Registering template contracts...")
-	err := startup.RegisterAllContracts(app.context.DB)
-	if err != nil {
+	if err := startup.RegisterAllContracts(app.context); err != nil {
 		app.logger.Error("Failed to register contracts", "error", err)
 		return err
 	}

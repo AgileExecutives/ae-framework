@@ -91,7 +91,7 @@ func main() {
 }
 
 func usage() {
-		fmt.Println(`
+	fmt.Println(`
 Usage:
 
 	ae -b <basedir> <command> <project>

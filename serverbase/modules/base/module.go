@@ -6,6 +6,9 @@ package base
 
 import (
 	"context"
+	"os"
+	"path/filepath"
+	"strings"
 
 	internalTenantSvc "github.com/AgileExecutives/ae-framework/serverbase/internal/services"
 	basedocs "github.com/AgileExecutives/ae-framework/serverbase/modules/base/docs"
@@ -16,10 +19,10 @@ import (
 	"github.com/AgileExecutives/ae-framework/serverbase/modules/user/handlers"
 	"github.com/AgileExecutives/ae-framework/serverbase/modules/user/middleware"
 	"github.com/AgileExecutives/ae-framework/serverbase/modules/user/services"
+	templateServices "github.com/AgileExecutives/ae-framework/serverbase/modules/templates/services"
 	"github.com/AgileExecutives/ae-framework/serverbase/pkg/core"
 	"github.com/AgileExecutives/ae-framework/serverbase/pkg/repos"
 	settingsentities "github.com/AgileExecutives/ae-framework/serverbase/pkg/settings/entities"
-	"github.com/AgileExecutives/ae-framework/serverbase/pkg/startup"
 )
 
 // BaseModule provides core authentication, user management, and contact functionality
@@ -66,9 +69,60 @@ func (m *BaseModule) Initialize(ctx core.ModuleContext) error {
 	// side-effects (buckets, etc.) are centralized.
 	rf := repos.NewGormRepoFactory(ctx.DB)
 	tenantSvc := internalTenantSvc.NewTenantService(rf.TenantRepo(), nil)
-	// Register post-create hook to register template contracts for the new tenant
+	// Register post-create hook to register template contracts for the new tenant.
+	// Use a lightweight registrar to register any contract files found under
+	// modules/*/contracts and shared-modules/*/contracts for the new tenant.
 	tenantSvc.SetPostCreateHook(func(tid uint) error {
-		return startup.RegisterContractsForTenant(ctx.DB, tid)
+		// Prefer module-owned registration: iterate registered modules and
+		// invoke their optional RegisterContracts(ctx, tenantID) method.
+		// Fall back to filesystem scanning for modules that don't implement it.
+		registrar := templateServices.NewContractRegistrar(ctx.DB)
+
+		modules := ctx.ModuleRegistry.GetAll()
+		for _, m := range modules {
+			if rc, ok := m.(interface{ RegisterContracts(core.ModuleContext, uint) error }); ok {
+				if err := rc.RegisterContracts(ctx, tid); err != nil {
+					return err
+				}
+				continue
+			}
+
+			// Fallback: scan modules/<mod>/contracts and shared-modules/<mod>/contracts
+			modName := m.Name()
+			// modules/<mod>/contracts
+			contractsDir := filepath.Join("modules", modName, "contracts")
+			files, err := os.ReadDir(contractsDir)
+			if err == nil {
+				for _, f := range files {
+					if f.IsDir() {
+						continue
+					}
+					if strings.HasSuffix(f.Name(), ".json") {
+						if err := registrar.RegisterContractFromFile(tid, modName, filepath.Join(contractsDir, f.Name())); err != nil {
+							return err
+						}
+					}
+				}
+			}
+
+			// shared-modules/<mod>/contracts
+			sContractsDir := filepath.Join("shared-modules", modName, "contracts")
+			sfiles, serr := os.ReadDir(sContractsDir)
+			if serr == nil {
+				for _, f := range sfiles {
+					if f.IsDir() {
+						continue
+					}
+					if strings.HasSuffix(f.Name(), ".json") {
+						if err := registrar.RegisterContractFromFile(tid, modName, filepath.Join(sContractsDir, f.Name())); err != nil {
+							return err
+						}
+					}
+				}
+			}
+		}
+
+		return nil
 	})
 	m.authService.SetTenantService(tenantSvc)
 
@@ -163,4 +217,12 @@ func (m *BaseModule) SwaggerPaths() []string {
 		"./modules/user/handlers",
 		"./modules/user/entities",
 	}
+}
+
+// RegisterContracts implements optional module-level contract registration for
+// the base module. Currently there are no base contracts; this exists to keep
+// the contract bootstrap pathway consistent.
+func (m *BaseModule) RegisterContracts(ctx core.ModuleContext, tenantID uint) error {
+	registrar := templateServices.NewContractRegistrar(ctx.DB)
+	return baseServices.RegisterBaseContracts(registrar, tenantID)
 }

@@ -7,6 +7,7 @@ import (
 	basedocs "github.com/AgileExecutives/ae-framework/serverbase/modules/base/docs"
 	baseRepo "github.com/AgileExecutives/ae-framework/serverbase/modules/base/repo"
 	baseServices "github.com/AgileExecutives/ae-framework/serverbase/modules/base/services"
+	templateServices "github.com/AgileExecutives/ae-framework/serverbase/modules/templates/services"
 	"github.com/AgileExecutives/ae-framework/serverbase/modules/user/entities"
 	"github.com/AgileExecutives/ae-framework/serverbase/modules/user/events"
 	"github.com/AgileExecutives/ae-framework/serverbase/modules/user/handlers"
@@ -15,7 +16,6 @@ import (
 	"github.com/AgileExecutives/ae-framework/serverbase/pkg/core"
 	"github.com/AgileExecutives/ae-framework/serverbase/pkg/repos"
 	settingsentities "github.com/AgileExecutives/ae-framework/serverbase/pkg/settings/entities"
-	"github.com/AgileExecutives/ae-framework/serverbase/pkg/startup"
 )
 
 // UserModule provides core authentication, user management, and contact functionality
@@ -60,7 +60,9 @@ func (m *UserModule) Initialize(ctx core.ModuleContext) error {
 	// Wire internal tenant service into auth service to centralize tenant creation
 	tenantSvc := internalTenantSvc.NewTenantService(tenantRepo, nil)
 	tenantSvc.SetPostCreateHook(func(tid uint) error {
-		return startup.RegisterContractsForTenant(ctx.DB, tid)
+		// When a tenant is created, register this module's contracts for the tenant.
+		registrar := templateServices.NewContractRegistrar(ctx.DB)
+		return services.RegisterUserContracts(registrar, tid)
 	})
 	m.authService.SetTenantService(tenantSvc)
 	m.authHandlers = handlers.NewAuthHandlers(ctx, m.authService, ctx.Logger)
@@ -145,4 +147,11 @@ func (m *UserModule) SwaggerPaths() []string {
 		"./modules/user/handlers",
 		"./modules/user/entities",
 	}
+}
+
+// RegisterContracts implements the optional contract registration capability
+// for the user module. It is invoked during bootstrapping for each tenant.
+func (m *UserModule) RegisterContracts(ctx core.ModuleContext, tenantID uint) error {
+	registrar := templateServices.NewContractRegistrar(ctx.DB)
+	return services.RegisterUserContracts(registrar, tenantID)
 }

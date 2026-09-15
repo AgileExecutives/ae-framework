@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	templateServices "github.com/AgileExecutives/ae-framework/serverbase/modules/templates/services"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/core"
 
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -86,7 +87,8 @@ func TestRegisterAllContractsFromFiles(t *testing.T) {
 
 	// Call RegisterAllContracts - our modules map currently includes booking as placeholder,
 	// but RegisterAllContracts should pick up contracts from module registration functions.
-	if err := RegisterAllContracts(db); err != nil {
+	ctx := core.ModuleContext{DB: db, ModuleRegistry: core.NewModuleRegistry()}
+	if err := RegisterAllContracts(ctx); err != nil {
 		t.Fatalf("RegisterAllContracts: %v", err)
 	}
 

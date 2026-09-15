@@ -21,10 +21,10 @@ type DocumentMeta struct {
 }
 
 type MinIOConfig struct {
-	Endpoint  string
-	AccessKey string
-	SecretKey string
-	Bucket    string
+	Endpoint        string
+	AccessKey       string
+	SecretKey       string
+	Bucket          string
 	AccessKeyID     string
 	SecretAccessKey string
 	UseSSL          bool

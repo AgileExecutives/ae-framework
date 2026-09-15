@@ -2,6 +2,9 @@ package email
 
 import (
 	"context"
+	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/AgileExecutives/ae-framework/serverbase/modules/email/entities"
 	"github.com/AgileExecutives/ae-framework/serverbase/modules/email/events"
@@ -9,6 +12,7 @@ import (
 	"github.com/AgileExecutives/ae-framework/serverbase/modules/email/repo"
 	"github.com/AgileExecutives/ae-framework/serverbase/modules/email/services"
 	"github.com/AgileExecutives/ae-framework/serverbase/pkg/core"
+	templateServices "github.com/AgileExecutives/ae-framework/serverbase/modules/templates/services"
 )
 
 // EmailModule represents the email module
@@ -100,4 +104,25 @@ func (p *EmailServiceProvider) Factory(ctx core.ModuleContext) (interface{}, err
 		p.module.emailService = services.NewEmailService()
 	}
 	return p.module.emailService, nil
+}
+
+// RegisterContracts registers module-local email contracts found under modules/email/contracts
+func (m *EmailModule) RegisterContracts(ctx core.ModuleContext, tenantID uint) error {
+	registrar := templateServices.NewContractRegistrar(ctx.DB)
+	contractsDir := filepath.Join("modules", "email", "contracts")
+	files, err := os.ReadDir(contractsDir)
+	if err != nil {
+		return nil
+	}
+	for _, f := range files {
+		if f.IsDir() {
+			continue
+		}
+		if strings.HasSuffix(f.Name(), ".json") {
+			if err := registrar.RegisterContractFromFile(tenantID, "email", filepath.Join(contractsDir, f.Name())); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }

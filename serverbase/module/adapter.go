@@ -25,6 +25,8 @@ type AdapterModule struct {
 	initFn  func(ctx core.ModuleContext) error
 	startFn func(ctx context.Context) error
 	stopFn  func(ctx context.Context) error
+	// optional contract registration hook used by Variant 2
+	contractFn func(ctx core.ModuleContext, tenantID uint) error
 }
 
 // Option configures an AdapterModule
@@ -72,6 +74,12 @@ func WithSwaggerPaths(paths ...string) Option {
 // WithInit sets an Initialize hook
 func WithInit(fn func(ctx core.ModuleContext) error) Option {
 	return func(m *AdapterModule) { m.initFn = fn }
+}
+
+// WithContractRegistration sets an optional contract registration callback
+// that will be invoked by the application's contract bootstrap for each tenant.
+func WithContractRegistration(fn func(ctx core.ModuleContext, tenantID uint) error) Option {
+	return func(m *AdapterModule) { m.contractFn = fn }
 }
 
 // WithStart sets a Start hook
@@ -124,3 +132,14 @@ func (m *AdapterModule) Middleware() []core.MiddlewareProvider {
 	return append([]core.MiddlewareProvider{}, m.middleware...)
 }
 func (m *AdapterModule) SwaggerPaths() []string { return append([]string{}, m.swaggerPaths...) }
+
+// Optional contract registration capability. Modules that need to register
+// template contracts for tenants can provide a callback via
+// WithContractRegistration. The application will use a type assertion to
+// discover and invoke this method during contract bootstrapping.
+func (m *AdapterModule) RegisterContracts(ctx core.ModuleContext, tenantID uint) error {
+	if m.contractFn == nil {
+		return nil
+	}
+	return m.contractFn(ctx, tenantID)
+}

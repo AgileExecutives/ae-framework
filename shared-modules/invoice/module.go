@@ -2,6 +2,9 @@ package invoice
 
 import (
 	"context"
+	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/AgileExecutives/ae-framework/serverbase/pkg/core"
 	"github.com/AgileExecutives/ae-framework/shared-modules/invoice/entities"
@@ -9,6 +12,7 @@ import (
 	repo "github.com/AgileExecutives/ae-framework/shared-modules/invoice/repo"
 	"github.com/AgileExecutives/ae-framework/shared-modules/invoice/routes"
 	"github.com/AgileExecutives/ae-framework/shared-modules/invoice/services"
+	templateServices "github.com/AgileExecutives/ae-framework/serverbase/modules/templates/services"
 )
 
 // CoreModule implements the core.Module interface for the invoice module
@@ -98,6 +102,27 @@ func (m *CoreModule) Services() []core.ServiceProvider {
 // SwaggerPaths returns Swagger documentation paths
 func (m *CoreModule) SwaggerPaths() []string {
 	return []string{}
+}
+
+// RegisterContracts registers invoice module contracts from shared-modules/invoice/contracts
+func (m *CoreModule) RegisterContracts(ctx core.ModuleContext, tenantID uint) error {
+	registrar := templateServices.NewContractRegistrar(ctx.DB)
+	contractsDir := filepath.Join("shared-modules", "invoice", "contracts")
+	files, err := os.ReadDir(contractsDir)
+	if err != nil {
+		return nil
+	}
+	for _, f := range files {
+		if f.IsDir() {
+			continue
+		}
+		if strings.HasSuffix(f.Name(), ".json") {
+			if err := registrar.RegisterContractFromFile(tenantID, "invoice", filepath.Join(contractsDir, f.Name())); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }
 
 // GetInvoiceService returns the invoice service instance
