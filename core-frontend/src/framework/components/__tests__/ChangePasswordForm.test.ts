@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { mount } from '@vue/test-utils'
+import { mount, config } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import ChangePasswordForm from '../ChangePasswordForm.vue'
 import { useAuthStore } from '../../stores/auth'
@@ -81,6 +81,26 @@ vi.mock('../../composables/usePasswordRequirements', () => ({
 describe('ChangePasswordForm - Component Tests', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
+  })
+
+  beforeEach(() => {
+    config.global.mocks = config.global.mocks || {}
+    config.global.mocks.$t = (k: string, params?: Record<string, any>) => {
+      const translations: Record<string, string> = {
+        'validation.currentPasswordRequired': 'Current password is required',
+        'validation.passwordRequired': 'Password is required',
+        'validation.passwordRepeatRequired': 'Please repeat your password',
+        'validation.passwordsDontMatch': 'Passwords do not match',
+        'validation.passwordSameAsCurrent': 'New password must be different from current password',
+      }
+      let val = translations[k] || k
+      if (params) {
+        Object.keys(params).forEach(pk => {
+          val = val.replace(`{${pk}}`, String(params[pk]))
+        })
+      }
+      return val
+    }
   })
 
   describe('Validation - Current Password', () => {

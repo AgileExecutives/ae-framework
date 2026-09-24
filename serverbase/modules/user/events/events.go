@@ -1,7 +1,10 @@
 package events
 
 import (
+	"fmt"
+
 	"github.com/AgileExecutives/ae-framework/serverbase/pkg/core"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/startup"
 )
 
 // BaseEventHandlers provides event handling for user module
@@ -54,3 +57,28 @@ func (h *ContactFormSubmittedHandler) Handle(event interface{}) error {
 	return nil
 }
 func (h *ContactFormSubmittedHandler) Priority() int { return 100 }
+
+// TenantCreatedHandler registers contracts and default templates for a newly
+// created tenant. The event is emitted by TenantService after the tenant row
+// exists, so registration is tenant-scoped and safe during startup seeding as
+// well as ordinary tenant creation.
+type TenantCreatedHandler struct {
+	ctx core.ModuleContext
+}
+
+func NewTenantCreatedHandler(ctx core.ModuleContext) core.EventHandler {
+	return &TenantCreatedHandler{ctx: ctx}
+}
+
+func (h *TenantCreatedHandler) EventType() string { return "tenant.created" }
+
+func (h *TenantCreatedHandler) Handle(event interface{}) error {
+	tenantID, ok := event.(uint)
+	if !ok || tenantID == 0 {
+		return fmt.Errorf("tenant.created event has invalid tenant ID %v", event)
+	}
+
+	return startup.RegisterContractsForTenant(h.ctx, tenantID)
+}
+
+func (h *TenantCreatedHandler) Priority() int { return 100 }

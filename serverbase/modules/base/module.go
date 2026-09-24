@@ -20,7 +20,6 @@ import (
 	"github.com/AgileExecutives/ae-framework/serverbase/pkg/core"
 	"github.com/AgileExecutives/ae-framework/serverbase/pkg/repos"
 	settingsentities "github.com/AgileExecutives/ae-framework/serverbase/pkg/settings/entities"
-	"github.com/AgileExecutives/ae-framework/serverbase/pkg/startup"
 )
 
 // BaseModule provides core authentication, user management, and contact functionality
@@ -63,37 +62,18 @@ func (m *BaseModule) Initialize(ctx core.ModuleContext) error {
 	// Initialize services
 	m.authService = services.NewAuthService(ctx.DB, ctx.Logger)
 
-	// Create tenant service and wire into auth service so tenant creation
-	// side-effects (buckets, etc.) are centralized.
+	// Use the shared TenantService so tenant creation emits tenant.created for
+	// all module subscribers, including default template/contract registration.
 	rf := repos.NewGormRepoFactory(ctx.DB)
-	tenantSvc := internalTenantSvc.NewTenantService(rf.TenantRepo(), nil)
-	// Wire event bus into tenant service so it can publish tenant lifecycle events
-	if ctx.EventBus != nil {
-		tenantSvc.SetEventBus(ctx.EventBus)
+	tenantSvc, _ := ctx.Services.Get("tenant_service")
+	sharedTenantSvc, ok := tenantSvc.(*internalTenantSvc.TenantService)
+	if !ok || sharedTenantSvc == nil {
+		sharedTenantSvc = internalTenantSvc.NewTenantService(rf.TenantRepo(), nil)
+		if ctx.EventBus != nil {
+			sharedTenantSvc.SetEventBus(ctx.EventBus)
+		}
 	}
-	// Register post-create hook to register template contracts for the new tenant.
-	// Delegate to the startup package so registration logic is centralized and
-	// can be reused by admin endpoints or CLI commands.
-	tenantSvc.SetPostCreateHook(func(tid uint) error {
-		// Note: Post-create hook must not fail tenant creation, so log/return
-		// errors to the caller but do not convert them into creation failures.
-		if err := startup.RegisterContractsForTenant(m.moduleContext, tid); err != nil {
-			m.moduleContext.Logger.Warn("post-create contract registration failed", "tenant", tid, "err", err)
-			// continue to publish event even if contract registration failed
-		}
-
-		// Publish a standard tenant created event on the module event bus so
-		// other modules (e.g., documents) can react (create buckets, etc.).
-		if m.moduleContext.EventBus != nil {
-			// publish tenant ID as numeric payload
-			if err := m.moduleContext.EventBus.Publish("tenant.created", tid); err != nil {
-				m.moduleContext.Logger.Warn("failed to publish tenant.created event", "tenant", tid, "err", err)
-			}
-		}
-
-		return nil
-	})
-	m.authService.SetTenantService(tenantSvc)
+	m.authService.SetTenantService(sharedTenantSvc)
 
 	// Initialize handlers (pass authService for newer handler constructors)
 	m.authHandlers = handlers.NewAuthHandlers(ctx, m.authService, ctx.Logger)
@@ -162,6 +142,7 @@ func (m *BaseModule) Routes() []core.RouteProvider {
 
 func (m *BaseModule) EventHandlers() []core.EventHandler {
 	return []core.EventHandler{
+		events.NewTenantCreatedHandler(m.moduleContext),
 		events.NewUserCreatedHandler(m.eventHandlers),
 		events.NewUserLoginHandler(m.eventHandlers),
 		events.NewContactFormSubmittedHandler(m.eventHandlers),

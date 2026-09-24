@@ -124,6 +124,13 @@ func (r *moduleRegistry) InitializeAll(ctx ModuleContext) error {
 	defer r.mutex.Unlock()
 
 	r.context = ctx
+	// Bootstrap may register core services before modules initialize (for
+	// example the shared tenant service). Keep that registry so modules can
+	// consume those services and so module-provided services remain available
+	// to application startup code after initialization.
+	if ctx.Services != nil {
+		r.services = ctx.Services
+	}
 	r.context.Services = r.services
 
 	order, err := r.topologicalSort()

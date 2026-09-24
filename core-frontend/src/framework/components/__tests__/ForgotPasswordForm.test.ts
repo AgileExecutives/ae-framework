@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { mount } from '@vue/test-utils'
+import { mount, config } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import ForgotPasswordForm from '../ForgotPasswordForm.vue'
 import { useAuthStore } from '../../stores/auth'
@@ -37,6 +37,18 @@ vi.mock('vue-router', () => ({
 describe('ForgotPasswordForm - Email Validation', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
+  })
+
+  // Provide a global $t mock for templates that access `$t` directly
+  beforeEach(() => {
+    config.global.mocks = config.global.mocks || {}
+    config.global.mocks.$t = (k: string) => {
+      const translations: Record<string, string> = {
+        'validation.emailRequired': 'Email is required',
+        'validation.emailInvalid': 'Invalid email format',
+      }
+      return translations[k] || k
+    }
   })
 
   it('should display email validation error for empty email', async () => {

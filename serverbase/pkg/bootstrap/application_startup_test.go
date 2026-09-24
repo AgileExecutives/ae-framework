@@ -17,11 +17,30 @@ func ensureRepoRoot(t *testing.T) string {
 	if err != nil {
 		t.Fatalf("getwd: %v", err)
 	}
-	root := filepath.Clean(filepath.Join(cwd, "..", "..", ".."))
-	if err := os.Chdir(root); err != nil {
-		t.Fatalf("chdir repo root: %v", err)
+	// Walk upwards from cwd to find a repository root marker file.
+	// Prefer `version.json` or `Makefile` as indicators of repo root.
+	dir := cwd
+	for {
+		// Check for version.json first
+		if _, err := os.Stat(filepath.Join(dir, "version.json")); err == nil {
+			if err := os.Chdir(dir); err != nil {
+				t.Fatalf("chdir repo root: %v", err)
+			}
+			return dir
+		}
+		// Fallback: check for Makefile
+		if _, err := os.Stat(filepath.Join(dir, "Makefile")); err == nil {
+			if err := os.Chdir(dir); err != nil {
+				t.Fatalf("chdir repo root: %v", err)
+			}
+			return dir
+		}
+		parent := filepath.Dir(dir)
+		if parent == dir || parent == "/" {
+			t.Fatalf("could not find repository root from cwd %s", cwd)
+		}
+		dir = parent
 	}
-	return root
 }
 
 func TestApplication_RegisterContracts_EndToEnd(t *testing.T) {

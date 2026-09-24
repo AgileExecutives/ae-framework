@@ -102,19 +102,6 @@ func (app *Application) Initialize() error {
 		return fmt.Errorf("failed to run migrations: %w", err)
 	}
 
-	// 4. Seed database
-	app.logger.Info("Seeding database...")
-	if err := app.seedDatabase(); err != nil {
-		return fmt.Errorf("failed to seed database: %w", err)
-	}
-
-	// 4.5 Register contracts AFTER seeding so tenant records exist when registering
-	app.logger.Info("Registering template contracts...")
-	if err := app.registerContracts(); err != nil {
-		app.logger.Warn("Failed to register contracts:", err)
-		// Don't fail startup, contracts can be registered later
-	}
-
 	app.logger.Info("Application initialization completed")
 	return nil
 }
@@ -123,14 +110,8 @@ func (app *Application) Initialize() error {
 func (app *Application) Start(ctx context.Context) error {
 	app.logger.Info("Starting application...")
 
-	// Start event bus
-	if err := app.context.EventBus.Start(ctx); err != nil {
-		return fmt.Errorf("failed to start event bus: %w", err)
-	}
-
-	// Start all modules
-	if err := app.registry.StartAll(ctx); err != nil {
-		return fmt.Errorf("failed to start modules: %w", err)
+	if err := app.startModulesAndSeed(ctx); err != nil {
+		return err
 	}
 
 	// Setup HTTP server
@@ -154,6 +135,47 @@ func (app *Application) Start(ctx context.Context) error {
 	}
 
 	return nil
+}
+
+// startModulesAndSeed starts the event system and all modules before seeding
+// an empty database. Tenant creation during seeding therefore follows the
+// normal TenantService path and publishes tenant.created to every subscribed
+// module.
+func (app *Application) startModulesAndSeed(ctx context.Context) error {
+	if err := app.context.EventBus.Start(ctx); err != nil {
+		return fmt.Errorf("failed to start event bus: %w", err)
+	}
+
+	if err := app.registry.StartAll(ctx); err != nil {
+		return fmt.Errorf("failed to start modules: %w", err)
+	}
+
+	isEmpty, err := app.isDatabaseEmpty()
+	if err != nil {
+		return fmt.Errorf("check whether database is empty: %w", err)
+	}
+	if !isEmpty {
+		app.logger.Info("Database already contains tenants; skipping startup seed")
+		return nil
+	}
+
+	app.logger.Info("Database is empty; seeding startup data...")
+	if err := app.seedDatabase(); err != nil {
+		return fmt.Errorf("failed to seed database: %w", err)
+	}
+
+	return nil
+}
+
+// isDatabaseEmpty treats the absence of tenants as an empty application
+// database. Migrations create schema rows, so checking all physical tables
+// would incorrectly report a newly-migrated database as non-empty.
+func (app *Application) isDatabaseEmpty() (bool, error) {
+	var tenantCount int64
+	if err := app.context.DB.Model(&models.Tenant{}).Count(&tenantCount).Error; err != nil {
+		return false, err
+	}
+	return tenantCount == 0, nil
 }
 
 // Stop stops the application and all modules
@@ -248,6 +270,20 @@ func (app *Application) initializeCoreServices() error {
 
 	// Service Registry
 	services := core.NewServiceRegistry()
+
+	// Register a central TenantService so modules can attach post-create hooks
+	// during their Initialize() without creating their own isolated instances.
+	// This ensures tenant creation performed during seeding will invoke module
+	// hooks and trigger tenant-scoped seeding.
+	{
+		rf := repos.NewGormRepoFactory(db)
+		tenantSvc := internalTenantSvc.NewTenantService(rf.TenantRepo(), nil)
+		if eventBus != nil {
+			tenantSvc.SetEventBus(eventBus)
+		}
+		// Ignore registration error if already registered (unlikely here).
+		_ = services.Register("tenant_service", tenantSvc)
+	}
 
 	// Doc registry – collects per-module swagger JSON during module Initialize.
 	docRegistry := swagger.NewRegistry()
@@ -350,13 +386,24 @@ func (app *Application) ensureInitialTenantAndOrganization() error {
 	var t models.Tenant
 	if err := db.First(&t, 1).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			// Use TenantService to create the tenant so module logic (if any)
-			// can be reused. We do not create a bucket here (initialization
-			// is handled by the documents module reacting to tenant.created).
-			rf := repos.NewGormRepoFactory(db)
-			tenantSvc := internalTenantSvc.NewTenantService(rf.TenantRepo(), nil)
-			if app.context.EventBus != nil {
-				tenantSvc.SetEventBus(app.context.EventBus)
+			// Prefer using a centrally-registered TenantService (registered
+			// during initializeCoreServices). This allows modules to attach
+			// post-create hooks during their Initialize() and ensures those
+			// hooks run when the initial tenant is created during seeding.
+			var tenantSvc *internalTenantSvc.TenantService
+			if svcRaw, ok := app.context.Services.Get("tenant_service"); ok {
+				if ts, ok := svcRaw.(*internalTenantSvc.TenantService); ok {
+					tenantSvc = ts
+				}
+			}
+
+			// Fallback: create a local TenantService if none registered
+			if tenantSvc == nil {
+				rf := repos.NewGormRepoFactory(db)
+				tenantSvc = internalTenantSvc.NewTenantService(rf.TenantRepo(), nil)
+				if app.context.EventBus != nil {
+					tenantSvc.SetEventBus(app.context.EventBus)
+				}
 			}
 
 			req := models.TenantCreateRequest{CustomerID: 1, Name: "Default Tenant", Slug: "default"}
@@ -367,11 +414,10 @@ func (app *Application) ensureInitialTenantAndOrganization() error {
 			t = *created
 			app.logger.Info("Created default tenant via TenantService", "id", t.ID)
 
-			// Register contracts for the new tenant (centralized) to ensure
-			// template contracts exist before further initialization.
-			if err := startup.RegisterContractsForTenant(app.context, t.ID); err != nil {
-				app.logger.Warn("Failed to register contracts for initial tenant", "err", err)
-			}
+			// Note: post-create hooks registered by modules should have been
+			// attached to the central TenantService and thus executed by the
+			// call above. Additionally, the TenantService publishes
+			// "tenant.created" on the EventBus which modules can subscribe to.
 		} else {
 			return fmt.Errorf("lookup tenant id=1: %w", err)
 		}

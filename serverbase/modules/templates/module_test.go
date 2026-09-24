@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	templateentities "github.com/AgileExecutives/ae-framework/serverbase/modules/templates/entities"
+	"github.com/AgileExecutives/ae-framework/serverbase/modules/templates/services"
 	"github.com/AgileExecutives/ae-framework/serverbase/pkg/core"
 	"github.com/gin-gonic/gin"
 	"gorm.io/driver/sqlite"
@@ -39,6 +40,26 @@ func TestTemplateModuleSeedsDatabaseDefaults(t *testing.T) {
 	ctx := core.ModuleContext{DB: db}
 	if err := mod.Initialize(ctx); err != nil {
 		t.Fatalf("initialize templates module with db: %v", err)
+	}
+
+	// Module now performs per-tenant seeding via RegisterContracts callbacks.
+	// Call the helper to seed tenant-scoped templates for tenant ID 1.
+	if err := registerTemplatesForTenant(ctx, 1); err != nil {
+		t.Fatalf("register templates for tenant: %v", err)
+	}
+
+	// Ensure there are template_contracts for the tenant. In the full
+	// application these are created by module RegisterContracts implementations
+	// or by scanning shared/modules; in this unit test register minimal
+	// contract JSONs directly using the ContractRegistrar helper.
+	registrar := services.NewContractRegistrar(db)
+	welcomeJSON := []byte(`{"type":"object","properties":{"User":{"type":"object"}},"template_key":"welcome"}`)
+	if err := registrar.RegisterContractFromBytes(1, "user", "welcome-contract.json", welcomeJSON); err != nil {
+		t.Fatalf("register welcome contract: %v", err)
+	}
+	passwordResetJSON := []byte(`{"type":"object","properties":{"Reset":{"type":"object"}},"template_key":"password_reset"}`)
+	if err := registrar.RegisterContractFromBytes(1, "user", "password_reset-contract.json", passwordResetJSON); err != nil {
+		t.Fatalf("register password_reset contract: %v", err)
 	}
 
 	var templateCount int64

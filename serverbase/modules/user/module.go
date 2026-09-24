@@ -2,12 +2,14 @@ package user
 
 import (
 	"context"
+	"fmt"
 
 	internalTenantSvc "github.com/AgileExecutives/ae-framework/serverbase/internal/services"
 	basedocs "github.com/AgileExecutives/ae-framework/serverbase/modules/base/docs"
 	baseRepo "github.com/AgileExecutives/ae-framework/serverbase/modules/base/repo"
 	baseServices "github.com/AgileExecutives/ae-framework/serverbase/modules/base/services"
 	templateServices "github.com/AgileExecutives/ae-framework/serverbase/modules/templates/services"
+	userContracts "github.com/AgileExecutives/ae-framework/serverbase/modules/user/contracts"
 	"github.com/AgileExecutives/ae-framework/serverbase/modules/user/entities"
 	"github.com/AgileExecutives/ae-framework/serverbase/modules/user/events"
 	"github.com/AgileExecutives/ae-framework/serverbase/modules/user/handlers"
@@ -57,13 +59,20 @@ func (m *UserModule) Initialize(ctx core.ModuleContext) error {
 	userRepo := rf.UserRepo()
 	tenantRepo := rf.TenantRepo()
 	m.authService = services.NewAuthServiceWithRepo(userRepo, tenantRepo, rf.NewsletterRepo(), rf.TokenBlacklistRepo(), ctx.Logger)
-	// Wire internal tenant service into auth service to centralize tenant creation
-	tenantSvc := internalTenantSvc.NewTenantService(tenantRepo, nil)
-	tenantSvc.SetPostCreateHook(func(tid uint) error {
-		// When a tenant is created, register this module's contracts for the tenant.
-		registrar := templateServices.NewContractRegistrar(ctx.DB)
-		return services.RegisterUserContracts(registrar, tid)
-	})
+	// Prefer the shared TenantService registered by bootstrap. It emits
+	// tenant.created, which this module handles after all modules initialize.
+	var tenantSvc *internalTenantSvc.TenantService
+	if svcRaw, ok := ctx.Services.Get("tenant_service"); ok {
+		if ts, ok := svcRaw.(*internalTenantSvc.TenantService); ok {
+			tenantSvc = ts
+		}
+	}
+	if tenantSvc == nil {
+		tenantSvc = internalTenantSvc.NewTenantService(tenantRepo, nil)
+		if ctx.EventBus != nil {
+			tenantSvc.SetEventBus(ctx.EventBus)
+		}
+	}
 	m.authService.SetTenantService(tenantSvc)
 	m.authHandlers = handlers.NewAuthHandlers(ctx, m.authService, ctx.Logger)
 	contactRepo := rf.ContactRepo()
@@ -123,6 +132,7 @@ func (m *UserModule) Routes() []core.RouteProvider {
 
 func (m *UserModule) EventHandlers() []core.EventHandler {
 	return []core.EventHandler{
+		events.NewTenantCreatedHandler(m.moduleContext),
 		events.NewUserCreatedHandler(m.eventHandlers),
 		events.NewUserLoginHandler(m.eventHandlers),
 		events.NewContactFormSubmittedHandler(m.eventHandlers),
@@ -153,5 +163,14 @@ func (m *UserModule) SwaggerPaths() []string {
 // for the user module. It is invoked during bootstrapping for each tenant.
 func (m *UserModule) RegisterContracts(ctx core.ModuleContext, tenantID uint) error {
 	registrar := templateServices.NewContractRegistrar(ctx.DB)
-	return services.RegisterUserContracts(registrar, tenantID)
+	for _, contractName := range []string{"welcome-contract.json", "password_reset-contract.json"} {
+		content, err := userContracts.Files.ReadFile(contractName)
+		if err != nil {
+			return fmt.Errorf("read embedded user contract %s: %w", contractName, err)
+		}
+		if err := registrar.RegisterContractFromBytes(tenantID, m.Name(), contractName, content); err != nil {
+			return fmt.Errorf("register user contract %s for tenant %d: %w", contractName, tenantID, err)
+		}
+	}
+	return nil
 }

@@ -13,7 +13,7 @@ import (
 // Uses configurable DEFAULT_PAGE_LIMIT environment variable (default 10)
 func GetPaginationParams(c *gin.Context) (page int, limit int) {
 	// Get configurable limits from environment
-	maxLimit := getEnvInt("MAX_PAGE_LIMIT", 100)
+	maxLimit := getEnvInt("MAX_PAGE_LIMIT", 2000)
 	defaultLimit := getEnvInt("DEFAULT_PAGE_LIMIT", 10)
 
 	page = 1
@@ -26,8 +26,12 @@ func GetPaginationParams(c *gin.Context) (page int, limit int) {
 	}
 
 	if l := c.Query("limit"); l != "" {
-		if parsed, err := strconv.Atoi(l); err == nil && parsed > 0 && parsed <= maxLimit {
-			limit = parsed
+		if parsed, err := strconv.Atoi(l); err == nil && parsed > 0 {
+			if parsed > maxLimit {
+				limit = maxLimit
+			} else {
+				limit = parsed
+			}
 		}
 	}
 
