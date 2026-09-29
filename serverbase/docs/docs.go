@@ -1994,6 +1994,416 @@ const docTemplate = `{
                 }
             }
         },
+        "/templates": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "templates"
+                ],
+                "summary": "List templates",
+                "operationId": "listTemplates",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Template type",
+                        "name": "template_type",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Channel",
+                        "name": "channel",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/templates.ListTemplatesResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "templates"
+                ],
+                "summary": "Create a template",
+                "operationId": "createTemplate",
+                "parameters": [
+                    {
+                        "description": "Create template payload",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/templates.CreateTemplateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/templates.TemplateWithContentResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/templates/contracts": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "templates"
+                ],
+                "summary": "List template contracts",
+                "operationId": "listTemplateContracts",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "additionalProperties": true
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/templates/contracts/{key}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "templates"
+                ],
+                "summary": "Get contract by key",
+                "operationId": "getTemplateContract",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Contract key",
+                        "name": "key",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/templates/contracts/{key}/validate": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "templates"
+                ],
+                "summary": "Validate data against contract",
+                "operationId": "validateTemplateContract",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Contract key",
+                        "name": "key",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Data to validate",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
+        },
+        "/templates/default": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "templates"
+                ],
+                "summary": "Get default template",
+                "operationId": "getDefaultTemplate",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Template type",
+                        "name": "template_type",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Channel",
+                        "name": "channel",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/templates.TemplateWithContentResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/templates/render": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "templates"
+                ],
+                "summary": "Render template by key",
+                "operationId": "renderTemplateByKey",
+                "parameters": [
+                    {
+                        "description": "Render payload",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/templates.RenderTemplateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/templates.TemplateWithContentResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/templates/{id}": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "templates"
+                ],
+                "summary": "Get template by id",
+                "operationId": "getTemplateById",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Template ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/templates.TemplateWithContentResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "templates"
+                ],
+                "summary": "Update template",
+                "operationId": "updateTemplate",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Template ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update payload",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/templates.UpdateTemplateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/templates.TemplateWithContentResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "templates"
+                ],
+                "summary": "Delete template",
+                "operationId": "deleteTemplate",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Template ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content",
+                        "schema": {
+                            "$ref": "#/definitions/templates.SuccessResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/templates/{id}/duplicate": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "templates"
+                ],
+                "summary": "Duplicate a template",
+                "operationId": "duplicateTemplate",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Template ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Duplicate overrides",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/templates.DuplicateTemplateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/templates.TemplateWithContentResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/templates/{id}/render": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "templates"
+                ],
+                "summary": "Render template by id",
+                "operationId": "renderTemplateById",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Template ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Render payload",
+                        "name": "payload",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/templates.RenderTemplateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/templates.TemplateWithContentResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/user-settings": {
             "get": {
                 "security": [
@@ -2884,6 +3294,182 @@ const docTemplate = `{
                 "zip": {
                     "type": "string",
                     "example": "12345"
+                }
+            }
+        },
+        "templates.CreateTemplateRequest": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "is_active": {
+                    "type": "boolean"
+                },
+                "is_default": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "organization_id": {
+                    "type": "integer"
+                },
+                "sample_data": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "template_type": {
+                    "type": "string"
+                },
+                "variables": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "templates.DuplicateTemplateRequest": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "templates.ListTemplatesResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/templates.TemplateResponse"
+                    }
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "page_size": {
+                    "type": "integer"
+                },
+                "success": {
+                    "type": "boolean"
+                },
+                "total": {
+                    "type": "integer"
+                },
+                "total_pages": {
+                    "type": "integer"
+                }
+            }
+        },
+        "templates.RenderTemplateRequest": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "object",
+                    "additionalProperties": true
+                }
+            }
+        },
+        "templates.SuccessResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "success": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "templates.TemplateResponse": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "is_active": {
+                    "type": "boolean"
+                },
+                "is_default": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "organization_id": {
+                    "type": "integer"
+                },
+                "sample_data": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "storage_key": {
+                    "type": "string"
+                },
+                "template_type": {
+                    "type": "string"
+                },
+                "tenant_id": {
+                    "type": "integer"
+                },
+                "variables": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "version": {
+                    "type": "integer"
+                }
+            }
+        },
+        "templates.TemplateWithContentResponse": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "template": {
+                    "$ref": "#/definitions/templates.TemplateResponse"
+                }
+            }
+        },
+        "templates.UpdateTemplateRequest": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "is_active": {
+                    "type": "boolean"
+                },
+                "is_default": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "sample_data": {
+                    "type": "object",
+                    "additionalProperties": true
+                },
+                "variables": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         }

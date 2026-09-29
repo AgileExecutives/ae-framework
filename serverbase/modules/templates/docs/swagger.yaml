@@ -1,4 +1,349 @@
+definitions:
+  templates.CreateTemplateRequest:
+    properties:
+      content:
+        type: string
+      description:
+        type: string
+      is_active:
+        type: boolean
+      is_default:
+        type: boolean
+      name:
+        type: string
+      organization_id:
+        type: integer
+      sample_data:
+        additionalProperties: true
+        type: object
+      template_type:
+        type: string
+      variables:
+        items:
+          type: string
+        type: array
+    type: object
+  templates.ListTemplatesResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/templates.TemplateResponse'
+        type: array
+      page:
+        type: integer
+      page_size:
+        type: integer
+      success:
+        type: boolean
+      total:
+        type: integer
+      total_pages:
+        type: integer
+    type: object
+  templates.RenderTemplateRequest:
+    properties:
+      data:
+        additionalProperties: true
+        type: object
+    type: object
+  templates.SuccessResponse:
+    properties:
+      message:
+        type: string
+      success:
+        type: boolean
+    type: object
+  templates.TemplateResponse:
+    properties:
+      description:
+        type: string
+      id:
+        type: integer
+      is_active:
+        type: boolean
+      is_default:
+        type: boolean
+      name:
+        type: string
+      organization_id:
+        type: integer
+      sample_data:
+        additionalProperties: true
+        type: object
+      storage_key:
+        type: string
+      template_type:
+        type: string
+      tenant_id:
+        type: integer
+      variables:
+        items:
+          type: string
+        type: array
+      version:
+        type: integer
+    type: object
+  templates.TemplateWithContentResponse:
+    properties:
+      content:
+        type: string
+      template:
+        $ref: '#/definitions/templates.TemplateResponse'
+    type: object
+  templates.UpdateTemplateRequest:
+    properties:
+      content:
+        type: string
+      description:
+        type: string
+      is_active:
+        type: boolean
+      is_default:
+        type: boolean
+      name:
+        type: string
+      sample_data:
+        additionalProperties: true
+        type: object
+      variables:
+        items:
+          type: string
+        type: array
+    type: object
 info:
   contact: {}
-paths: {}
+paths:
+  /templates:
+    get:
+      parameters:
+      - description: Template type
+        in: query
+        name: template_type
+        type: string
+      - description: Channel
+        in: query
+        name: channel
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/templates.ListTemplatesResponse'
+      summary: List templates
+      tags:
+      - templates
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Create template payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/templates.CreateTemplateRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/templates.TemplateWithContentResponse'
+      summary: Create a template
+      tags:
+      - templates
+  /templates/{id}:
+    delete:
+      parameters:
+      - description: Template ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            $ref: '#/definitions/templates.SuccessResponse'
+      summary: Delete template
+      tags:
+      - templates
+    get:
+      parameters:
+      - description: Template ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/templates.TemplateWithContentResponse'
+      summary: Get template by id
+      tags:
+      - templates
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Template ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Update payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/templates.UpdateTemplateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/templates.TemplateWithContentResponse'
+      summary: Update template
+      tags:
+      - templates
+  /templates/{id}/render:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Template ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Render payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/templates.RenderTemplateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/templates.TemplateWithContentResponse'
+      summary: Render template by id
+      tags:
+      - templates
+  /templates/contracts:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              additionalProperties: true
+              type: object
+            type: array
+      summary: List template contracts
+      tags:
+      - templates
+  /templates/contracts/{key}:
+    get:
+      parameters:
+      - description: Contract key
+        in: path
+        name: key
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get contract by key
+      tags:
+      - templates
+  /templates/contracts/{key}/validate:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Contract key
+        in: path
+        name: key
+        required: true
+        type: string
+      - description: Data to validate
+        in: body
+        name: payload
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Validate data against contract
+      tags:
+      - templates
+  /templates/default:
+    get:
+      parameters:
+      - description: Template type
+        in: query
+        name: template_type
+        required: true
+        type: string
+      - description: Channel
+        in: query
+        name: channel
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/templates.TemplateWithContentResponse'
+      summary: Get default template
+      tags:
+      - templates
+  /templates/render:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Render payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/templates.RenderTemplateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/templates.TemplateWithContentResponse'
+      summary: Render template by key
+      tags:
+      - templates
 swagger: "2.0"

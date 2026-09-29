@@ -32,18 +32,19 @@ func NewBookingServiceWithRepoAndDB(r repo.BookingRepo, db *gorm.DB) *BookingSer
 
 // ClientInfo represents simplified client information returned to handlers
 type ClientInfo struct {
-	ID              uint       `json:"id"`
-	FirstName       string     `json:"first_name"`
-	LastName        string     `json:"last_name"`
-	Email           string     `json:"email"`
-	Phone           string     `json:"phone"`
-	DateOfBirth     *time.Time `json:"date_of_birth,omitempty"`
-	Gender          string     `json:"gender,omitempty"`
-	PrimaryLanguage string     `json:"primary_language,omitempty"`
-	StreetAddress   string     `json:"street_address,omitempty"`
-	Zip             string     `json:"zip,omitempty"`
-	City            string     `json:"city,omitempty"`
-	Status          string     `json:"status"`
+	ID               uint       `json:"id"`
+	FirstName        string     `json:"first_name"`
+	LastName         string     `json:"last_name"`
+	Email            string     `json:"email"`
+	Phone            string     `json:"phone"`
+	DateOfBirth      *time.Time `json:"date_of_birth,omitempty"`
+	Gender           string     `json:"gender,omitempty"`
+	PrimaryLanguage  string     `json:"primary_language,omitempty"`
+	StreetAddress    string     `json:"street_address,omitempty"`
+	Zip              string     `json:"zip,omitempty"`
+	City             string     `json:"city,omitempty"`
+	Status           string     `json:"status"`
+	OrganizationName string     `json:"organization_name,omitempty"`
 }
 
 // GetClientInfo fetches basic client information by id and tenant. Uses DB when available.
@@ -61,6 +62,25 @@ func (s *BookingService) GetClientInfo(clientID, tenantID uint) (*ClientInfo, er
 		return nil, err
 	}
 	return &client, nil
+}
+
+// GetOrganizationNameForUser resolves the organization name that owns the calendar
+// used for a booking link, via the practitioner (user) who owns it.
+func (s *BookingService) GetOrganizationNameForUser(userID, tenantID uint) (string, error) {
+	if s.db == nil {
+		return "", errors.New("database not available for organization lookup")
+	}
+
+	var name string
+	err := s.db.Table("organizations").
+		Select("organizations.name").
+		Joins("JOIN users ON users.organization_id = organizations.id").
+		Where("users.id = ? AND organizations.tenant_id = ?", userID, tenantID).
+		Scan(&name).Error
+	if err != nil {
+		return "", err
+	}
+	return name, nil
 }
 
 // CreateConfiguration creates a new booking configuration

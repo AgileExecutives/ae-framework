@@ -3,15 +3,19 @@ package templates
 // Package templates provides a lightweight templates module used by tests and
 // optionally by apps that want an in-process templates provider.
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"path/filepath"
 	"regexp"
 	"strings"
-	"sync"
+	"time"
 
 	"github.com/AgileExecutives/ae-framework/serverbase/module"
+	templatedocs "github.com/AgileExecutives/ae-framework/serverbase/modules/templates/docs"
 	templateentities "github.com/AgileExecutives/ae-framework/serverbase/modules/templates/entities"
 	"github.com/AgileExecutives/ae-framework/serverbase/modules/templates/services"
 	"github.com/AgileExecutives/ae-framework/serverbase/pkg/core"
@@ -32,6 +36,10 @@ func NewTemplatesModule() core.Module {
 			&contractRegistrarProvider{},
 		),
 		module.WithInit(func(ctx core.ModuleContext) error {
+			// Register generated swagger docs so /templates appears in the merged spec.
+			if ctx.DocRegistry != nil {
+				ctx.DocRegistry.RegisterDoc("templates", templatedocs.SwaggerInfo.ReadDoc())
+			}
 			// Ensure tables exist but do not seed tenant-scoped template rows here.
 			// Per-tenant template seeding happens via RegisterContracts callback
 			// (invoked by the tenant post-create hook or startup bootstrap).
@@ -93,7 +101,7 @@ func registerTemplatesForTenant(ctx core.ModuleContext, tenantID uint) error {
 			Channel:      templateentities.ChannelEmail,
 			Name:         "Welcome Email",
 			Description:  "Default welcome email",
-			StorageKey:   "server-test/templates/welcome.html",
+			StorageKey:   "templates/welcome.html",
 			Version:      1,
 			IsActive:     true,
 			IsDefault:    true,
@@ -109,7 +117,7 @@ func registerTemplatesForTenant(ctx core.ModuleContext, tenantID uint) error {
 			Channel:      templateentities.ChannelEmail,
 			Name:         "Password Reset Email",
 			Description:  "Default password reset email",
-			StorageKey:   "server-test/templates/password_reset.html",
+			StorageKey:   "templates/password_reset.html",
 			Version:      1,
 			IsActive:     true,
 			IsDefault:    true,
@@ -232,6 +240,31 @@ func renderTemplateString(content string, payload map[string]interface{}, dataMa
 	return rendered
 }
 
+// readStorageKey attempts to read a StorageKey path. It tries the provided
+// path, and if it isn't readable, also attempts to resolve it relative to common
+// locations (repo root, templates directory, etc.). This helps tests that store
+// relative paths like `templates/welcome.html`.
+func readStorageKey(pathKey string) (string, error) {
+	if pathKey == "" {
+		return "", fmt.Errorf("empty storage key")
+	}
+
+	candidates := []string{
+		pathKey,                             // Try as-is first (might be absolute or relative to cwd)
+		filepath.Join("templates", pathKey), // Try under templates/ subdirectory
+		filepath.Join("..", "server-test", pathKey), // Try from parent dir
+		filepath.Join("..", pathKey),                // Try from parent dir directly
+	}
+
+	for _, candidate := range candidates {
+		if b, err := os.ReadFile(candidate); err == nil {
+			return string(b), nil
+		}
+	}
+
+	return "", fmt.Errorf("could not read storage key %s (tried %d candidates)", pathKey, len(candidates))
+}
+
 // Service providers to expose TemplateService and ContractRegistrar via the
 // central service registry so other modules (e.g., client_management) can look them up.
 type templateServiceProvider struct{}
@@ -273,72 +306,14 @@ func (r *templatesRouteProvider) GetSwaggerTags() []string         { return []st
 func (r *templatesRouteProvider) RegisterRoutes(router *gin.RouterGroup, ctx core.ModuleContext) {
 	svc := services.NewTemplateService()
 
-	// in-memory store local to this module instance
-	store := make(map[uint]map[string]interface{})
-	var mu sync.Mutex
-	var next uint = 2
-	store[1] = map[string]interface{}{
-		"id":            uint(1),
-		"template_type": "email",
-		"template_key":  "welcome",
-		"channel":       "EMAIL",
-		"subject":       "Welcome to Server Test",
-		"name":          "Default Welcome Email",
-		"description":   "Default welcome email for the server-test harness",
-		"content":       "<h1>Welcome {{.FirstName}} {{.LastName}}!</h1><p>Thank you for joining {{.OrganizationName}}.</p><p><a href=\"{{.ActivationLink}}\">Activate your account</a></p>",
-		"variables":     []string{"FirstName", "LastName", "OrganizationName", "ActivationLink"},
-		"sample_data": map[string]interface{}{
-			"FirstName":        "Test",
-			"LastName":         "User",
-			"OrganizationName": "Server Test Organization",
-			"ActivationLink":   "https://app.example.com/activate?token=abc123",
-		},
-		"is_active":  true,
-		"is_default": true,
-	}
-
+	// DB-backed templates routes
 	templates := router.Group("/templates")
 
-	// Compatibility endpoint: render by template_key (used by hurl tests)
 	templates.POST("/render", func(c *gin.Context) {
 		var payload map[string]interface{}
 		if err := c.ShouldBindJSON(&payload); err != nil {
 			c.JSON(http.StatusBadRequest, models.ErrorResponseFunc("invalid json", "request body invalid"))
 			return
-		}
-
-		// Additional sample templates used by the hurl test suite
-		store[2] = map[string]interface{}{
-			"id":            uint(2),
-			"template_type": "email",
-			"template_key":  "booking_confirmation",
-			"channel":       "EMAIL",
-			"subject":       "Booking Confirmation",
-			"name":          "Booking Confirmation",
-			"content":       "<p>Dear {{.CustomerFirstName}} {{.CustomerLastName}}, your booking for {{.ServiceName}} (Ref: {{.BookingReference}}) on {{.BookingDate}} totals {{.TotalAmount}} {{.Currency}}.</p>",
-			"variables":     []string{"CustomerFirstName", "CustomerLastName", "ServiceName", "BookingDate", "BookingReference", "TotalAmount", "Currency"},
-		}
-
-		store[3] = map[string]interface{}{
-			"id":            uint(3),
-			"template_type": "email",
-			"template_key":  "password_reset",
-			"channel":       "EMAIL",
-			"subject":       "Reset your password",
-			"name":          "Password Reset",
-			"content":       "<p>Hello {{.FirstName}} {{.LastName}}, click <a href=\"{{.ResetLink}}\">here</a> to reset. Expires in {{.ExpirationTime}}.</p>",
-			"variables":     []string{"FirstName", "LastName", "ResetLink", "ExpirationTime"},
-		}
-
-		store[4] = map[string]interface{}{
-			"id":            uint(4),
-			"template_type": "pdf",
-			"template_key":  "invoice",
-			"channel":       "PDF",
-			"subject":       "Invoice {{.InvoiceData.InvoiceNumber}}",
-			"name":          "Invoice PDF",
-			"content":       "<p>Invoice {{.InvoiceData.InvoiceNumber}} for {{.Customer.Name}} - Total: {{.InvoiceData.Total}}</p><p>Items: {{.InvoiceData.Items}}</p>",
-			"variables":     []string{"Customer", "InvoiceData", "OrganizationData"},
 		}
 
 		key, _ := payload["template_key"].(string)
@@ -347,189 +322,224 @@ func (r *templatesRouteProvider) RegisterRoutes(router *gin.RouterGroup, ctx cor
 			return
 		}
 
-		// find template by key in in-memory store
-		mu.Lock()
-		var foundID uint
-		var rec map[string]interface{}
-		for id, r := range store {
-			if tk, ok := r["template_key"].(string); ok && tk == key {
-				foundID = id
-				rec = r
-				break
-			}
-		}
-		mu.Unlock()
+		channel, _ := payload["channel"].(string)
 
-		if foundID == 0 {
+		db := ctx.DB
+		if db == nil {
+			c.JSON(http.StatusInternalServerError, models.ErrorResponseFunc("no db", "database not available"))
+			return
+		}
+
+		var t templateentities.Template
+		q := db.Where("template_key = ?", key).Order("storage_key <> '' DESC").Order("is_default DESC")
+		if channel != "" {
+			q = q.Where("LOWER(channel) = ?", strings.ToLower(strings.TrimSpace(channel)))
+		}
+		if err := q.First(&t).Error; err != nil {
 			c.JSON(http.StatusNotFound, models.ErrorResponseFunc("template not found", "no template with that key"))
 			return
 		}
 
-		// If the request specifies a channel and it doesn't match the template's
-		// configured channel, treat it as not found/unsupported.
-		reqChannel, _ := payload["channel"].(string)
-		if reqChannel != "" {
-			if recChannel, ok := rec["channel"].(string); ok {
-				if !strings.EqualFold(reqChannel, recChannel) {
-					c.JSON(http.StatusNotFound, models.ErrorResponseFunc("template not found", "no template with that key/channel"))
-					return
-				}
-			}
-		}
-
-		// Validate payload against simple contract rules for known templates
+		// Validate against simple contract rules where applicable
 		if dataMapPayload, ok := payload["data"].(map[string]interface{}); ok {
-			valid, errs := validateContractForKey(key, dataMapPayload)
+			valid, errs := validateContractForKey(t.TemplateKey, dataMapPayload)
 			if !valid {
 				c.JSON(http.StatusBadRequest, models.ErrorResponseFunc("validation failed", strings.Join(errs, "; ")))
 				return
 			}
 		}
 
-		// reuse the existing render logic by calling the :id render handler flow
-		// Prepare dataMap
+		// Try to read template content from storage key if present
+		var content string
+		if t.StorageKey != "" {
+			if s, err := readStorageKey(t.StorageKey); err == nil {
+				content = s
+			} else {
+				log.Printf("templates: read storage key failed: %v", err)
+			}
+		}
+
+		// Build data map for rendering
 		dataMap := map[string]string{}
 		if d, ok := payload["data"].(map[string]interface{}); ok {
 			for k, v := range d {
-				// basic scalar formatting
 				switch val := v.(type) {
 				case float32, float64:
 					dataMap[k] = fmt.Sprintf("%.2f", val)
 				case int, int32, int64:
 					dataMap[k] = fmt.Sprintf("%d", val)
 				case map[string]interface{}:
-					// flatten one level into dotted keys
 					for ik, iv := range val {
-						switch ivv := iv.(type) {
-						case float32, float64:
-							dataMap[k+"."+ik] = fmt.Sprintf("%.2f", ivv)
-						case int, int32, int64:
-							dataMap[k+"."+ik] = fmt.Sprintf("%d", ivv)
-						case []interface{}:
-							// join item descriptions if available
-							parts := []string{}
-							for _, entry := range ivv {
-								if em, ok := entry.(map[string]interface{}); ok {
-									if desc, ok := em["Description"].(string); ok {
-										parts = append(parts, desc)
-									}
-								}
-							}
-							dataMap[k+"."+ik] = strings.Join(parts, ", ")
-						default:
-							dataMap[k+"."+ik] = fmt.Sprintf("%v", ivv)
-						}
+						dataMap[k+"."+ik] = fmt.Sprintf("%v", iv)
 					}
 				default:
 					dataMap[k] = fmt.Sprintf("%v", val)
 				}
 			}
 		}
-		contentI, _ := rec["content"]
-		content, _ := contentI.(string)
-		rendered := renderTemplateString(content, payload, dataMap)
 
+		rendered := ""
+		if content != "" {
+			rendered = renderTemplateString(content, payload, dataMap)
+		}
 		if strings.TrimSpace(rendered) == "" {
-			html, _ := svc.RenderTemplate(c.Request.Context(), 1, foundID, payload["data"])
-			rendered = html
+			// Fallback to service renderer
+			if html, err := svc.RenderTemplate(c.Request.Context(), 1, t.ID, payload["data"]); err == nil {
+				rendered = html
+			}
 		}
 
-		// include subject if present in the in-memory record (render placeholders)
-		if subj, ok := rec["subject"].(string); ok && subj != "" {
-			renderedSubj := renderTemplateString(subj, payload, dataMap)
-			c.JSON(http.StatusOK, models.SuccessResponse("rendered", gin.H{"content": rendered, "subject": renderedSubj}))
+		// Render subject if available
+		var subj string
+		if t.Subject != nil {
+			subj = renderTemplateString(*t.Subject, payload, dataMap)
+		}
+
+		if subj != "" {
+			c.JSON(http.StatusOK, models.SuccessResponse("rendered", gin.H{"content": rendered, "subject": subj}))
 			return
 		}
-
 		c.JSON(http.StatusOK, models.SuccessResponse("rendered", gin.H{"content": rendered}))
 	})
 
 	templates.GET("", func(c *gin.Context) {
-		mu.Lock()
-		defer mu.Unlock()
-		out := make([]interface{}, 0)
-		ttype := c.Query("template_type")
-		channel := c.Query("channel")
-		log.Printf("templates: list called filter template_type=%q channel=%q store_count=%d", ttype, channel, len(store))
-		for id, rec := range store {
-			log.Printf("templates: checking id=%v rec_channel=%v rec_template_type=%v", id, rec["channel"], rec["template_type"])
-			// If a template_type filter is provided, ensure it matches (case-insensitive)
-			if ttype != "" {
-				if recType, ok := rec["template_type"].(string); !ok || !strings.EqualFold(recType, ttype) {
-					continue
-				}
-			}
-			// If a channel filter is provided, ensure it matches (case-insensitive)
-			if channel != "" {
-				if ch, ok := rec["channel"].(string); !ok || !strings.EqualFold(strings.TrimSpace(ch), strings.TrimSpace(channel)) {
-					continue
-				}
-			}
-			out = append(out, rec)
+		db := ctx.DB
+		if db == nil {
+			c.JSON(http.StatusInternalServerError, models.ErrorResponseFunc("no db", "database not available"))
+			return
 		}
-		c.JSON(http.StatusOK, models.SuccessListResponse(out, 1, len(out), len(out)))
+		var items []templateentities.Template
+		q := db.Model(&templateentities.Template{})
+		if ttype := c.Query("template_type"); ttype != "" {
+			q = q.Where("LOWER(template_type) = ?", strings.ToLower(ttype))
+		}
+		if channel := c.Query("channel"); channel != "" {
+			q = q.Where("LOWER(channel) = ?", strings.ToLower(strings.TrimSpace(channel)))
+		}
+		if err := q.Find(&items).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, models.ErrorResponseFunc("db error", err.Error()))
+			return
+		}
+		c.JSON(http.StatusOK, models.SuccessListResponse(items, 1, len(items), len(items)))
 	})
 
 	templates.POST("", func(c *gin.Context) {
+		db := ctx.DB
+		if db == nil {
+			c.JSON(http.StatusInternalServerError, models.ErrorResponseFunc("no db", "database not available"))
+			return
+		}
 		var payload map[string]interface{}
 		if err := c.ShouldBindJSON(&payload); err != nil {
 			c.JSON(http.StatusBadRequest, models.ErrorResponseFunc("invalid json", "request body invalid"))
 			return
 		}
-		mu.Lock()
-		id := next
-		next++
-		payload["id"] = id
-		if _, ok := payload["template_type"]; !ok {
-			payload["template_type"] = "email"
+		t := templateentities.Template{
+			TenantID:     1,
+			Module:       "user",
+			TemplateType: "email",
+			Channel:      templateentities.ChannelEmail,
+			Name:         "",
+			Description:  "",
+			IsActive:     true,
+			IsDefault:    false,
 		}
-		if _, ok := payload["channel"]; !ok {
-			payload["channel"] = "EMAIL"
+		if v, ok := payload["template_type"].(string); ok {
+			t.TemplateType = v
 		}
-		store[id] = payload
-		mu.Unlock()
-		c.JSON(http.StatusCreated, models.SuccessResponse("created", payload))
+		if v, ok := payload["channel"].(string); ok {
+			t.Channel = templateentities.Channel(strings.ToUpper(strings.TrimSpace(v)))
+		}
+		if v, ok := payload["template_key"].(string); ok {
+			t.TemplateKey = v
+		}
+		if v, ok := payload["name"].(string); ok {
+			t.Name = v
+		}
+		if v, ok := payload["description"].(string); ok {
+			t.Description = v
+		}
+		if v, ok := payload["is_active"].(bool); ok {
+			t.IsActive = v
+		}
+		if v, ok := payload["is_default"].(bool); ok {
+			t.IsDefault = v
+		}
+		if v, ok := payload["subject"].(string); ok {
+			t.Subject = &v
+		}
+		if v, ok := payload["variables"]; ok {
+			if bs, err := json.Marshal(v); err == nil {
+				t.Variables = datatypes.JSON(bs)
+			}
+		}
+		if v, ok := payload["sample_data"]; ok {
+			if bs, err := json.Marshal(v); err == nil {
+				t.SampleData = datatypes.JSON(bs)
+			}
+		}
+		// If content provided, persist to server-test/templates and set StorageKey
+		if v, ok := payload["content"].(string); ok && v != "" {
+			dir := "server-test/templates"
+			_ = os.MkdirAll(dir, 0o755)
+			fname := fmt.Sprintf("%s/template_%d.html", dir, time.Now().UnixNano())
+			if err := os.WriteFile(fname, []byte(v), 0o644); err == nil {
+				t.StorageKey = fname
+			}
+		}
+
+		if err := db.Create(&t).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, models.ErrorResponseFunc("db error", err.Error()))
+			return
+		}
+		c.JSON(http.StatusCreated, models.SuccessResponse("created", t))
 	})
 
 	templates.GET("/default", func(c *gin.Context) {
-		ttype := c.Query("template_type")
-		channel := c.Query("channel")
-		mu.Lock()
-		defer mu.Unlock()
-		for _, rec := range store {
-			if isDefault, _ := rec["is_default"].(bool); !isDefault {
-				continue
-			}
-			if ttype != "" {
-				if recType, ok := rec["template_type"].(string); !ok || recType != ttype {
-					continue
-				}
-			}
-			if channel != "" {
-				if recChannel, ok := rec["channel"].(string); !ok || recChannel != channel {
-					continue
-				}
-			}
-			c.JSON(http.StatusOK, models.SuccessResponse("retrieved", rec))
+		db := ctx.DB
+		if db == nil {
+			c.JSON(http.StatusInternalServerError, models.ErrorResponseFunc("no db", "database not available"))
 			return
 		}
-		c.JSON(http.StatusNotFound, models.ErrorResponseFunc("template not found", "no template with that id"))
+		ttype := c.Query("template_type")
+		channel := c.Query("channel")
+		var t templateentities.Template
+		q := db.Where("is_default = ?", true)
+		if ttype != "" {
+			q = q.Where("template_type = ?", ttype)
+		}
+		if channel != "" {
+			q = q.Where("channel = ?", channel)
+		}
+		if err := q.First(&t).Error; err != nil {
+			c.JSON(http.StatusNotFound, models.ErrorResponseFunc("template not found", "no template with that id"))
+			return
+		}
+		c.JSON(http.StatusOK, models.SuccessResponse("retrieved", t))
 	})
 
 	templates.GET("/:id", func(c *gin.Context) {
-		var id uint
-		fmt.Sscanf(c.Param("id"), "%d", &id)
-		mu.Lock()
-		rec, ok := store[id]
-		mu.Unlock()
-		if ok {
-			c.JSON(http.StatusOK, models.SuccessResponse("retrieved", rec))
+		db := ctx.DB
+		if db == nil {
+			c.JSON(http.StatusInternalServerError, models.ErrorResponseFunc("no db", "database not available"))
 			return
 		}
-		c.JSON(http.StatusNotFound, models.ErrorResponseFunc("template not found", "no template with that id"))
+		var id uint
+		fmt.Sscanf(c.Param("id"), "%d", &id)
+		var t templateentities.Template
+		if err := db.First(&t, id).Error; err != nil {
+			c.JSON(http.StatusNotFound, models.ErrorResponseFunc("template not found", "no template with that id"))
+			return
+		}
+		c.JSON(http.StatusOK, models.SuccessResponse("retrieved", t))
 	})
 
 	templates.PUT("/:id", func(c *gin.Context) {
+		db := ctx.DB
+		if db == nil {
+			c.JSON(http.StatusInternalServerError, models.ErrorResponseFunc("no db", "database not available"))
+			return
+		}
 		var id uint
 		fmt.Sscanf(c.Param("id"), "%d", &id)
 		var payload map[string]interface{}
@@ -537,155 +547,168 @@ func (r *templatesRouteProvider) RegisterRoutes(router *gin.RouterGroup, ctx cor
 			c.JSON(http.StatusBadRequest, models.ErrorResponseFunc("invalid json", "request body invalid"))
 			return
 		}
-		mu.Lock()
-		if rec, ok := store[id]; ok {
-			for k, v := range payload {
-				rec[k] = v
-			}
-			rec["id"] = id
-			store[id] = rec
-			mu.Unlock()
-			c.JSON(http.StatusOK, models.SuccessResponse("updated", rec))
+		var t templateentities.Template
+		if err := db.First(&t, id).Error; err != nil {
+			c.JSON(http.StatusNotFound, models.ErrorResponseFunc("template not found", "no template with that id"))
 			return
 		}
-		mu.Unlock()
-		c.JSON(http.StatusNotFound, models.ErrorResponseFunc("template not found", "no template with that id"))
+		if v, ok := payload["name"].(string); ok {
+			t.Name = v
+		}
+		if v, ok := payload["description"].(string); ok {
+			t.Description = v
+		}
+		if v, ok := payload["is_active"].(bool); ok {
+			t.IsActive = v
+		}
+		if v, ok := payload["is_default"].(bool); ok {
+			t.IsDefault = v
+		}
+		if v, ok := payload["variables"]; ok {
+			if bs, err := json.Marshal(v); err == nil {
+				t.Variables = datatypes.JSON(bs)
+			}
+		}
+		if v, ok := payload["sample_data"]; ok {
+			if bs, err := json.Marshal(v); err == nil {
+				t.SampleData = datatypes.JSON(bs)
+			}
+		}
+		if err := db.Save(&t).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, models.ErrorResponseFunc("db error", err.Error()))
+			return
+		}
+		c.JSON(http.StatusOK, models.SuccessResponse("updated", t))
 	})
 
 	templates.POST("/:id/render", func(c *gin.Context) {
+		db := ctx.DB
+		if db == nil {
+			c.JSON(http.StatusInternalServerError, models.ErrorResponseFunc("no db", "database not available"))
+			return
+		}
 		var id uint
 		fmt.Sscanf(c.Param("id"), "%d", &id)
 		var payload map[string]interface{}
 		_ = c.ShouldBindJSON(&payload)
-
-		// Retrieve stored template content for this id
-		mu.Lock()
-		rec, ok := store[id]
-		mu.Unlock()
-		if !ok {
+		var t templateentities.Template
+		if err := db.First(&t, id).Error; err != nil {
 			c.JSON(http.StatusNotFound, models.ErrorResponseFunc("template not found", "no template with that id"))
 			return
 		}
-		contentI, _ := rec["content"]
-		content, _ := contentI.(string)
-
-		// Prepare data map (stringify values)
+		var content string
+		if t.StorageKey != "" {
+			if b, err := os.ReadFile(t.StorageKey); err == nil {
+				content = string(b)
+			}
+		}
 		dataMap := map[string]string{}
 		if d, ok := payload["data"].(map[string]interface{}); ok {
 			for k, v := range d {
-				switch val := v.(type) {
-				case float32, float64:
-					dataMap[k] = fmt.Sprintf("%.2f", val)
-				case int, int32, int64:
-					dataMap[k] = fmt.Sprintf("%d", val)
-				default:
-					dataMap[k] = fmt.Sprintf("%v", val)
-				}
+				dataMap[k] = fmt.Sprintf("%v", v)
 			}
 		}
-
-		// Unescape any backslash-escaped braces (e.g. "\{\{.Name\}\}") so
-		// templates authored with JSON-escaped braces render correctly.
-		content = strings.ReplaceAll(content, "\\{\\{", "{{")
-		content = strings.ReplaceAll(content, "\\}\\}", "}}")
-
-		// Simple renderer: replace {{.Key}} with corresponding value from dataMap
-		rendered := renderTemplateString(content, payload, dataMap)
-
-		// Debug logs to help diagnose rendering issues in the test harness
-		log.Printf("templates: render id=%d content_len=%d rendered_len=%d data_keys=%v", id, len(content), len(rendered), func() []string {
-			keys := []string{}
-			for k := range dataMap {
-				keys = append(keys, k)
+		if content != "" {
+			rendered := renderTemplateString(content, payload, dataMap)
+			if t.Subject != nil {
+				subj := renderTemplateString(*t.Subject, payload, dataMap)
+				c.JSON(http.StatusOK, models.SuccessResponse("rendered", gin.H{"content": rendered, "subject": subj}))
+				return
 			}
-			return keys
-		}())
-
-		// Fallback to service renderer if no content present
-		if strings.TrimSpace(rendered) == "" {
-			html, _ := svc.RenderTemplate(c.Request.Context(), 1, id, payload["data"])
-			rendered = html
-		}
-
-		log.Printf("templates: render result id=%d rendered_preview=%q", id, func() string {
-			if len(rendered) > 200 {
-				return rendered[:200]
-			}
-			return rendered
-		}())
-
-		// include subject if present in the in-memory record (render placeholders)
-		if subj, ok := rec["subject"].(string); ok && subj != "" {
-			renderedSubj := renderTemplateString(subj, payload, dataMap)
-			c.JSON(http.StatusOK, models.SuccessResponse("rendered", gin.H{"content": rendered, "subject": renderedSubj}))
+			c.JSON(http.StatusOK, models.SuccessResponse("rendered", gin.H{"content": rendered}))
 			return
 		}
-		c.JSON(http.StatusOK, models.SuccessResponse("rendered", gin.H{"content": rendered}))
+		// Fallback
+		if html, err := svc.RenderTemplate(c.Request.Context(), 1, id, payload["data"]); err == nil {
+			c.JSON(http.StatusOK, models.SuccessResponse("rendered", gin.H{"content": html}))
+			return
+		}
+		c.JSON(http.StatusInternalServerError, models.ErrorResponseFunc("render error", "could not render template"))
 	})
 
 	templates.DELETE("/:id", func(c *gin.Context) {
+		db := ctx.DB
+		if db == nil {
+			c.JSON(http.StatusInternalServerError, models.ErrorResponseFunc("no db", "database not available"))
+			return
+		}
 		var id uint
 		fmt.Sscanf(c.Param("id"), "%d", &id)
-		mu.Lock()
-		delete(store, id)
-		mu.Unlock()
+		if err := db.Delete(&templateentities.Template{}, id).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, models.ErrorResponseFunc("db error", err.Error()))
+			return
+		}
 		c.JSON(http.StatusNoContent, models.SuccessMessageResponse("deleted"))
 	})
 
 	templates.POST("/:id/duplicate", func(c *gin.Context) {
+		db := ctx.DB
+		if db == nil {
+			c.JSON(http.StatusInternalServerError, models.ErrorResponseFunc("no db", "database not available"))
+			return
+		}
 		var id uint
 		fmt.Sscanf(c.Param("id"), "%d", &id)
 		var payload map[string]interface{}
 		_ = c.ShouldBindJSON(&payload)
-
-		mu.Lock()
-		defer mu.Unlock()
-		src, ok := store[id]
-		if !ok {
+		var src templateentities.Template
+		if err := db.First(&src, id).Error; err != nil {
 			c.JSON(http.StatusNotFound, models.ErrorResponseFunc("template not found", "no template with that id"))
 			return
 		}
-		// shallow copy
-		copyRec := make(map[string]interface{})
-		for k, v := range src {
-			copyRec[k] = v
-		}
-		// apply overrides from request body
+		copyRec := src
+		copyRec.ID = 0
 		if name, ok := payload["name"].(string); ok {
-			copyRec["name"] = name
+			copyRec.Name = name
 		}
 		if key, ok := payload["template_key"].(string); ok {
-			copyRec["template_key"] = key
+			copyRec.TemplateKey = key
 		}
-		// new id
-		newID := next
-		next++
-		copyRec["id"] = newID
-		store[newID] = copyRec
+		if err := db.Create(&copyRec).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, models.ErrorResponseFunc("db error", err.Error()))
+			return
+		}
 		c.JSON(http.StatusCreated, models.SuccessResponse("created", copyRec))
 	})
 
-	// Contracts and helper endpoints used by tests
+	// Contracts and helper endpoints used by tests (DB-backed)
 	templates.GET("/contracts", func(c *gin.Context) {
-		contracts := []interface{}{
-			gin.H{"template_key": "welcome"},
-			gin.H{"template_key": "booking_confirmation"},
-			gin.H{"template_key": "password_reset"},
-			gin.H{"template_key": "invoice"},
+		db := ctx.DB
+		if db == nil {
+			c.JSON(http.StatusInternalServerError, models.ErrorResponseFunc("no db", "database not available"))
+			return
+		}
+		var contracts []templateentities.TemplateContract
+		if err := db.Find(&contracts).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, models.ErrorResponseFunc("db error", err.Error()))
+			return
 		}
 		c.JSON(http.StatusOK, models.SuccessResponse("contracts", contracts))
 	})
 
 	templates.GET("/contracts/by-key/:key", func(c *gin.Context) {
-		writeContractByKey(c, c.Param("key"))
+		key := c.Param("key")
+		writeContractByKey(c, key)
 	})
 
 	templates.GET("/contracts/:key", func(c *gin.Context) {
-		writeContractByKey(c, c.Param("key"))
+		key := c.Param("key")
+		writeContractByKey(c, key)
 	})
 
 	templates.GET("/contracts/:key/sample-data", func(c *gin.Context) {
 		key := c.Param("key")
+		db := ctx.DB
+		if db != nil {
+			var contract templateentities.TemplateContract
+			if err := db.Where("template_key = ?", key).First(&contract).Error; err == nil {
+				var m map[string]interface{}
+				_ = json.Unmarshal([]byte(contract.DefaultSampleData), &m)
+				c.JSON(http.StatusOK, models.SuccessResponse("sample data", m))
+				return
+			}
+		}
+		// Fallbacks
 		switch key {
 		case "welcome":
 			c.JSON(http.StatusOK, models.SuccessResponse("sample data", gin.H{"FirstName": "John", "LastName": "Doe"}))

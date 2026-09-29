@@ -525,5 +525,9 @@ func (h *BookingHandler) GetClientByToken(c *gin.Context) {
 		return
 	}
 
+	if orgName, err := h.service.GetOrganizationNameForUser(claims.UserID, claims.TenantID); err == nil {
+		client.OrganizationName = orgName
+	}
+
 	c.JSON(http.StatusOK, baseAPI.SuccessResponse("Client information retrieved successfully", client))
 }
