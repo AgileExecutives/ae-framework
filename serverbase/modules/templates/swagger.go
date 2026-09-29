@@ -1,7 +1,7 @@
 package templates
 
 import (
-    "github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin"
 )
 
 // The following handler stubs are documentation-only and are not used at
