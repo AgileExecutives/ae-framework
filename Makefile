@@ -15,6 +15,18 @@ help:
 	@printf "  test            Run 'go test ./...' for each module\n"
 	@printf "  run-server-test Build and run server-test binary\n"
 	@printf "  clean           Remove local build artifacts\n"
+	@printf "  swagger         Generate Swagger docs for serverbase and shared-modules\n"
+
+.PHONY: swagger
+
+SWAG_DIRS := serverbase shared-modules/audit shared-modules/booking shared-modules/calendar \
+	shared-modules/documents shared-modules/invoice shared-modules/invoice_number \
+	shared-modules/organization shared-modules/pdf shared-modules/saas-base \
+	shared-modules/settings shared-modules/static
+
+swagger:
+	@echo "Generating swagger docs via scripts/generate-swagger.sh"
+	@./scripts/generate-swagger.sh
 
 build-all:
 	@set -e; \

@@ -15,6 +15,7 @@ import (
 	templateentities "github.com/AgileExecutives/ae-framework/serverbase/modules/templates/entities"
 	"github.com/AgileExecutives/ae-framework/serverbase/modules/templates/services"
 	"github.com/AgileExecutives/ae-framework/serverbase/pkg/core"
+	"github.com/AgileExecutives/ae-framework/serverbase/pkg/models"
 	"github.com/gin-gonic/gin"
 	"gorm.io/datatypes"
 	"gorm.io/gorm"
@@ -302,7 +303,7 @@ func (r *templatesRouteProvider) RegisterRoutes(router *gin.RouterGroup, ctx cor
 	templates.POST("/render", func(c *gin.Context) {
 		var payload map[string]interface{}
 		if err := c.ShouldBindJSON(&payload); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid json"})
+			c.JSON(http.StatusBadRequest, models.ErrorResponseFunc("invalid json", "request body invalid"))
 			return
 		}
 
@@ -342,7 +343,7 @@ func (r *templatesRouteProvider) RegisterRoutes(router *gin.RouterGroup, ctx cor
 
 		key, _ := payload["template_key"].(string)
 		if key == "" {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "template_key required"})
+			c.JSON(http.StatusBadRequest, models.ErrorResponseFunc("template_key required", "template_key missing"))
 			return
 		}
 
@@ -360,7 +361,7 @@ func (r *templatesRouteProvider) RegisterRoutes(router *gin.RouterGroup, ctx cor
 		mu.Unlock()
 
 		if foundID == 0 {
-			c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
+			c.JSON(http.StatusNotFound, models.ErrorResponseFunc("template not found", "no template with that key"))
 			return
 		}
 
@@ -370,7 +371,7 @@ func (r *templatesRouteProvider) RegisterRoutes(router *gin.RouterGroup, ctx cor
 		if reqChannel != "" {
 			if recChannel, ok := rec["channel"].(string); ok {
 				if !strings.EqualFold(reqChannel, recChannel) {
-					c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
+					c.JSON(http.StatusNotFound, models.ErrorResponseFunc("template not found", "no template with that key/channel"))
 					return
 				}
 			}
@@ -380,7 +381,7 @@ func (r *templatesRouteProvider) RegisterRoutes(router *gin.RouterGroup, ctx cor
 		if dataMapPayload, ok := payload["data"].(map[string]interface{}); ok {
 			valid, errs := validateContractForKey(key, dataMapPayload)
 			if !valid {
-				c.JSON(http.StatusBadRequest, gin.H{"error": "validation failed", "errors": errs})
+				c.JSON(http.StatusBadRequest, models.ErrorResponseFunc("validation failed", strings.Join(errs, "; ")))
 				return
 			}
 		}
@@ -436,11 +437,11 @@ func (r *templatesRouteProvider) RegisterRoutes(router *gin.RouterGroup, ctx cor
 		// include subject if present in the in-memory record (render placeholders)
 		if subj, ok := rec["subject"].(string); ok && subj != "" {
 			renderedSubj := renderTemplateString(subj, payload, dataMap)
-			c.JSON(http.StatusOK, gin.H{"data": gin.H{"content": rendered, "subject": renderedSubj}})
+			c.JSON(http.StatusOK, models.SuccessResponse("rendered", gin.H{"content": rendered, "subject": renderedSubj}))
 			return
 		}
 
-		c.JSON(http.StatusOK, gin.H{"data": gin.H{"content": rendered}})
+		c.JSON(http.StatusOK, models.SuccessResponse("rendered", gin.H{"content": rendered}))
 	})
 
 	templates.GET("", func(c *gin.Context) {
@@ -449,30 +450,30 @@ func (r *templatesRouteProvider) RegisterRoutes(router *gin.RouterGroup, ctx cor
 		out := make([]interface{}, 0)
 		ttype := c.Query("template_type")
 		channel := c.Query("channel")
-		for _, rec := range store {
+		log.Printf("templates: list called filter template_type=%q channel=%q store_count=%d", ttype, channel, len(store))
+		for id, rec := range store {
+			log.Printf("templates: checking id=%v rec_channel=%v rec_template_type=%v", id, rec["channel"], rec["template_type"])
+			// If a template_type filter is provided, ensure it matches (case-insensitive)
 			if ttype != "" {
-				if recType, ok := rec["template_type"].(string); !ok || recType != ttype {
+				if recType, ok := rec["template_type"].(string); !ok || !strings.EqualFold(recType, ttype) {
 					continue
 				}
-				out = append(out, rec)
-				break
 			}
+			// If a channel filter is provided, ensure it matches (case-insensitive)
 			if channel != "" {
-				if ch, ok := rec["channel"].(string); !ok || ch != channel {
+				if ch, ok := rec["channel"].(string); !ok || !strings.EqualFold(strings.TrimSpace(ch), strings.TrimSpace(channel)) {
 					continue
 				}
-				out = append(out, rec)
-				break
 			}
 			out = append(out, rec)
 		}
-		c.JSON(http.StatusOK, gin.H{"data": out})
+		c.JSON(http.StatusOK, models.SuccessListResponse(out, 1, len(out), len(out)))
 	})
 
 	templates.POST("", func(c *gin.Context) {
 		var payload map[string]interface{}
 		if err := c.ShouldBindJSON(&payload); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid json"})
+			c.JSON(http.StatusBadRequest, models.ErrorResponseFunc("invalid json", "request body invalid"))
 			return
 		}
 		mu.Lock()
@@ -487,7 +488,7 @@ func (r *templatesRouteProvider) RegisterRoutes(router *gin.RouterGroup, ctx cor
 		}
 		store[id] = payload
 		mu.Unlock()
-		c.JSON(http.StatusCreated, gin.H{"data": payload})
+		c.JSON(http.StatusCreated, models.SuccessResponse("created", payload))
 	})
 
 	templates.GET("/default", func(c *gin.Context) {
@@ -509,10 +510,10 @@ func (r *templatesRouteProvider) RegisterRoutes(router *gin.RouterGroup, ctx cor
 					continue
 				}
 			}
-			c.JSON(http.StatusOK, gin.H{"data": rec})
+			c.JSON(http.StatusOK, models.SuccessResponse("retrieved", rec))
 			return
 		}
-		c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
+		c.JSON(http.StatusNotFound, models.ErrorResponseFunc("template not found", "no template with that id"))
 	})
 
 	templates.GET("/:id", func(c *gin.Context) {
@@ -522,10 +523,10 @@ func (r *templatesRouteProvider) RegisterRoutes(router *gin.RouterGroup, ctx cor
 		rec, ok := store[id]
 		mu.Unlock()
 		if ok {
-			c.JSON(http.StatusOK, gin.H{"data": rec})
+			c.JSON(http.StatusOK, models.SuccessResponse("retrieved", rec))
 			return
 		}
-		c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
+		c.JSON(http.StatusNotFound, models.ErrorResponseFunc("template not found", "no template with that id"))
 	})
 
 	templates.PUT("/:id", func(c *gin.Context) {
@@ -533,7 +534,7 @@ func (r *templatesRouteProvider) RegisterRoutes(router *gin.RouterGroup, ctx cor
 		fmt.Sscanf(c.Param("id"), "%d", &id)
 		var payload map[string]interface{}
 		if err := c.ShouldBindJSON(&payload); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid json"})
+			c.JSON(http.StatusBadRequest, models.ErrorResponseFunc("invalid json", "request body invalid"))
 			return
 		}
 		mu.Lock()
@@ -544,11 +545,11 @@ func (r *templatesRouteProvider) RegisterRoutes(router *gin.RouterGroup, ctx cor
 			rec["id"] = id
 			store[id] = rec
 			mu.Unlock()
-			c.JSON(http.StatusOK, gin.H{"data": rec})
+			c.JSON(http.StatusOK, models.SuccessResponse("updated", rec))
 			return
 		}
 		mu.Unlock()
-		c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
+		c.JSON(http.StatusNotFound, models.ErrorResponseFunc("template not found", "no template with that id"))
 	})
 
 	templates.POST("/:id/render", func(c *gin.Context) {
@@ -562,7 +563,7 @@ func (r *templatesRouteProvider) RegisterRoutes(router *gin.RouterGroup, ctx cor
 		rec, ok := store[id]
 		mu.Unlock()
 		if !ok {
-			c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
+			c.JSON(http.StatusNotFound, models.ErrorResponseFunc("template not found", "no template with that id"))
 			return
 		}
 		contentI, _ := rec["content"]
@@ -616,11 +617,10 @@ func (r *templatesRouteProvider) RegisterRoutes(router *gin.RouterGroup, ctx cor
 		// include subject if present in the in-memory record (render placeholders)
 		if subj, ok := rec["subject"].(string); ok && subj != "" {
 			renderedSubj := renderTemplateString(subj, payload, dataMap)
-			c.JSON(http.StatusOK, gin.H{"data": gin.H{"content": rendered, "subject": renderedSubj}})
+			c.JSON(http.StatusOK, models.SuccessResponse("rendered", gin.H{"content": rendered, "subject": renderedSubj}))
 			return
 		}
-
-		c.JSON(http.StatusOK, gin.H{"data": gin.H{"content": rendered}})
+		c.JSON(http.StatusOK, models.SuccessResponse("rendered", gin.H{"content": rendered}))
 	})
 
 	templates.DELETE("/:id", func(c *gin.Context) {
@@ -629,7 +629,7 @@ func (r *templatesRouteProvider) RegisterRoutes(router *gin.RouterGroup, ctx cor
 		mu.Lock()
 		delete(store, id)
 		mu.Unlock()
-		c.Status(http.StatusNoContent)
+		c.JSON(http.StatusNoContent, models.SuccessMessageResponse("deleted"))
 	})
 
 	templates.POST("/:id/duplicate", func(c *gin.Context) {
@@ -642,7 +642,7 @@ func (r *templatesRouteProvider) RegisterRoutes(router *gin.RouterGroup, ctx cor
 		defer mu.Unlock()
 		src, ok := store[id]
 		if !ok {
-			c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
+			c.JSON(http.StatusNotFound, models.ErrorResponseFunc("template not found", "no template with that id"))
 			return
 		}
 		// shallow copy
@@ -662,7 +662,7 @@ func (r *templatesRouteProvider) RegisterRoutes(router *gin.RouterGroup, ctx cor
 		next++
 		copyRec["id"] = newID
 		store[newID] = copyRec
-		c.JSON(http.StatusCreated, gin.H{"data": copyRec})
+		c.JSON(http.StatusCreated, models.SuccessResponse("created", copyRec))
 	})
 
 	// Contracts and helper endpoints used by tests
@@ -673,7 +673,7 @@ func (r *templatesRouteProvider) RegisterRoutes(router *gin.RouterGroup, ctx cor
 			gin.H{"template_key": "password_reset"},
 			gin.H{"template_key": "invoice"},
 		}
-		c.JSON(http.StatusOK, gin.H{"data": contracts})
+		c.JSON(http.StatusOK, models.SuccessResponse("contracts", contracts))
 	})
 
 	templates.GET("/contracts/by-key/:key", func(c *gin.Context) {
@@ -688,9 +688,9 @@ func (r *templatesRouteProvider) RegisterRoutes(router *gin.RouterGroup, ctx cor
 		key := c.Param("key")
 		switch key {
 		case "welcome":
-			c.JSON(http.StatusOK, gin.H{"data": gin.H{"FirstName": "John", "LastName": "Doe"}})
+			c.JSON(http.StatusOK, models.SuccessResponse("sample data", gin.H{"FirstName": "John", "LastName": "Doe"}))
 		default:
-			c.JSON(http.StatusOK, gin.H{"data": gin.H{}})
+			c.JSON(http.StatusOK, models.SuccessResponse("sample data", gin.H{}))
 		}
 	})
 
@@ -707,29 +707,29 @@ func (r *templatesRouteProvider) RegisterRoutes(router *gin.RouterGroup, ctx cor
 				errs = append(errs, "LastName is required")
 			}
 			valid := len(errs) == 0
-			c.JSON(http.StatusOK, gin.H{"data": gin.H{"valid": valid, "errors": errs}})
+			c.JSON(http.StatusOK, models.SuccessResponse("validated", gin.H{"valid": valid, "errors": errs}))
 			return
 		}
 		if key == "invoice" {
-			c.JSON(http.StatusOK, gin.H{"data": gin.H{"valid": true, "errors": []interface{}{}}})
+			c.JSON(http.StatusOK, models.SuccessResponse("validated", gin.H{"valid": true, "errors": []interface{}{}}))
 			return
 		}
-		c.JSON(http.StatusOK, gin.H{"data": gin.H{"valid": true, "errors": []interface{}{}}})
+		c.JSON(http.StatusOK, models.SuccessResponse("validated", gin.H{"valid": true, "errors": []interface{}{}}))
 	})
 }
 
 func writeContractByKey(c *gin.Context, key string) {
 	switch key {
 	case "welcome":
-		c.JSON(http.StatusOK, gin.H{"data": gin.H{"template_key": "welcome", "variable_schema": gin.H{"type": "object"}}})
+		c.JSON(http.StatusOK, models.SuccessResponse("contract", gin.H{"template_key": "welcome", "variable_schema": gin.H{"type": "object"}}))
 	case "booking_confirmation":
-		c.JSON(http.StatusOK, gin.H{"data": gin.H{"template_key": "booking_confirmation", "variable_schema": gin.H{"type": "object", "properties": gin.H{"Booking": gin.H{}}}}})
+		c.JSON(http.StatusOK, models.SuccessResponse("contract", gin.H{"template_key": "booking_confirmation", "variable_schema": gin.H{"type": "object", "properties": gin.H{"Booking": gin.H{}}}}))
 	case "password_reset":
-		c.JSON(http.StatusOK, gin.H{"data": gin.H{"template_key": "password_reset", "variable_schema": gin.H{"type": "object"}}})
+		c.JSON(http.StatusOK, models.SuccessResponse("contract", gin.H{"template_key": "password_reset", "variable_schema": gin.H{"type": "object"}}))
 	case "invoice":
-		c.JSON(http.StatusOK, gin.H{"data": gin.H{"template_key": "invoice", "variable_schema": gin.H{"type": "object", "properties": gin.H{"Customer": gin.H{}, "InvoiceData": gin.H{}}}}})
+		c.JSON(http.StatusOK, models.SuccessResponse("contract", gin.H{"template_key": "invoice", "variable_schema": gin.H{"type": "object", "properties": gin.H{"Customer": gin.H{}, "InvoiceData": gin.H{}}}}))
 	default:
-		c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
+		c.JSON(http.StatusNotFound, models.ErrorResponseFunc("contract not found", "no contract with that key"))
 	}
 }
 

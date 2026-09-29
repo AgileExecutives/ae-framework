@@ -366,10 +366,6 @@ fi
 if [ "${SKIP_REDUNDANT_HURL}" = "1" ] || [ "${SKIP_REDUNDANT_HURL}" = "true" ]; then
     echo -e "${YELLOW}ℹ️  SKIP_REDUNDANT_HURL is set — filtering out redundant HURL tests${NC}"
     skip_basenames=(
-        "template_rendering.hurl"
-        "template_crud.hurl"
-        "template_contracts.hurl"
-        "templates.hurl"
         "02_password_reset_full.hurl"
         "02_password_reset_flow.hurl"
         "02_auth.hurl"

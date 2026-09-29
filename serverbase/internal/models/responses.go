@@ -63,9 +63,10 @@ func SuccessMessageResponse(message string) APIResponse {
 
 // SuccessListResponse creates a success API response with paginated list data
 func SuccessListResponse(data interface{}, page, limit, total int) APIResponse {
-	totalPages := (total + limit - 1) / limit
-	if limit == 0 {
-		totalPages = 0
+	// Guard before dividing: limit can be 0 (e.g. an empty result set).
+	totalPages := 0
+	if limit > 0 {
+		totalPages = (total + limit - 1) / limit
 	}
 
 	return APIResponse{
