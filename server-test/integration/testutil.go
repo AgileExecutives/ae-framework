@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 )
@@ -14,6 +15,10 @@ import (
 // It returns the server directory and a cleanup function to stop the server.
 func StartServer(t *testing.T) (serverDir string, cleanup func()) {
 	t.Helper()
+	// Skip this integration test if running with -short flag
+	if testing.Short() {
+		t.Skip("skipping integration test in short mode")
+	}
 	// determine server-test dir relative to current working directory
 	cwd, err := os.Getwd()
 	if err != nil {
@@ -26,8 +31,22 @@ func StartServer(t *testing.T) (serverDir string, cleanup func()) {
 	}
 	for _, c := range candidates {
 		if fi, err := os.Stat(c); err == nil && fi.IsDir() {
-			serverDir = c
-			break
+			// Check if directory contains any Go files
+			entries, err := os.ReadDir(c)
+			if err != nil {
+				continue
+			}
+			hasGoFiles := false
+			for _, entry := range entries {
+				if !entry.IsDir() && strings.HasSuffix(entry.Name(), ".go") {
+					hasGoFiles = true
+					break
+				}
+			}
+			if hasGoFiles {
+				serverDir = c
+				break
+			}
 		}
 	}
 	if serverDir == "" {

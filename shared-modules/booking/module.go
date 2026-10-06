@@ -182,10 +182,19 @@ func (m *Module) Routes() []core.RouteProvider {
 // `shared-modules/booking/contracts` for the provided tenant.
 func (m *Module) RegisterContracts(ctx core.ModuleContext, tenantID uint) error {
 	registrar := templateServices.NewContractRegistrar(ctx.DB)
-	// Check shared-modules/booking/contracts
-	contractsDir := filepath.Join("shared-modules", "booking", "contracts")
-	files, err := os.ReadDir(contractsDir)
-	if err == nil {
+	
+	// Try to locate contracts directory from multiple possible locations
+	// This handles cases where the binary runs from different working directories
+	possiblePaths := []string{
+		filepath.Join("..", "shared-modules", "booking", "contracts"),
+		filepath.Join("shared-modules", "booking", "contracts"),
+	}
+	
+	for _, contractsDir := range possiblePaths {
+		files, err := os.ReadDir(contractsDir)
+		if err != nil {
+			continue
+		}
 		for _, f := range files {
 			if f.IsDir() {
 				continue
@@ -196,12 +205,20 @@ func (m *Module) RegisterContracts(ctx core.ModuleContext, tenantID uint) error 
 				}
 			}
 		}
+		break
 	}
 
 	// Also check modules/booking/contracts to support modules-owned contracts
-	altDir := filepath.Join("modules", "booking", "contracts")
-	afiles, aerr := os.ReadDir(altDir)
-	if aerr == nil {
+	modulePaths := []string{
+		filepath.Join("..", "modules", "booking", "contracts"),
+		filepath.Join("modules", "booking", "contracts"),
+	}
+	
+	for _, altDir := range modulePaths {
+		afiles, aerr := os.ReadDir(altDir)
+		if aerr != nil {
+			continue
+		}
 		for _, f := range afiles {
 			if f.IsDir() {
 				continue
@@ -212,6 +229,7 @@ func (m *Module) RegisterContracts(ctx core.ModuleContext, tenantID uint) error 
 				}
 			}
 		}
+		break
 	}
 
 	return nil

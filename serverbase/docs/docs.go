@@ -640,6 +640,96 @@ const docTemplate = `{
                 }
             }
         },
+        "/organization/logo": {
+            "get": {
+                "description": "Get the logo image for an organization (public, no auth required)",
+                "produces": [
+                    "image/png",
+                    "image/jpeg",
+                    "image/webp",
+                    "image/svg+xml"
+                ],
+                "tags": [
+                    "organizations"
+                ],
+                "summary": "Get organization logo",
+                "operationId": "getOrganizationLogo",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "organization_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Logo image",
+                        "schema": {
+                            "type": "file"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/organization/printlogo": {
+            "get": {
+                "description": "Get the print logo image for an organization (public, no auth required)",
+                "produces": [
+                    "image/png",
+                    "image/jpeg",
+                    "image/webp",
+                    "image/svg+xml"
+                ],
+                "tags": [
+                    "organizations"
+                ],
+                "summary": "Get organization print logo",
+                "operationId": "getOrganizationLogoPrint",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "organization_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Print logo image",
+                        "schema": {
+                            "type": "file"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/organizations": {
             "get": {
                 "security": [
@@ -944,6 +1034,168 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/organizations/{id}/logo": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Upload a new logo for the organization",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "organizations"
+                ],
+                "summary": "Upload organization logo",
+                "operationId": "uploadOrganizationLogo",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "Logo image (PNG, JPEG, WebP, SVG, max 10MB)",
+                        "name": "logo",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.OrganizationAPIResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse"
+                        }
+                    },
+                    "413": {
+                        "description": "Request Entity Too Large",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse"
+                        }
+                    },
+                    "415": {
+                        "description": "Unsupported Media Type",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/organizations/{id}/printlogo": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Upload a new print logo for the organization",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "organizations"
+                ],
+                "summary": "Upload organization print logo",
+                "operationId": "uploadOrganizationLogoPrint",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Organization ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "file",
+                        "description": "Print logo image (PNG, JPEG, WebP, SVG, max 10MB)",
+                        "name": "logo_print",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.OrganizationAPIResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse"
+                        }
+                    },
+                    "413": {
+                        "description": "Request Entity Too Large",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse"
+                        }
+                    },
+                    "415": {
+                        "description": "Unsupported Media Type",
                         "schema": {
                             "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse"
                         }
@@ -3025,6 +3277,10 @@ const docTemplate = `{
                 "invoice_content": {
                     "type": "object"
                 },
+                "legal_notice_url": {
+                    "type": "string",
+                    "example": "https://example.com/legal"
+                },
                 "name": {
                     "type": "string",
                     "example": "Acme Corporation"
@@ -3040,6 +3296,10 @@ const docTemplate = `{
                 "phone": {
                     "type": "string",
                     "example": "+1-555-0123"
+                },
+                "privacy_policy_url": {
+                    "type": "string",
+                    "example": "https://example.com/privacy"
                 },
                 "street_address": {
                     "type": "string",
@@ -3172,6 +3432,9 @@ const docTemplate = `{
                 "invoice_content": {
                     "type": "object"
                 },
+                "legal_notice_url": {
+                    "type": "string"
+                },
                 "line_item_double_unit_text": {
                     "type": "string"
                 },
@@ -3179,6 +3442,12 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "locale": {
+                    "type": "string"
+                },
+                "logo_content_type": {
+                    "type": "string"
+                },
+                "logo_print_content_type": {
                     "type": "string"
                 },
                 "name": {
@@ -3191,6 +3460,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "phone": {
+                    "type": "string"
+                },
+                "privacy_policy_url": {
                     "type": "string"
                 },
                 "street_address": {
@@ -3255,6 +3527,10 @@ const docTemplate = `{
                 "invoice_content": {
                     "type": "object"
                 },
+                "legal_notice_url": {
+                    "type": "string",
+                    "example": "https://example.com/legal"
+                },
                 "name": {
                     "type": "string",
                     "example": "Acme Corporation"
@@ -3270,6 +3546,10 @@ const docTemplate = `{
                 "phone": {
                     "type": "string",
                     "example": "+1-555-0123"
+                },
+                "privacy_policy_url": {
+                    "type": "string",
+                    "example": "https://example.com/privacy"
                 },
                 "street_address": {
                     "type": "string",

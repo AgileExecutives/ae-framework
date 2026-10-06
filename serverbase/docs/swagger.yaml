@@ -299,6 +299,9 @@ definitions:
         type: string
       invoice_content:
         type: object
+      legal_notice_url:
+        example: https://example.com/legal
+        type: string
       name:
         example: Acme Corporation
         type: string
@@ -310,6 +313,9 @@ definitions:
         type: string
       phone:
         example: +1-555-0123
+        type: string
+      privacy_policy_url:
+        example: https://example.com/privacy
         type: string
       street_address:
         example: 123 Business St
@@ -404,11 +410,17 @@ definitions:
         type: integer
       invoice_content:
         type: object
+      legal_notice_url:
+        type: string
       line_item_double_unit_text:
         type: string
       line_item_single_unit_text:
         type: string
       locale:
+        type: string
+      logo_content_type:
+        type: string
+      logo_print_content_type:
         type: string
       name:
         type: string
@@ -417,6 +429,8 @@ definitions:
       owner_title:
         type: string
       phone:
+        type: string
+      privacy_policy_url:
         type: string
       street_address:
         type: string
@@ -461,6 +475,9 @@ definitions:
         type: string
       invoice_content:
         type: object
+      legal_notice_url:
+        example: https://example.com/legal
+        type: string
       name:
         example: Acme Corporation
         type: string
@@ -472,6 +489,9 @@ definitions:
         type: string
       phone:
         example: +1-555-0123
+        type: string
+      privacy_policy_url:
+        example: https://example.com/privacy
         type: string
       street_address:
         example: 123 Business St
@@ -1005,6 +1025,68 @@ paths:
       summary: Health check
       tags:
       - health
+  /organization/logo:
+    get:
+      description: Get the logo image for an organization (public, no auth required)
+      operationId: getOrganizationLogo
+      parameters:
+      - description: Organization ID
+        in: query
+        name: organization_id
+        required: true
+        type: integer
+      produces:
+      - image/png
+      - image/jpeg
+      - image/webp
+      - image/svg+xml
+      responses:
+        "200":
+          description: Logo image
+          schema:
+            type: file
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse'
+      summary: Get organization logo
+      tags:
+      - organizations
+  /organization/printlogo:
+    get:
+      description: Get the print logo image for an organization (public, no auth required)
+      operationId: getOrganizationLogoPrint
+      parameters:
+      - description: Organization ID
+        in: query
+        name: organization_id
+        required: true
+        type: integer
+      produces:
+      - image/png
+      - image/jpeg
+      - image/webp
+      - image/svg+xml
+      responses:
+        "200":
+          description: Print logo image
+          schema:
+            type: file
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse'
+      summary: Get organization print logo
+      tags:
+      - organizations
   /organizations:
     get:
       description: Retrieve all organizations for the authenticated user with pagination
@@ -1194,6 +1276,112 @@ paths:
       security:
       - BearerAuth: []
       summary: Update an organization
+      tags:
+      - organizations
+  /organizations/{id}/logo:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Upload a new logo for the organization
+      operationId: uploadOrganizationLogo
+      parameters:
+      - description: Organization ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Logo image (PNG, JPEG, WebP, SVG, max 10MB)
+        in: formData
+        name: logo
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.OrganizationAPIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse'
+        "413":
+          description: Request Entity Too Large
+          schema:
+            $ref: '#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse'
+        "415":
+          description: Unsupported Media Type
+          schema:
+            $ref: '#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Upload organization logo
+      tags:
+      - organizations
+  /organizations/{id}/printlogo:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Upload a new print logo for the organization
+      operationId: uploadOrganizationLogoPrint
+      parameters:
+      - description: Organization ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Print logo image (PNG, JPEG, WebP, SVG, max 10MB)
+        in: formData
+        name: logo_print
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.OrganizationAPIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse'
+        "413":
+          description: Request Entity Too Large
+          schema:
+            $ref: '#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse'
+        "415":
+          description: Unsupported Media Type
+          schema:
+            $ref: '#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Upload organization print logo
       tags:
       - organizations
   /organizations/supported-formats:

@@ -261,3 +261,65 @@ func TestOrganizationService_SetTemplateService_Nil(t *testing.T) {
 
 // ensure context import does not go unused when template service is nil
 var _ = context.Background
+
+// ─── Logo Upload Tests ────────────────────────────────────────────────
+
+func TestOrganizationService_UpdateLogo_Success(t *testing.T) {
+	svc, db := setupOrgTest(t)
+	defer testutils.CleanupTestDB(db)
+
+	org, err := svc.CreateOrganization(makeCreateOrgReq(), 1)
+	require.NoError(t, err)
+
+	logoData := []byte{0x89, 0x50, 0x4E, 0x47}
+	updated, err := svc.UpdateOrganizationLogo(org.ID, 1, logoData, "image/png")
+	require.NoError(t, err)
+	require.NotNil(t, updated)
+	require.Equal(t, logoData, updated.Logo)
+	require.Equal(t, "image/png", updated.LogoContentType)
+}
+
+func TestOrganizationService_UpdateLogoPrint_Success(t *testing.T) {
+	svc, db := setupOrgTest(t)
+	defer testutils.CleanupTestDB(db)
+
+	org, err := svc.CreateOrganization(makeCreateOrgReq(), 1)
+	require.NoError(t, err)
+
+	logoData := []byte{0x89, 0x50, 0x4E, 0x47}
+	updated, err := svc.UpdateOrganizationLogoPrint(org.ID, 1, logoData, "image/jpeg")
+	require.NoError(t, err)
+	require.NotNil(t, updated)
+	require.Equal(t, logoData, updated.LogoPrint)
+	require.Equal(t, "image/jpeg", updated.LogoPrintContentType)
+}
+
+func TestOrganizationService_UpdateLogo_NotFound(t *testing.T) {
+	svc, db := setupOrgTest(t)
+	defer testutils.CleanupTestDB(db)
+
+	logoData := []byte{0x89, 0x50, 0x4E, 0x47}
+	_, err := svc.UpdateOrganizationLogo(9999, 1, logoData, "image/png")
+	require.Error(t, err)
+}
+
+func TestOrganizationService_GetByIDPublic_Success(t *testing.T) {
+	svc, db := setupOrgTest(t)
+	defer testutils.CleanupTestDB(db)
+
+	org, err := svc.CreateOrganization(makeCreateOrgReq(), 1)
+	require.NoError(t, err)
+
+	retrieved, err := svc.GetOrganizationByIDPublic(org.ID)
+	require.NoError(t, err)
+	require.NotNil(t, retrieved)
+	require.Equal(t, org.ID, retrieved.ID)
+}
+
+func TestOrganizationService_GetByIDPublic_NotFound(t *testing.T) {
+	svc, db := setupOrgTest(t)
+	defer testutils.CleanupTestDB(db)
+
+	_, err := svc.GetOrganizationByIDPublic(9999)
+	require.Error(t, err)
+}

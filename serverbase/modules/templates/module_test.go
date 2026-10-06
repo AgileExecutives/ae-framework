@@ -17,11 +17,30 @@ func TestTemplateRoutesExposeSeededDefaultAndContractAlias(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	router := gin.New()
 	mod := NewTemplatesModule()
-	ctx := core.ModuleContext{}
+
+	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
+	if err != nil {
+		t.Fatalf("open sqlite db: %v", err)
+	}
+
+	ctx := core.ModuleContext{DB: db}
 
 	if err := mod.Initialize(ctx); err != nil {
 		t.Fatalf("initialize templates module: %v", err)
 	}
+
+	// Seed default templates for tenant 1
+	if err := registerTemplatesForTenant(ctx, 1); err != nil {
+		t.Fatalf("register templates for tenant: %v", err)
+	}
+
+	// Register contracts for testing
+	registrar := services.NewContractRegistrar(db)
+	welcomeJSON := []byte(`{"type":"object","properties":{"User":{"type":"object"}},"template_key":"welcome"}`)
+	if err := registrar.RegisterContractFromBytes(1, "user", "welcome-contract.json", welcomeJSON); err != nil {
+		t.Fatalf("register welcome contract: %v", err)
+	}
+
 	for _, routeProvider := range mod.Routes() {
 		routeProvider.RegisterRoutes(router.Group("/api/v1"), ctx)
 	}

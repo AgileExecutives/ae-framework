@@ -123,6 +123,20 @@ func main() {
 		log.Fatalf("module init failed: %v", err)
 	}
 
+	// Register template contracts for all modules directly
+	// Since modules implement RegisterContracts, call it for each module
+	for _, mod := range modules {
+		if rc, ok := mod.(interface {
+			RegisterContracts(core.ModuleContext, uint) error
+		}); ok {
+			// For now, register contracts for tenant ID 1 (the default tenant created by seed)
+			log.Printf("Registering contracts for module: %v", mod.Name())
+			if err := rc.RegisterContracts(coreCtx, 1); err != nil {
+				log.Printf("warning: failed to register contracts for module %v: %v", mod.Name(), err)
+			}
+		}
+	}
+
 	// Merge swagger docs from all modules and mount the UI endpoint.
 	swagger.SetupAndMount(docRegistry, ginEngine, swagger.ServerInfo{
 		Title:       "AE SaaS API (test)",

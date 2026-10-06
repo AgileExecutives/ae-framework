@@ -28,24 +28,35 @@ func RegisterAllContracts(ctx core.ModuleContext) error {
 	contractFiles := map[string][]string{}
 	// helper to scan a base directory for <module>/contracts/*.json
 	scanContracts := func(baseDir string) {
-		entries, _ := os.ReadDir(baseDir)
-		for _, e := range entries {
-			if !e.IsDir() {
-				continue
-			}
-			modName := e.Name()
-			contractsDir := filepath.Join(baseDir, modName, "contracts")
-			files, err := os.ReadDir(contractsDir)
+		// Try multiple possible paths to handle different working directories
+		// Prioritize parent directory path for server-test binary scenario
+		possiblePaths := []string{filepath.Join("..", baseDir), baseDir}
+		for _, path := range possiblePaths {
+			entries, err := os.ReadDir(path)
 			if err != nil {
 				continue
 			}
-			for _, f := range files {
-				if f.IsDir() {
+			for _, e := range entries {
+				if !e.IsDir() {
 					continue
 				}
-				if strings.HasSuffix(f.Name(), ".json") {
-					contractFiles[modName] = append(contractFiles[modName], filepath.Join(contractsDir, f.Name()))
+				modName := e.Name()
+				contractsDir := filepath.Join(path, modName, "contracts")
+				files, err := os.ReadDir(contractsDir)
+				if err != nil {
+					continue
 				}
+				for _, f := range files {
+					if f.IsDir() {
+						continue
+					}
+					if strings.HasSuffix(f.Name(), ".json") {
+						contractFiles[modName] = append(contractFiles[modName], filepath.Join(contractsDir, f.Name()))
+					}
+				}
+			}
+			if len(contractFiles) > 0 {
+				break
 			}
 		}
 	}
@@ -58,13 +69,15 @@ func RegisterAllContracts(ctx core.ModuleContext) error {
 		fmt.Printf("📝 Registering contracts for tenant ID: %d\n", tenant.ID)
 
 		// Iterate all registered modules and call RegisterContracts if available
-		modules := ctx.ModuleRegistry.GetAll()
-		for _, mod := range modules {
-			if rc, ok := mod.(interface {
-				RegisterContracts(core.ModuleContext, uint) error
-			}); ok {
-				if err := rc.RegisterContracts(ctx, tenant.ID); err != nil {
-					return fmt.Errorf("module %s RegisterContracts: %w", mod.Name(), err)
+		if ctx.ModuleRegistry != nil {
+			modules := ctx.ModuleRegistry.GetAll()
+			for _, mod := range modules {
+				if rc, ok := mod.(interface {
+					RegisterContracts(core.ModuleContext, uint) error
+				}); ok {
+					if err := rc.RegisterContracts(ctx, tenant.ID); err != nil {
+						return fmt.Errorf("module %s RegisterContracts: %w", mod.Name(), err)
+					}
 				}
 			}
 		}
@@ -108,26 +121,37 @@ func RegisterContractsForTenant(ctx core.ModuleContext, tenantID uint) error {
 	// Fallback: scan both shared-modules and modules for JSON contract files
 	registrar := templateServices.NewContractRegistrar(db)
 	scanContracts := func(baseDir string) error {
-		entries, _ := os.ReadDir(baseDir)
-		for _, e := range entries {
-			if !e.IsDir() {
-				continue
-			}
-			modName := e.Name()
-			contractsDir := filepath.Join(baseDir, modName, "contracts")
-			files, err := os.ReadDir(contractsDir)
+		// Try multiple possible paths to handle different working directories
+		// Prioritize parent directory path for server-test binary scenario
+		possiblePaths := []string{filepath.Join("..", baseDir), baseDir}
+		for _, path := range possiblePaths {
+			entries, err := os.ReadDir(path)
 			if err != nil {
 				continue
 			}
-			for _, f := range files {
-				if f.IsDir() {
+			for _, e := range entries {
+				if !e.IsDir() {
 					continue
 				}
-				if strings.HasSuffix(f.Name(), ".json") {
-					if err := registrar.RegisterContractFromFile(tenantID, modName, filepath.Join(contractsDir, f.Name())); err != nil {
-						return fmt.Errorf("register contract %s for module %s tenant %d: %w", filepath.Join(contractsDir, f.Name()), modName, tenantID, err)
+				modName := e.Name()
+				contractsDir := filepath.Join(path, modName, "contracts")
+				files, err := os.ReadDir(contractsDir)
+				if err != nil {
+					continue
+				}
+				for _, f := range files {
+					if f.IsDir() {
+						continue
+					}
+					if strings.HasSuffix(f.Name(), ".json") {
+						if err := registrar.RegisterContractFromFile(tenantID, modName, filepath.Join(contractsDir, f.Name())); err != nil {
+							return fmt.Errorf("register contract %s for module %s tenant %d: %w", filepath.Join(contractsDir, f.Name()), modName, tenantID, err)
+						}
 					}
 				}
+			}
+			if entries != nil {
+				break
 			}
 		}
 		return nil

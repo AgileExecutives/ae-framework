@@ -13,6 +13,7 @@ type Channel string
 const (
 	ChannelEmail Channel = "EMAIL"
 	ChannelSMS   Channel = "SMS"
+	ChannelPDF   Channel = "PDF"
 )
 
 // Template represents a stored template metadata record

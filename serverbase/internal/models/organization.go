@@ -30,6 +30,12 @@ type Organization struct {
 	BankAccountIBAN          string         `gorm:"size:100" json:"bankaccount_iban"`
 	AdditionalPaymentMethods datatypes.JSON `gorm:"type:jsonb" json:"additional_payment_methods"`
 	InvoiceContent           datatypes.JSON `gorm:"type:jsonb" json:"invoice_content"`
+	LegalNoticeURL           string         `gorm:"size:500" json:"legal_notice_url"`
+	PrivacyPolicyURL         string         `gorm:"size:500" json:"privacy_policy_url"`
+	Logo                     []byte         `gorm:"type:bytea" json:"logo,omitempty"`
+	LogoPrint                []byte         `gorm:"type:bytea" json:"logo_print,omitempty"`
+	LogoContentType          string         `gorm:"size:50" json:"logo_content_type"`
+	LogoPrintContentType     string         `gorm:"size:50" json:"logo_print_content_type"`
 
 	CreatedAt time.Time      `json:"created_at"`
 	UpdatedAt time.Time      `json:"updated_at"`
@@ -61,6 +67,8 @@ type CreateOrganizationRequest struct {
 	BankAccountIBAN          string         `json:"bankaccount_iban,omitempty" example:"DE89370400440532013000"`
 	AdditionalPaymentMethods datatypes.JSON `json:"additional_payment_methods,omitempty" swaggertype:"object"`
 	InvoiceContent           datatypes.JSON `json:"invoice_content,omitempty" swaggertype:"object"`
+	LegalNoticeURL           string         `json:"legal_notice_url,omitempty" example:"https://example.com/legal"`
+	PrivacyPolicyURL         string         `json:"privacy_policy_url,omitempty" example:"https://example.com/privacy"`
 }
 
 // UpdateOrganizationRequest represents the request payload for updating an organization
@@ -83,6 +91,8 @@ type UpdateOrganizationRequest struct {
 	BankAccountIBAN          *string        `json:"bankaccount_iban,omitempty" example:"DE89370400440532013000"`
 	AdditionalPaymentMethods datatypes.JSON `json:"additional_payment_methods,omitempty" swaggertype:"object"`
 	InvoiceContent           datatypes.JSON `json:"invoice_content,omitempty" swaggertype:"object"`
+	LegalNoticeURL           *string        `json:"legal_notice_url,omitempty" example:"https://example.com/legal"`
+	PrivacyPolicyURL         *string        `json:"privacy_policy_url,omitempty" example:"https://example.com/privacy"`
 }
 
 // OrganizationResponse represents the response format for organization data
@@ -107,6 +117,10 @@ type OrganizationResponse struct {
 	BankAccountIBAN          string         `json:"bankaccount_iban"`
 	AdditionalPaymentMethods datatypes.JSON `json:"additional_payment_methods" swaggertype:"object"`
 	InvoiceContent           datatypes.JSON `json:"invoice_content" swaggertype:"object"`
+	LegalNoticeURL           string         `json:"legal_notice_url"`
+	PrivacyPolicyURL         string         `json:"privacy_policy_url"`
+	LogoContentType          string         `json:"logo_content_type"`
+	LogoPrintContentType     string         `json:"logo_print_content_type"`
 	Locale                   string         `json:"locale"`
 	DateFormat               string         `json:"date_format"`
 	TimeFormat               string         `json:"time_format"`
@@ -165,6 +179,10 @@ func (o *Organization) ToResponse() OrganizationResponse {
 		BankAccountIBAN:          o.BankAccountIBAN,
 		AdditionalPaymentMethods: o.AdditionalPaymentMethods,
 		InvoiceContent:           o.InvoiceContent,
+		LegalNoticeURL:           o.LegalNoticeURL,
+		PrivacyPolicyURL:         o.PrivacyPolicyURL,
+		LogoContentType:          o.LogoContentType,
+		LogoPrintContentType:     o.LogoPrintContentType,
 		CreatedAt:                o.CreatedAt,
 		UpdatedAt:                o.UpdatedAt,
 	}

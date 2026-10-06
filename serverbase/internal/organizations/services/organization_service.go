@@ -180,12 +180,64 @@ func (s *OrganizationService) UpdateOrganization(id, tenantID uint, req models.U
 	if req.InvoiceContent != nil {
 		organization.InvoiceContent = req.InvoiceContent
 	}
+	if req.LegalNoticeURL != nil {
+		organization.LegalNoticeURL = *req.LegalNoticeURL
+	}
+	if req.PrivacyPolicyURL != nil {
+		organization.PrivacyPolicyURL = *req.PrivacyPolicyURL
+	}
 
 	if err := s.repo.Update(ctx, organization); err != nil {
 		return nil, fmt.Errorf("failed to update organization: %w", err)
 	}
 
 	return organization, nil
+}
+
+// UpdateOrganizationLogo updates the organization logo
+func (s *OrganizationService) UpdateOrganizationLogo(id, tenantID uint, logo []byte, contentType string) (*models.Organization, error) {
+	ctx := context.Background()
+	organization, err := s.repo.GetByID(ctx, id, tenantID)
+	if err != nil {
+		return nil, fmt.Errorf("organization with ID %d not found", id)
+	}
+
+	organization.Logo = logo
+	organization.LogoContentType = contentType
+
+	if err := s.repo.Update(ctx, organization); err != nil {
+		return nil, fmt.Errorf("failed to update organization logo: %w", err)
+	}
+
+	return organization, nil
+}
+
+// UpdateOrganizationLogoPrint updates the organization print logo
+func (s *OrganizationService) UpdateOrganizationLogoPrint(id, tenantID uint, logoPrint []byte, contentType string) (*models.Organization, error) {
+	ctx := context.Background()
+	organization, err := s.repo.GetByID(ctx, id, tenantID)
+	if err != nil {
+		return nil, fmt.Errorf("organization with ID %d not found", id)
+	}
+
+	organization.LogoPrint = logoPrint
+	organization.LogoPrintContentType = contentType
+
+	if err := s.repo.Update(ctx, organization); err != nil {
+		return nil, fmt.Errorf("failed to update organization print logo: %w", err)
+	}
+
+	return organization, nil
+}
+
+// GetOrganizationByIDPublic returns an organization by ID without tenant filtering (for public logo retrieval)
+func (s *OrganizationService) GetOrganizationByIDPublic(id uint) (*models.Organization, error) {
+	ctx := context.Background()
+	org, err := s.repo.GetByIDPublic(ctx, id)
+	if err != nil {
+		return nil, fmt.Errorf("organization with ID %d not found", id)
+	}
+	return org, nil
 }
 
 // DeleteOrganization deletes an organization (soft delete)

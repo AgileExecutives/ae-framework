@@ -25,7 +25,13 @@ func (rp *RouteProvider) RegisterRoutes(router *gin.RouterGroup, ctx core.Module
 		organizations.GET("/:id", rp.handler.GetOrganization)
 		organizations.PUT("/:id", rp.handler.UpdateOrganization)
 		organizations.DELETE("/:id", rp.handler.DeleteOrganization)
+		organizations.POST("/:id/logo", rp.handler.UploadLogo)
+		organizations.POST("/:id/printlogo", rp.handler.UploadLogoPrint)
 	}
+
+	// Public logo endpoints (no authentication required)
+	router.GET("/organization/logo", rp.handler.GetLogo)
+	router.GET("/organization/printlogo", rp.handler.GetLogoPrint)
 }
 
 // GetPrefix returns the route prefix for organization endpoints

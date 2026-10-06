@@ -37,6 +37,16 @@ func (r *InMemoryOrganizationRepo) GetByID(ctx context.Context, id, tenantID uin
 	return &o, nil
 }
 
+func (r *InMemoryOrganizationRepo) GetByIDPublic(ctx context.Context, id uint) (*models.Organization, error) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	o, ok := r.organizations[id]
+	if !ok {
+		return nil, errors.New("not found")
+	}
+	return &o, nil
+}
+
 func (r *InMemoryOrganizationRepo) ListByTenant(ctx context.Context, offset, limit int, tenantID uint) ([]models.Organization, int64, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()

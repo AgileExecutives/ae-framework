@@ -23,6 +23,14 @@ func (r *GormOrganizationRepo) GetByID(ctx context.Context, id, tenantID uint) (
 	return &org, nil
 }
 
+func (r *GormOrganizationRepo) GetByIDPublic(ctx context.Context, id uint) (*models.Organization, error) {
+	var org models.Organization
+	if err := r.db.WithContext(ctx).Where("id = ?", id).First(&org).Error; err != nil {
+		return nil, err
+	}
+	return &org, nil
+}
+
 func (r *GormOrganizationRepo) ListByTenant(ctx context.Context, offset, limit int, tenantID uint) ([]models.Organization, int64, error) {
 	var organizations []models.Organization
 	var total int64

@@ -10,6 +10,7 @@ import (
 type OrganizationRepo interface {
 	Create(ctx context.Context, o *models.Organization) error
 	GetByID(ctx context.Context, id, tenantID uint) (*models.Organization, error)
+	GetByIDPublic(ctx context.Context, id uint) (*models.Organization, error)
 	ListByTenant(ctx context.Context, offset, limit int, tenantID uint) ([]models.Organization, int64, error)
 	Update(ctx context.Context, o *models.Organization) error
 	Delete(ctx context.Context, id, tenantID uint) error
