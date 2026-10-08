@@ -15,6 +15,7 @@ import (
 	orghandlers "github.com/AgileExecutives/ae-framework/serverbase/internal/organizations/handlers"
 	orgrepo "github.com/AgileExecutives/ae-framework/serverbase/internal/organizations/repo"
 	orgservices "github.com/AgileExecutives/ae-framework/serverbase/internal/organizations/services"
+	orgroutes "github.com/AgileExecutives/ae-framework/serverbase/internal/organizations/routes"
 	"github.com/AgileExecutives/ae-framework/serverbase/module"
 	"github.com/AgileExecutives/ae-framework/serverbase/pkg/core"
 	"github.com/gin-gonic/gin"
@@ -49,14 +50,7 @@ func (r *organizationsRouteProvider) RegisterRoutes(router *gin.RouterGroup, ctx
 	svc := orgservices.NewOrganizationServiceWithRepo(repo)
 	h := orghandlers.NewOrganizationHandler(svc)
 
-	organizations := router.Group("/organizations")
-	organizations.Use(ctx.Auth.RequireAuth())
-	{
-		organizations.GET("/supported-formats", h.GetSupportedFormats)
-		organizations.POST("", h.CreateOrganization)
-		organizations.GET("", h.GetAllOrganizations)
-		organizations.GET(":id", h.GetOrganization)
-		organizations.PUT(":id", h.UpdateOrganization)
-		organizations.DELETE(":id", h.DeleteOrganization)
-	}
+	// Use the routes from the routes package to include all endpoints
+	rp := orgroutes.NewRouteProvider(h)
+	rp.RegisterRoutes(router, ctx)
 }

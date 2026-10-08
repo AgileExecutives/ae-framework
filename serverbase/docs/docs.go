@@ -57,19 +57,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.APIResponse"
+                            "$ref": "#/definitions/models.APIResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     }
                 }
@@ -101,7 +101,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.APIResponse"
+                                    "$ref": "#/definitions/models.APIResponse"
                                 },
                                 {
                                     "type": "object",
@@ -125,7 +125,7 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     }
                 }
@@ -157,7 +157,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.APIResponse"
+                                    "$ref": "#/definitions/models.APIResponse"
                                 },
                                 {
                                     "type": "object",
@@ -184,7 +184,7 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     }
                 }
@@ -224,13 +224,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.APIResponse"
+                            "$ref": "#/definitions/models.APIResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     }
                 }
@@ -257,7 +257,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.LoginRequest"
+                            "$ref": "#/definitions/models.LoginRequest"
                         }
                     }
                 ],
@@ -267,13 +267,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.APIResponse"
+                                    "$ref": "#/definitions/models.APIResponse"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.LoginResponse"
+                                            "$ref": "#/definitions/models.LoginResponse"
                                         }
                                     }
                                 }
@@ -283,13 +283,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     }
                 }
@@ -318,19 +318,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.APIResponse"
+                            "$ref": "#/definitions/models.APIResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     }
                 }
@@ -361,13 +361,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.APIResponse"
+                                    "$ref": "#/definitions/models.APIResponse"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.UserResponse"
+                                            "$ref": "#/definitions/models.UserResponse"
                                         }
                                     }
                                 }
@@ -377,7 +377,7 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     }
                 }
@@ -424,13 +424,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.APIResponse"
+                            "$ref": "#/definitions/models.APIResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     }
                 }
@@ -454,7 +454,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handlers.PasswordRequirements"
+                            "$ref": "#/definitions/base_handlers.PasswordRequirements"
                         }
                     }
                 }
@@ -485,13 +485,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.APIResponse"
+                                    "$ref": "#/definitions/models.APIResponse"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.LoginResponse"
+                                            "$ref": "#/definitions/models.LoginResponse"
                                         }
                                     }
                                 }
@@ -501,13 +501,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     }
                 }
@@ -534,7 +534,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.UserCreateRequest"
+                            "$ref": "#/definitions/models.UserCreateRequest"
                         }
                     }
                 ],
@@ -544,13 +544,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.APIResponse"
+                                    "$ref": "#/definitions/models.APIResponse"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.LoginResponse"
+                                            "$ref": "#/definitions/models.LoginResponse"
                                         }
                                     }
                                 }
@@ -560,13 +560,13 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "409": {
                         "description": "Conflict",
                         "schema": {
-                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     }
                 }
@@ -599,13 +599,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.APIResponse"
+                            "$ref": "#/definitions/models.APIResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     }
                 }
@@ -673,13 +673,13 @@ const docTemplate = `{
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     }
                 }
@@ -718,13 +718,13 @@ const docTemplate = `{
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     }
                 }
@@ -772,13 +772,13 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     }
                 }
@@ -822,19 +822,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     }
                 }
@@ -897,25 +897,25 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     }
                 }
@@ -966,25 +966,25 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     }
                 }
@@ -1023,25 +1023,25 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     }
                 }
@@ -1092,37 +1092,37 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "413": {
                         "description": "Request Entity Too Large",
                         "schema": {
-                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "415": {
                         "description": "Unsupported Media Type",
                         "schema": {
-                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     }
                 }
@@ -1173,37 +1173,37 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "413": {
                         "description": "Request Entity Too Large",
                         "schema": {
-                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "415": {
                         "description": "Unsupported Media Type",
                         "schema": {
-                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     }
                 }
@@ -1248,7 +1248,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/entities.HealthResponse"
+                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_pkg_settings_entities.HealthResponse"
                         }
                     },
                     "500": {
@@ -1281,7 +1281,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/entities.ModuleListResponse"
+                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_pkg_settings_entities.ModuleListResponse"
                         }
                     },
                     "500": {
@@ -1328,7 +1328,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/entities.SettingsResponse"
+                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_pkg_settings_entities.SettingsResponse"
                         }
                     },
                     "400": {
@@ -1392,7 +1392,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/entities.SettingRequest"
+                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_pkg_settings_entities.SettingRequest"
                         }
                     }
                 ],
@@ -1400,7 +1400,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/entities.SettingResponse"
+                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_pkg_settings_entities.SettingResponse"
                         }
                     },
                     "400": {
@@ -1466,7 +1466,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/entities.BulkSettingRequest"
+                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_pkg_settings_entities.BulkSettingRequest"
                         }
                     }
                 ],
@@ -1542,7 +1542,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/entities.DomainResponse"
+                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_pkg_settings_entities.DomainResponse"
                         }
                     },
                     "401": {
@@ -1688,7 +1688,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/entities.DomainSettingsRequest"
+                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_pkg_settings_entities.DomainSettingsRequest"
                         }
                     }
                 ],
@@ -1994,7 +1994,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/entities.ValidationRequest"
+                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_pkg_settings_entities.ValidationRequest"
                         }
                     }
                 ],
@@ -2002,13 +2002,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/entities.ValidationResponse"
+                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_pkg_settings_entities.ValidationResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/entities.ValidationResponse"
+                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_pkg_settings_entities.ValidationResponse"
                         }
                     },
                     "401": {
@@ -2088,7 +2088,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/entities.SettingResponse"
+                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_pkg_settings_entities.SettingResponse"
                         }
                     },
                     "400": {
@@ -2681,13 +2681,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.APIResponse"
+                                    "$ref": "#/definitions/models.APIResponse"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handlers.UserSettings"
+                                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_modules_base_handlers.UserSettings"
                                         }
                                     }
                                 }
@@ -2697,13 +2697,13 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     }
                 }
@@ -2733,7 +2733,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/handlers.UserSettingsUpdateRequest"
+                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_modules_base_handlers.UserSettingsUpdateRequest"
                         }
                     }
                 ],
@@ -2743,13 +2743,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.APIResponse"
+                                    "$ref": "#/definitions/models.APIResponse"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handlers.UserSettings"
+                                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_modules_base_handlers.UserSettings"
                                         }
                                     }
                                 }
@@ -2759,19 +2759,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     }
                 }
@@ -2802,13 +2802,13 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.APIResponse"
+                                    "$ref": "#/definitions/models.APIResponse"
                                 },
                                 {
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/handlers.UserSettings"
+                                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_modules_base_handlers.UserSettings"
                                         }
                                     }
                                 }
@@ -2818,19 +2818,19 @@ const docTemplate = `{
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse"
+                            "$ref": "#/definitions/models.ErrorResponse"
                         }
                     }
                 }
@@ -2838,7 +2838,143 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "entities.BulkSettingRequest": {
+        "base_handlers.PasswordRequirements": {
+            "type": "object",
+            "properties": {
+                "min_length": {
+                    "type": "integer",
+                    "example": 8
+                },
+                "require_number": {
+                    "type": "boolean"
+                },
+                "require_special": {
+                    "type": "boolean"
+                },
+                "require_upper": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "base_handlers.UserSettings": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "language": {
+                    "type": "string",
+                    "example": "en"
+                },
+                "settings": {
+                    "type": "string",
+                    "example": "{}"
+                },
+                "theme": {
+                    "type": "string",
+                    "example": "light"
+                },
+                "timezone": {
+                    "type": "string",
+                    "example": "UTC"
+                },
+                "user_id": {
+                    "type": "integer",
+                    "example": 1
+                }
+            }
+        },
+        "base_handlers.UserSettingsUpdateRequest": {
+            "type": "object",
+            "properties": {
+                "language": {
+                    "type": "string",
+                    "example": "en"
+                },
+                "settings": {
+                    "type": "string",
+                    "example": "{}"
+                },
+                "theme": {
+                    "type": "string",
+                    "example": "light"
+                },
+                "timezone": {
+                    "type": "string",
+                    "example": "UTC"
+                }
+            }
+        },
+        "github_com_AgileExecutives_ae-framework_serverbase_modules_base_handlers.PasswordRequirements": {
+            "type": "object",
+            "properties": {
+                "min_length": {
+                    "type": "integer",
+                    "example": 8
+                },
+                "require_number": {
+                    "type": "boolean"
+                },
+                "require_special": {
+                    "type": "boolean"
+                },
+                "require_upper": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "github_com_AgileExecutives_ae-framework_serverbase_modules_base_handlers.UserSettings": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "language": {
+                    "type": "string",
+                    "example": "en"
+                },
+                "settings": {
+                    "type": "string",
+                    "example": "{}"
+                },
+                "theme": {
+                    "type": "string",
+                    "example": "light"
+                },
+                "timezone": {
+                    "type": "string",
+                    "example": "UTC"
+                },
+                "user_id": {
+                    "type": "integer",
+                    "example": 1
+                }
+            }
+        },
+        "github_com_AgileExecutives_ae-framework_serverbase_modules_base_handlers.UserSettingsUpdateRequest": {
+            "type": "object",
+            "properties": {
+                "language": {
+                    "type": "string",
+                    "example": "en"
+                },
+                "settings": {
+                    "type": "string",
+                    "example": "{}"
+                },
+                "theme": {
+                    "type": "string",
+                    "example": "light"
+                },
+                "timezone": {
+                    "type": "string",
+                    "example": "UTC"
+                }
+            }
+        },
+        "github_com_AgileExecutives_ae-framework_serverbase_pkg_settings_entities.BulkSettingRequest": {
             "type": "object",
             "required": [
                 "settings"
@@ -2847,12 +2983,12 @@ const docTemplate = `{
                 "settings": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/entities.SettingRequest"
+                        "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_pkg_settings_entities.SettingRequest"
                     }
                 }
             }
         },
-        "entities.DomainResponse": {
+        "github_com_AgileExecutives_ae-framework_serverbase_pkg_settings_entities.DomainResponse": {
             "type": "object",
             "properties": {
                 "domains": {
@@ -2863,7 +2999,7 @@ const docTemplate = `{
                 }
             }
         },
-        "entities.DomainSettingsRequest": {
+        "github_com_AgileExecutives_ae-framework_serverbase_pkg_settings_entities.DomainSettingsRequest": {
             "type": "object",
             "required": [
                 "settings"
@@ -2875,7 +3011,7 @@ const docTemplate = `{
                 }
             }
         },
-        "entities.HealthResponse": {
+        "github_com_AgileExecutives_ae-framework_serverbase_pkg_settings_entities.HealthResponse": {
             "type": "object",
             "properties": {
                 "database": {
@@ -2896,7 +3032,7 @@ const docTemplate = `{
                 }
             }
         },
-        "entities.ModuleListResponse": {
+        "github_com_AgileExecutives_ae-framework_serverbase_pkg_settings_entities.ModuleListResponse": {
             "type": "object",
             "properties": {
                 "modules": {
@@ -2907,7 +3043,7 @@ const docTemplate = `{
                 }
             }
         },
-        "entities.SettingRequest": {
+        "github_com_AgileExecutives_ae-framework_serverbase_pkg_settings_entities.SettingRequest": {
             "type": "object",
             "required": [
                 "data",
@@ -2929,7 +3065,7 @@ const docTemplate = `{
                 }
             }
         },
-        "entities.SettingResponse": {
+        "github_com_AgileExecutives_ae-framework_serverbase_pkg_settings_entities.SettingResponse": {
             "type": "object",
             "properties": {
                 "created_at": {
@@ -2966,7 +3102,7 @@ const docTemplate = `{
                 }
             }
         },
-        "entities.SettingsResponse": {
+        "github_com_AgileExecutives_ae-framework_serverbase_pkg_settings_entities.SettingsResponse": {
             "type": "object",
             "properties": {
                 "settings": {
@@ -2978,7 +3114,7 @@ const docTemplate = `{
                 }
             }
         },
-        "entities.ValidationRequest": {
+        "github_com_AgileExecutives_ae-framework_serverbase_pkg_settings_entities.ValidationRequest": {
             "type": "object",
             "required": [
                 "domain",
@@ -2995,7 +3131,7 @@ const docTemplate = `{
                 }
             }
         },
-        "entities.ValidationResponse": {
+        "github_com_AgileExecutives_ae-framework_serverbase_pkg_settings_entities.ValidationResponse": {
             "type": "object",
             "properties": {
                 "errors": {
@@ -3010,7 +3146,7 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_AgileExecutives_ae-framework_serverbase_internal_models.APIResponse": {
+        "models.APIResponse": {
             "type": "object",
             "properties": {
                 "data": {},
@@ -3022,222 +3158,6 @@ const docTemplate = `{
                 },
                 "success": {
                     "type": "boolean"
-                }
-            }
-        },
-        "github_com_AgileExecutives_ae-framework_serverbase_internal_models.ErrorResponse": {
-            "type": "object",
-            "properties": {
-                "code": {
-                    "type": "integer"
-                },
-                "details": {
-                    "type": "string"
-                },
-                "error": {
-                    "type": "string"
-                }
-            }
-        },
-        "github_com_AgileExecutives_ae-framework_serverbase_internal_models.LoginRequest": {
-            "type": "object",
-            "required": [
-                "password"
-            ],
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
-                },
-                "username": {
-                    "type": "string"
-                }
-            }
-        },
-        "github_com_AgileExecutives_ae-framework_serverbase_internal_models.LoginResponse": {
-            "type": "object",
-            "properties": {
-                "token": {
-                    "type": "string"
-                },
-                "user": {
-                    "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.UserResponse"
-                }
-            }
-        },
-        "github_com_AgileExecutives_ae-framework_serverbase_internal_models.TenantResponse": {
-            "type": "object",
-            "properties": {
-                "created_at": {
-                    "type": "string"
-                },
-                "customer_id": {
-                    "type": "integer"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "slug": {
-                    "type": "string"
-                }
-            }
-        },
-        "github_com_AgileExecutives_ae-framework_serverbase_internal_models.UserCreateRequest": {
-            "type": "object",
-            "required": [
-                "email",
-                "first_name",
-                "last_name",
-                "password",
-                "username"
-            ],
-            "properties": {
-                "accept_terms": {
-                    "description": "Terms and conditions acceptance",
-                    "type": "boolean"
-                },
-                "company_name": {
-                    "description": "Required unless user-signup token is present",
-                    "type": "string"
-                },
-                "email": {
-                    "type": "string"
-                },
-                "first_name": {
-                    "type": "string"
-                },
-                "last_name": {
-                    "type": "string"
-                },
-                "newsletter_opt_in": {
-                    "description": "Newsletter subscription",
-                    "type": "boolean"
-                },
-                "password": {
-                    "type": "string"
-                },
-                "role": {
-                    "type": "string"
-                },
-                "username": {
-                    "type": "string"
-                }
-            }
-        },
-        "github_com_AgileExecutives_ae-framework_serverbase_internal_models.UserResponse": {
-            "type": "object",
-            "properties": {
-                "active": {
-                    "type": "boolean"
-                },
-                "created_at": {
-                    "type": "string"
-                },
-                "email": {
-                    "type": "string"
-                },
-                "email_verified": {
-                    "type": "boolean"
-                },
-                "email_verified_at": {
-                    "type": "string"
-                },
-                "first_name": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "last_name": {
-                    "type": "string"
-                },
-                "organization_id": {
-                    "type": "integer"
-                },
-                "role": {
-                    "type": "string"
-                },
-                "tenant": {
-                    "$ref": "#/definitions/github_com_AgileExecutives_ae-framework_serverbase_internal_models.TenantResponse"
-                },
-                "tenant_id": {
-                    "type": "integer"
-                },
-                "username": {
-                    "type": "string"
-                }
-            }
-        },
-        "handlers.PasswordRequirements": {
-            "type": "object",
-            "properties": {
-                "min_length": {
-                    "type": "integer",
-                    "example": 8
-                },
-                "require_number": {
-                    "type": "boolean"
-                },
-                "require_special": {
-                    "type": "boolean"
-                },
-                "require_upper": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "handlers.UserSettings": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "integer",
-                    "example": 1
-                },
-                "language": {
-                    "type": "string",
-                    "example": "en"
-                },
-                "settings": {
-                    "type": "string",
-                    "example": "{}"
-                },
-                "theme": {
-                    "type": "string",
-                    "example": "light"
-                },
-                "timezone": {
-                    "type": "string",
-                    "example": "UTC"
-                },
-                "user_id": {
-                    "type": "integer",
-                    "example": 1
-                }
-            }
-        },
-        "handlers.UserSettingsUpdateRequest": {
-            "type": "object",
-            "properties": {
-                "language": {
-                    "type": "string",
-                    "example": "en"
-                },
-                "settings": {
-                    "type": "string",
-                    "example": "{}"
-                },
-                "theme": {
-                    "type": "string",
-                    "example": "light"
-                },
-                "timezone": {
-                    "type": "string",
-                    "example": "UTC"
                 }
             }
         },
@@ -3324,6 +3244,48 @@ const docTemplate = `{
                 "zip": {
                     "type": "string",
                     "example": "12345"
+                }
+            }
+        },
+        "models.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "details": {
+                    "type": "string"
+                },
+                "error": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.LoginRequest": {
+            "type": "object",
+            "required": [
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.LoginResponse": {
+            "type": "object",
+            "properties": {
+                "token": {
+                    "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/models.UserResponse"
                 }
             }
         },
@@ -3494,6 +3456,26 @@ const docTemplate = `{
                 }
             }
         },
+        "models.TenantResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "customer_id": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "slug": {
+                    "type": "string"
+                }
+            }
+        },
         "models.UpdateOrganizationRequest": {
             "type": "object",
             "properties": {
@@ -3574,6 +3556,92 @@ const docTemplate = `{
                 "zip": {
                     "type": "string",
                     "example": "12345"
+                }
+            }
+        },
+        "models.UserCreateRequest": {
+            "type": "object",
+            "required": [
+                "email",
+                "first_name",
+                "last_name",
+                "password",
+                "username"
+            ],
+            "properties": {
+                "accept_terms": {
+                    "description": "Terms and conditions acceptance",
+                    "type": "boolean"
+                },
+                "company_name": {
+                    "description": "Required unless user-signup token is present",
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "first_name": {
+                    "type": "string"
+                },
+                "last_name": {
+                    "type": "string"
+                },
+                "newsletter_opt_in": {
+                    "description": "Newsletter subscription",
+                    "type": "boolean"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.UserResponse": {
+            "type": "object",
+            "properties": {
+                "active": {
+                    "type": "boolean"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "email_verified": {
+                    "type": "boolean"
+                },
+                "email_verified_at": {
+                    "type": "string"
+                },
+                "first_name": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "last_name": {
+                    "type": "string"
+                },
+                "organization_id": {
+                    "type": "integer"
+                },
+                "role": {
+                    "type": "string"
+                },
+                "tenant": {
+                    "$ref": "#/definitions/models.TenantResponse"
+                },
+                "tenant_id": {
+                    "type": "integer"
+                },
+                "username": {
+                    "type": "string"
                 }
             }
         },

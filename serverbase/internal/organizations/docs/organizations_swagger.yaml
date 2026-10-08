@@ -251,6 +251,68 @@ info:
   title: Organizations API
   version: 1.0.0
 paths:
+  /organization/logo:
+    get:
+      description: Get the logo image for an organization (public, no auth required)
+      operationId: getOrganizationLogo
+      parameters:
+      - description: Organization ID
+        in: query
+        name: organization_id
+        required: true
+        type: integer
+      produces:
+      - image/png
+      - image/jpeg
+      - image/webp
+      - image/svg+xml
+      responses:
+        "200":
+          description: Logo image
+          schema:
+            type: file
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Get organization logo
+      tags:
+      - organizations
+  /organization/printlogo:
+    get:
+      description: Get the print logo image for an organization (public, no auth required)
+      operationId: getOrganizationLogoPrint
+      parameters:
+      - description: Organization ID
+        in: query
+        name: organization_id
+        required: true
+        type: integer
+      produces:
+      - image/png
+      - image/jpeg
+      - image/webp
+      - image/svg+xml
+      responses:
+        "200":
+          description: Print logo image
+          schema:
+            type: file
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrorResponse'
+      summary: Get organization print logo
+      tags:
+      - organizations
   /organizations:
     get:
       description: Retrieve all organizations for the authenticated user with pagination
@@ -442,21 +504,6 @@ paths:
       summary: Update an organization
       tags:
       - organizations
-  /organizations/supported-formats:
-    get:
-      description: Get all supported date, time, and amount formats with examples
-      operationId: getSupportedFormats
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Supported formats with examples
-          schema:
-            additionalProperties: true
-            type: object
-      summary: Get supported formats
-      tags:
-      - organizations
   /organizations/{id}/logo:
     post:
       consumes:
@@ -563,66 +610,19 @@ paths:
       summary: Upload organization print logo
       tags:
       - organizations
-  /organization/logo:
+  /organizations/supported-formats:
     get:
-      description: Get the logo image for an organization (public, no auth required)
-      operationId: getOrganizationLogo
-      parameters:
-      - description: Organization ID
-        in: query
-        name: organization_id
-        required: true
-        type: integer
+      description: Get all supported date, time, and amount formats with examples
+      operationId: getSupportedFormats
       produces:
-      - image/png
-      - image/jpeg
-      - image/webp
-      - image/svg+xml
+      - application/json
       responses:
         "200":
-          description: Logo image
+          description: Supported formats with examples
           schema:
-            type: file
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/models.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/models.ErrorResponse'
-      summary: Get organization logo
-      tags:
-      - organizations
-  /organization/printlogo:
-    get:
-      description: Get the print logo image for an organization (public, no auth required)
-      operationId: getOrganizationLogoPrint
-      parameters:
-      - description: Organization ID
-        in: query
-        name: organization_id
-        required: true
-        type: integer
-      produces:
-      - image/png
-      - image/jpeg
-      - image/webp
-      - image/svg+xml
-      responses:
-        "200":
-          description: Print logo image
-          schema:
-            type: file
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/models.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/models.ErrorResponse'
-      summary: Get organization print logo
+            additionalProperties: true
+            type: object
+      summary: Get supported formats
       tags:
       - organizations
 securityDefinitions:

@@ -40,7 +40,7 @@ for d in "${SWAG_DIRS[@]}"; do
   if [ -f "$d/module.go" ]; then
     (cd "$d" && swag init -g module.go --instanceName "$instance" -o docs)
   elif [ -f "$d/server.go" ]; then
-    (cd "$d" && swag init -g server.go --instanceName "$instance" -o docs)
+    (cd "$d" && swag init -g server.go -d .,./internal,./modules,./pkg --instanceName "$instance" -o docs)
   else
     (cd "$d" && swag init --instanceName "$instance" -o docs)
   fi
